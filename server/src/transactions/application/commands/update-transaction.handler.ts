@@ -1,8 +1,10 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import {
-  Transaction,
-  TransactionType,
-} from '@transactions/domain/transaction.entity';
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { TransactionType } from '@transactions/domain/transaction.entity';
 import {
   TRANSACTION_REPOSITORY,
   TransactionRepository,
@@ -14,25 +16,23 @@ import {
 import { TransactionResponseDto } from '@transactions/application/dto/transaction-response.dto';
 import { TransactionResponseMapper } from '@transactions/application/mappers/transaction-response.mapper';
 
-export interface CreateTransactionCommand {
-  amount: number;
-  currency: string;
-  type: 'income' | 'expense';
-  categoryIds: string[];
-  description: string;
-  date: Date;
+export interface UpdateTransactionCommand {
+  id: string;
+  amount?: number;
+  currency?: string;
+  type?: 'income' | 'expense';
+  categoryIds?: string[];
+  description?: string;
+  date?: Date;
 }
 
-const COMMAND_TYPE_MAP: Record<
-  CreateTransactionCommand['type'],
-  TransactionType
-> = {
+const COMMAND_TYPE_MAP: Record<string, TransactionType> = {
   income: TransactionType.Income,
   expense: TransactionType.Expense,
 };
 
 @Injectable()
-export class CreateTransactionHandler {
+export class UpdateTransactionHandler {
   constructor(
     @Inject(TRANSACTION_REPOSITORY)
     private readonly repo: TransactionRepository,
@@ -41,24 +41,30 @@ export class CreateTransactionHandler {
   ) {}
 
   async execute(
-    command: CreateTransactionCommand,
+    command: UpdateTransactionCommand,
   ): Promise<TransactionResponseDto> {
-    if (command.categoryIds.length > 0) {
+    const existing = await this.repo.findById(command.id);
+    if (!existing) {
+      throw new NotFoundException(`Transaction ${command.id} not found`);
+    }
+
+    if (command.categoryIds && command.categoryIds.length > 0) {
       const found = await this.categoryRepo.findByIds(command.categoryIds);
       if (found.length !== command.categoryIds.length) {
         throw new BadRequestException('One or more category IDs are invalid');
       }
     }
 
-    const transaction = Transaction.create({
+    const updated = existing.update({
       amount: command.amount,
       currency: command.currency,
-      type: COMMAND_TYPE_MAP[command.type],
+      type: command.type ? COMMAND_TYPE_MAP[command.type] : undefined,
       categoryIds: command.categoryIds,
       description: command.description,
       date: command.date,
     });
-    const saved = await this.repo.save(transaction);
+
+    const saved = await this.repo.save(updated);
     return TransactionResponseMapper.toDto(saved);
   }
 }

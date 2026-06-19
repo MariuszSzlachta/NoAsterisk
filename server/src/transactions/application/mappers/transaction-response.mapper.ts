@@ -1,7 +1,13 @@
-import { Transaction, TransactionType } from '@transactions/domain/transaction.entity';
+import {
+  Transaction,
+  TransactionType,
+} from '@transactions/domain/transaction.entity';
 import { TransactionResponseDto } from '@transactions/application/dto/transaction-response.dto';
 
-const TRANSACTION_TYPE_MAP: Record<TransactionType, TransactionResponseDto['type']> = {
+const TRANSACTION_TYPE_MAP: Record<
+  TransactionType,
+  TransactionResponseDto['type']
+> = {
   [TransactionType.Income]: 'income',
   [TransactionType.Expense]: 'expense',
 };
@@ -13,7 +19,7 @@ export class TransactionResponseMapper {
       amount: entity.money.amount,
       currency: entity.money.currency,
       type: TRANSACTION_TYPE_MAP[entity.type],
-      category: entity.category,
+      categoryIds: entity.categoryIds,
       description: entity.description,
       date: entity.date.toISOString(),
       createdAt: entity.createdAt.toISOString(),

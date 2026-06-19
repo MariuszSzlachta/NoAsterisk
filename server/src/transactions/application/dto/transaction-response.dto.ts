@@ -3,7 +3,7 @@ export interface TransactionResponseDto {
   amount: number;
   currency: string;
   type: 'income' | 'expense';
-  category: string;
+  categoryIds: string[];
   description: string;
   date: string;
   createdAt: string;

@@ -12,7 +12,7 @@ export class Transaction {
     public readonly id: string,
     public readonly money: Money,
     public readonly type: TransactionType,
-    public readonly category: string,
+    public readonly categoryIds: string[],
     public readonly description: string,
     public readonly date: Date,
     public readonly createdAt: Date,
@@ -23,16 +23,13 @@ export class Transaction {
     if (!isTransactionType(type)) {
       throw new DomainError(`Invalid transaction type: ${type}`);
     }
-    if (!category.trim()) {
-      throw new DomainError('Category cannot be empty');
-    }
   }
 
   static create(props: {
     amount: number;
     currency: string;
     type: TransactionType;
-    category: string;
+    categoryIds: string[];
     description: string;
     date: Date;
   }): Transaction {
@@ -40,11 +37,66 @@ export class Transaction {
       crypto.randomUUID(),
       Money.of(props.amount, props.currency),
       props.type,
-      props.category,
+      props.categoryIds,
       props.description,
       props.date,
       new Date(),
     );
+  }
+
+  update(props: {
+    amount?: number;
+    currency?: string;
+    type?: TransactionType;
+    categoryIds?: string[];
+    description?: string;
+    date?: Date;
+  }): Transaction {
+    return new Transaction(
+      this.id,
+      props.amount !== undefined || props.currency !== undefined
+        ? Money.of(
+            props.amount ?? this.money.amount,
+            props.currency ?? this.money.currency,
+          )
+        : this.money,
+      props.type ?? this.type,
+      props.categoryIds ?? this.categoryIds,
+      props.description ?? this.description,
+      props.date ?? this.date,
+      this.createdAt,
+    );
+  }
+
+  assignCategory(categoryId: string): Transaction {
+    if (this.categoryIds.includes(categoryId)) {
+      return this;
+    }
+    return new Transaction(
+      this.id,
+      this.money,
+      this.type,
+      [...this.categoryIds, categoryId],
+      this.description,
+      this.date,
+      this.createdAt,
+    );
+  }
+
+  removeCategory(categoryId: string): Transaction {
+    return new Transaction(
+      this.id,
+      this.money,
+      this.type,
+      this.categoryIds.filter((id) => id !== categoryId),
+      this.description,
+      this.date,
+      this.createdAt,
+    );
+  }
+
+  hasCategory(categoryId: string): boolean {
+    return this.categoryIds.includes(categoryId);
   }
 
   isExpense(): boolean {

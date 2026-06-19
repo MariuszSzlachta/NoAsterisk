@@ -4,9 +4,45 @@ export const CreateTransactionDto = z.object({
   amount: z.number().positive(),
   currency: z.string().min(3).max(3),
   type: z.enum(['income', 'expense']),
-  category: z.string().min(1),
+  categoryIds: z.array(z.string().uuid()).max(10).default([]),
   description: z.string().max(1000),
   date: z.coerce.date(),
 });
 
 export type CreateTransactionDto = z.infer<typeof CreateTransactionDto>;
+
+export const UpdateTransactionDto = z
+  .object({
+    amount: z.number().positive().optional(),
+    currency: z.string().min(3).max(3).optional(),
+    type: z.enum(['income', 'expense']).optional(),
+    categoryIds: z.array(z.string().uuid()).max(10).optional(),
+    description: z.string().min(1).max(1000).optional(),
+    date: z.coerce.date().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
+
+export type UpdateTransactionDto = z.infer<typeof UpdateTransactionDto>;
+
+export const TransactionQueryDto = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: z
+    .enum(['date', 'amount', 'type', 'createdAt'])
+    .default('date'),
+  sortDir: z.enum(['asc', 'desc']).default('desc'),
+  type: z.enum(['income', 'expense']).optional(),
+  categoryIds: z
+    .union([z.string().uuid(), z.array(z.string().uuid()).max(10)])
+    .transform((val) => (Array.isArray(val) ? val : [val]))
+    .optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  amountMin: z.coerce.number().optional(),
+  amountMax: z.coerce.number().optional(),
+  description: z.string().max(255).optional(),
+});
+
+export type TransactionQueryDto = z.infer<typeof TransactionQueryDto>;

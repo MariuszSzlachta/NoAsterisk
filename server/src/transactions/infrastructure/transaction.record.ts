@@ -3,7 +3,7 @@ export interface TransactionRecord {
   amount: number;
   currency: string;
   type: string;
-  category: string;
+  category_ids: string[];
   description: string;
   date: string;
   created_at: string;
