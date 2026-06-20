@@ -1,13 +1,12 @@
 import { Transaction } from '@transactions/domain/transaction.entity';
-import { PagedQuery, PagedResult } from '@shared/application/types/paged-query.types';
+import {
+  PagedQuery,
+  PagedResult,
+} from '@shared/application/types/paged-query.types';
 
 export const TRANSACTION_REPOSITORY = Symbol('TRANSACTION_REPOSITORY');
 
-export type TransactionSortField =
-  | 'date'
-  | 'amount'
-  | 'type'
-  | 'createdAt';
+export type TransactionSortField = 'date' | 'amount' | 'type' | 'createdAt';
 
 export interface TransactionFilter {
   type?: string;
@@ -27,7 +26,10 @@ export interface TransactionRepository {
     query: PagedQuery<TransactionFilter, TransactionSortField>,
   ): Promise<PagedResult<Transaction>>;
   existsByCategoryId(categoryId: string): Promise<boolean>;
-  existsByContentHash(workspaceId: string, contentHash: string): Promise<boolean>;
+  existsByContentHash(
+    workspaceId: string,
+    contentHash: string,
+  ): Promise<boolean>;
   deleteByBatchId(workspaceId: string, batchId: string): Promise<number>;
   delete(id: string): Promise<void>;
 }

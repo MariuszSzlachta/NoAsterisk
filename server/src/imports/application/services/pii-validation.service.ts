@@ -8,9 +8,7 @@ import {
 
 @Injectable()
 export class PiiValidationService {
-  constructor(
-    @Inject(PII_RULES) private readonly rules: PiiRule[],
-  ) {}
+  constructor(@Inject(PII_RULES) private readonly rules: PiiRule[]) {}
 
   validate(fields: FieldToValidate[]): PiiViolation[] {
     return fields.flatMap((field) => this.checkField(field));

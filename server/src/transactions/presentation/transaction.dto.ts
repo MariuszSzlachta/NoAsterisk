@@ -29,9 +29,7 @@ export type UpdateTransactionDto = z.infer<typeof UpdateTransactionDto>;
 export const TransactionQueryDto = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  sortBy: z
-    .enum(['date', 'amount', 'type', 'createdAt'])
-    .default('date'),
+  sortBy: z.enum(['date', 'amount', 'type', 'createdAt']).default('date'),
   sortDir: z.enum(['asc', 'desc']).default('desc'),
   type: z.enum(['income', 'expense']).optional(),
   categoryIds: z

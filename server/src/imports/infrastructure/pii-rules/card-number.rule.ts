@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PiiRule, PiiViolationType } from '@imports/application/ports/pii-rule.port';
+import {
+  PiiRule,
+  PiiViolationType,
+} from '@imports/application/ports/pii-rule.port';
 
 const CARD_PATTERN = /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/;
 

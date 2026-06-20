@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PiiRule, PiiViolationType } from '@imports/application/ports/pii-rule.port';
+import {
+  PiiRule,
+  PiiViolationType,
+} from '@imports/application/ports/pii-rule.port';
 
 // Polish phone: +48 followed by 9 digits (with optional spaces)
 // International: + followed by country code and number (9-15 digits total)

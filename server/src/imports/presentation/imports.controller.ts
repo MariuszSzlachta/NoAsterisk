@@ -21,9 +21,7 @@ const TEMP_WORKSPACE_ID = 'ws-default';
 
 @Controller('imports')
 export class ImportsController {
-  constructor(
-    private readonly importHandler: ImportTransactionsHandler,
-  ) {}
+  constructor(private readonly importHandler: ImportTransactionsHandler) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

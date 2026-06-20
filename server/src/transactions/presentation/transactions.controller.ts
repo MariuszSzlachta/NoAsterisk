@@ -24,7 +24,10 @@ import {
 } from '@transactions/presentation/transaction.dto';
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { UuidParam } from '@shared/presentation/common.dto';
-import { PagedResult, SortDirection } from '@shared/application/types/paged-query.types';
+import {
+  PagedResult,
+  SortDirection,
+} from '@shared/application/types/paged-query.types';
 
 const SORT_DIR_MAP: Record<'asc' | 'desc', SortDirection> = {
   asc: SortDirection.Asc,
@@ -53,7 +56,8 @@ export class TransactionsController {
 
   @Get()
   async findPaged(
-    @Query(new ZodValidationPipe(TransactionQueryDto)) query: TransactionQueryDto,
+    @Query(new ZodValidationPipe(TransactionQueryDto))
+    query: TransactionQueryDto,
   ): Promise<PagedResult<TransactionResponseDto>> {
     return this.getPagedHandler.execute({
       page: { page: query.page, limit: query.limit },
@@ -80,7 +84,8 @@ export class TransactionsController {
   @Put(':id')
   async update(
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
-    @Body(new ZodValidationPipe(UpdateTransactionDto)) dto: UpdateTransactionDto,
+    @Body(new ZodValidationPipe(UpdateTransactionDto))
+    dto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
     return this.updateHandler.execute({ id, ...dto });
   }

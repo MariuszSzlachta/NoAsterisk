@@ -7,7 +7,10 @@ import {
 } from '@transactions/application/ports/transaction.repository';
 import { TransactionResponseDto } from '@transactions/application/dto/transaction-response.dto';
 import { TransactionResponseMapper } from '@transactions/application/mappers/transaction-response.mapper';
-import { PagedQuery, PagedResult } from '@shared/application/types/paged-query.types';
+import {
+  PagedQuery,
+  PagedResult,
+} from '@shared/application/types/paged-query.types';
 
 @Injectable()
 export class GetTransactionsPagedHandler {

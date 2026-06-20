@@ -87,7 +87,11 @@ describe('ImportsController', () => {
           ...validPayload,
           batchHash: 'c'.repeat(64),
           rows: [
-            { ...validRow, contentHash: 'd'.repeat(64), description: 'Przelew na PL61109010140000071219812874' },
+            {
+              ...validRow,
+              contentHash: 'd'.repeat(64),
+              description: 'Przelew na PL61109010140000071219812874',
+            },
           ],
         });
 

@@ -20,7 +20,10 @@ import { TransactionsModule } from '@transactions/transactions.module';
   providers: [
     ImportTransactionsHandler,
     PiiValidationService,
-    { provide: IMPORT_BATCH_REPOSITORY, useClass: InMemoryImportBatchRepository },
+    {
+      provide: IMPORT_BATCH_REPOSITORY,
+      useClass: InMemoryImportBatchRepository,
+    },
     {
       provide: PII_RULES,
       useFactory: (): PiiRule[] => [

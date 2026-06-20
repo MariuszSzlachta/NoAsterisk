@@ -6,6 +6,9 @@ export interface ImportBatchRepository {
   save(batch: ImportBatch): Promise<ImportBatch>;
   findById(id: string): Promise<ImportBatch | undefined>;
   findByWorkspaceId(workspaceId: string): Promise<ImportBatch[]>;
-  findByBatchHash(workspaceId: string, batchHash: string): Promise<ImportBatch | undefined>;
+  findByBatchHash(
+    workspaceId: string,
+    batchHash: string,
+  ): Promise<ImportBatch | undefined>;
   delete(id: string): Promise<void>;
 }

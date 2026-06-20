@@ -8,11 +8,17 @@ describe('IbanRule', () => {
   const rule = new IbanRule();
 
   const POSITIVE_CASES = [
-    { input: 'Przelew na 61109010140000071219812874', label: 'Polish 26 digits (valid mod97)' },
+    {
+      input: 'Przelew na 61109010140000071219812874',
+      label: 'Polish 26 digits (valid mod97)',
+    },
     { input: 'PL61109010140000071219812874', label: 'Polish with PL prefix' },
     { input: 'DE89370400440532013000', label: 'German IBAN' },
     { input: 'GB29NWBK60161331926819', label: 'UK IBAN' },
-    { input: 'Rachunek: 61109010140000071219812874', label: 'embedded in text' },
+    {
+      input: 'Rachunek: 61109010140000071219812874',
+      label: 'embedded in text',
+    },
     { input: 'PL61 1090 1014 0000 0712 1981 2874', label: 'with spaces' },
   ];
 
@@ -22,7 +28,10 @@ describe('IbanRule', () => {
     { input: 'OPERATION_B8791B80', label: 'hash-like string' },
     { input: 'ref:123456789012345', label: 'reference number (too short)' },
     { input: '100.00 PLN', label: 'amount' },
-    { input: '12345678901234567890123456', label: '26 digits but invalid mod97' },
+    {
+      input: '12345678901234567890123456',
+      label: '26 digits but invalid mod97',
+    },
   ];
 
   it.each(POSITIVE_CASES)('detects: $label', ({ input }) => {
@@ -41,7 +50,10 @@ describe('CardNumberRule', () => {
     { input: '4111111111111111', label: 'Visa test number (Luhn valid)' },
     { input: '4111 1111 1111 1111', label: 'Visa with spaces' },
     { input: '4111-1111-1111-1111', label: 'Visa with dashes' },
-    { input: 'Karta: 5500000000000004', label: 'Mastercard embedded (Luhn valid)' },
+    {
+      input: 'Karta: 5500000000000004',
+      label: 'Mastercard embedded (Luhn valid)',
+    },
   ];
 
   const NEGATIVE_CASES = [
@@ -97,7 +109,10 @@ describe('EmailRule', () => {
 
   const NEGATIVE_CASES = [
     { input: 'allegro.pl', label: 'domain without @' },
-    { input: 'Zakup BLIK allegro.pl WIERZBIĘCICE', label: 'domain in description' },
+    {
+      input: 'Zakup BLIK allegro.pl WIERZBIĘCICE',
+      label: 'domain in description',
+    },
     { input: '@mention', label: 'at-mention' },
     { input: 'normal transaction description', label: 'plain text' },
   ];

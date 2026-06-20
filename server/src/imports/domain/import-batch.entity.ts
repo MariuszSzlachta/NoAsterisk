@@ -35,9 +35,7 @@ export class ImportBatch {
       throw new DomainError('ImportBatch savedRows cannot be negative');
     }
     if (savedRows > totalRows) {
-      throw new DomainError(
-        'ImportBatch savedRows cannot exceed totalRows',
-      );
+      throw new DomainError('ImportBatch savedRows cannot exceed totalRows');
     }
   }
 
@@ -67,9 +65,7 @@ export class ImportBatch {
     }
     const newSaved = this.savedRows + count;
     if (newSaved > this.totalRows) {
-      throw new DomainError(
-        'Saved rows count would exceed totalRows',
-      );
+      throw new DomainError('Saved rows count would exceed totalRows');
     }
     const isComplete = newSaved === this.totalRows;
     return new ImportBatch(

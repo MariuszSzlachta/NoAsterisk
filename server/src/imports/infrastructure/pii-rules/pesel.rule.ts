@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PiiRule, PiiViolationType } from '@imports/application/ports/pii-rule.port';
+import {
+  PiiRule,
+  PiiViolationType,
+} from '@imports/application/ports/pii-rule.port';
 
 // PESEL: 11 digits, standalone (not part of longer number)
 // Validates checksum to reduce false positives

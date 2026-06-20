@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PiiRule, PiiViolationType } from '@imports/application/ports/pii-rule.port';
+import {
+  PiiRule,
+  PiiViolationType,
+} from '@imports/application/ports/pii-rule.port';
 
 // International IBAN with country code prefix, or Polish 26 digits standalone
-const IBAN_WITH_PREFIX = /\b[A-Z]{2}\d{2}\s?[\dA-Z]{4}\s?[\dA-Z]{4}\s?[\dA-Z]{4}\s?[\dA-Z\s]{2,18}\b/;
+const IBAN_WITH_PREFIX =
+  /\b[A-Z]{2}\d{2}\s?[\dA-Z]{4}\s?[\dA-Z]{4}\s?[\dA-Z]{4}\s?[\dA-Z\s]{2,18}\b/;
 const POLISH_BARE = /\b\d{26}\b/;
 
 @Injectable()

@@ -69,9 +69,14 @@ export class ImportTransactionsHandler {
 
     const { clean, rejected } = this.partitionByPii(command.rows);
 
-    const { saved, duplicatesSkipped } = clean.length > 0
-      ? await this.saveNewTransactions(command.workspaceId, command.batchId, clean)
-      : { saved: 0, duplicatesSkipped: 0 };
+    const { saved, duplicatesSkipped } =
+      clean.length > 0
+        ? await this.saveNewTransactions(
+            command.workspaceId,
+            command.batchId,
+            clean,
+          )
+        : { saved: 0, duplicatesSkipped: 0 };
 
     if (saved > 0) {
       await this.batchRepo.save(batch.recordSavedRows(saved));
@@ -80,9 +85,10 @@ export class ImportTransactionsHandler {
     return { saved, duplicatesSkipped, rejected };
   }
 
-  private partitionByPii(
-    rows: ImportTransactionRow[],
-  ): { clean: ImportTransactionRow[]; rejected: RejectedRow[] } {
+  private partitionByPii(rows: ImportTransactionRow[]): {
+    clean: ImportTransactionRow[];
+    rejected: RejectedRow[];
+  } {
     const fields: FieldToValidate[] = rows.map((row, index) => ({
       value: row.description,
       field: 'description',

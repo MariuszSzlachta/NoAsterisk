@@ -1,5 +1,8 @@
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
-import { PiiRule, PiiViolationType } from '@imports/application/ports/pii-rule.port';
+import {
+  PiiRule,
+  PiiViolationType,
+} from '@imports/application/ports/pii-rule.port';
 
 describe('PiiValidationService', () => {
   const alwaysDetects: PiiRule = {

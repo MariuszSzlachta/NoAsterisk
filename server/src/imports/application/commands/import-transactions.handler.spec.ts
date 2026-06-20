@@ -6,7 +6,10 @@ import {
 } from '@imports/application/commands/import-transactions.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
-import { ImportBatch, ImportBatchStatus } from '@imports/domain/import-batch.entity';
+import {
+  ImportBatch,
+  ImportBatchStatus,
+} from '@imports/domain/import-batch.entity';
 import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 
@@ -16,7 +19,9 @@ describe('ImportTransactionsHandler', () => {
   let transactionRepo: jest.Mocked<TransactionRepository>;
   let piiService: jest.Mocked<PiiValidationService>;
 
-  const buildRow = (overrides?: Partial<ImportTransactionRow>): ImportTransactionRow => ({
+  const buildRow = (
+    overrides?: Partial<ImportTransactionRow>,
+  ): ImportTransactionRow => ({
     amount: 100,
     currency: 'PLN',
     type: 'expense',
@@ -27,12 +32,17 @@ describe('ImportTransactionsHandler', () => {
     ...overrides,
   });
 
-  const buildCommand = (overrides?: Partial<ImportTransactionsCommand>): ImportTransactionsCommand => ({
+  const buildCommand = (
+    overrides?: Partial<ImportTransactionsCommand>,
+  ): ImportTransactionsCommand => ({
     batchId: 'batch-001',
     workspaceId: 'ws-001',
     batchHash: 'batch-hash-abc',
     sourceFilename: 'historia.csv',
-    rows: [buildRow({ contentHash: 'hash-1' }), buildRow({ contentHash: 'hash-2' })],
+    rows: [
+      buildRow({ contentHash: 'hash-1' }),
+      buildRow({ contentHash: 'hash-2' }),
+    ],
     ...overrides,
   });
 
@@ -48,7 +58,10 @@ describe('ImportTransactionsHandler', () => {
       save: jest.fn().mockImplementation((t) => Promise.resolve(t)),
       findAll: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockResolvedValue(undefined),
-      findPaged: jest.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } }),
+      findPaged: jest.fn().mockResolvedValue({
+        data: [],
+        meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      }),
       existsByCategoryId: jest.fn().mockResolvedValue(false),
       existsByContentHash: jest.fn().mockResolvedValue(false),
       deleteByBatchId: jest.fn().mockResolvedValue(0),
@@ -57,7 +70,11 @@ describe('ImportTransactionsHandler', () => {
     piiService = {
       validate: jest.fn().mockReturnValue([]),
     } as unknown as jest.Mocked<PiiValidationService>;
-    handler = new ImportTransactionsHandler(batchRepo, transactionRepo, piiService);
+    handler = new ImportTransactionsHandler(
+      batchRepo,
+      transactionRepo,
+      piiService,
+    );
   });
 
   afterEach(() => {
@@ -124,7 +141,7 @@ describe('ImportTransactionsHandler', () => {
   describe('deduplication', () => {
     it('skips duplicate transactions by content hash', async () => {
       transactionRepo.existsByContentHash
-        .mockResolvedValueOnce(true)  // hash-1 exists
+        .mockResolvedValueOnce(true) // hash-1 exists
         .mockResolvedValueOnce(false); // hash-2 is new
 
       const command = buildCommand();
@@ -194,7 +211,8 @@ describe('ImportTransactionsHandler', () => {
       const command = buildCommand();
       await handler.execute(command);
 
-      const lastSaveCall = batchRepo.save.mock.calls[batchRepo.save.mock.calls.length - 1];
+      const lastSaveCall =
+        batchRepo.save.mock.calls[batchRepo.save.mock.calls.length - 1];
       const updatedBatch = lastSaveCall?.[0] as ImportBatch;
       expect(updatedBatch.savedRows).toBe(2);
       expect(updatedBatch.status).toBe(ImportBatchStatus.Complete);
