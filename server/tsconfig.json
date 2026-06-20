@@ -15,7 +15,8 @@
     "paths": {
       "@shared/*": ["shared/*"],
       "@transactions/*": ["transactions/*"],
-      "@categories/*": ["categories/*"]
+      "@categories/*": ["categories/*"],
+      "@imports/*": ["imports/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
