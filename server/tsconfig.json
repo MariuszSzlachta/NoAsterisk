@@ -16,7 +16,8 @@
       "@shared/*": ["shared/*"],
       "@transactions/*": ["transactions/*"],
       "@categories/*": ["categories/*"],
-      "@imports/*": ["imports/*"]
+      "@imports/*": ["imports/*"],
+      "@budgets/*": ["budgets/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
