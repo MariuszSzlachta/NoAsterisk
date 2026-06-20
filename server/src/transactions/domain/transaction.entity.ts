@@ -16,6 +16,8 @@ export class Transaction {
     public readonly description: string,
     public readonly date: Date,
     public readonly createdAt: Date,
+    public readonly contentHash: string | undefined = undefined,
+    public readonly importBatchId: string | undefined = undefined,
   ) {
     if (!id) {
       throw new DomainError('Transaction ID cannot be empty');
@@ -32,6 +34,8 @@ export class Transaction {
     categoryIds: string[];
     description: string;
     date: Date;
+    contentHash?: string;
+    importBatchId?: string;
   }): Transaction {
     return new Transaction(
       crypto.randomUUID(),
@@ -41,6 +45,8 @@ export class Transaction {
       props.description,
       props.date,
       new Date(),
+      props.contentHash,
+      props.importBatchId,
     );
   }
 
@@ -65,6 +71,8 @@ export class Transaction {
       props.description ?? this.description,
       props.date ?? this.date,
       this.createdAt,
+      this.contentHash,
+      this.importBatchId,
     );
   }
 
@@ -80,6 +88,8 @@ export class Transaction {
       this.description,
       this.date,
       this.createdAt,
+      this.contentHash,
+      this.importBatchId,
     );
   }
 
@@ -92,6 +102,8 @@ export class Transaction {
       this.description,
       this.date,
       this.createdAt,
+      this.contentHash,
+      this.importBatchId,
     );
   }
 

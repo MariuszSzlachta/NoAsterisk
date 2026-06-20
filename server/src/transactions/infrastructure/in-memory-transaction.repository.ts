@@ -53,6 +53,26 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     );
   }
 
+  async existsByContentHash(
+    _workspaceId: string,
+    contentHash: string,
+  ): Promise<boolean> {
+    return [...this.store.values()].some(
+      (t) => t.contentHash === contentHash,
+    );
+  }
+
+  async deleteByBatchId(_workspaceId: string, batchId: string): Promise<number> {
+    let count = 0;
+    for (const [id, t] of this.store) {
+      if (t.importBatchId === batchId) {
+        this.store.delete(id);
+        count++;
+      }
+    }
+    return count;
+  }
+
   async delete(id: string): Promise<void> {
     this.store.delete(id);
   }

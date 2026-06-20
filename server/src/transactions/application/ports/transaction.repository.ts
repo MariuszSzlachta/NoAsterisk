@@ -27,5 +27,7 @@ export interface TransactionRepository {
     query: PagedQuery<TransactionFilter, TransactionSortField>,
   ): Promise<PagedResult<Transaction>>;
   existsByCategoryId(categoryId: string): Promise<boolean>;
+  existsByContentHash(workspaceId: string, contentHash: string): Promise<boolean>;
+  deleteByBatchId(workspaceId: string, batchId: string): Promise<number>;
   delete(id: string): Promise<void>;
 }
