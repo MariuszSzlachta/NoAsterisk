@@ -8,11 +8,13 @@ import { ImportBatchRepository } from '@imports/application/ports/import-batch.r
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
 import { ImportBatch, ImportBatchStatus } from '@imports/domain/import-batch.entity';
 import { DomainError } from '@shared/domain/domain.error';
+import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 
 describe('ImportTransactionsHandler', () => {
   let handler: ImportTransactionsHandler;
   let batchRepo: jest.Mocked<ImportBatchRepository>;
   let transactionRepo: jest.Mocked<TransactionRepository>;
+  let piiService: jest.Mocked<PiiValidationService>;
 
   const buildRow = (overrides?: Partial<ImportTransactionRow>): ImportTransactionRow => ({
     amount: 100,
@@ -52,7 +54,10 @@ describe('ImportTransactionsHandler', () => {
       deleteByBatchId: jest.fn().mockResolvedValue(0),
       delete: jest.fn().mockResolvedValue(undefined),
     };
-    handler = new ImportTransactionsHandler(batchRepo, transactionRepo);
+    piiService = {
+      validate: jest.fn().mockReturnValue([]),
+    } as unknown as jest.Mocked<PiiValidationService>;
+    handler = new ImportTransactionsHandler(batchRepo, transactionRepo, piiService);
   });
 
   afterEach(() => {
@@ -67,6 +72,7 @@ describe('ImportTransactionsHandler', () => {
 
       expect(result.saved).toBe(2);
       expect(result.duplicatesSkipped).toBe(0);
+      expect(result.rejected).toEqual([]);
       expect(batchRepo.save).toHaveBeenCalledTimes(2); // create + update
       expect(transactionRepo.save).toHaveBeenCalledTimes(2);
     });
@@ -153,6 +159,9 @@ describe('ImportTransactionsHandler', () => {
 
       await expect(handler.execute(command)).rejects.toThrow(
         BatchAlreadyImportedError,
+      );
+      await expect(handler.execute(command)).rejects.toThrow(
+        'Batch was already imported',
       );
       expect(transactionRepo.save).not.toHaveBeenCalled();
     });

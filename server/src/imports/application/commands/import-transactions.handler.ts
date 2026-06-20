@@ -13,6 +13,8 @@ import {
   TransactionType,
 } from '@transactions/domain/transaction.entity';
 import { DomainError } from '@shared/domain/domain.error';
+import { PiiValidationService } from '@imports/application/services/pii-validation.service';
+import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
 
 export interface ImportTransactionRow {
   amount: number;
@@ -33,9 +35,16 @@ export interface ImportTransactionsCommand {
   isRetry?: boolean;
 }
 
+export interface RejectedRow {
+  rowIndex: number;
+  field: string;
+  reason: string;
+}
+
 export interface ImportTransactionsResult {
   saved: number;
   duplicatesSkipped: number;
+  rejected: RejectedRow[];
 }
 
 const ROW_TYPE_MAP: Record<ImportTransactionRow['type'], TransactionType> = {
@@ -50,6 +59,7 @@ export class ImportTransactionsHandler {
     private readonly batchRepo: ImportBatchRepository,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactionRepo: TransactionRepository,
+    private readonly piiService: PiiValidationService,
   ) {}
 
   async execute(
@@ -57,17 +67,39 @@ export class ImportTransactionsHandler {
   ): Promise<ImportTransactionsResult> {
     const batch = await this.resolveOrCreateBatch(command);
 
-    const { saved, duplicatesSkipped } = await this.saveNewTransactions(
-      command.workspaceId,
-      command.batchId,
-      command.rows,
-    );
+    const { clean, rejected } = this.partitionByPii(command.rows);
+
+    const { saved, duplicatesSkipped } = clean.length > 0
+      ? await this.saveNewTransactions(command.workspaceId, command.batchId, clean)
+      : { saved: 0, duplicatesSkipped: 0 };
 
     if (saved > 0) {
       await this.batchRepo.save(batch.recordSavedRows(saved));
     }
 
-    return { saved, duplicatesSkipped };
+    return { saved, duplicatesSkipped, rejected };
+  }
+
+  private partitionByPii(
+    rows: ImportTransactionRow[],
+  ): { clean: ImportTransactionRow[]; rejected: RejectedRow[] } {
+    const fields: FieldToValidate[] = rows.map((row, index) => ({
+      value: row.description,
+      field: 'description',
+      rowIndex: index,
+    }));
+
+    const violations = this.piiService.validate(fields);
+    const rejectedIndices = new Set(violations.map((v) => v.rowIndex));
+
+    return {
+      clean: rows.filter((_, i) => !rejectedIndices.has(i)),
+      rejected: violations.map((v) => ({
+        rowIndex: v.rowIndex,
+        field: v.field,
+        reason: v.type,
+      })),
+    };
   }
 
   private async resolveOrCreateBatch(
@@ -157,8 +189,8 @@ export class ImportTransactionsHandler {
 }
 
 export class BatchAlreadyImportedError extends DomainError {
-  constructor(batchHash: string) {
-    super(`Batch with hash ${batchHash} was already imported`);
+  constructor(_batchHash: string) {
+    super('Batch was already imported');
     this.name = 'BatchAlreadyImportedError';
   }
 }
