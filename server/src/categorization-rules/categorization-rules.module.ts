@@ -24,6 +24,6 @@ import { TransactionsModule } from '@transactions/transactions.module';
     AutoCategorizeHandler,
     GetRulesHandler,
   ],
-  exports: [CATEGORIZATION_RULE_REPOSITORY],
+  exports: [CATEGORIZATION_RULE_REPOSITORY, AutoCategorizeHandler],
 })
 export class CategorizationRulesModule {}

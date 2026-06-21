@@ -15,6 +15,7 @@ import {
 import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
+import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 
 export interface ImportTransactionRow {
   amount: number;
@@ -60,6 +61,7 @@ export class ImportTransactionsHandler {
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactionRepo: TransactionRepository,
     private readonly piiService: PiiValidationService,
+    private readonly autoCategorize: AutoCategorizeHandler,
   ) {}
 
   async execute(
@@ -80,6 +82,7 @@ export class ImportTransactionsHandler {
 
     if (saved > 0) {
       await this.batchRepo.save(batch.recordSavedRows(saved));
+      await this.autoCategorize.execute({ workspaceId: command.workspaceId });
     }
 
     return { saved, duplicatesSkipped, rejected };

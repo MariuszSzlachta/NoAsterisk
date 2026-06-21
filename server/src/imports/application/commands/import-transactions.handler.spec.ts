@@ -18,6 +18,7 @@ describe('ImportTransactionsHandler', () => {
   let batchRepo: jest.Mocked<ImportBatchRepository>;
   let transactionRepo: jest.Mocked<TransactionRepository>;
   let piiService: jest.Mocked<PiiValidationService>;
+  let autoCategorize: { execute: jest.Mock };
 
   const buildRow = (
     overrides?: Partial<ImportTransactionRow>,
@@ -75,10 +76,12 @@ describe('ImportTransactionsHandler', () => {
     piiService = {
       validate: jest.fn().mockReturnValue([]),
     } as unknown as jest.Mocked<PiiValidationService>;
+    autoCategorize = { execute: jest.fn().mockResolvedValue({ categorized: 0, total: 0 }) };
     handler = new ImportTransactionsHandler(
       batchRepo,
       transactionRepo,
       piiService,
+      autoCategorize as any,
     );
   });
 
