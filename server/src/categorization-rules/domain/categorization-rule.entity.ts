@@ -1,9 +1,8 @@
 import { DomainError } from '@shared/domain/domain.error';
+import { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
+import { MATCHERS } from '@categorization-rules/domain/matchers';
 
-export enum MatcherType {
-  Contains = 'Contains',
-  Exact = 'Exact',
-}
+export { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
 
 export class CategorizationRule {
   constructor(
@@ -73,18 +72,6 @@ export class CategorizationRule {
   }
 
   matches(description: string): boolean {
-    const normalizedDesc = description.toLowerCase();
-    const normalizedKeyword = this.keyword.toLowerCase();
-
-    switch (this.matcherType) {
-      case MatcherType.Contains:
-        return normalizedDesc.includes(normalizedKeyword);
-      case MatcherType.Exact:
-        return normalizedDesc === normalizedKeyword;
-      default: {
-        const _exhaustive: never = this.matcherType;
-        throw new DomainError(`Unknown matcher type: ${_exhaustive}`);
-      }
-    }
+    return MATCHERS[this.matcherType].matches(description, this.keyword);
   }
 }
