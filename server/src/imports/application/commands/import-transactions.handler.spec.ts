@@ -12,6 +12,7 @@ import {
 } from '@imports/domain/import-batch.entity';
 import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
+import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 
 describe('ImportTransactionsHandler', () => {
   let handler: ImportTransactionsHandler;
@@ -81,7 +82,7 @@ describe('ImportTransactionsHandler', () => {
       batchRepo,
       transactionRepo,
       piiService,
-      autoCategorize as any,
+      autoCategorize as unknown as AutoCategorizeHandler,
     );
   });
 

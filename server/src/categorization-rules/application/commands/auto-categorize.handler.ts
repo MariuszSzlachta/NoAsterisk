@@ -10,6 +10,7 @@ import {
 
 export interface AutoCategorizeCommand {
   workspaceId: string;
+  batchId?: string;
 }
 
 export interface AutoCategorizeResult {
@@ -27,10 +28,14 @@ export class AutoCategorizeHandler {
   ) {}
 
   async execute(command: AutoCategorizeCommand): Promise<AutoCategorizeResult> {
-    const [rules, transactions] = await Promise.all([
+    const [rules, allUncategorized] = await Promise.all([
       this.ruleRepo.findByWorkspaceId(command.workspaceId),
       this.transactionRepo.findUncategorized(command.workspaceId),
     ]);
+
+    const transactions = command.batchId
+      ? allUncategorized.filter((t) => t.importBatchId === command.batchId)
+      : allUncategorized;
 
     if (rules.length === 0 || transactions.length === 0) {
       return { categorized: 0, total: transactions.length };

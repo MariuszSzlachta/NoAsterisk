@@ -82,7 +82,10 @@ export class ImportTransactionsHandler {
 
     if (saved > 0) {
       await this.batchRepo.save(batch.recordSavedRows(saved));
-      await this.autoCategorize.execute({ workspaceId: command.workspaceId });
+      await this.autoCategorize.execute({
+        workspaceId: command.workspaceId,
+        batchId: command.batchId,
+      });
     }
 
     return { saved, duplicatesSkipped, rejected };
