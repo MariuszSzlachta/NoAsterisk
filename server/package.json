@@ -67,7 +67,8 @@
       "^@shared/(.*)$": "<rootDir>/shared/$1",
       "^@transactions/(.*)$": "<rootDir>/transactions/$1",
       "^@categories/(.*)$": "<rootDir>/categories/$1",
-      "^@imports/(.*)$": "<rootDir>/imports/$1"
+      "^@imports/(.*)$": "<rootDir>/imports/$1",
+      "^@categorization-rules/(.*)$": "<rootDir>/categorization-rules/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

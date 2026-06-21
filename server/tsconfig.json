@@ -17,6 +17,7 @@
       "@transactions/*": ["transactions/*"],
       "@categories/*": ["categories/*"],
       "@imports/*": ["imports/*"],
+      "@categorization-rules/*": ["categorization-rules/*"],
       "@budgets/*": ["budgets/*"]
     },
     "incremental": true,
