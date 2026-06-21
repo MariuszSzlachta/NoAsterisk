@@ -139,8 +139,9 @@ describe('ImportsController', () => {
     });
 
     it('respects page and limit query params', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/imports?page=1&limit=1');
+      const response = await request(app.getHttpServer()).get(
+        '/imports?page=1&limit=1',
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.data.length).toBeLessThanOrEqual(1);
@@ -148,8 +149,9 @@ describe('ImportsController', () => {
     });
 
     it('returns 400 for invalid page param', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/imports?page=0');
+      const response = await request(app.getHttpServer()).get(
+        '/imports?page=0',
+      );
 
       expect(response.status).toBe(400);
     });
@@ -157,8 +159,9 @@ describe('ImportsController', () => {
 
   describe('GET /imports/:id', () => {
     it('returns batch by id', async () => {
-      const response = await request(app.getHttpServer())
-        .get(`/imports/${validPayload.batchId}`);
+      const response = await request(app.getHttpServer()).get(
+        `/imports/${validPayload.batchId}`,
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(validPayload.batchId);
@@ -166,15 +169,17 @@ describe('ImportsController', () => {
     });
 
     it('returns 400 for non-uuid id', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/imports/not-a-uuid');
+      const response = await request(app.getHttpServer()).get(
+        '/imports/not-a-uuid',
+      );
 
       expect(response.status).toBe(400);
     });
 
     it('returns 404 for non-existent batch', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/imports/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+      const response = await request(app.getHttpServer()).get(
+        '/imports/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      );
 
       expect(response.status).toBe(404);
     });
@@ -193,27 +198,31 @@ describe('ImportsController', () => {
           rows: [{ ...validRow, contentHash: '8'.repeat(64) }],
         });
 
-      const response = await request(app.getHttpServer())
-        .delete(`/imports/${batchId}`);
+      const response = await request(app.getHttpServer()).delete(
+        `/imports/${batchId}`,
+      );
 
       expect(response.status).toBe(204);
 
       // Verify it's gone
-      const getResponse = await request(app.getHttpServer())
-        .get(`/imports/${batchId}`);
+      const getResponse = await request(app.getHttpServer()).get(
+        `/imports/${batchId}`,
+      );
       expect(getResponse.status).toBe(404);
     });
 
     it('returns 404 for non-existent batch', async () => {
-      const response = await request(app.getHttpServer())
-        .delete('/imports/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+      const response = await request(app.getHttpServer()).delete(
+        '/imports/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      );
 
       expect(response.status).toBe(404);
     });
 
     it('returns 400 for non-uuid id', async () => {
-      const response = await request(app.getHttpServer())
-        .delete('/imports/not-a-uuid');
+      const response = await request(app.getHttpServer()).delete(
+        '/imports/not-a-uuid',
+      );
 
       expect(response.status).toBe(400);
     });

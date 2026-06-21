@@ -7,31 +7,105 @@ import { DomainError } from '@shared/domain/domain.error';
 describe('CategorizationRule', () => {
   describe('constructor invariants', () => {
     it('throws when id is empty', () => {
-      expect(() => new CategorizationRule('', 'ws-1', 'kw', 'cat', MatcherType.Contains, 0, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            '',
+            'ws-1',
+            'kw',
+            'cat',
+            MatcherType.Contains,
+            0,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('throws when workspaceId is empty', () => {
-      expect(() => new CategorizationRule('r1', '', 'kw', 'cat', MatcherType.Contains, 0, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            'r1',
+            '',
+            'kw',
+            'cat',
+            MatcherType.Contains,
+            0,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('throws when keyword is empty/whitespace', () => {
-      expect(() => new CategorizationRule('r1', 'ws', '  ', 'cat', MatcherType.Contains, 0, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            'r1',
+            'ws',
+            '  ',
+            'cat',
+            MatcherType.Contains,
+            0,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('throws when keyword exceeds 255 chars', () => {
-      expect(() => new CategorizationRule('r1', 'ws', 'x'.repeat(256), 'cat', MatcherType.Contains, 0, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            'r1',
+            'ws',
+            'x'.repeat(256),
+            'cat',
+            MatcherType.Contains,
+            0,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('throws when categoryId is empty', () => {
-      expect(() => new CategorizationRule('r1', 'ws', 'kw', '', MatcherType.Contains, 0, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            'r1',
+            'ws',
+            'kw',
+            '',
+            MatcherType.Contains,
+            0,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('throws when priority is negative', () => {
-      expect(() => new CategorizationRule('r1', 'ws', 'kw', 'cat', MatcherType.Contains, -1, new Date())).toThrow(DomainError);
+      expect(
+        () =>
+          new CategorizationRule(
+            'r1',
+            'ws',
+            'kw',
+            'cat',
+            MatcherType.Contains,
+            -1,
+            new Date(),
+          ),
+      ).toThrow(DomainError);
     });
 
     it('creates valid instance', () => {
-      const rule = new CategorizationRule('rule-1', 'ws-1', 'BIEDRONKA', 'cat-1', MatcherType.Contains, 1, new Date());
+      const rule = new CategorizationRule(
+        'rule-1',
+        'ws-1',
+        'BIEDRONKA',
+        'cat-1',
+        MatcherType.Contains,
+        1,
+        new Date(),
+      );
       expect(rule.id).toBe('rule-1');
       expect(rule.keyword).toBe('BIEDRONKA');
     });

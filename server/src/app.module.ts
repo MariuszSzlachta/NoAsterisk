@@ -5,6 +5,11 @@ import { ImportsModule } from '@imports/imports.module';
 import { CategorizationRulesModule } from '@categorization-rules/categorization-rules.module';
 
 @Module({
-  imports: [TransactionsModule, CategoriesModule, ImportsModule, CategorizationRulesModule],
+  imports: [
+    TransactionsModule,
+    CategoriesModule,
+    ImportsModule,
+    CategorizationRulesModule,
+  ],
 })
 export class AppModule {}

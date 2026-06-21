@@ -29,10 +29,7 @@ export class DeleteImportBatchHandler {
       return false;
     }
 
-    await this.transactionRepo.deleteByBatchId(
-      command.workspaceId,
-      command.id,
-    );
+    await this.transactionRepo.deleteByBatchId(command.workspaceId, command.id);
     await this.batchRepo.delete(command.id);
     return true;
   }

@@ -62,10 +62,7 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     );
   }
 
-  async deleteByBatchId(
-    workspaceId: string,
-    batchId: string,
-  ): Promise<number> {
+  async deleteByBatchId(workspaceId: string, batchId: string): Promise<number> {
     let count = 0;
     for (const [id, t] of this.store) {
       if (t.workspaceId === workspaceId && t.importBatchId === batchId) {

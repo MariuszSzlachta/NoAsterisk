@@ -51,7 +51,10 @@ describe('ImportTransactionsHandler', () => {
       save: jest.fn().mockImplementation((b) => Promise.resolve(b)),
       findById: jest.fn().mockResolvedValue(undefined),
       findByWorkspaceId: jest.fn().mockResolvedValue([]),
-      findPaged: jest.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+      findPaged: jest.fn().mockResolvedValue({
+        data: [],
+        meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      }),
       findByBatchHash: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
     };

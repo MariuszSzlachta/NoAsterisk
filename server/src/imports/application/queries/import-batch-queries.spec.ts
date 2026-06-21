@@ -1,7 +1,10 @@
 import { GetImportBatchesHandler } from '@imports/application/queries/get-import-batches.handler';
 import { GetImportBatchByIdHandler } from '@imports/application/queries/get-import-batch-by-id.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
-import { ImportBatch, ImportBatchStatus } from '@imports/domain/import-batch.entity';
+import {
+  ImportBatch,
+  ImportBatchStatus,
+} from '@imports/domain/import-batch.entity';
 
 interface BatchOverrides {
   id?: string;
@@ -57,11 +60,23 @@ describe('GetImportBatchesHandler', () => {
       meta: { page: 1, limit: 10, total: 2, totalPages: 1 },
     });
 
-    const result = await handler.execute({ workspaceId: 'ws-001', page: 1, limit: 10 });
+    const result = await handler.execute({
+      workspaceId: 'ws-001',
+      page: 1,
+      limit: 10,
+    });
 
     expect(result.data).toHaveLength(2);
-    expect(result.meta).toEqual({ page: 1, limit: 10, total: 2, totalPages: 1 });
-    expect(repo.findPaged).toHaveBeenCalledWith('ws-001', { page: 1, limit: 10 });
+    expect(result.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 2,
+      totalPages: 1,
+    });
+    expect(repo.findPaged).toHaveBeenCalledWith('ws-001', {
+      page: 1,
+      limit: 10,
+    });
   });
 
   it('returns empty result for no batches', async () => {
@@ -70,7 +85,11 @@ describe('GetImportBatchesHandler', () => {
       meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
     });
 
-    const result = await handler.execute({ workspaceId: 'ws-001', page: 1, limit: 10 });
+    const result = await handler.execute({
+      workspaceId: 'ws-001',
+      page: 1,
+      limit: 10,
+    });
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);

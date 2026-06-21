@@ -54,7 +54,10 @@ export class TransactionsController {
   async create(
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return this.createHandler.execute({ workspaceId: TEMP_WORKSPACE_ID, ...dto });
+    return this.createHandler.execute({
+      workspaceId: TEMP_WORKSPACE_ID,
+      ...dto,
+    });
   }
 
   @Get()

@@ -25,7 +25,9 @@ export class CategorizationRule {
       throw new DomainError('CategorizationRule keyword cannot be empty');
     }
     if (keyword.length > 255) {
-      throw new DomainError('CategorizationRule keyword cannot exceed 255 characters');
+      throw new DomainError(
+        'CategorizationRule keyword cannot exceed 255 characters',
+      );
     }
     if (!categoryId) {
       throw new DomainError('CategorizationRule categoryId cannot be empty');

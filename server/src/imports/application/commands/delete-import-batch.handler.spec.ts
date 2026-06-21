@@ -1,15 +1,30 @@
 import { DeleteImportBatchHandler } from '@imports/application/commands/delete-import-batch.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
-import { ImportBatch, ImportBatchStatus } from '@imports/domain/import-batch.entity';
+import {
+  ImportBatch,
+  ImportBatchStatus,
+} from '@imports/domain/import-batch.entity';
 
 describe('DeleteImportBatchHandler', () => {
   let handler: DeleteImportBatchHandler;
   let batchRepo: jest.Mocked<ImportBatchRepository>;
-  let transactionRepo: jest.Mocked<Pick<TransactionRepository, 'deleteByBatchId'>>;
+  let transactionRepo: jest.Mocked<
+    Pick<TransactionRepository, 'deleteByBatchId'>
+  >;
 
   const buildBatch = (id: string, workspaceId: string): ImportBatch =>
-    new ImportBatch(id, workspaceId, 'hash', 'file.csv', 5, 5, ImportBatchStatus.Complete, new Date(), new Date());
+    new ImportBatch(
+      id,
+      workspaceId,
+      'hash',
+      'file.csv',
+      5,
+      5,
+      ImportBatchStatus.Complete,
+      new Date(),
+      new Date(),
+    );
 
   beforeEach(() => {
     batchRepo = {
@@ -36,7 +51,10 @@ describe('DeleteImportBatchHandler', () => {
     const result = await handler.execute({ workspaceId: 'ws-001', id: 'b1' });
 
     expect(result).toBe(true);
-    expect(transactionRepo.deleteByBatchId).toHaveBeenCalledWith('ws-001', 'b1');
+    expect(transactionRepo.deleteByBatchId).toHaveBeenCalledWith(
+      'ws-001',
+      'b1',
+    );
     expect(batchRepo.delete).toHaveBeenCalledWith('b1');
   });
 
