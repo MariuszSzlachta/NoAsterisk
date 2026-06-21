@@ -14,6 +14,7 @@ import {
 import { CreateRuleHandler } from '@categorization-rules/application/commands/create-rule.handler';
 import { UpdateRuleHandler } from '@categorization-rules/application/commands/update-rule.handler';
 import { DeleteRuleHandler } from '@categorization-rules/application/commands/delete-rule.handler';
+import { AutoCategorizeHandler, AutoCategorizeResult } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { GetRulesHandler } from '@categorization-rules/application/queries/get-rules.handler';
 import {
   createRuleSchema,
@@ -38,6 +39,7 @@ export class CategorizationRulesController {
     private readonly updateHandler: UpdateRuleHandler,
     private readonly deleteHandler: DeleteRuleHandler,
     private readonly getRulesHandler: GetRulesHandler,
+    private readonly autoCategorizeHandler: AutoCategorizeHandler,
   ) {}
 
   @Post()
@@ -48,6 +50,14 @@ export class CategorizationRulesController {
     return this.createHandler.execute({
       workspaceId: TEMP_WORKSPACE_ID,
       ...dto,
+    });
+  }
+
+  @Post('apply')
+  @HttpCode(HttpStatus.OK)
+  async apply(): Promise<AutoCategorizeResult> {
+    return this.autoCategorizeHandler.execute({
+      workspaceId: TEMP_WORKSPACE_ID,
     });
   }
 

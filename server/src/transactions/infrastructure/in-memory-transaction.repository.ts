@@ -47,6 +47,12 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     };
   }
 
+  async findUncategorized(workspaceId: string): Promise<Transaction[]> {
+    return [...this.store.values()].filter(
+      (t) => t.workspaceId === workspaceId && t.categoryIds.length === 0,
+    );
+  }
+
   async existsByCategoryId(categoryId: string): Promise<boolean> {
     return [...this.store.values()].some((t) =>
       t.categoryIds.includes(categoryId),

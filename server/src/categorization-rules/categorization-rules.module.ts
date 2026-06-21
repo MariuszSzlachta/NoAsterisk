@@ -4,12 +4,14 @@ import { InMemoryCategorizationRuleRepository } from '@categorization-rules/infr
 import { CreateRuleHandler } from '@categorization-rules/application/commands/create-rule.handler';
 import { UpdateRuleHandler } from '@categorization-rules/application/commands/update-rule.handler';
 import { DeleteRuleHandler } from '@categorization-rules/application/commands/delete-rule.handler';
+import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { GetRulesHandler } from '@categorization-rules/application/queries/get-rules.handler';
 import { CategorizationRulesController } from '@categorization-rules/presentation/categorization-rules.controller';
 import { CategoriesModule } from '@categories/categories.module';
+import { TransactionsModule } from '@transactions/transactions.module';
 
 @Module({
-  imports: [CategoriesModule],
+  imports: [CategoriesModule, TransactionsModule],
   controllers: [CategorizationRulesController],
   providers: [
     {
@@ -19,6 +21,7 @@ import { CategoriesModule } from '@categories/categories.module';
     CreateRuleHandler,
     UpdateRuleHandler,
     DeleteRuleHandler,
+    AutoCategorizeHandler,
     GetRulesHandler,
   ],
   exports: [CATEGORIZATION_RULE_REPOSITORY],

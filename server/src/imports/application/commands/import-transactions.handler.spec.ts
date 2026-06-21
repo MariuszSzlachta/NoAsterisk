@@ -68,6 +68,7 @@ describe('ImportTransactionsHandler', () => {
       }),
       existsByCategoryId: jest.fn().mockResolvedValue(false),
       existsByContentHash: jest.fn().mockResolvedValue(false),
+      findUncategorized: jest.fn().mockResolvedValue([]),
       deleteByBatchId: jest.fn().mockResolvedValue(0),
       delete: jest.fn().mockResolvedValue(undefined),
     };

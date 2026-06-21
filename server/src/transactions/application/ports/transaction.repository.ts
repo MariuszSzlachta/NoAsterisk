@@ -22,6 +22,7 @@ export interface TransactionRepository {
   save(transaction: Transaction): Promise<Transaction>;
   findAll(): Promise<Transaction[]>;
   findById(id: string): Promise<Transaction | undefined>;
+  findUncategorized(workspaceId: string): Promise<Transaction[]>;
   findPaged(
     query: PagedQuery<TransactionFilter, TransactionSortField>,
   ): Promise<PagedResult<Transaction>>;
