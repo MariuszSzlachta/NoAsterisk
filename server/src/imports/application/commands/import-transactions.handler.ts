@@ -180,6 +180,7 @@ export class ImportTransactionsHandler {
     }
 
     const transaction = Transaction.create({
+      workspaceId,
       amount: row.amount,
       currency: row.currency,
       type: ROW_TYPE_MAP[row.type],

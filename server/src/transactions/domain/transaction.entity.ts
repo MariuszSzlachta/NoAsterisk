@@ -10,6 +10,7 @@ export enum TransactionType {
 export class Transaction {
   constructor(
     public readonly id: string,
+    public readonly workspaceId: string,
     public readonly money: Money,
     public readonly type: TransactionType,
     public readonly categoryIds: string[],
@@ -22,12 +23,16 @@ export class Transaction {
     if (!id) {
       throw new DomainError('Transaction ID cannot be empty');
     }
+    if (!workspaceId) {
+      throw new DomainError('Transaction workspaceId cannot be empty');
+    }
     if (!isTransactionType(type)) {
       throw new DomainError(`Invalid transaction type: ${type}`);
     }
   }
 
   static create(props: {
+    workspaceId: string;
     amount: number;
     currency: string;
     type: TransactionType;
@@ -39,6 +44,7 @@ export class Transaction {
   }): Transaction {
     return new Transaction(
       crypto.randomUUID(),
+      props.workspaceId,
       Money.of(props.amount, props.currency),
       props.type,
       props.categoryIds,
@@ -60,6 +66,7 @@ export class Transaction {
   }): Transaction {
     return new Transaction(
       this.id,
+      this.workspaceId,
       props.amount !== undefined || props.currency !== undefined
         ? Money.of(
             props.amount ?? this.money.amount,
@@ -82,6 +89,7 @@ export class Transaction {
     }
     return new Transaction(
       this.id,
+      this.workspaceId,
       this.money,
       this.type,
       [...this.categoryIds, categoryId],
@@ -96,6 +104,7 @@ export class Transaction {
   removeCategory(categoryId: string): Transaction {
     return new Transaction(
       this.id,
+      this.workspaceId,
       this.money,
       this.type,
       this.categoryIds.filter((id) => id !== categoryId),

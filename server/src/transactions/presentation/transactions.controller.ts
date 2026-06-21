@@ -34,6 +34,9 @@ const SORT_DIR_MAP: Record<'asc' | 'desc', SortDirection> = {
   desc: SortDirection.Desc,
 };
 
+// TODO: Extract workspaceId from JWT token via @CurrentWorkspace() decorator
+const TEMP_WORKSPACE_ID = 'ws-default';
+
 // TODO: Add JWT AuthGuard when auth module is implemented
 // TODO: Add rate limiting (e.g., @Throttle()) on all endpoints
 @Controller('transactions')
@@ -51,7 +54,7 @@ export class TransactionsController {
   async create(
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return this.createHandler.execute(dto);
+    return this.createHandler.execute({ workspaceId: TEMP_WORKSPACE_ID, ...dto });
   }
 
   @Get()

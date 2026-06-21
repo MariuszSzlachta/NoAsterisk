@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ImportBatch } from '@imports/domain/import-batch.entity';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
+import { PagedResult, PageOptions } from '@shared/application/types/paged-query.types';
 
 @Injectable()
 export class InMemoryImportBatchRepository implements ImportBatchRepository {
@@ -19,6 +20,21 @@ export class InMemoryImportBatchRepository implements ImportBatchRepository {
     return [...this.store.values()].filter(
       (b) => b.workspaceId === workspaceId,
     );
+  }
+
+  async findPaged(workspaceId: string, page: PageOptions): Promise<PagedResult<ImportBatch>> {
+    const all = [...this.store.values()]
+      .filter((b) => b.workspaceId === workspaceId)
+      .sort((a, b) => b.importedAt.getTime() - a.importedAt.getTime());
+
+    const total = all.length;
+    const offset = (page.page - 1) * page.limit;
+    const data = all.slice(offset, offset + page.limit);
+
+    return {
+      data,
+      meta: { page: page.page, limit: page.limit, total, totalPages: Math.ceil(total / page.limit) },
+    };
   }
 
   async findByBatchHash(

@@ -1,5 +1,6 @@
 export interface TransactionRecord {
   id: string;
+  workspace_id: string;
   amount: number;
   currency: string;
   type: string;
@@ -7,4 +8,6 @@ export interface TransactionRecord {
   description: string;
   date: string;
   created_at: string;
+  content_hash?: string;
+  import_batch_id?: string;
 }

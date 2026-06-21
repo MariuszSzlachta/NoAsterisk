@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ImportsController } from '@imports/presentation/imports.controller';
 import { ImportTransactionsHandler } from '@imports/application/commands/import-transactions.handler';
+import { DeleteImportBatchHandler } from '@imports/application/commands/delete-import-batch.handler';
+import { GetImportBatchesHandler } from '@imports/application/queries/get-import-batches.handler';
+import { GetImportBatchByIdHandler } from '@imports/application/queries/get-import-batch-by-id.handler';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { IMPORT_BATCH_REPOSITORY } from '@imports/application/ports/import-batch.repository';
 import { PII_RULES, PiiRule } from '@imports/application/ports/pii-rule.port';
@@ -19,6 +22,9 @@ import { TransactionsModule } from '@transactions/transactions.module';
   controllers: [ImportsController],
   providers: [
     ImportTransactionsHandler,
+    DeleteImportBatchHandler,
+    GetImportBatchesHandler,
+    GetImportBatchByIdHandler,
     PiiValidationService,
     {
       provide: IMPORT_BATCH_REPOSITORY,

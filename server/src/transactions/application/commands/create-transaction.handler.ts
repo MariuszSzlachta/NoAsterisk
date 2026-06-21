@@ -15,6 +15,7 @@ import { TransactionResponseDto } from '@transactions/application/dto/transactio
 import { TransactionResponseMapper } from '@transactions/application/mappers/transaction-response.mapper';
 
 export interface CreateTransactionCommand {
+  workspaceId: string;
   amount: number;
   currency: string;
   type: 'income' | 'expense';
@@ -51,6 +52,7 @@ export class CreateTransactionHandler {
     }
 
     const transaction = Transaction.create({
+      workspaceId: command.workspaceId,
       amount: command.amount,
       currency: command.currency,
       type: COMMAND_TYPE_MAP[command.type],

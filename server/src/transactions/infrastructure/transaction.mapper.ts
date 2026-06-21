@@ -13,18 +13,22 @@ export class TransactionMapper {
 
     return new Transaction(
       record.id,
+      record.workspace_id,
       Money.of(record.amount, record.currency),
       record.type,
       record.category_ids,
       record.description,
       new Date(record.date),
       new Date(record.created_at),
+      record.content_hash,
+      record.import_batch_id,
     );
   }
 
   static toPersistence(entity: Transaction): TransactionRecord {
     return {
       id: entity.id,
+      workspace_id: entity.workspaceId,
       amount: entity.money.amount,
       currency: entity.money.currency,
       type: entity.type,
@@ -32,6 +36,8 @@ export class TransactionMapper {
       description: entity.description,
       date: entity.date.toISOString(),
       created_at: entity.createdAt.toISOString(),
+      content_hash: entity.contentHash,
+      import_batch_id: entity.importBatchId,
     };
   }
 }
