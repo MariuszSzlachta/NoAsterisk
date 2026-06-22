@@ -7,6 +7,7 @@ import { AuthResult } from '@auth/application/dto/auth-result.dto';
 import { registerSchema, loginSchema, refreshSchema, RegisterDto, LoginDto, RefreshDto } from '@auth/presentation/auth.dto';
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { THROTTLE_AUTH, THROTTLE_REFRESH } from '@shared/presentation/throttle.constants';
+import { Public } from '@auth/presentation/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +17,7 @@ export class AuthController {
     private readonly refreshHandler: RefreshHandler,
   ) {}
 
+  @Public()
   @Post('register')
   @Throttle(THROTTLE_AUTH)
   @UsePipes(new ZodValidationPipe(registerSchema))
@@ -23,6 +25,7 @@ export class AuthController {
     return this.registerHandler.execute(dto);
   }
 
+  @Public()
   @Post('login')
   @Throttle(THROTTLE_AUTH)
   @HttpCode(HttpStatus.OK)
@@ -31,6 +34,7 @@ export class AuthController {
     return this.loginHandler.execute(dto);
   }
 
+  @Public()
   @Post('refresh')
   @Throttle(THROTTLE_REFRESH)
   @HttpCode(HttpStatus.OK)

@@ -117,13 +117,15 @@ describe('AuthController', () => {
       refreshToken = res.body.refreshToken;
     });
 
-    it('returns 200 with new access token', async () => {
+    it('returns 200 with new access and refresh tokens (rotation)', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken });
 
       expect(res.status).toBe(200);
       expect(res.body.accessToken).toBeDefined();
+      expect(res.body.refreshToken).toBeDefined();
+      expect(typeof res.body.refreshToken).toBe('string');
     });
 
     it('returns 401 for invalid refresh token', async () => {

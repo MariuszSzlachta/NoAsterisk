@@ -2,9 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { USER_REPOSITORY, UserRepository } from '@auth/domain/ports/user.repository';
 import { PASSWORD_HASHER, PasswordHasherPort } from '@auth/domain/ports/password-hasher.port';
 import { TOKEN_PORT, TokenPort } from '@auth/domain/ports/token.port';
+import { PERMISSION_REPOSITORY, PermissionRepository } from '@auth/domain/ports/permission.repository';
 import { WORKSPACE_REPOSITORY, WorkspaceRepository } from '@workspaces/domain/ports/workspace.repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
+import { Permission } from '@auth/domain/permission.entity';
 import { Workspace } from '@workspaces/domain/workspace.entity';
 import { DomainError } from '@shared/domain/domain.error';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
@@ -21,6 +23,7 @@ export class RegisterHandler {
     @Inject(PASSWORD_HASHER) private readonly hasher: PasswordHasherPort,
     @Inject(TOKEN_PORT) private readonly token: TokenPort,
     @Inject(WORKSPACE_REPOSITORY) private readonly workspaceRepo: WorkspaceRepository,
+    @Inject(PERMISSION_REPOSITORY) private readonly permissionRepo: PermissionRepository,
   ) {}
 
   async execute(command: RegisterCommand): Promise<AuthResult> {
@@ -42,6 +45,14 @@ export class RegisterHandler {
     });
 
     await this.userRepo.save(user);
+
+    const permission = Permission.create({
+      userId: user.id,
+      resourceType: 'workspace',
+      resourceId: workspace.id,
+      actions: ['read', 'write', 'delete', 'admin'],
+    });
+    await this.permissionRepo.save(permission);
 
     const tokenPayload = { sub: user.id, workspaceId: user.workspaceId, role: user.role };
     const accessToken = this.token.sign(tokenPayload);

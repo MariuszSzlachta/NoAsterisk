@@ -4,6 +4,7 @@ import { RefreshHandler } from '@auth/application/commands/refresh.handler';
 import { UserRepository } from '@auth/domain/ports/user.repository';
 import { PasswordHasherPort } from '@auth/domain/ports/password-hasher.port';
 import { TokenPort } from '@auth/domain/ports/token.port';
+import { PermissionRepository } from '@auth/domain/ports/permission.repository';
 import { WorkspaceRepository } from '@workspaces/domain/ports/workspace.repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
@@ -12,6 +13,7 @@ describe('RegisterHandler', () => {
   let handler: RegisterHandler;
   let userRepo: jest.Mocked<UserRepository>;
   let workspaceRepo: jest.Mocked<WorkspaceRepository>;
+  let permissionRepo: jest.Mocked<PermissionRepository>;
   let hasher: jest.Mocked<PasswordHasherPort>;
   let token: jest.Mocked<TokenPort>;
 
@@ -26,6 +28,11 @@ describe('RegisterHandler', () => {
       save: jest.fn().mockImplementation((w) => Promise.resolve(w)),
       findById: jest.fn(),
     };
+    permissionRepo = {
+      save: jest.fn().mockImplementation((p) => Promise.resolve(p)),
+      findByUserAndResource: jest.fn(),
+      hasPermission: jest.fn(),
+    };
     hasher = {
       hash: jest.fn().mockResolvedValue('$hashed$'),
       compare: jest.fn(),
@@ -36,7 +43,7 @@ describe('RegisterHandler', () => {
       verify: jest.fn(),
       verifyRefresh: jest.fn(),
     };
-    handler = new RegisterHandler(userRepo, hasher, token, workspaceRepo);
+    handler = new RegisterHandler(userRepo, hasher, token, workspaceRepo, permissionRepo);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -51,6 +58,7 @@ describe('RegisterHandler', () => {
     expect(result.user.workspaceId).toBeDefined();
     expect(workspaceRepo.save).toHaveBeenCalledTimes(1);
     expect(userRepo.save).toHaveBeenCalledTimes(1);
+    expect(permissionRepo.save).toHaveBeenCalledTimes(1);
     expect(hasher.hash).toHaveBeenCalledWith('password123');
   });
 
@@ -166,13 +174,16 @@ describe('RefreshHandler', () => {
 
   afterEach(() => jest.clearAllMocks());
 
-  it('returns new access token for valid refresh token', () => {
+  it('returns new access token and rotated refresh token for valid refresh token', () => {
     token.verifyRefresh.mockReturnValue({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
+    token.signRefresh.mockReturnValue('new-refresh-token');
 
     const result = handler.execute('valid-refresh-token');
 
     expect(result.accessToken).toBe('new-access-token');
+    expect(result.refreshToken).toBe('new-refresh-token');
     expect(token.sign).toHaveBeenCalledWith({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
+    expect(token.signRefresh).toHaveBeenCalledWith({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
   });
 
   it('throws UnauthorizedException for invalid refresh token', () => {

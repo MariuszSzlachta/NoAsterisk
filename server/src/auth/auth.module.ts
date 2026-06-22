@@ -7,10 +7,14 @@ import { RefreshHandler } from '@auth/application/commands/refresh.handler';
 import { USER_REPOSITORY } from '@auth/domain/ports/user.repository';
 import { PASSWORD_HASHER } from '@auth/domain/ports/password-hasher.port';
 import { TOKEN_PORT } from '@auth/domain/ports/token.port';
+import { PERMISSION_REPOSITORY } from '@auth/domain/ports/permission.repository';
 import { WorkspacesModule } from '@workspaces/workspaces.module';
 import { InMemoryUserRepository } from '@auth/infrastructure/in-memory-user.repository';
+import { InMemoryPermissionRepository } from '@auth/infrastructure/in-memory-permission.repository';
 import { BcryptPasswordHasher } from '@auth/infrastructure/bcrypt-password-hasher.adapter';
 import { JwtTokenAdapter } from '@auth/infrastructure/jwt-token.adapter';
+import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
+import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 
 @Module({
   imports: [
@@ -31,10 +35,13 @@ import { JwtTokenAdapter } from '@auth/infrastructure/jwt-token.adapter';
     RegisterHandler,
     LoginHandler,
     RefreshHandler,
+    JwtAuthGuard,
+    RolesGuard,
     { provide: USER_REPOSITORY, useClass: InMemoryUserRepository },
+    { provide: PERMISSION_REPOSITORY, useClass: InMemoryPermissionRepository },
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
-  exports: [USER_REPOSITORY, TOKEN_PORT],
+  exports: [USER_REPOSITORY, TOKEN_PORT, PERMISSION_REPOSITORY, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}
