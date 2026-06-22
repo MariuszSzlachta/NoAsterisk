@@ -12,6 +12,11 @@ import {
   PagedResult,
 } from '@shared/application/types/paged-query.types';
 
+export interface GetTransactionsPagedQuery {
+  workspaceId: string;
+  paged: PagedQuery<TransactionFilter, TransactionSortField>;
+}
+
 @Injectable()
 export class GetTransactionsPagedHandler {
   constructor(
@@ -20,9 +25,9 @@ export class GetTransactionsPagedHandler {
   ) {}
 
   async execute(
-    query: PagedQuery<TransactionFilter, TransactionSortField>,
+    query: GetTransactionsPagedQuery,
   ): Promise<PagedResult<TransactionResponseDto>> {
-    const result = await this.repo.findPaged(query);
+    const result = await this.repo.findPaged(query.workspaceId, query.paged);
     return {
       data: result.data.map(TransactionResponseMapper.toDto),
       meta: result.meta,

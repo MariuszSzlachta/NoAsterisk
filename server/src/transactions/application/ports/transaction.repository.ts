@@ -20,10 +20,12 @@ export interface TransactionFilter {
 
 export interface TransactionRepository {
   save(transaction: Transaction): Promise<Transaction>;
+  saveMany(transactions: Transaction[]): Promise<void>;
   findAll(): Promise<Transaction[]>;
   findById(id: string): Promise<Transaction | undefined>;
   findUncategorized(workspaceId: string): Promise<Transaction[]>;
   findPaged(
+    workspaceId: string,
     query: PagedQuery<TransactionFilter, TransactionSortField>,
   ): Promise<PagedResult<Transaction>>;
   existsByCategoryId(categoryId: string): Promise<boolean>;

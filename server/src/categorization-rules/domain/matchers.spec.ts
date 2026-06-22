@@ -9,7 +9,7 @@ describe('ContainsMatcher', () => {
     ['biedronka', 'BIEDRONKA', true],
     ['Zakupy LIDL', 'biedronka', false],
     ['', 'biedronka', false],
-    ['BIEDRONKA', '', true],
+    ['BIEDRONKA', '', false],
   ])('matches("%s", "%s") = %s', (description, keyword, expected) => {
     expect(matcher.matches(description, keyword)).toBe(expected);
   });
@@ -24,7 +24,7 @@ describe('ExactMatcher', () => {
     ['netflix', 'netflix', true],
     ['Netflix subscription', 'Netflix', false],
     ['My Netflix', 'Netflix', false],
-    ['', '', true],
+    ['', '', false],
   ])('matches("%s", "%s") = %s', (description, keyword, expected) => {
     expect(matcher.matches(description, keyword)).toBe(expected);
   });

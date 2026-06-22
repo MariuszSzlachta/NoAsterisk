@@ -14,13 +14,13 @@ const buildTransaction = (id: string, description: string): Transaction =>
 describe('AutoCategorizeHandler', () => {
   let handler: AutoCategorizeHandler;
   let ruleRepo: jest.Mocked<Pick<CategorizationRuleRepository, 'findByWorkspaceId'>>;
-  let transactionRepo: jest.Mocked<Pick<TransactionRepository, 'findUncategorized' | 'save'>>;
+  let transactionRepo: jest.Mocked<Pick<TransactionRepository, 'findUncategorized' | 'saveMany'>>;
 
   beforeEach(() => {
     ruleRepo = { findByWorkspaceId: jest.fn() };
     transactionRepo = {
       findUncategorized: jest.fn(),
-      save: jest.fn().mockImplementation((t) => Promise.resolve(t)),
+      saveMany: jest.fn().mockResolvedValue(undefined),
     };
     handler = new AutoCategorizeHandler(
       ruleRepo as unknown as CategorizationRuleRepository,
@@ -41,7 +41,7 @@ describe('AutoCategorizeHandler', () => {
     const result = await handler.execute({ workspaceId: 'ws-1' });
 
     expect(result).toEqual({ categorized: 1, total: 1 });
-    expect(transactionRepo.save).toHaveBeenCalledTimes(1);
+    expect(transactionRepo.saveMany).toHaveBeenCalledTimes(1);
   });
 
   it('applies highest priority rule first', async () => {
@@ -55,8 +55,8 @@ describe('AutoCategorizeHandler', () => {
 
     await handler.execute({ workspaceId: 'ws-1' });
 
-    const savedTransaction = transactionRepo.save.mock.calls[0]?.[0] as Transaction;
-    expect(savedTransaction.categoryIds).toContain('cat-high');
+    const saved = transactionRepo.saveMany.mock.calls[0]?.[0] as Transaction[];
+    expect(saved[0]?.categoryIds).toContain('cat-high');
   });
 
   it('skips transactions with no matching rule', async () => {
@@ -70,7 +70,7 @@ describe('AutoCategorizeHandler', () => {
     const result = await handler.execute({ workspaceId: 'ws-1' });
 
     expect(result).toEqual({ categorized: 0, total: 1 });
-    expect(transactionRepo.save).not.toHaveBeenCalled();
+    expect(transactionRepo.saveMany).not.toHaveBeenCalled();
   });
 
   it('returns zero when no rules exist', async () => {

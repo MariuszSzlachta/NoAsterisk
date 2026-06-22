@@ -66,16 +66,19 @@ export class TransactionsController {
     query: TransactionQueryDto,
   ): Promise<PagedResult<TransactionResponseDto>> {
     return this.getPagedHandler.execute({
-      page: { page: query.page, limit: query.limit },
-      sort: { field: query.sortBy, direction: SORT_DIR_MAP[query.sortDir] },
-      filter: {
-        type: query.type,
-        categoryIds: query.categoryIds,
-        dateFrom: query.dateFrom,
-        dateTo: query.dateTo,
-        amountMin: query.amountMin,
-        amountMax: query.amountMax,
-        description: query.description,
+      workspaceId: TEMP_WORKSPACE_ID,
+      paged: {
+        page: { page: query.page, limit: query.limit },
+        sort: { field: query.sortBy, direction: SORT_DIR_MAP[query.sortDir] },
+        filter: {
+          type: query.type,
+          categoryIds: query.categoryIds,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+          amountMin: query.amountMin,
+          amountMax: query.amountMax,
+          description: query.description,
+        },
       },
     });
   }

@@ -32,6 +32,8 @@ export class CreateRuleHandler {
   async execute(
     command: CreateRuleCommand,
   ): Promise<CategorizationRuleResponseDto> {
+    // TODO: Category entity needs workspaceId — currently no workspace scope check.
+    // Cross-tenant category assignment possible until Category gets workspace isolation.
     const category = await this.categoryRepo.findById(command.categoryId);
     if (!category) {
       throw new BadRequestException(`Category '${command.categoryId}' not found`);

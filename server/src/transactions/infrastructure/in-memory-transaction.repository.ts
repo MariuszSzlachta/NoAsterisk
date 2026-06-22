@@ -20,6 +20,12 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     return transaction;
   }
 
+  async saveMany(transactions: Transaction[]): Promise<void> {
+    for (const t of transactions) {
+      this.store.set(t.id, t);
+    }
+  }
+
   async findAll(): Promise<Transaction[]> {
     return [...this.store.values()];
   }
@@ -29,9 +35,12 @@ export class InMemoryTransactionRepository implements TransactionRepository {
   }
 
   async findPaged(
+    workspaceId: string,
     query: PagedQuery<TransactionFilter, TransactionSortField>,
   ): Promise<PagedResult<Transaction>> {
-    let items = [...this.store.values()];
+    let items = [...this.store.values()].filter(
+      (t) => t.workspaceId === workspaceId,
+    );
 
     items = this.applyFilters(items, query.filter);
     items = this.applySort(items, query.sort?.field, query.sort?.direction);

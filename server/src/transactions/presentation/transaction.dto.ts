@@ -7,7 +7,7 @@ export const CreateTransactionDto = z.object({
   categoryIds: z.array(z.string().uuid()).max(10).default([]),
   description: z.string().max(1000),
   date: z.coerce.date(),
-});
+}).strict();
 
 export type CreateTransactionDto = z.infer<typeof CreateTransactionDto>;
 
@@ -20,6 +20,7 @@ export const UpdateTransactionDto = z
     description: z.string().min(1).max(1000).optional(),
     date: z.coerce.date().optional(),
   })
+  .strict()
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided',
   });

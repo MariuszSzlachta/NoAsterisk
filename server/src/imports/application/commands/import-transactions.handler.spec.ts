@@ -62,6 +62,7 @@ describe('ImportTransactionsHandler', () => {
     };
     transactionRepo = {
       save: jest.fn().mockImplementation((t) => Promise.resolve(t)),
+      saveMany: jest.fn().mockResolvedValue(undefined),
       findAll: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockResolvedValue(undefined),
       findPaged: jest.fn().mockResolvedValue({

@@ -6,12 +6,14 @@ export interface CategorizationMatcher {
 
 export class ContainsMatcher implements CategorizationMatcher {
   matches(description: string, keyword: string): boolean {
+    if (!keyword) return false;
     return description.toLowerCase().includes(keyword.toLowerCase());
   }
 }
 
 export class ExactMatcher implements CategorizationMatcher {
   matches(description: string, keyword: string): boolean {
+    if (!keyword) return false;
     return description.toLowerCase() === keyword.toLowerCase();
   }
 }

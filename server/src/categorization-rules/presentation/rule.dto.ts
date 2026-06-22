@@ -5,7 +5,7 @@ export const createRuleSchema = z.object({
   categoryId: z.string().uuid(),
   matcherType: z.enum(['Contains', 'Exact']),
   priority: z.number().int().min(0).optional(),
-});
+}).strict();
 
 export type CreateRuleDto = z.infer<typeof createRuleSchema>;
 
@@ -16,6 +16,7 @@ export const updateRuleSchema = z
     matcherType: z.enum(['Contains', 'Exact']).optional(),
     priority: z.number().int().min(0).optional(),
   })
+  .strict()
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided',
   });

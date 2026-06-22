@@ -42,19 +42,21 @@ export class AutoCategorizeHandler {
     }
 
     const sortedRules = [...rules].sort((a, b) => b.priority - a.priority);
-    let categorized = 0;
+    const toSave = [];
 
     for (const transaction of transactions) {
       const matchingRule = sortedRules.find((r) =>
         r.matches(transaction.description),
       );
       if (matchingRule) {
-        const updated = transaction.assignCategory(matchingRule.categoryId);
-        await this.transactionRepo.save(updated);
-        categorized++;
+        toSave.push(transaction.assignCategory(matchingRule.categoryId));
       }
     }
 
-    return { categorized, total: transactions.length };
+    if (toSave.length > 0) {
+      await this.transactionRepo.saveMany(toSave);
+    }
+
+    return { categorized: toSave.length, total: transactions.length };
   }
 }
