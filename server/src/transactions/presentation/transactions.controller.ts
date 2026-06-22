@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  UsePipes,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -28,17 +27,13 @@ import {
   PagedResult,
   SortDirection,
 } from '@shared/application/types/paged-query.types';
+import { CurrentUser, CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
 
 const SORT_DIR_MAP: Record<'asc' | 'desc', SortDirection> = {
   asc: SortDirection.Asc,
   desc: SortDirection.Desc,
 };
 
-// TODO: Extract workspaceId from JWT token via @CurrentWorkspace() decorator
-const TEMP_WORKSPACE_ID = 'ws-default';
-
-// TODO: Add JWT AuthGuard when auth module is implemented
-// TODO: Add rate limiting (e.g., @Throttle()) on all endpoints
 @Controller('transactions')
 export class TransactionsController {
   constructor(
@@ -50,23 +45,24 @@ export class TransactionsController {
   ) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateTransactionDto))
   async create(
-    @Body() dto: CreateTransactionDto,
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(CreateTransactionDto)) dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     return this.createHandler.execute({
-      workspaceId: TEMP_WORKSPACE_ID,
+      workspaceId: user.workspaceId,
       ...dto,
     });
   }
 
   @Get()
   async findPaged(
+    @CurrentUser() user: CurrentUserPayload,
     @Query(new ZodValidationPipe(TransactionQueryDto))
     query: TransactionQueryDto,
   ): Promise<PagedResult<TransactionResponseDto>> {
     return this.getPagedHandler.execute({
-      workspaceId: TEMP_WORKSPACE_ID,
+      workspaceId: user.workspaceId,
       paged: {
         page: { page: query.page, limit: query.limit },
         sort: { field: query.sortBy, direction: SORT_DIR_MAP[query.sortDir] },

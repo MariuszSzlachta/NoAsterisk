@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   Query,
-  UsePipes,
   HttpCode,
   HttpStatus,
   Res,
@@ -30,9 +29,7 @@ import { ImportBatchResponseDto } from '@imports/application/dto/import-batch-re
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { UuidParam } from '@shared/presentation/common.dto';
 import { PagedResult } from '@shared/application/types/paged-query.types';
-
-// TODO: Extract workspaceId from JWT token via @CurrentWorkspace() decorator
-const TEMP_WORKSPACE_ID = 'ws-default';
+import { CurrentUser, CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
 
 @Controller('imports')
 export class ImportsController {
@@ -45,15 +42,15 @@ export class ImportsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(ImportTransactionsDto))
   async importTransactions(
-    @Body() dto: ImportTransactionsDto,
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(ImportTransactionsDto)) dto: ImportTransactionsDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<unknown> {
     try {
       const result = await this.importHandler.execute({
         batchId: dto.batchId,
-        workspaceId: TEMP_WORKSPACE_ID,
+        workspaceId: user.workspaceId,
         batchHash: dto.batchHash,
         sourceFilename: dto.sourceFilename,
         rows: dto.rows,
@@ -72,11 +69,12 @@ export class ImportsController {
 
   @Get()
   async findAll(
+    @CurrentUser() user: CurrentUserPayload,
     @Query(new ZodValidationPipe(importBatchQuerySchema))
     query: ImportBatchQueryDto,
   ): Promise<PagedResult<ImportBatchResponseDto>> {
     return this.getBatchesHandler.execute({
-      workspaceId: TEMP_WORKSPACE_ID,
+      workspaceId: user.workspaceId,
       page: query.page,
       limit: query.limit,
     });
@@ -84,10 +82,11 @@ export class ImportsController {
 
   @Get(':id')
   async findById(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
   ): Promise<ImportBatchResponseDto> {
     const result = await this.getBatchByIdHandler.execute({
-      workspaceId: TEMP_WORKSPACE_ID,
+      workspaceId: user.workspaceId,
       id,
     });
 
@@ -101,10 +100,11 @@ export class ImportsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
   ): Promise<void> {
     const deleted = await this.deleteBatchHandler.execute({
-      workspaceId: TEMP_WORKSPACE_ID,
+      workspaceId: user.workspaceId,
       id,
     });
 

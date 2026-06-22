@@ -14,6 +14,10 @@ describe('ImportsController', () => {
     }).compile();
 
     app = module.createNestApplication();
+    app.use((req: { user: unknown }, _res: unknown, next: () => void) => {
+      req.user = { userId: 'test-user', workspaceId: 'ws-test', role: 'Member' };
+      next();
+    });
     app.useGlobalFilters(new DomainExceptionFilter());
     await app.init();
   });

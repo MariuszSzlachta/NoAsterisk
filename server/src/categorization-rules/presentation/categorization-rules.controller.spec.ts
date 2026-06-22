@@ -16,6 +16,10 @@ describe('CategorizationRulesController', () => {
     }).compile();
 
     app = module.createNestApplication();
+    app.use((req: { user: unknown }, _res: unknown, next: () => void) => {
+      req.user = { userId: 'test-user', workspaceId: 'ws-test', role: 'Member' };
+      next();
+    });
     await app.init();
 
     // Seed a category so rules can reference it
