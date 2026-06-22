@@ -19,7 +19,8 @@
       "@imports/*": ["imports/*"],
       "@categorization-rules/*": ["categorization-rules/*"],
       "@budgets/*": ["budgets/*"],
-      "@auth/*": ["auth/*"]
+      "@auth/*": ["auth/*"],
+      "@workspaces/*": ["workspaces/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
