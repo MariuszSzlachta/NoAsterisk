@@ -1,20 +1,51 @@
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { CategorizationRuleRepository } from '@categorization-rules/application/ports/categorization-rule.repository';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
-import { CategorizationRule, MatcherType } from '@categorization-rules/domain/categorization-rule.entity';
-import { Transaction, TransactionType } from '@transactions/domain/transaction.entity';
+import {
+  CategorizationRule,
+  MatcherType,
+} from '@categorization-rules/domain/categorization-rule.entity';
+import {
+  Transaction,
+  TransactionType,
+} from '@transactions/domain/transaction.entity';
 import { Money } from '@transactions/domain/value-objects/money';
 
-const buildRule = (keyword: string, categoryId: string, priority = 0): CategorizationRule =>
-  new CategorizationRule('r-' + keyword, 'ws-1', keyword, categoryId, MatcherType.Contains, priority, new Date());
+const buildRule = (
+  keyword: string,
+  categoryId: string,
+  priority = 0,
+): CategorizationRule =>
+  new CategorizationRule(
+    `r-${keyword}`,
+    'ws-1',
+    keyword,
+    categoryId,
+    MatcherType.Contains,
+    priority,
+    new Date(),
+  );
 
 const buildTransaction = (id: string, description: string): Transaction =>
-  new Transaction(id, 'ws-1', Money.of(100, 'PLN'), TransactionType.Expense, [], description, new Date(), new Date());
+  new Transaction(
+    id,
+    'ws-1',
+    Money.of(100, 'PLN'),
+    TransactionType.Expense,
+    [],
+    description,
+    new Date(),
+    new Date(),
+  );
 
 describe('AutoCategorizeHandler', () => {
   let handler: AutoCategorizeHandler;
-  let ruleRepo: jest.Mocked<Pick<CategorizationRuleRepository, 'findByWorkspaceId'>>;
-  let transactionRepo: jest.Mocked<Pick<TransactionRepository, 'findUncategorized' | 'saveMany'>>;
+  let ruleRepo: jest.Mocked<
+    Pick<CategorizationRuleRepository, 'findByWorkspaceId'>
+  >;
+  let transactionRepo: jest.Mocked<
+    Pick<TransactionRepository, 'findUncategorized' | 'saveMany'>
+  >;
 
   beforeEach(() => {
     ruleRepo = { findByWorkspaceId: jest.fn() };

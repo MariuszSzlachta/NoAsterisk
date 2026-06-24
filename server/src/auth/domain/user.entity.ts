@@ -16,8 +16,7 @@ export class User {
       throw new DomainError('User email is invalid');
     if (!passwordHash)
       throw new DomainError('User passwordHash cannot be empty');
-    if (!workspaceId)
-      throw new DomainError('User workspaceId cannot be empty');
+    if (!workspaceId) throw new DomainError('User workspaceId cannot be empty');
   }
 
   static create(props: {

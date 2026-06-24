@@ -23,7 +23,9 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
       secret: (() => {
         const secret = process.env['JWT_SECRET'];
         if (!secret && process.env['NODE_ENV'] === 'production') {
-          throw new Error('JWT_SECRET environment variable is required in production');
+          throw new Error(
+            'JWT_SECRET environment variable is required in production',
+          );
         }
         return secret ?? 'dev-secret-unsafe';
       })(),
@@ -42,6 +44,12 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
-  exports: [USER_REPOSITORY, TOKEN_PORT, PERMISSION_REPOSITORY, JwtAuthGuard, RolesGuard],
+  exports: [
+    USER_REPOSITORY,
+    TOKEN_PORT,
+    PERMISSION_REPOSITORY,
+    JwtAuthGuard,
+    RolesGuard,
+  ],
 })
 export class AuthModule {}

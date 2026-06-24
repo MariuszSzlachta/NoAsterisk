@@ -3,9 +3,7 @@ import { ImportProfileRepository } from '@import-profiles/application/ports/impo
 import { ImportProfile } from '@import-profiles/domain/import-profile.entity';
 
 @Injectable()
-export class InMemoryImportProfileRepository
-  implements ImportProfileRepository
-{
+export class InMemoryImportProfileRepository implements ImportProfileRepository {
   private readonly store = new Map<string, ImportProfile>();
 
   async save(profile: ImportProfile): Promise<ImportProfile> {

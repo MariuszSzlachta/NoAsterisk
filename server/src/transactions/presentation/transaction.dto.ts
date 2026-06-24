@@ -1,13 +1,15 @@
 import { z } from 'zod';
 
-export const CreateTransactionDto = z.object({
-  amount: z.number().positive(),
-  currency: z.string().min(3).max(3),
-  type: z.enum(['income', 'expense']),
-  categoryIds: z.array(z.string().uuid()).max(10).default([]),
-  description: z.string().max(1000),
-  date: z.coerce.date(),
-}).strict();
+export const CreateTransactionDto = z
+  .object({
+    amount: z.number().positive(),
+    currency: z.string().min(3).max(3),
+    type: z.enum(['income', 'expense']),
+    categoryIds: z.array(z.uuid()).max(10).default([]),
+    description: z.string().max(1000),
+    date: z.coerce.date(),
+  })
+  .strict();
 
 export type CreateTransactionDto = z.infer<typeof CreateTransactionDto>;
 
@@ -16,7 +18,7 @@ export const UpdateTransactionDto = z
     amount: z.number().positive().optional(),
     currency: z.string().min(3).max(3).optional(),
     type: z.enum(['income', 'expense']).optional(),
-    categoryIds: z.array(z.string().uuid()).max(10).optional(),
+    categoryIds: z.array(z.uuid()).max(10).optional(),
     description: z.string().min(1).max(1000).optional(),
     date: z.coerce.date().optional(),
   })
@@ -34,7 +36,7 @@ export const TransactionQueryDto = z.object({
   sortDir: z.enum(['asc', 'desc']).default('desc'),
   type: z.enum(['income', 'expense']).optional(),
   categoryIds: z
-    .union([z.string().uuid(), z.array(z.string().uuid()).max(10)])
+    .union([z.uuid(), z.array(z.uuid()).max(10)])
     .transform((val) => (Array.isArray(val) ? val : [val]))
     .optional(),
   dateFrom: z.coerce.date().optional(),

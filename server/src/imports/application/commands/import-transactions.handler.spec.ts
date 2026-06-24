@@ -32,7 +32,7 @@ describe('ImportTransactionsHandler', () => {
     description: 'BIEDRONKA',
     date: new Date('2026-06-15'),
     categoryIds: [],
-    contentHash: 'hash-' + Math.random().toString(36).slice(2),
+    contentHash: `hash-${Math.random().toString(36).slice(2)}`,
     ...overrides,
   });
 
@@ -80,7 +80,9 @@ describe('ImportTransactionsHandler', () => {
     piiService = {
       validate: jest.fn().mockReturnValue([]),
     } as unknown as jest.Mocked<PiiValidationService>;
-    autoCategorize = { execute: jest.fn().mockResolvedValue({ categorized: 0, total: 0 }) };
+    autoCategorize = {
+      execute: jest.fn().mockResolvedValue({ categorized: 0, total: 0 }),
+    };
     profileRepo = {
       save: jest.fn(),
       findById: jest.fn().mockResolvedValue(undefined),

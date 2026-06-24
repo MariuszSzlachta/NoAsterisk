@@ -2,7 +2,10 @@ import { AnonymizationStrategy } from '@import-profiles/domain/anonymization-str
 
 export type AnonymizationStrategyDto = 'Hash' | 'Mask' | 'Remove';
 
-export const STRATEGY_FROM_DTO: Record<AnonymizationStrategyDto, AnonymizationStrategy> = {
+export const STRATEGY_FROM_DTO: Record<
+  AnonymizationStrategyDto,
+  AnonymizationStrategy
+> = {
   Hash: AnonymizationStrategy.Hash,
   Mask: AnonymizationStrategy.Mask,
   Remove: AnonymizationStrategy.Remove,

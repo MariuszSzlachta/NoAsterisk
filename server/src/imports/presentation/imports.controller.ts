@@ -29,7 +29,10 @@ import { ImportBatchResponseDto } from '@imports/application/dto/import-batch-re
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { UuidParam } from '@shared/presentation/common.dto';
 import { PagedResult } from '@shared/application/types/paged-query.types';
-import { CurrentUser, CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '@auth/presentation/decorators/current-user.decorator';
 
 @Controller('imports')
 export class ImportsController {
@@ -44,7 +47,8 @@ export class ImportsController {
   @HttpCode(HttpStatus.CREATED)
   async importTransactions(
     @CurrentUser() user: CurrentUserPayload,
-    @Body(new ZodValidationPipe(ImportTransactionsDto)) dto: ImportTransactionsDto,
+    @Body(new ZodValidationPipe(ImportTransactionsDto))
+    dto: ImportTransactionsDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<unknown> {
     try {

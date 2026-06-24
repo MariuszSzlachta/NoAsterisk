@@ -20,7 +20,11 @@ import { CategorizationRulesModule } from '@categorization-rules/categorization-
 import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 
 @Module({
-  imports: [TransactionsModule, CategorizationRulesModule, ImportProfilesModule],
+  imports: [
+    TransactionsModule,
+    CategorizationRulesModule,
+    ImportProfilesModule,
+  ],
   controllers: [ImportsController],
   providers: [
     ImportTransactionsHandler,

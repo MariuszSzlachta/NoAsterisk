@@ -1,4 +1,7 @@
-import { ContainsMatcher, ExactMatcher } from '@categorization-rules/domain/matchers';
+import {
+  ContainsMatcher,
+  ExactMatcher,
+} from '@categorization-rules/domain/matchers';
 
 describe('ContainsMatcher', () => {
   const matcher = new ContainsMatcher();

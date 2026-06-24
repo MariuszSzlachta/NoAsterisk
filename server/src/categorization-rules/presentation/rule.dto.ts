@@ -1,18 +1,20 @@
 import { z } from 'zod';
 
-export const createRuleSchema = z.object({
-  keyword: z.string().min(1).max(255),
-  categoryId: z.string().uuid(),
-  matcherType: z.enum(['Contains', 'Exact']),
-  priority: z.number().int().min(0).optional(),
-}).strict();
+export const createRuleSchema = z
+  .object({
+    keyword: z.string().min(1).max(255),
+    categoryId: z.uuid(),
+    matcherType: z.enum(['Contains', 'Exact']),
+    priority: z.number().int().min(0).optional(),
+  })
+  .strict();
 
 export type CreateRuleDto = z.infer<typeof createRuleSchema>;
 
 export const updateRuleSchema = z
   .object({
     keyword: z.string().min(1).max(255).optional(),
-    categoryId: z.string().uuid().optional(),
+    categoryId: z.uuid().optional(),
     matcherType: z.enum(['Contains', 'Exact']).optional(),
     priority: z.number().int().min(0).optional(),
   })

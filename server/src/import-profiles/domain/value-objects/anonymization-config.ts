@@ -20,7 +20,8 @@ export class AnonymizationConfig {
 
   equals(other: AnonymizationConfig): boolean {
     if (this.strategy !== other.strategy) return false;
-    if (this.fieldsToAnonymize.length !== other.fieldsToAnonymize.length) return false;
+    if (this.fieldsToAnonymize.length !== other.fieldsToAnonymize.length)
+      return false;
     const thisSet = new Set(this.fieldsToAnonymize);
     return other.fieldsToAnonymize.every((f) => thisSet.has(f));
   }

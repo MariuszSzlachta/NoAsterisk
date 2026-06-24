@@ -1,4 +1,8 @@
-import { Permission, ResourceType, Action } from '@auth/domain/permission.entity';
+import {
+  Permission,
+  ResourceType,
+  Action,
+} from '@auth/domain/permission.entity';
 
 export const PERMISSION_REPOSITORY = Symbol('PERMISSION_REPOSITORY');
 

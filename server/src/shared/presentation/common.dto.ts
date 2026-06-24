@@ -1,3 +1,3 @@
 import { z } from 'zod';
 
-export const UuidParam = z.string().uuid();
+export const UuidParam = z.uuid();

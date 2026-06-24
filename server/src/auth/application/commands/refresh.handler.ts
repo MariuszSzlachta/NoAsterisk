@@ -16,7 +16,11 @@ export class RefreshHandler {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokenPayload = { sub: payload.sub, workspaceId: payload.workspaceId, role: payload.role };
+    const tokenPayload = {
+      sub: payload.sub,
+      workspaceId: payload.workspaceId,
+      role: payload.role,
+    };
 
     return {
       accessToken: this.token.sign(tokenPayload),

@@ -1,12 +1,32 @@
-import { Controller, Post, Body, UsePipes, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UsePipes,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterHandler } from '@auth/application/commands/register.handler';
 import { LoginHandler } from '@auth/application/commands/login.handler';
-import { RefreshHandler, RefreshResult } from '@auth/application/commands/refresh.handler';
+import {
+  RefreshHandler,
+  RefreshResult,
+} from '@auth/application/commands/refresh.handler';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
-import { registerSchema, loginSchema, refreshSchema, RegisterDto, LoginDto, RefreshDto } from '@auth/presentation/auth.dto';
+import {
+  registerSchema,
+  loginSchema,
+  refreshSchema,
+  RegisterDto,
+  LoginDto,
+  RefreshDto,
+} from '@auth/presentation/auth.dto';
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
-import { THROTTLE_AUTH, THROTTLE_REFRESH } from '@shared/presentation/throttle.constants';
+import {
+  THROTTLE_AUTH,
+  THROTTLE_REFRESH,
+} from '@shared/presentation/throttle.constants';
 import { Public } from '@auth/presentation/decorators/public.decorator';
 
 @Controller('auth')

@@ -14,7 +14,10 @@ import {
 import { CreateRuleHandler } from '@categorization-rules/application/commands/create-rule.handler';
 import { UpdateRuleHandler } from '@categorization-rules/application/commands/update-rule.handler';
 import { DeleteRuleHandler } from '@categorization-rules/application/commands/delete-rule.handler';
-import { AutoCategorizeHandler, AutoCategorizeResult } from '@categorization-rules/application/commands/auto-categorize.handler';
+import {
+  AutoCategorizeHandler,
+  AutoCategorizeResult,
+} from '@categorization-rules/application/commands/auto-categorize.handler';
 import { GetRulesHandler } from '@categorization-rules/application/queries/get-rules.handler';
 import {
   createRuleSchema,
@@ -28,7 +31,10 @@ import { CategorizationRuleResponseDto } from '@categorization-rules/application
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { UuidParam } from '@shared/presentation/common.dto';
 import { PagedResult } from '@shared/application/types/paged-query.types';
-import { CurrentUser, CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '@auth/presentation/decorators/current-user.decorator';
 
 @Controller('categorization-rules')
 export class CategorizationRulesController {
@@ -54,7 +60,9 @@ export class CategorizationRulesController {
 
   @Post('apply')
   @HttpCode(HttpStatus.OK)
-  async apply(@CurrentUser() user: CurrentUserPayload): Promise<AutoCategorizeResult> {
+  async apply(
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<AutoCategorizeResult> {
     return this.autoCategorizeHandler.execute({
       workspaceId: user.workspaceId,
     });

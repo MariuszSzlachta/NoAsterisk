@@ -27,7 +27,10 @@ import {
   PagedResult,
   SortDirection,
 } from '@shared/application/types/paged-query.types';
-import { CurrentUser, CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '@auth/presentation/decorators/current-user.decorator';
 
 const SORT_DIR_MAP: Record<'asc' | 'desc', SortDirection> = {
   asc: SortDirection.Asc,
@@ -47,7 +50,8 @@ export class TransactionsController {
   @Post()
   async create(
     @CurrentUser() user: CurrentUserPayload,
-    @Body(new ZodValidationPipe(CreateTransactionDto)) dto: CreateTransactionDto,
+    @Body(new ZodValidationPipe(CreateTransactionDto))
+    dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     return this.createHandler.execute({
       workspaceId: user.workspaceId,

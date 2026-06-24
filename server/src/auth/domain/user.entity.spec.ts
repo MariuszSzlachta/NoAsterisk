@@ -27,14 +27,30 @@ describe('User', () => {
     it.each([
       ['empty id', { id: '', email: 'a@b.co', hash: 'x', ws: 'ws-1' }],
       ['empty email', { id: 'u1', email: '', hash: 'x', ws: 'ws-1' }],
-      ['invalid email (no TLD)', { id: 'u1', email: 'a@b.c', hash: 'x', ws: 'ws-1' }],
-      ['invalid email (no @)', { id: 'u1', email: 'not-email', hash: 'x', ws: 'ws-1' }],
-      ['empty passwordHash', { id: 'u1', email: 'a@b.co', hash: '', ws: 'ws-1' }],
+      [
+        'invalid email (no TLD)',
+        { id: 'u1', email: 'a@b.c', hash: 'x', ws: 'ws-1' },
+      ],
+      [
+        'invalid email (no @)',
+        { id: 'u1', email: 'not-email', hash: 'x', ws: 'ws-1' },
+      ],
+      [
+        'empty passwordHash',
+        { id: 'u1', email: 'a@b.co', hash: '', ws: 'ws-1' },
+      ],
       ['empty workspaceId', { id: 'u1', email: 'a@b.co', hash: 'x', ws: '' }],
     ])('throws for %s', (_, props) => {
       expect(
         () =>
-          new User(props.id, props.email, props.hash, UserRole.Member, props.ws, new Date()),
+          new User(
+            props.id,
+            props.email,
+            props.hash,
+            UserRole.Member,
+            props.ws,
+            new Date(),
+          ),
       ).toThrow();
     });
   });

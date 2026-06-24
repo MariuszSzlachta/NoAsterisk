@@ -17,10 +17,7 @@ export class DeleteImportProfileHandler {
   ) {}
 
   async execute(command: DeleteImportProfileCommand): Promise<boolean> {
-    const existing = await this.repo.findById(
-      command.workspaceId,
-      command.id,
-    );
+    const existing = await this.repo.findById(command.workspaceId, command.id);
     if (!existing) {
       return false;
     }

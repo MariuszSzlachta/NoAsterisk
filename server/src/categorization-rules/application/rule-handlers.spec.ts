@@ -4,7 +4,10 @@ import { DeleteRuleHandler } from '@categorization-rules/application/commands/de
 import { GetRulesHandler } from '@categorization-rules/application/queries/get-rules.handler';
 import { CategorizationRuleRepository } from '@categorization-rules/application/ports/categorization-rule.repository';
 import { CategoryRepository } from '@categories/application/ports/category.repository';
-import { CategorizationRule, MatcherType } from '@categorization-rules/domain/categorization-rule.entity';
+import {
+  CategorizationRule,
+  MatcherType,
+} from '@categorization-rules/domain/categorization-rule.entity';
 import { Category } from '@categories/domain/category.entity';
 import { BadRequestException } from '@nestjs/common';
 
@@ -16,11 +19,20 @@ const buildRepo = (): jest.Mocked<CategorizationRuleRepository> => ({
   delete: jest.fn(),
 });
 
-const buildCategoryRepo = (): jest.Mocked<Pick<CategoryRepository, 'findById'>> => ({
+const buildCategoryRepo = (): jest.Mocked<
+  Pick<CategoryRepository, 'findById'>
+> => ({
   findById: jest.fn(),
 });
 
-const buildRule = (overrides?: Partial<{ id: string; workspaceId: string; keyword: string; priority: number }>): CategorizationRule =>
+const buildRule = (
+  overrides?: Partial<{
+    id: string;
+    workspaceId: string;
+    keyword: string;
+    priority: number;
+  }>,
+): CategorizationRule =>
   new CategorizationRule(
     overrides?.id ?? 'rule-1',
     overrides?.workspaceId ?? 'ws-1',
@@ -35,8 +47,13 @@ describe('CreateRuleHandler', () => {
   it('creates rule and returns DTO', async () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
-    categoryRepo.findById.mockResolvedValue(new Category('cat-1', 'Groceries', new Date()));
-    const handler = new CreateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    categoryRepo.findById.mockResolvedValue(
+      new Category('cat-1', 'Groceries', new Date()),
+    );
+    const handler = new CreateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     const result = await handler.execute({
       workspaceId: 'ws-1',
@@ -54,7 +71,10 @@ describe('CreateRuleHandler', () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
     categoryRepo.findById.mockResolvedValue(undefined);
-    const handler = new CreateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    const handler = new CreateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     await expect(
       handler.execute({
@@ -72,7 +92,10 @@ describe('UpdateRuleHandler', () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
     repo.findById.mockResolvedValue(buildRule());
-    const handler = new UpdateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    const handler = new UpdateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     const result = await handler.execute({
       workspaceId: 'ws-1',
@@ -88,10 +111,17 @@ describe('UpdateRuleHandler', () => {
     const categoryRepo = buildCategoryRepo();
     repo.findById.mockResolvedValue(buildRule());
     categoryRepo.findById.mockResolvedValue(undefined);
-    const handler = new UpdateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    const handler = new UpdateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     await expect(
-      handler.execute({ workspaceId: 'ws-1', id: 'rule-1', categoryId: 'bad-cat' }),
+      handler.execute({
+        workspaceId: 'ws-1',
+        id: 'rule-1',
+        categoryId: 'bad-cat',
+      }),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -99,7 +129,10 @@ describe('UpdateRuleHandler', () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
     repo.findById.mockResolvedValue(undefined);
-    const handler = new UpdateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    const handler = new UpdateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     const result = await handler.execute({ workspaceId: 'ws-1', id: 'nope' });
     expect(result).toBeUndefined();
@@ -109,7 +142,10 @@ describe('UpdateRuleHandler', () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
     repo.findById.mockResolvedValue(buildRule({ workspaceId: 'ws-other' }));
-    const handler = new UpdateRuleHandler(repo, categoryRepo as unknown as CategoryRepository);
+    const handler = new UpdateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
 
     const result = await handler.execute({ workspaceId: 'ws-1', id: 'rule-1' });
     expect(result).toBeUndefined();
@@ -141,12 +177,19 @@ describe('GetRulesHandler', () => {
   it('returns paginated rules from repo', async () => {
     const repo = buildRepo();
     repo.findPaged.mockResolvedValue({
-      data: [buildRule({ id: 'r1', priority: 5 }), buildRule({ id: 'r2', priority: 1 })],
+      data: [
+        buildRule({ id: 'r1', priority: 5 }),
+        buildRule({ id: 'r2', priority: 1 }),
+      ],
       meta: { page: 1, limit: 50, total: 2, totalPages: 1 },
     });
     const handler = new GetRulesHandler(repo);
 
-    const result = await handler.execute({ workspaceId: 'ws-1', page: 1, limit: 50 });
+    const result = await handler.execute({
+      workspaceId: 'ws-1',
+      page: 1,
+      limit: 50,
+    });
 
     expect(result.data).toHaveLength(2);
     expect(result.meta.total).toBe(2);
@@ -161,7 +204,11 @@ describe('GetRulesHandler', () => {
     });
     const handler = new GetRulesHandler(repo);
 
-    const result = await handler.execute({ workspaceId: 'ws-1', page: 1, limit: 50 });
+    const result = await handler.execute({
+      workspaceId: 'ws-1',
+      page: 1,
+      limit: 50,
+    });
     expect(result.data).toHaveLength(0);
   });
 });

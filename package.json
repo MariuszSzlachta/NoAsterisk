@@ -1,10 +1,24 @@
 {
   "name": "budget",
   "private": true,
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "dev": "npm run dev --workspaces",
     "build": "npm run build --workspaces",
-    "lint": "npm run lint --workspaces"
+    "lint": "npm run lint --workspaces",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "server/**/*.ts": [
+      "bash -c 'cd server && ESLINT_STRICT=true npx eslint --fix \"$@\"' --",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8"
   }
 }

@@ -10,7 +10,10 @@ import { AnonymizationConfig } from '@import-profiles/domain/value-objects/anony
 import { DomainError } from '@shared/domain/domain.error';
 import { ImportProfileResponseDto } from '@import-profiles/application/dto/import-profile-response.dto';
 import { ImportProfileResponseMapper } from '@import-profiles/application/mappers/import-profile-response.mapper';
-import { AnonymizationStrategyDto, STRATEGY_FROM_DTO } from '@import-profiles/application/mappers/strategy.mapper';
+import {
+  AnonymizationStrategyDto,
+  STRATEGY_FROM_DTO,
+} from '@import-profiles/application/mappers/strategy.mapper';
 
 export interface CreateImportProfileCommand {
   workspaceId: string;

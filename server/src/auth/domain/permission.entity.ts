@@ -14,8 +14,10 @@ export class Permission {
   ) {
     if (!id) throw new DomainError('Permission ID cannot be empty');
     if (!userId) throw new DomainError('Permission userId cannot be empty');
-    if (!resourceId) throw new DomainError('Permission resourceId cannot be empty');
-    if (actions.length === 0) throw new DomainError('Permission must have at least one action');
+    if (!resourceId)
+      throw new DomainError('Permission resourceId cannot be empty');
+    if (actions.length === 0)
+      throw new DomainError('Permission must have at least one action');
   }
 
   static create(props: {

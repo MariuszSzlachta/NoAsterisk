@@ -26,7 +26,7 @@ export class IbanRule implements PiiRule {
     // Rearrange: move check digits to end, prepend country code (PL=2521)
     // Full rearrangement: bankAccountNumber + "PL" + checkDigits
     // In numeric: digits[2..25] + "2521" + digits[0..1]
-    const rearranged = digits26.slice(2) + '2521' + digits26.slice(0, 2);
+    const rearranged = `${digits26.slice(2)}2521${digits26.slice(0, 2)}`;
     return this.mod97(rearranged) === 1;
   }
 

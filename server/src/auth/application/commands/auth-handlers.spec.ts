@@ -43,13 +43,22 @@ describe('RegisterHandler', () => {
       verify: jest.fn(),
       verifyRefresh: jest.fn(),
     };
-    handler = new RegisterHandler(userRepo, hasher, token, workspaceRepo, permissionRepo);
+    handler = new RegisterHandler(
+      userRepo,
+      hasher,
+      token,
+      workspaceRepo,
+      permissionRepo,
+    );
   });
 
   afterEach(() => jest.clearAllMocks());
 
   it('creates workspace and user, returns access token', async () => {
-    const result = await handler.execute({ email: 'user@test.com', password: 'password123' });
+    const result = await handler.execute({
+      email: 'user@test.com',
+      password: 'password123',
+    });
 
     expect(result.accessToken).toBe('jwt-token');
     expect(result.refreshToken).toBe('refresh-token');
@@ -121,7 +130,10 @@ describe('LoginHandler', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('returns access token for valid credentials', async () => {
-    const result = await handler.execute({ email: 'user@test.com', password: 'password123' });
+    const result = await handler.execute({
+      email: 'user@test.com',
+      password: 'password123',
+    });
 
     expect(result.accessToken).toBe('jwt-token');
     expect(result.user.id).toBe('user-1');
@@ -175,26 +187,42 @@ describe('RefreshHandler', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('returns new access token and rotated refresh token for valid refresh token', () => {
-    token.verifyRefresh.mockReturnValue({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
+    token.verifyRefresh.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+    });
     token.signRefresh.mockReturnValue('new-refresh-token');
 
     const result = handler.execute('valid-refresh-token');
 
     expect(result.accessToken).toBe('new-access-token');
     expect(result.refreshToken).toBe('new-refresh-token');
-    expect(token.sign).toHaveBeenCalledWith({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
-    expect(token.signRefresh).toHaveBeenCalledWith({ sub: 'user-1', workspaceId: 'ws-1', role: 'Member' });
+    expect(token.sign).toHaveBeenCalledWith({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+    });
+    expect(token.signRefresh).toHaveBeenCalledWith({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+    });
   });
 
   it('throws UnauthorizedException for invalid refresh token', () => {
     token.verifyRefresh.mockReturnValue(undefined);
 
-    expect(() => handler.execute('invalid-token')).toThrow('Invalid refresh token');
+    expect(() => handler.execute('invalid-token')).toThrow(
+      'Invalid refresh token',
+    );
   });
 
   it('throws UnauthorizedException for expired refresh token', () => {
     token.verifyRefresh.mockReturnValue(undefined);
 
-    expect(() => handler.execute('expired-token')).toThrow('Invalid refresh token');
+    expect(() => handler.execute('expired-token')).toThrow(
+      'Invalid refresh token',
+    );
   });
 });

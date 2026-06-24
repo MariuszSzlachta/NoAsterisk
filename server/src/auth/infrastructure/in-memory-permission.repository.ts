@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Permission, ResourceType, Action } from '@auth/domain/permission.entity';
+import {
+  Permission,
+  ResourceType,
+  Action,
+} from '@auth/domain/permission.entity';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
 
 @Injectable()
@@ -30,7 +34,11 @@ export class InMemoryPermissionRepository implements PermissionRepository {
     resourceId: string,
     action: Action,
   ): Promise<boolean> {
-    const permission = await this.findByUserAndResource(userId, resourceType, resourceId);
+    const permission = await this.findByUserAndResource(
+      userId,
+      resourceType,
+      resourceId,
+    );
     return permission ? permission.hasAction(action) : false;
   }
 }

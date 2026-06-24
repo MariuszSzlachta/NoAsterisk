@@ -75,9 +75,14 @@ export class ImportTransactionsHandler {
     command: ImportTransactionsCommand,
   ): Promise<ImportTransactionsResult> {
     if (command.profileId) {
-      const profile = await this.profileRepo.findById(command.workspaceId, command.profileId);
+      const profile = await this.profileRepo.findById(
+        command.workspaceId,
+        command.profileId,
+      );
       if (!profile) {
-        throw new DomainError(`Import profile '${command.profileId}' not found`);
+        throw new DomainError(
+          `Import profile '${command.profileId}' not found`,
+        );
       }
     }
 

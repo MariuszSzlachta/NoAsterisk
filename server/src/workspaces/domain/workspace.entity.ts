@@ -12,7 +12,8 @@ export class Workspace {
   ) {
     if (!id) throw new DomainError('Workspace ID cannot be empty');
     if (!name.trim()) throw new DomainError('Workspace name cannot be empty');
-    if (name.length > 100) throw new DomainError('Workspace name cannot exceed 100 characters');
+    if (name.length > 100)
+      throw new DomainError('Workspace name cannot exceed 100 characters');
   }
 
   static create(props: { name: string }): Workspace {

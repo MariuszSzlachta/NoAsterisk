@@ -10,7 +10,10 @@ import {
 import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
 import { CategorizationRuleResponseDto } from '@categorization-rules/application/dto/categorization-rule-response.dto';
 import { CategorizationRuleResponseMapper } from '@categorization-rules/application/mappers/categorization-rule-response.mapper';
-import { MATCHER_TYPE_TO_DOMAIN, MatcherTypeDto } from '@categorization-rules/application/mappers/matcher-type.mapping';
+import {
+  MATCHER_TYPE_TO_DOMAIN,
+  MatcherTypeDto,
+} from '@categorization-rules/application/mappers/matcher-type.mapping';
 
 export interface CreateRuleCommand {
   workspaceId: string;
@@ -36,7 +39,9 @@ export class CreateRuleHandler {
     // Cross-tenant category assignment possible until Category gets workspace isolation.
     const category = await this.categoryRepo.findById(command.categoryId);
     if (!category) {
-      throw new BadRequestException(`Category '${command.categoryId}' not found`);
+      throw new BadRequestException(
+        `Category '${command.categoryId}' not found`,
+      );
     }
 
     const rule = CategorizationRule.create({

@@ -23,8 +23,16 @@ const columnMappingsRaw = [
   { sourceColumn: 'date', targetField: 'date', isRequired: true },
   { sourceColumn: 'amount', targetField: 'amount', isRequired: true },
 ];
-const parserConfigRaw = { delimiter: ',', hasHeader: true, dateFormat: 'YYYY-MM-DD', encoding: 'UTF-8' };
-const anonymizationConfigRaw = { fieldsToAnonymize: ['title'], strategy: 'Hash' as const };
+const parserConfigRaw = {
+  delimiter: ',',
+  hasHeader: true,
+  dateFormat: 'YYYY-MM-DD',
+  encoding: 'UTF-8',
+};
+const anonymizationConfigRaw = {
+  fieldsToAnonymize: ['title'],
+  strategy: 'Hash' as const,
+};
 
 const buildProfile = (
   overrides?: Partial<{ id: string; workspaceId: string; name: string }>,
@@ -138,7 +146,10 @@ describe('DeleteImportProfileHandler', () => {
     repo.findById.mockResolvedValue(buildProfile());
     const handler = new DeleteImportProfileHandler(repo);
 
-    const result = await handler.execute({ workspaceId: 'ws-1', id: 'profile-1' });
+    const result = await handler.execute({
+      workspaceId: 'ws-1',
+      id: 'profile-1',
+    });
 
     expect(result).toBe(true);
     expect(repo.delete).toHaveBeenCalledWith('ws-1', 'profile-1');
@@ -149,7 +160,10 @@ describe('DeleteImportProfileHandler', () => {
     repo.findById.mockResolvedValue(undefined);
     const handler = new DeleteImportProfileHandler(repo);
 
-    const result = await handler.execute({ workspaceId: 'ws-1', id: 'nonexistent' });
+    const result = await handler.execute({
+      workspaceId: 'ws-1',
+      id: 'nonexistent',
+    });
 
     expect(result).toBe(false);
     expect(repo.delete).not.toHaveBeenCalled();
@@ -160,7 +174,10 @@ describe('DeleteImportProfileHandler', () => {
     repo.findById.mockResolvedValue(undefined);
     const handler = new DeleteImportProfileHandler(repo);
 
-    const result = await handler.execute({ workspaceId: 'wrong-ws', id: 'profile-1' });
+    const result = await handler.execute({
+      workspaceId: 'wrong-ws',
+      id: 'profile-1',
+    });
 
     expect(result).toBe(false);
     expect(repo.delete).not.toHaveBeenCalled();
@@ -172,7 +189,10 @@ describe('GetImportProfilesHandler', () => {
 
   it('returns mapped profiles for workspace', async () => {
     const repo = buildRepo();
-    repo.findByWorkspaceId.mockResolvedValue([buildProfile(), buildProfile({ id: 'profile-2', name: 'Other Bank' })]);
+    repo.findByWorkspaceId.mockResolvedValue([
+      buildProfile(),
+      buildProfile({ id: 'profile-2', name: 'Other Bank' }),
+    ]);
     const handler = new GetImportProfilesHandler(repo);
 
     const result = await handler.execute('ws-1');

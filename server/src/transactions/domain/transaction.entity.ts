@@ -17,8 +17,8 @@ export class Transaction {
     public readonly description: string,
     public readonly date: Date,
     public readonly createdAt: Date,
-    public readonly contentHash: string | undefined = undefined,
-    public readonly importBatchId: string | undefined = undefined,
+    public readonly contentHash?: string | undefined,
+    public readonly importBatchId?: string | undefined,
   ) {
     if (!id) {
       throw new DomainError('Transaction ID cannot be empty');
@@ -27,7 +27,7 @@ export class Transaction {
       throw new DomainError('Transaction workspaceId cannot be empty');
     }
     if (!isTransactionType(type)) {
-      throw new DomainError(`Invalid transaction type: ${type}`);
+      throw new DomainError(`Invalid transaction type: ${String(type)}`);
     }
   }
 

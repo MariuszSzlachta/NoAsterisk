@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
 import { CategorizationRuleRepository } from '@categorization-rules/application/ports/categorization-rule.repository';
-import { PagedResult, PageOptions } from '@shared/application/types/paged-query.types';
+import {
+  PagedResult,
+  PageOptions,
+} from '@shared/application/types/paged-query.types';
 
 @Injectable()
 export class InMemoryCategorizationRuleRepository implements CategorizationRuleRepository {
@@ -22,7 +25,10 @@ export class InMemoryCategorizationRuleRepository implements CategorizationRuleR
     );
   }
 
-  async findPaged(workspaceId: string, page: PageOptions): Promise<PagedResult<CategorizationRule>> {
+  async findPaged(
+    workspaceId: string,
+    page: PageOptions,
+  ): Promise<PagedResult<CategorizationRule>> {
     const all = [...this.store.values()]
       .filter((r) => r.workspaceId === workspaceId)
       .sort((a, b) => b.priority - a.priority);
@@ -33,7 +39,12 @@ export class InMemoryCategorizationRuleRepository implements CategorizationRuleR
 
     return {
       data,
-      meta: { page: page.page, limit: page.limit, total, totalPages: Math.ceil(total / page.limit) },
+      meta: {
+        page: page.page,
+        limit: page.limit,
+        total,
+        totalPages: Math.ceil(total / page.limit),
+      },
     };
   }
 

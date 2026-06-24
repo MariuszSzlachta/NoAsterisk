@@ -17,14 +17,20 @@ describe('CategorizationRulesController', () => {
 
     app = module.createNestApplication();
     app.use((req: { user: unknown }, _res: unknown, next: () => void) => {
-      req.user = { userId: 'test-user', workspaceId: 'ws-test', role: 'Member' };
+      req.user = {
+        userId: 'test-user',
+        workspaceId: 'ws-test',
+        role: 'Member',
+      };
       next();
     });
     await app.init();
 
     // Seed a category so rules can reference it
     const categoryRepo = app.get(CATEGORY_REPOSITORY);
-    await categoryRepo.save(new Category(testCategoryId, 'Groceries', new Date()));
+    await categoryRepo.save(
+      new Category(testCategoryId, 'Groceries', new Date()),
+    );
   });
 
   afterAll(async () => {
@@ -75,7 +81,10 @@ describe('CategorizationRulesController', () => {
     it('returns 400 for non-existent categoryId', async () => {
       const response = await request(app.getHttpServer())
         .post('/categorization-rules')
-        .send({ ...validPayload, categoryId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' });
+        .send({
+          ...validPayload,
+          categoryId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        });
 
       expect(response.status).toBe(400);
     });
@@ -83,8 +92,9 @@ describe('CategorizationRulesController', () => {
 
   describe('GET /categorization-rules', () => {
     it('returns paginated rules', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/categorization-rules');
+      const response = await request(app.getHttpServer()).get(
+        '/categorization-rules',
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.data).toBeInstanceOf(Array);
@@ -94,8 +104,9 @@ describe('CategorizationRulesController', () => {
     });
 
     it('respects page and limit params', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/categorization-rules?page=1&limit=1');
+      const response = await request(app.getHttpServer()).get(
+        '/categorization-rules?page=1&limit=1',
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.data.length).toBeLessThanOrEqual(1);
@@ -135,15 +146,17 @@ describe('CategorizationRulesController', () => {
   describe('DELETE /categorization-rules/:id', () => {
     it('deletes rule and returns 204', async () => {
       const id = await createRule();
-      const response = await request(app.getHttpServer())
-        .delete(`/categorization-rules/${id}`);
+      const response = await request(app.getHttpServer()).delete(
+        `/categorization-rules/${id}`,
+      );
 
       expect(response.status).toBe(204);
     });
 
     it('returns 404 for non-existent rule', async () => {
-      const response = await request(app.getHttpServer())
-        .delete('/categorization-rules/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+      const response = await request(app.getHttpServer()).delete(
+        '/categorization-rules/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      );
 
       expect(response.status).toBe(404);
     });
