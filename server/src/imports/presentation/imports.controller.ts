@@ -53,6 +53,7 @@ export class ImportsController {
         workspaceId: user.workspaceId,
         batchHash: dto.batchHash,
         sourceFilename: dto.sourceFilename,
+        profileId: dto.profileId,
         rows: dto.rows,
         isRetry: dto.isRetry,
       });

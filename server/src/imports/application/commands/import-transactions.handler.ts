@@ -12,6 +12,10 @@ import {
   Transaction,
   TransactionType,
 } from '@transactions/domain/transaction.entity';
+import {
+  IMPORT_PROFILE_REPOSITORY,
+  ImportProfileRepository,
+} from '@import-profiles/application/ports/import-profile.repository';
 import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
@@ -32,6 +36,7 @@ export interface ImportTransactionsCommand {
   workspaceId: string;
   batchHash: string;
   sourceFilename?: string;
+  profileId?: string;
   rows: ImportTransactionRow[];
   isRetry?: boolean;
 }
@@ -60,6 +65,8 @@ export class ImportTransactionsHandler {
     private readonly batchRepo: ImportBatchRepository,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactionRepo: TransactionRepository,
+    @Inject(IMPORT_PROFILE_REPOSITORY)
+    private readonly profileRepo: ImportProfileRepository,
     private readonly piiService: PiiValidationService,
     private readonly autoCategorize: AutoCategorizeHandler,
   ) {}
@@ -67,6 +74,13 @@ export class ImportTransactionsHandler {
   async execute(
     command: ImportTransactionsCommand,
   ): Promise<ImportTransactionsResult> {
+    if (command.profileId) {
+      const profile = await this.profileRepo.findById(command.workspaceId, command.profileId);
+      if (!profile) {
+        throw new DomainError(`Import profile '${command.profileId}' not found`);
+      }
+    }
+
     const batch = await this.resolveOrCreateBatch(command);
 
     const { clean, rejected } = this.partitionByPii(command.rows);

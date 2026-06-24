@@ -17,9 +17,10 @@ import {
 } from '@imports/infrastructure/pii-rules';
 import { TransactionsModule } from '@transactions/transactions.module';
 import { CategorizationRulesModule } from '@categorization-rules/categorization-rules.module';
+import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 
 @Module({
-  imports: [TransactionsModule, CategorizationRulesModule],
+  imports: [TransactionsModule, CategorizationRulesModule, ImportProfilesModule],
   controllers: [ImportsController],
   providers: [
     ImportTransactionsHandler,

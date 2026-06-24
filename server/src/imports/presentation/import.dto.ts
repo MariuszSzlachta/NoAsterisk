@@ -18,6 +18,7 @@ export const ImportTransactionsDto = z.object({
     .max(255)
     .regex(/^[^/\\<>:"|?*]+$/)
     .optional(),
+  profileId: z.string().uuid().optional(),
   rows: z.array(ImportTransactionRowDto).min(1).max(200),
   isRetry: z.boolean().optional(),
 }).strict();

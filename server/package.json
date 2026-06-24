@@ -74,7 +74,8 @@
       "^@imports/(.*)$": "<rootDir>/imports/$1",
       "^@categorization-rules/(.*)$": "<rootDir>/categorization-rules/$1",
       "^@auth/(.*)$": "<rootDir>/auth/$1",
-      "^@workspaces/(.*)$": "<rootDir>/workspaces/$1"
+      "^@workspaces/(.*)$": "<rootDir>/workspaces/$1",
+      "^@import-profiles/(.*)$": "<rootDir>/import-profiles/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

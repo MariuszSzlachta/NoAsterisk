@@ -13,11 +13,13 @@ import {
 import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
+import { ImportProfileRepository } from '@import-profiles/application/ports/import-profile.repository';
 
 describe('ImportTransactionsHandler', () => {
   let handler: ImportTransactionsHandler;
   let batchRepo: jest.Mocked<ImportBatchRepository>;
   let transactionRepo: jest.Mocked<TransactionRepository>;
+  let profileRepo: jest.Mocked<ImportProfileRepository>;
   let piiService: jest.Mocked<PiiValidationService>;
   let autoCategorize: { execute: jest.Mock };
 
@@ -79,9 +81,17 @@ describe('ImportTransactionsHandler', () => {
       validate: jest.fn().mockReturnValue([]),
     } as unknown as jest.Mocked<PiiValidationService>;
     autoCategorize = { execute: jest.fn().mockResolvedValue({ categorized: 0, total: 0 }) };
+    profileRepo = {
+      save: jest.fn(),
+      findById: jest.fn().mockResolvedValue(undefined),
+      findByWorkspaceId: jest.fn().mockResolvedValue([]),
+      findByName: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn(),
+    };
     handler = new ImportTransactionsHandler(
       batchRepo,
       transactionRepo,
+      profileRepo,
       piiService,
       autoCategorize as unknown as AutoCategorizeHandler,
     );
@@ -226,6 +236,18 @@ describe('ImportTransactionsHandler', () => {
       const updatedBatch = lastSaveCall?.[0] as ImportBatch;
       expect(updatedBatch.savedRows).toBe(2);
       expect(updatedBatch.status).toBe(ImportBatchStatus.Complete);
+    });
+  });
+
+  describe('profile validation', () => {
+    it('throws when profileId is provided but profile not found', async () => {
+      profileRepo.findById.mockResolvedValue(undefined);
+      const command = buildCommand({ profileId: 'non-existent-profile' });
+
+      await expect(handler.execute(command)).rejects.toThrow(
+        "Import profile 'non-existent-profile' not found",
+      );
+      expect(transactionRepo.save).not.toHaveBeenCalled();
     });
   });
 });
