@@ -1,62 +1,128 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* --- Colors mapped from CSS vars --- */
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
   --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-primary-foreground: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+
   --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 4px);
+
+  --color-destructive: var(--expense);
+  --color-destructive-foreground: var(--primary-fg);
+
+  --color-income: var(--income);
+  --color-income-soft: var(--income-soft);
+  --color-expense: var(--expense);
+  --color-expense-soft: var(--expense-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  --color-cat-groceries: var(--cat-groceries);
+  --color-cat-transport: var(--cat-transport);
+  --color-cat-subscriptions: var(--cat-subscriptions);
+  --color-cat-dining: var(--cat-dining);
+  --color-cat-bills: var(--cat-bills);
+  --color-cat-entertainment: var(--cat-entertainment);
+
+  /* --- Typography --- */
+  --font-sans: 'Geist', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  /* --- Border radius --- */
+  --radius-sm: 6px;
+  --radius-md: 9px;
+  --radius-lg: 12px;
+
+  /* --- Shadows --- */
+  --shadow-card: var(--shadow);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --border: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --radius: 0.5rem;
+/* ============ DARK THEME (default) ============ */
+:root, .dark {
+  --bg: #0a0b0e;
+  --surface: #101319;
+  --surface-2: #161a22;
+  --surface-3: #1c212b;
+  --muted: #1a1f28;
+  --fg: #e8eaee;
+  --fg-muted: #8b929e;
+  --fg-subtle: #5d6470;
+  --border: #21262f;
+  --border-strong: #2c323d;
+  --primary: #3b82f6;
+  --primary-fg: #ffffff;
+  --primary-soft: rgba(59, 130, 246, 0.14);
+  --ring: #3b82f6;
+  --income: #34d399;
+  --income-soft: rgba(52, 211, 153, 0.13);
+  --expense: #fb7185;
+  --expense-soft: rgba(251, 113, 133, 0.13);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.13);
+  --cat-groceries: #34d399;
+  --cat-transport: #60a5fa;
+  --cat-subscriptions: #a78bfa;
+  --cat-dining: #fbbf24;
+  --cat-bills: #94a3b8;
+  --cat-entertainment: #fb7185;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.02), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --border: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+/* ============ LIGHT THEME ============ */
+.light {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #fafbfc;
+  --surface-3: #f1f3f5;
+  --muted: #f1f3f5;
+  --fg: #101418;
+  --fg-muted: #5b6470;
+  --fg-subtle: #929aa5;
+  --border: #e8eaee;
+  --border-strong: #d8dce2;
+  --primary: #2563eb;
+  --primary-fg: #ffffff;
+  --primary-soft: rgba(37, 99, 235, 0.08);
+  --ring: #2563eb;
+  --income: #16a34a;
+  --income-soft: rgba(22, 163, 74, 0.10);
+  --expense: #e11d48;
+  --expense-soft: rgba(225, 29, 72, 0.08);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.10);
+  --cat-groceries: #10b981;
+  --cat-transport: #3b82f6;
+  --cat-subscriptions: #8b5cf6;
+  --cat-dining: #f59e0b;
+  --cat-bills: #64748b;
+  --cat-entertainment: #f43f5e;
+  --shadow: 0 1px 2px rgba(16, 20, 24, 0.04), 0 1px 3px rgba(16, 20, 24, 0.06);
 }
 
+/* ============ Base styles ============ */
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv01', 'ss01';
+  letter-spacing: -0.01em;
+}
+
+/* Tabular nums for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
