@@ -1,4 +1,4 @@
-import { DomainError } from '../../shared/lib/domain-error';
+import { DomainError } from '#shared/lib/domain-error';
 
 export class Money {
   readonly amount: number;
@@ -10,7 +10,8 @@ export class Money {
   }
 
   static of(amount: number, currency: string): Money {
-    if (!currency.trim()) throw new DomainError('Currency is required', 'currency');
+    if (!currency.trim())
+      throw new DomainError('Currency is required', 'currency');
     return new Money(amount, currency.toUpperCase());
   }
 

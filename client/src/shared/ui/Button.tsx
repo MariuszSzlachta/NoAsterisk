@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,32 +9,32 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-primary-foreground hover:opacity-90',
-  secondary: 'bg-secondary text-secondary-foreground hover:opacity-80',
-  destructive: 'bg-destructive text-destructive-foreground hover:opacity-90',
-  ghost: 'bg-transparent hover:bg-accent hover:text-accent-foreground',
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90',
+  secondary: 'border-border-strong bg-surface text-foreground hover:bg-surface-2',
+  ghost: 'border-transparent bg-transparent text-muted-foreground hover:bg-surface-2',
+  destructive: 'border-transparent bg-expense-soft text-expense hover:bg-expense-soft/80',
 };
 
-const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+  sm: 'h-8 px-3 text-xs',
+  md: 'h-9 px-4 text-sm',
+  lg: 'h-10 px-5 text-sm',
 };
 
-export function Button({
+export const Button = ({
   variant = 'primary',
   size = 'md',
   children,
   className = '',
   ...props
-}: ButtonProps): React.JSX.Element {
+}: ButtonProps): React.JSX.Element => {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md font-medium transition-opacity disabled:pointer-events-none disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       {...props}
     >
       {children}
     </button>
   );
-}
+};

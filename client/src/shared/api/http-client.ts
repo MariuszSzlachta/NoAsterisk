@@ -15,82 +15,105 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
-export interface HttpClient {
-  get: <T>(path: string, options?: RequestOptions) => Promise<T>;
-  post: <T>(path: string, body?: unknown, options?: RequestOptions) => Promise<T>;
-  patch: <T>(path: string, body?: unknown, options?: RequestOptions) => Promise<T>;
-  put: <T>(path: string, body?: unknown, options?: RequestOptions) => Promise<T>;
-  delete: <T>(path: string, options?: RequestOptions) => Promise<T>;
-}
-
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-const BASE_URL = '/api';
+export class HttpClient {
+  readonly #baseUrl: string;
+  readonly #tokenProvider: () => string | undefined;
 
-const getAuthToken = (): string | undefined => {
-  return localStorage.getItem('access_token') ?? undefined;
-};
-
-const buildHeaders = (options?: RequestOptions): Record<string, string> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...options?.headers,
-  };
-
-  const token = getAuthToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  constructor(baseUrl: string, tokenProvider: () => string | undefined) {
+    this.#baseUrl = baseUrl;
+    this.#tokenProvider = tokenProvider;
   }
 
-  return headers;
-};
-
-const handleResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const body = await response.json().catch(() => undefined);
-    throw new ApiError(
-      `HTTP ${response.status}: ${response.statusText}`,
-      response.status,
-      body,
-    );
+  async get<TResponse extends Record<string, unknown>>(
+    path: string,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    return this.request<TResponse>('GET', path, undefined, options);
   }
 
-  if (response.status === 204) {
-    return undefined as unknown as T;
+  async post<
+    TResponse extends Record<string, unknown>,
+    TBody extends Record<string, unknown>,
+  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+    return this.request<TResponse>('POST', path, body, options);
   }
 
-  return response.json() as Promise<T>;
-};
+  async patch<
+    TResponse extends Record<string, unknown>,
+    TBody extends Record<string, unknown>,
+  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+    return this.request<TResponse>('PATCH', path, body, options);
+  }
 
-const request = async <T>(
-  method: HttpMethod,
-  path: string,
-  body?: unknown,
-  options?: RequestOptions,
-): Promise<T> => {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: buildHeaders(options),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal: options?.signal,
-  });
+  async put<
+    TResponse extends Record<string, unknown>,
+    TBody extends Record<string, unknown>,
+  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+    return this.request<TResponse>('PUT', path, body, options);
+  }
 
-  return handleResponse<T>(response);
-};
+  async delete<TResponse extends Record<string, unknown>>(
+    path: string,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    return this.request<TResponse>('DELETE', path, undefined, options);
+  }
 
-export const httpClient: HttpClient = {
-  get: <T>(path: string, options?: RequestOptions): Promise<T> =>
-    request<T>('GET', path, undefined, options),
+  private async request<TResponse extends Record<string, unknown>>(
+    method: HttpMethod,
+    path: string,
+    body?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    const headers = this.buildHeaders(options);
 
-  post: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
-    request<T>('POST', path, body, options),
+    const response = await fetch(`${this.#baseUrl}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: options?.signal,
+    });
 
-  patch: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
-    request<T>('PATCH', path, body, options),
+    return this.handleResponse<TResponse>(response);
+  }
 
-  put: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
-    request<T>('PUT', path, body, options),
+  private buildHeaders(options?: RequestOptions): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    };
 
-  delete: <T>(path: string, options?: RequestOptions): Promise<T> =>
-    request<T>('DELETE', path, undefined, options),
-};
+    const token = this.#tokenProvider();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
+  private async handleResponse<TResponse extends Record<string, unknown>>(
+    response: Response,
+  ): Promise<TResponse> {
+    if (!response.ok) {
+      const body = await response.json().catch(() => undefined);
+      throw new ApiError(
+        `HTTP ${response.status}: ${response.statusText}`,
+        response.status,
+        body,
+      );
+    }
+
+    if (response.status === 204) {
+      return {} as TResponse;
+    }
+
+    return response.json() as Promise<TResponse>;
+  }
+}
+
+export const apiClient = new HttpClient(
+  '/api',
+  () => localStorage.getItem('access_token') ?? undefined,
+);

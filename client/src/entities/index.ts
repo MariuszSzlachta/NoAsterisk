@@ -1,1 +1,1 @@
-export { Money } from './value-objects/money';
+export { Money } from '#entities/value-objects/money';

@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './Button';
+
+import { Button } from '#shared/ui/Button';
 
 const meta: Meta<typeof Button> = {
   title: 'shared/ui/Button',
   component: Button,
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'destructive', 'ghost'] },
+    variant: {
+      control: 'select',
+      options: ['primary', 'secondary', 'destructive', 'ghost'],
+    },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
 };

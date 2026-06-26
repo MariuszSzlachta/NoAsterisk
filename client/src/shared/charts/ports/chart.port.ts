@@ -13,8 +13,6 @@ export interface ChartSeries {
   data: ChartSeriesDataPoint[];
 }
 
-export type ChartType = 'line' | 'bar' | 'pie';
-
 interface ChartBaseProps {
   height?: number;
   colors?: string[];
@@ -25,18 +23,16 @@ interface ChartBaseProps {
 }
 
 export interface LineChartProps extends ChartBaseProps {
-  type: 'line';
   data: ChartSeries[];
 }
 
 export interface BarChartProps extends ChartBaseProps {
-  type: 'bar';
   data: ChartDataPoint[];
 }
 
-export interface PieChartProps extends ChartBaseProps {
-  type: 'pie';
+export interface PieChartProps extends Omit<
+  ChartBaseProps,
+  'showGrid' | 'axisBottom' | 'axisLeft'
+> {
   data: ChartDataPoint[];
 }
-
-export type ChartProps = LineChartProps | BarChartProps | PieChartProps;

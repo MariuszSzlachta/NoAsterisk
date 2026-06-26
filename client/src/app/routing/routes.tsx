@@ -1,8 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { HomePage } from '../../pages/HomePage';
-import { ImportPage } from '../../pages/ImportPage';
-import { DashboardPage } from '../../pages/DashboardPage';
-import { AdminRulesPage } from '../../pages/AdminRulesPage';
+
+import { AdminRulesPage } from '#pages/AdminRulesPage';
+import { DashboardPage } from '#pages/DashboardPage';
+import { HomePage } from '#pages/HomePage';
+import { ImportPage } from '#pages/ImportPage';
 
 export const router = createBrowserRouter([
   {

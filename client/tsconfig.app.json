@@ -15,6 +15,15 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Subpath imports */
+    "paths": {
+      "#app/*": ["./src/app/*"],
+      "#pages/*": ["./src/pages/*"],
+      "#features/*": ["./src/features/*"],
+      "#entities/*": ["./src/entities/*"],
+      "#shared/*": ["./src/shared/*"]
+    },
+
     /* Strict */
     "strict": true,
     "noUncheckedIndexedAccess": true,
