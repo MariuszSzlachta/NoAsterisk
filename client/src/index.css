@@ -190,11 +190,11 @@ body {
 }
 
 /* Animations */
-@keyframes slide-in-from-bottom {
-  from { transform: translateX(-50%) translateY(1rem); opacity: 0; }
-  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+@keyframes toolbar-enter {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-in {
-  animation: slide-in-from-bottom 0.2s ease-out;
+.animate-toolbar-enter {
+  animation: toolbar-enter 0.2s ease-out;
 }

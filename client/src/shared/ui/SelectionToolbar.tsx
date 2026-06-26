@@ -25,7 +25,7 @@ export const SelectionToolbar = ({
   if (count === 0) return null;
 
   return createPortal(
-    <div className="animate-in fixed bottom-6 left-1/2 z-[9998] flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-surface px-4 py-2.5 shadow-card">
+    <div className="animate-toolbar-enter fixed inset-x-0 bottom-6 z-[9998] mx-auto flex w-fit items-center gap-3 rounded-xl border border-border bg-surface px-4 py-2.5 shadow-card">
       <span className="text-xs text-muted-foreground">
         <span className="font-mono font-medium text-foreground">{count}</span> {label}
       </span>
