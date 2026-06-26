@@ -32,6 +32,7 @@ export interface DataGridProps<TRow> {
   rowSelection?: 'single' | 'multiple';
   onSelectionChange?: (selectedIds: string[]) => void;
   loading?: boolean;
+  rowHeight?: number;
 }
 
 // TODO: post-MVP — server-side pagination (requires controlled page state)

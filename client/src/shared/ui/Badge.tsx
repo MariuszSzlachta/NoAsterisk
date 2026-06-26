@@ -66,7 +66,7 @@ export const Badge = ({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs font-medium ${borderBase} ${colorClasses} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-md py-[3px] pl-2 pr-[9px] text-xs font-medium ${borderBase} ${colorClasses} ${className}`}
     >
       {dot && <span className="h-1.5 w-1.5 rounded-sm bg-current" />}
       {children}
