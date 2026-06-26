@@ -188,3 +188,13 @@ body {
 .ag-header-cell:last-child .ag-header-cell-label {
   justify-content: flex-end;
 }
+
+/* Animations */
+@keyframes slide-in-from-bottom {
+  from { transform: translateX(-50%) translateY(1rem); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+.animate-in {
+  animation: slide-in-from-bottom 0.2s ease-out;
+}
