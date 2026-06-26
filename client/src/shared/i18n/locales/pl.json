@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "BudgetFlow"
+  },
+  "nav": {
+    "overview": "Overview",
+    "dashboard": "Pulpit",
+    "transactions": "Transakcje",
+    "import": "Import CSV",
+    "budgets": "Budżety",
+    "rules": "Reguły",
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu"
+  },
+  "topbar": {
+    "search": "Szukaj transakcji…",
+    "notifications": "Powiadomienia (nowe)",
+    "themeLight": "Przełącz na jasny motyw",
+    "themeDark": "Przełącz na ciemny motyw",
+    "importCsv": "Importuj CSV",
+    "searchLabel": "Szukaj transakcji (⌘K)"
+  },
+  "breadcrumb": {
+    "dashboard": "Pulpit",
+    "transactions": "Transakcje",
+    "import": "Import",
+    "budgets": "Budżety",
+    "rules": "Reguły",
+    "fallback": "Strona"
+  },
+  "titles": {
+    "dashboard": "Pulpit",
+    "transactions": "Transakcje",
+    "import": "Import CSV",
+    "budgets": "Budżety",
+    "rules": "Reguły",
+    "fallback": "Strona"
+  },
+  "user": {
+    "workspace": "Konto domowe",
+    "email": "k.nowak@mail.pl"
+  }
+}
