@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { DataGrid } from '#shared/grid';
 import type { GridColumn } from '#shared/grid';
+import type { RowAction } from '#shared/grid/ports/grid.port';
 import { Badge } from '#shared/ui/Badge';
 
 interface TransactionRow {
@@ -110,6 +111,10 @@ export const Transactions: Story = {
         rowSelection="multiple"
         rowHeight={ROW_HEIGHT}
         onSelectionChange={(ids) => console.log('Selected:', ids)}
+        rowActions={[
+          { label: 'Edytuj', onClick: (row) => console.log('Edit:', row.id) },
+          { label: 'Usuń', onClick: (row) => console.log('Delete:', row.id), variant: 'danger' },
+        ] satisfies RowAction<TransactionRow>[]}
       />
       <div className="flex h-10 items-center gap-[18px] border-t border-border bg-surface-2 px-4 text-xs text-subtle">
         <span><span className="font-mono font-medium text-foreground">245</span> transakcji</span>

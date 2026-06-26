@@ -180,6 +180,12 @@ body {
   background-color: var(--primary-soft) !important;
 }
 
+.ag-row:hover .ag-row-action-btn,
+.ag-row .ag-row-action-btn:focus,
+.ag-row .ag-row-action-btn[aria-expanded="true"] {
+  opacity: 1 !important;
+}
+
 .ag-header-cell[col-id="amount"],
 .ag-header-cell:last-child {
   text-align: right;

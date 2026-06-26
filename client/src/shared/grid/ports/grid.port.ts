@@ -16,6 +16,13 @@ export interface CellRendererParams<TRow> {
   rowIndex: number;
 }
 
+export interface RowAction<TRow> {
+  label: string;
+  icon?: ReactNode;
+  onClick: (row: TRow) => void;
+  variant?: 'default' | 'danger';
+}
+
 export interface GridSortConfig {
   field: string;
   direction: 'asc' | 'desc';
@@ -33,6 +40,7 @@ export interface DataGridProps<TRow> {
   onSelectionChange?: (selectedIds: string[]) => void;
   loading?: boolean;
   rowHeight?: number;
+  rowActions?: RowAction<TRow>[];
 }
 
 // TODO: post-MVP — server-side pagination (requires controlled page state)
