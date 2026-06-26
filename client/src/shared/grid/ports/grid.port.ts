@@ -21,6 +21,7 @@ export interface RowAction<TRow> {
   icon?: ReactNode;
   onClick: (row: TRow) => void;
   variant?: 'default' | 'danger';
+  disabled?: boolean;
 }
 
 export interface GridSortConfig {
