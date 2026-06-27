@@ -1,21 +1,11 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useState,
   type ReactNode,
 } from 'react';
 
-type Theme = 'light' | 'dark';
-
-interface ThemeContextValue {
-  theme: Theme;
-  toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+import { ThemeContext, type Theme } from '#app/providers/ThemeContext';
 
 const STORAGE_KEY = 'budget-theme';
 const DARK_CLASS = 'dark';
@@ -53,12 +43,4 @@ export const ThemeProvider = ({ children }: ThemeProviderProps): React.JSX.Eleme
       {children}
     </ThemeContext.Provider>
   );
-};
-
-export const useTheme = (): ThemeContextValue => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
 };

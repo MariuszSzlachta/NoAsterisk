@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import { authTokens } from '#shared/api/auth-tokens';
