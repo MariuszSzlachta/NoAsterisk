@@ -1,4 +1,4 @@
-import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { CircleHelp, DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import type { ReactNode } from 'react';
 import React from 'react';
 
@@ -12,10 +12,13 @@ const KPI_ICONS: Record<string, ReactNode> = {
   'Oszczędności': React.createElement(DollarSign, { size: 16 }),
 };
 
+const FALLBACK_ICON: ReactNode = React.createElement(CircleHelp, { size: 16 });
+
 export const mapKpiDtoToVm = (dto: KpiDto): KpiItemVM => ({
   label: dto.label,
   value: dto.value,
-  icon: KPI_ICONS[dto.label],
+  icon: KPI_ICONS[dto.label] ?? FALLBACK_ICON,
   delta: dto.deltaPercent,
   trend: dto.trend,
+  tooltip: dto.tooltip,
 });

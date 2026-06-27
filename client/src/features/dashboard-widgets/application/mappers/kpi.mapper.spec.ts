@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { mapKpiDtoToVm } from '#features/dashboard-widgets/application/mappers/kpi.mapper';
@@ -15,20 +16,23 @@ describe('mapKpiDtoToVm', () => {
     expect(vm.trend).toBe('up');
   });
 
-  it('assigns icon for known labels', () => {
-    const dto: KpiDto = { label: 'Przychody', value: '8 500,00 zł', deltaPercent: '+12%', trend: 'up' };
+  it.each(['Saldo', 'Przychody', 'Wydatki', 'Oszczędności'])(
+    'assigns a valid icon for known label "%s"',
+    (label) => {
+      const dto: KpiDto = { label, value: '1 zł' };
 
-    const vm = mapKpiDtoToVm(dto);
+      const vm = mapKpiDtoToVm(dto);
 
-    expect(vm.icon).toBeDefined();
-  });
+      expect(React.isValidElement(vm.icon)).toBe(true);
+    },
+  );
 
-  it('assigns undefined icon for unknown labels', () => {
+  it('assigns fallback icon for unknown labels', () => {
     const dto: KpiDto = { label: 'NieznanyLabel', value: '0 zł' };
 
     const vm = mapKpiDtoToVm(dto);
 
-    expect(vm.icon).toBeUndefined();
+    expect(React.isValidElement(vm.icon)).toBe(true);
   });
 
   it('handles missing optional fields', () => {
@@ -38,5 +42,21 @@ describe('mapKpiDtoToVm', () => {
 
     expect(vm.delta).toBeUndefined();
     expect(vm.trend).toBeUndefined();
+  });
+
+  it('passes tooltip through from DTO', () => {
+    const dto: KpiDto = { label: 'Saldo', value: '1 zł', tooltip: 'Opis metryki' };
+
+    const vm = mapKpiDtoToVm(dto);
+
+    expect(vm.tooltip).toBe('Opis metryki');
+  });
+
+  it('sets tooltip to undefined when not provided', () => {
+    const dto: KpiDto = { label: 'Saldo', value: '1 zł' };
+
+    const vm = mapKpiDtoToVm(dto);
+
+    expect(vm.tooltip).toBeUndefined();
   });
 });

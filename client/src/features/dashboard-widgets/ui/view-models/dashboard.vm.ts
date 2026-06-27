@@ -6,6 +6,7 @@ export interface KpiItemVM {
   readonly icon: ReactNode;
   readonly delta?: string;
   readonly trend?: 'up' | 'down' | 'neutral';
+  readonly tooltip?: string;
 }
 
 export interface RecentTransactionVM {

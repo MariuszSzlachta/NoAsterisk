@@ -1,6 +1,8 @@
+import { Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Badge } from '#shared/ui/Badge';
+import { Tooltip } from '#shared/ui/Tooltip';
 
 type DeltaTrend = 'up' | 'down' | 'neutral';
 
@@ -10,6 +12,7 @@ interface KpiCardProps {
   readonly icon: ReactNode;
   readonly delta?: string;
   readonly trend?: DeltaTrend;
+  readonly tooltip?: string;
 }
 
 const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
@@ -18,10 +21,17 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
-export const KpiCard = ({ label, value, icon, delta, trend = 'neutral' }: KpiCardProps): React.JSX.Element => (
+export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip }: KpiCardProps): React.JSX.Element => (
   <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card">
     <div className="flex items-center justify-between">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {label}
+        {tooltip && (
+          <Tooltip content={tooltip}>
+            <Info size={12} className="cursor-help text-subtle" />
+          </Tooltip>
+        )}
+      </span>
       <span className="text-muted-foreground">{icon}</span>
     </div>
     <span className="font-mono text-xl font-semibold tabular-nums text-foreground">{value}</span>
