@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Badge } from '#shared/ui/Badge';
 import { Tooltip } from '#shared/ui/Tooltip';
@@ -13,6 +14,7 @@ interface KpiCardProps {
   readonly delta?: string;
   readonly trend?: DeltaTrend;
   readonly tooltip?: string;
+  readonly iconHref?: string;
 }
 
 const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
@@ -21,7 +23,7 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
-export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip }: KpiCardProps): React.JSX.Element => (
+export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip, iconHref }: KpiCardProps): React.JSX.Element => (
   <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card">
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
@@ -32,7 +34,17 @@ export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip 
           </Tooltip>
         )}
       </span>
-      <span className="text-muted-foreground">{icon}</span>
+      {iconHref ? (
+        <Link
+          to={iconHref}
+          className="rounded-sm text-muted-foreground transition-colors duration-150 hover:text-primary"
+          aria-label={`${label} — raport szczegółowy`}
+        >
+          {icon}
+        </Link>
+      ) : (
+        <span className="text-muted-foreground">{icon}</span>
+      )}
     </div>
     <span className="font-mono text-xl font-semibold tabular-nums text-foreground">{value}</span>
     {delta && (

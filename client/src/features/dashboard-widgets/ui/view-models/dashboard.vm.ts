@@ -7,6 +7,7 @@ export interface KpiItemVM {
   readonly delta?: string;
   readonly trend?: 'up' | 'down' | 'neutral';
   readonly tooltip?: string;
+  readonly iconHref?: string;
 }
 
 export interface RecentTransactionVM {

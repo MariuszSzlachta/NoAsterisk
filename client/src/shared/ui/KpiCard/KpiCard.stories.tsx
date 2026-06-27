@@ -1,11 +1,13 @@
 import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import { KpiCard } from '#shared/ui/KpiCard/KpiCard';
 
 const meta: Meta<typeof KpiCard> = {
   title: 'shared/ui/KpiCard',
   component: KpiCard,
+  decorators: [(Story) => <MemoryRouter><Story /></MemoryRouter>],
 };
 
 export default meta;
@@ -65,5 +67,17 @@ export const WithTooltip: Story = {
     delta: '+2,4%',
     trend: 'up',
     tooltip: 'Suma wszystkich środków na kontach. Zmiana procentowa vs poprzedni miesiąc.',
+  },
+};
+
+export const WithIconLink: Story = {
+  args: {
+    label: 'Saldo',
+    value: '12 450,00 zł',
+    icon: <Wallet size={16} />,
+    delta: '+2,4%',
+    trend: 'up',
+    tooltip: 'Suma wszystkich środków na kontach.',
+    iconHref: '/reports/balance',
   },
 };

@@ -26,6 +26,10 @@
     "import": "Import",
     "budgets": "Budżety",
     "rules": "Reguły",
+    "reportBalance": "Raport salda",
+    "reportIncome": "Raport przychodów",
+    "reportExpenses": "Raport wydatków",
+    "reportSavings": "Raport oszczędności",
     "fallback": "Strona"
   },
   "titles": {
@@ -34,10 +38,20 @@
     "import": "Import CSV",
     "budgets": "Budżety",
     "rules": "Reguły",
+    "reportBalance": "Raport salda",
+    "reportIncome": "Raport przychodów",
+    "reportExpenses": "Raport wydatków",
+    "reportSavings": "Raport oszczędności",
     "fallback": "Strona"
   },
   "user": {
     "workspace": "Konto domowe",
     "email": "user@example.com"
+  },
+  "reports": {
+    "balanceDescription": "Szczegółowy raport zmian salda w czasie.",
+    "incomeDescription": "Szczegółowy raport źródeł przychodów.",
+    "expenseDescription": "Szczegółowy raport struktury wydatków.",
+    "savingsDescription": "Szczegółowy raport oszczędności i celów."
   }
 }

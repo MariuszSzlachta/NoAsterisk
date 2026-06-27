@@ -21,7 +21,7 @@ describe('useKpiWidget', () => {
 
   it('returns loaded state with mapped VMs when query succeeds', () => {
     mockUseKpiQuery.mockReturnValue({
-      data: [{ label: 'Saldo', value: '100 zł', deltaPercent: '+5%', trend: 'up' as const }],
+      data: [{ id: 'balance' as const, label: 'Saldo', value: '100 zł', deltaPercent: '+5%', trend: 'up' as const }],
       isLoading: false,
     });
 
@@ -33,19 +33,21 @@ describe('useKpiWidget', () => {
       expect(result.data[0].label).toBe('Saldo');
       expect(result.data[0].delta).toBe('+5%');
       expect(result.data[0].icon).toBeDefined();
+      expect(result.data[0].iconHref).toBe('/reports/balance');
     }
   });
 
-  it('returns loaded with undefined icon for unknown label', () => {
+  it('returns loaded with fallback icon for unknown id', () => {
     mockUseKpiQuery.mockReturnValue({
-      data: [{ label: 'Unknown', value: '0 zł' }],
+      data: [{ id: 'balance' as const, label: 'Unknown', value: '0 zł' }],
       isLoading: false,
     });
 
     const result = useKpiWidget();
 
     if (result.status === 'loaded') {
-      expect(result.data[0].icon).toBeUndefined();
+      expect(result.data[0].icon).toBeDefined();
+      expect(result.data[0].iconHref).toBe('/reports/balance');
     }
   });
 });

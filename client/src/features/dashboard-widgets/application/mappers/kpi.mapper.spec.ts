@@ -6,7 +6,7 @@ import type { KpiDto } from '#features/dashboard-widgets/infrastructure/api/useK
 
 describe('mapKpiDtoToVm', () => {
   it('maps label, value, delta, trend from DTO', () => {
-    const dto: KpiDto = { label: 'Saldo', value: '12 450,00 zł', deltaPercent: '+2,4%', trend: 'up' };
+    const dto: KpiDto = { id: 'balance', label: 'Saldo', value: '12 450,00 zł', deltaPercent: '+2,4%', trend: 'up' };
 
     const vm = mapKpiDtoToVm(dto);
 
@@ -16,27 +16,34 @@ describe('mapKpiDtoToVm', () => {
     expect(vm.trend).toBe('up');
   });
 
-  it.each(['Saldo', 'Przychody', 'Wydatki', 'Oszczędności'])(
-    'assigns a valid icon for known label "%s"',
-    (label) => {
-      const dto: KpiDto = { label, value: '1 zł' };
-
-      const vm = mapKpiDtoToVm(dto);
-
-      expect(React.isValidElement(vm.icon)).toBe(true);
-    },
-  );
-
-  it('assigns fallback icon for unknown labels', () => {
-    const dto: KpiDto = { label: 'NieznanyLabel', value: '0 zł' };
+  it.each([
+    { id: 'balance' as const, label: 'Saldo' },
+    { id: 'income' as const, label: 'Przychody' },
+    { id: 'expenses' as const, label: 'Wydatki' },
+    { id: 'savings' as const, label: 'Oszczędności' },
+  ])('assigns a valid icon for known id "$id"', ({ id, label }) => {
+    const dto: KpiDto = { id, label, value: '1 zł' };
 
     const vm = mapKpiDtoToVm(dto);
 
     expect(React.isValidElement(vm.icon)).toBe(true);
   });
 
+  it.each([
+    { id: 'balance' as const, href: '/reports/balance' },
+    { id: 'income' as const, href: '/reports/income' },
+    { id: 'expenses' as const, href: '/reports/expenses' },
+    { id: 'savings' as const, href: '/reports/savings' },
+  ])('assigns iconHref "$href" for id "$id"', ({ id, href }) => {
+    const dto: KpiDto = { id, label: 'X', value: '1 zł' };
+
+    const vm = mapKpiDtoToVm(dto);
+
+    expect(vm.iconHref).toBe(href);
+  });
+
   it('handles missing optional fields', () => {
-    const dto: KpiDto = { label: 'Oszczędności', value: '2 450,00 zł' };
+    const dto: KpiDto = { id: 'savings', label: 'Oszczędności', value: '2 450,00 zł' };
 
     const vm = mapKpiDtoToVm(dto);
 
@@ -45,7 +52,7 @@ describe('mapKpiDtoToVm', () => {
   });
 
   it('passes tooltip through from DTO', () => {
-    const dto: KpiDto = { label: 'Saldo', value: '1 zł', tooltip: 'Opis metryki' };
+    const dto: KpiDto = { id: 'balance', label: 'Saldo', value: '1 zł', tooltip: 'Opis metryki' };
 
     const vm = mapKpiDtoToVm(dto);
 
@@ -53,7 +60,7 @@ describe('mapKpiDtoToVm', () => {
   });
 
   it('sets tooltip to undefined when not provided', () => {
-    const dto: KpiDto = { label: 'Saldo', value: '1 zł' };
+    const dto: KpiDto = { id: 'balance', label: 'Saldo', value: '1 zł' };
 
     const vm = mapKpiDtoToVm(dto);
 
