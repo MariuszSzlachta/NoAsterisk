@@ -1,1 +1,1 @@
-export { DomainError } from '#shared/lib/domain-error';
+// shared/lib utilities — populated as needed

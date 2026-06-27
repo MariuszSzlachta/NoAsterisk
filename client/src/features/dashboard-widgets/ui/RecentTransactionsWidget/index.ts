@@ -1,0 +1,1 @@
+export { RecentTransactionsWidget } from './RecentTransactionsWidget';

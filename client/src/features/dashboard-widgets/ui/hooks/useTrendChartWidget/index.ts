@@ -1,0 +1,1 @@
+export { useTrendChartWidget } from './useTrendChartWidget';

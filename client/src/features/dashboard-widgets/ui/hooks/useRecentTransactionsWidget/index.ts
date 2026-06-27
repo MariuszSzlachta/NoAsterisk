@@ -1,0 +1,1 @@
+export { useRecentTransactionsWidget } from './useRecentTransactionsWidget';

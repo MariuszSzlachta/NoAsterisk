@@ -1,1 +1,1 @@
-export { Money } from '#entities/value-objects/money';
+// Cross-feature shared types — populated in Faza 4.3

@@ -1,1 +1,1 @@
-export { WIDGET_REGISTRY, WidgetType } from '#features/dashboard-widgets/widget-registry';
+export { WIDGET_REGISTRY } from '#features/dashboard-widgets/widget-registry';
