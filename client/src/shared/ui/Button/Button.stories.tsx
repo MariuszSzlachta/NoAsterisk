@@ -27,32 +27,37 @@ const meta: Meta<typeof Button> = {
 export default meta;
 type Story = StoryObj<typeof Button>;
 
-export const Primary: Story = { args: { children: 'Importuj CSV' } };
-export const Secondary: Story = { args: { children: 'Czerwiec 2026', variant: 'secondary' } };
-export const Ghost: Story = { args: { children: 'Anuluj', variant: 'ghost' } };
-export const Destructive: Story = { args: { children: 'Usuń', variant: 'destructive' } };
-
-export const WithIcon: Story = { args: { children: 'Importuj CSV', icon: <PlusIcon /> } };
-export const IconOnly: Story = { args: { icon: <SearchIcon />, size: 'icon', variant: 'secondary', 'aria-label': 'Szukaj' } };
-
-export const Sizes: Story = {
+export const Showcase: Story = {
   render: () => (
-    <div className="flex items-center gap-3">
-      <Button size="sm">Small</Button>
-      <Button size="md">Medium</Button>
-      <Button size="lg">Large</Button>
-      <Button size="icon" icon={<PlusIcon />} aria-label="Dodaj" />
-    </div>
-  ),
-};
+    <div className="flex flex-col gap-8">
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Variants</h3>
+        <div className="flex items-center gap-3">
+          <Button variant="primary" icon={<PlusIcon />}>Primary</Button>
+          <Button variant="secondary" icon={<SearchIcon />}>Secondary</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="destructive">Destructive</Button>
+        </div>
+      </section>
 
-export const AllVariants: Story = {
-  render: () => (
-    <div className="flex items-center gap-3">
-      <Button variant="primary" icon={<PlusIcon />}>Primary</Button>
-      <Button variant="secondary" icon={<SearchIcon />}>Secondary</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="destructive">Destructive</Button>
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Sizes</h3>
+        <div className="flex items-center gap-3">
+          <Button size="sm">Small</Button>
+          <Button size="md">Medium</Button>
+          <Button size="lg">Large</Button>
+          <Button size="icon" icon={<PlusIcon />} aria-label="Dodaj" />
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">With Icons</h3>
+        <div className="flex items-center gap-3">
+          <Button icon={<PlusIcon />}>Importuj CSV</Button>
+          <Button variant="secondary" icon={<SearchIcon />}>Szukaj</Button>
+          <Button size="icon" variant="secondary" icon={<SearchIcon />} aria-label="Szukaj" />
+        </div>
+      </section>
     </div>
   ),
 };

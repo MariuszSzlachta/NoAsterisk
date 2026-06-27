@@ -3,6 +3,8 @@ import { useState } from 'react';
 
 import { SelectionToolbar } from '#shared/ui/SelectionToolbar';
 
+const noop = (): void => {};
+
 const meta: Meta = {
   title: 'shared/ui/SelectionToolbar',
 };
@@ -10,7 +12,7 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-export const Default: Story = {
+export const Showcase: Story = {
   render: () => {
     const [count, setCount] = useState(3);
 
@@ -29,10 +31,10 @@ export const Default: Story = {
           count={count}
           onClear={() => setCount(0)}
           actions={[
-            { label: 'Zmień kategorię', onClick: () => console.log('category') },
-            { label: 'Eksportuj', onClick: () => console.log('export') },
-            { label: 'Archiwizuj', onClick: () => console.log('archive'), disabled: true },
-            { label: 'Usuń', onClick: () => console.log('delete'), variant: 'danger' },
+            { label: 'Zmień kategorię', onClick: noop },
+            { label: 'Eksportuj', onClick: noop },
+            { label: 'Archiwizuj', onClick: noop, disabled: true },
+            { label: 'Usuń', onClick: noop, variant: 'danger' },
           ]}
         />
       </div>

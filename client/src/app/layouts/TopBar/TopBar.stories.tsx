@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { ThemeProvider } from '#app/providers/ThemeProvider';
 
-import { TopBar } from './TopBar';
+import { TopBar } from '#app/layouts/TopBar/TopBar';
 
 const meta: Meta<typeof TopBar> = {
   title: 'app/layouts/TopBar',
@@ -22,16 +22,11 @@ const meta: Meta<typeof TopBar> = {
 export default meta;
 type Story = StoryObj<typeof TopBar>;
 
-export const Dashboard: Story = {
-  args: {
-    breadcrumb: 'Pulpit',
-    title: 'Pulpit',
-  },
-};
-
-export const Transactions: Story = {
-  args: {
-    breadcrumb: 'Transakcje',
-    title: 'Transakcje',
-  },
+export const Showcase: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <TopBar breadcrumb="Pulpit" title="Pulpit" />
+      <TopBar breadcrumb="Transakcje" title="Transakcje" />
+    </div>
+  ),
 };

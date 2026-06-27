@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
 import { DataGrid } from '#shared/grid';
+
+const noop = (): void => {};
 import type { GridColumn } from '#shared/grid';
 import type { RowAction } from '#shared/grid/ports/grid.port';
 import { Badge } from '#shared/ui/Badge';
@@ -103,63 +105,69 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-export const Transactions: Story = {
+export const Showcase: Story = {
   render: () => {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+    const rowActions: RowAction<TransactionRow>[] = [
+      { label: 'Edytuj', onClick: noop },
+      { label: 'Usuń', onClick: noop, variant: 'danger' },
+    ];
+
     return (
-      <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-card">
-        <DataGrid
-          rows={SAMPLE_TRANSACTIONS}
-          columns={columns}
-          getRowId={(row) => row.id}
-          rowSelection="multiple"
-          rowHeight={ROW_HEIGHT}
-          onSelectionChange={setSelectedIds}
-          rowActions={[
-            { label: 'Edytuj', onClick: (row) => console.log('Edit:', row.id) },
-            { label: 'Usuń', onClick: (row) => console.log('Delete:', row.id), variant: 'danger' },
-          ] satisfies RowAction<TransactionRow>[]}
-        />
-        <div className="flex h-10 items-center gap-[18px] border-t border-border bg-surface-2 px-4 text-xs text-subtle">
-          <span><span className="font-mono font-medium text-foreground">245</span> transakcji</span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-            12 bez kategorii
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-expense" />
-            3 możliwe dane osobowe
-          </span>
-          <div className="flex-1" />
-          <span>
-            Suma wydatków: <span className="font-mono font-medium text-expense">−6 240,18 zł</span>
-          </span>
-        </div>
-        <SelectionToolbar
-          count={selectedIds.length}
-          onClear={() => setSelectedIds([])}
-          actions={[
-            { label: 'Zmień kategorię', onClick: () => console.log('Batch category:', selectedIds) },
-            { label: 'Eksportuj', onClick: () => console.log('Export:', selectedIds) },
-            { label: 'Usuń', onClick: () => console.log('Delete:', selectedIds), variant: 'danger' },
-          ]}
-        />
+      <div className="flex flex-col gap-8">
+        <section>
+          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Transactions grid</h3>
+          <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-card">
+            <DataGrid
+              rows={SAMPLE_TRANSACTIONS}
+              columns={columns}
+              getRowId={(row) => row.id}
+              rowSelection="multiple"
+              rowHeight={ROW_HEIGHT}
+              onSelectionChange={setSelectedIds}
+              rowActions={rowActions}
+            />
+            <div className="flex h-10 items-center gap-[18px] border-t border-border bg-surface-2 px-4 text-xs text-subtle">
+              <span><span className="font-mono font-medium text-foreground">245</span> transakcji</span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                12 bez kategorii
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-expense" />
+                3 możliwe dane osobowe
+              </span>
+              <div className="flex-1" />
+              <span>
+                Suma wydatków: <span className="font-mono font-medium text-expense">−6 240,18 zł</span>
+              </span>
+            </div>
+            <SelectionToolbar
+              count={selectedIds.length}
+              onClear={() => setSelectedIds([])}
+              actions={[
+                { label: 'Zmień kategorię', onClick: noop },
+                { label: 'Eksportuj', onClick: noop },
+                { label: 'Usuń', onClick: noop, variant: 'danger' },
+              ]}
+            />
+          </div>
+        </section>
+
+        <section>
+          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Loading state</h3>
+          <div className="h-[300px] overflow-hidden rounded-lg border border-border shadow-card">
+            <DataGrid
+              rows={[]}
+              columns={columns}
+              getRowId={(row) => row.id}
+              loading
+              rowHeight={ROW_HEIGHT}
+            />
+          </div>
+        </section>
       </div>
     );
   },
-};
-
-export const Loading: Story = {
-  render: () => (
-    <div className="h-[300px] overflow-hidden rounded-lg border border-border shadow-card">
-      <DataGrid
-        rows={[]}
-        columns={columns}
-        getRowId={(row) => row.id}
-        loading
-        rowHeight={ROW_HEIGHT}
-      />
-    </div>
-  ),
 };

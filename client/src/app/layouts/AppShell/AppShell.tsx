@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 
+import { MobileSidebarOverlay } from '#app/layouts/AppShell/MobileSidebarOverlay/MobileSidebarOverlay';
 import { Sidebar } from '#app/layouts/Sidebar';
 import { TopBar } from '#app/layouts/TopBar';
 import { FALLBACK_META, ROUTE_META } from '#app/routing/route-meta';
@@ -22,27 +23,11 @@ export const AppShell = (): React.JSX.Element => {
 
   return (
     <div className="flex min-h-screen w-full">
-      {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
       </div>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="absolute inset-0 bg-background/60 backdrop-blur-sm"
-            onClick={closeSidebar}
-            onKeyDown={closeSidebar}
-            role="button"
-            tabIndex={-1}
-            aria-label={t('nav.closeMenu')}
-          />
-          <div className="relative z-50">
-            <Sidebar onNavigate={closeSidebar} />
-          </div>
-        </div>
-      )}
+      {sidebarOpen && <MobileSidebarOverlay onClose={closeSidebar} />}
 
       <main className="flex max-h-screen min-w-0 flex-1 flex-col overflow-y-auto">
         <TopBar

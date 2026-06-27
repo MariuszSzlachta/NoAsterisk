@@ -18,31 +18,25 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const STORAGE_KEY = 'budget-theme';
+const DARK_CLASS = 'dark';
+const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
-function getInitialTheme(): Theme {
+const getInitialTheme = (): Theme => {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'dark' || stored === 'light') return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
-}
+  return window.matchMedia(DARK_MEDIA_QUERY).matches ? 'dark' : 'light';
+};
 
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export function ThemeProvider({
-  children,
-}: ThemeProviderProps): React.JSX.Element {
+export const ThemeProvider = ({ children }: ThemeProviderProps): React.JSX.Element => {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    root.classList.toggle(DARK_CLASS, theme === 'dark');
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
@@ -59,12 +53,12 @@ export function ThemeProvider({
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
-export function useTheme(): ThemeContextValue {
+export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within ThemeProvider');
   }
   return context;
-}
+};

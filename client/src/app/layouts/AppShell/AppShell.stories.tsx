@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { ThemeProvider } from '#app/providers/ThemeProvider';
 
-import { AppShell } from './AppShell';
+import { AppShell } from '#app/layouts/AppShell/AppShell';
 
 const SampleContent = (): React.JSX.Element => (
   <div className="rounded-lg border border-border bg-surface p-6">
@@ -36,20 +36,4 @@ const meta: Meta<typeof AppShell> = {
 export default meta;
 type Story = StoryObj<typeof AppShell>;
 
-export const Default: Story = {};
-
-export const ImportRoute: Story = {
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/import']}>
-        <ThemeProvider>
-          <Routes>
-            <Route element={<Story />}>
-              <Route path="/import" element={<SampleContent />} />
-            </Route>
-          </Routes>
-        </ThemeProvider>
-      </MemoryRouter>
-    ),
-  ],
-};
+export const Showcase: Story = {};

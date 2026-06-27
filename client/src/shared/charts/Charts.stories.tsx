@@ -39,48 +39,51 @@ const CATEGORY_DATA = [
 
 const CHART_COLORS = ['#34d399', '#94a3b8', '#60a5fa', '#fbbf24', '#fb7185', '#a78bfa'];
 
-export const LineChartStory: Story = {
+export const Showcase: Story = {
   render: () => (
-    <Card className="w-[600px]">
-      <CardHeader title="Przychody vs wydatki" subtitle="Ostatnie 6 miesięcy" />
-      <LineChart
-        data={[
-          { id: 'Przychód', data: INCOME_DATA },
-          { id: 'Wydatek', data: EXPENSE_DATA },
-        ]}
-        height={250}
-        colors={['#34d399', '#3b82f6']}
-        showLegend
-        showGrid
-      />
-    </Card>
-  ),
-};
+    <div className="flex flex-col gap-8">
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Line chart</h3>
+        <Card className="w-[600px]">
+          <CardHeader title="Przychody vs wydatki" subtitle="Ostatnie 6 miesięcy" />
+          <LineChart
+            data={[
+              { id: 'Przychód', data: INCOME_DATA },
+              { id: 'Wydatek', data: EXPENSE_DATA },
+            ]}
+            height={250}
+            colors={['#34d399', '#3b82f6']}
+            showLegend
+            showGrid
+          />
+        </Card>
+      </section>
 
-export const BarChartStory: Story = {
-  render: () => (
-    <Card className="w-[500px]">
-      <CardHeader title="Wydatki wg kategorii" subtitle="Czerwiec 2026" />
-      <BarChart
-        data={CATEGORY_DATA}
-        height={250}
-        colors={CHART_COLORS}
-        showGrid
-      />
-    </Card>
-  ),
-};
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Bar chart</h3>
+        <Card className="w-[500px]">
+          <CardHeader title="Wydatki wg kategorii" subtitle="Czerwiec 2026" />
+          <BarChart
+            data={CATEGORY_DATA}
+            height={250}
+            colors={CHART_COLORS}
+            showGrid
+          />
+        </Card>
+      </section>
 
-export const PieChartStory: Story = {
-  render: () => (
-    <Card className="w-[400px]">
-      <CardHeader title="Struktura wydatków" subtitle="Czerwiec 2026" />
-      <PieChart
-        data={CATEGORY_DATA}
-        height={250}
-        colors={CHART_COLORS}
-        showLegend
-      />
-    </Card>
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Pie chart</h3>
+        <Card className="w-[400px]">
+          <CardHeader title="Struktura wydatków" subtitle="Czerwiec 2026" />
+          <PieChart
+            data={CATEGORY_DATA}
+            height={250}
+            colors={CHART_COLORS}
+            showLegend
+          />
+        </Card>
+      </section>
+    </div>
   ),
 };

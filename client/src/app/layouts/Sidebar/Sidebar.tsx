@@ -2,7 +2,6 @@ import {
   LayoutGrid,
   List,
   SlidersHorizontal,
-  TrendingUp,
   Upload,
   Wallet,
 } from 'lucide-react';
@@ -10,9 +9,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Badge } from '#shared/ui/Badge';
 
-import { SectionLabel } from './SectionLabel';
-import { SidebarNavLink } from './SidebarNavLink';
-import { UserSection } from './UserSection';
+import { SectionLabel } from '#app/layouts/Sidebar/SectionLabel/SectionLabel';
+import { SidebarLogo } from '#app/layouts/Sidebar/SidebarLogo/SidebarLogo';
+import { SidebarNavLink } from '#app/layouts/Sidebar/SidebarNavLink/SidebarNavLink';
+import { UserSection } from '#app/layouts/Sidebar/UserSection/UserSection';
 
 interface SidebarProps {
   readonly onNavigate?: () => void;
@@ -23,15 +23,7 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
 
   return (
     <aside className="sticky top-0 flex h-screen w-[236px] flex-shrink-0 flex-col border-r border-border bg-surface">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 p-5 pb-[18px]">
-        <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[7px] bg-primary">
-          <TrendingUp size={17} className="text-primary-foreground" aria-hidden="true" />
-        </div>
-        <span className="text-[15px] font-semibold tracking-tight text-foreground">
-          {t('app.name')}
-        </span>
-      </div>
+      <SidebarLogo />
 
       <SectionLabel>{t('nav.overview')}</SectionLabel>
 

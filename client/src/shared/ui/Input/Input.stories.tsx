@@ -14,28 +14,38 @@ const meta: Meta<typeof Input> = {
   argTypes: {
     icon: { table: { disable: true } },
   },
-  decorators: [(Story) => <div className="w-72"><Story /></div>],
 };
 
 export default meta;
 type Story = StoryObj<typeof Input>;
 
-export const Default: Story = {
-  args: { placeholder: 'Wpisz tekst...' },
-};
+export const Showcase: Story = {
+  render: () => (
+    <div className="flex w-72 flex-col gap-6">
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Default</h3>
+        <Input placeholder="Wpisz tekst..." />
+      </section>
 
-export const WithLabel: Story = {
-  args: { label: 'Email', placeholder: 'jan@example.pl', type: 'email' },
-};
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">With label</h3>
+        <Input label="Email" placeholder="jan@example.pl" type="email" />
+      </section>
 
-export const WithError: Story = {
-  args: { label: 'Kwota', value: '-100', error: 'Kwota musi być dodatnia' },
-};
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">With error</h3>
+        <Input label="Kwota" value="-100" error="Kwota musi być dodatnia" />
+      </section>
 
-export const WithIcon: Story = {
-  args: { placeholder: 'Szukaj transakcji...', icon: <SearchIcon /> },
-};
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">With icon</h3>
+        <Input placeholder="Szukaj transakcji..." icon={<SearchIcon />} />
+      </section>
 
-export const Disabled: Story = {
-  args: { label: 'Zablokowane', value: 'Nie można edytować', disabled: true },
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Disabled</h3>
+        <Input label="Zablokowane" value="Nie można edytować" disabled />
+      </section>
+    </div>
+  ),
 };

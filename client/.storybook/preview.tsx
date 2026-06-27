@@ -1,5 +1,6 @@
 import type { Decorator, Preview } from '@storybook/react';
 
+import '../src/shared/i18n/i18n';
 import '../src/index.css';
 
 const withTheme: Decorator = (Story, context) => {
