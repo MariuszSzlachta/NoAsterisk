@@ -22,7 +22,7 @@ export const AppShell = (): React.JSX.Element => {
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full">
       <div className="hidden lg:block">
         <Sidebar />
       </div>

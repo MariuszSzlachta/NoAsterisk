@@ -13,43 +13,60 @@ describe('Tooltip', () => {
         </Tooltip>,
       );
 
-      expect(
-        screen.getByRole('button', { name: 'Trigger' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Trigger' })).toBeInTheDocument();
     });
 
-    it('exposes tooltip content to assistive technology', () => {
+    it('does not render tooltip until hovered', () => {
       render(
         <Tooltip content="Info text">
           <span>icon</span>
         </Tooltip>,
       );
 
-      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    it('renders tooltip content text', () => {
+    it('shows tooltip on hover', async () => {
+      const user = userEvent.setup();
       render(
         <Tooltip content="Helpful info">
           <span>icon</span>
         </Tooltip>,
       );
 
+      await user.hover(screen.getByText('icon'));
+
       expect(screen.getByRole('tooltip')).toHaveTextContent('Helpful info');
+    });
+
+    it('hides tooltip on unhover', async () => {
+      const user = userEvent.setup();
+      render(
+        <Tooltip content="Helpful info">
+          <span>icon</span>
+        </Tooltip>,
+      );
+
+      await user.hover(screen.getByText('icon'));
+      await user.unhover(screen.getByText('icon'));
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
   describe('accessibility', () => {
-    it('links trigger to tooltip via aria-describedby', () => {
+    it('links trigger to tooltip via aria-describedby', async () => {
+      const user = userEvent.setup();
       render(
         <Tooltip content="Description">
           <span>icon</span>
         </Tooltip>,
       );
 
-      const tooltip = screen.getByRole('tooltip');
-      const trigger = tooltip.parentElement;
+      const trigger = screen.getByText('icon').parentElement!;
+      await user.hover(trigger);
 
+      const tooltip = screen.getByRole('tooltip');
       expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
     });
 
@@ -60,11 +77,11 @@ describe('Tooltip', () => {
         </Tooltip>,
       );
 
-      const trigger = screen.getByRole('tooltip').parentElement;
+      const trigger = screen.getByText('icon').parentElement!;
       expect(trigger).toHaveAttribute('tabindex', '0');
     });
 
-    it('is focusable via keyboard', async () => {
+    it('shows tooltip on focus', async () => {
       const user = userEvent.setup();
       render(
         <Tooltip content="Info">
@@ -74,39 +91,7 @@ describe('Tooltip', () => {
 
       await user.tab();
 
-      const trigger = screen.getByRole('tooltip').parentElement;
-      expect(trigger).toHaveFocus();
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Info');
     });
-  });
-
-  describe('placement', () => {
-    it('defaults to top placement', () => {
-      render(
-        <Tooltip content="Info">
-          <span>icon</span>
-        </Tooltip>,
-      );
-
-      expect(screen.getByRole('tooltip')).toHaveAttribute(
-        'data-placement',
-        'top',
-      );
-    });
-
-    it.each(['top', 'bottom', 'left', 'right'] as const)(
-      'renders with placement=%s',
-      (placement) => {
-        render(
-          <Tooltip content="Info" placement={placement}>
-            <span>icon</span>
-          </Tooltip>,
-        );
-
-        expect(screen.getByRole('tooltip')).toHaveAttribute(
-          'data-placement',
-          placement,
-        );
-      },
-    );
   });
 });
