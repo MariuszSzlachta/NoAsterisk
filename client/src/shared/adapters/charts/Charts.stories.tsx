@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { BarChart, LineChart, PieChart } from '#shared/charts';
+import { BarChart, LineChart, PieChart } from '#shared/adapters/charts';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 const meta: Meta = {

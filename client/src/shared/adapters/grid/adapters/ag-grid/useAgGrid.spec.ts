@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useAgGrid } from '#shared/grid/adapters/ag-grid/useAgGrid';
-import type { GridColumn } from '#shared/grid/ports/grid.port';
+import { useAgGrid } from '#shared/adapters/grid/adapters/ag-grid/useAgGrid';
+import type { GridColumn } from '#shared/adapters/grid/ports/grid.port';
 
 interface TestRow {
   id: string;

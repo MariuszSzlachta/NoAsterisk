@@ -2,8 +2,8 @@ import { AllCommunityModule, ModuleRegistry, themeQuartz, createTheme } from 'ag
 import type { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 
-import type { DataGridProps, RowAction } from '#shared/grid/ports/grid.port';
-import { useAgGrid } from '#shared/grid/adapters/ag-grid/useAgGrid';
+import type { DataGridProps, RowAction } from '#shared/adapters/grid/ports/grid.port';
+import { useAgGrid } from '#shared/adapters/grid/adapters/ag-grid/useAgGrid';
 import { DropdownMenu, type DropdownMenuEntry } from '#shared/ui/DropdownMenu';
 
 ModuleRegistry.registerModules([AllCommunityModule]);

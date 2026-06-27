@@ -7,7 +7,7 @@ import {
   type SortChangedEvent,
 } from 'ag-grid-community';
 
-import type { DataGridProps, GridColumn, GridSortConfig } from '#shared/grid/ports/grid.port';
+import type { DataGridProps, GridColumn, GridSortConfig } from '#shared/adapters/grid/ports/grid.port';
 
 const mapColumns = <TRow,>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
   return columns.map((col): ColDef<TRow> => {

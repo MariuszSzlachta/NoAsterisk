@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
-import { DataGrid } from '#shared/grid';
+import { DataGrid } from '#shared/adapters/grid/index';
 
 const noop = (): void => {};
-import type { GridColumn } from '#shared/grid';
-import type { RowAction } from '#shared/grid/ports/grid.port';
+import type { GridColumn } from '#shared/adapters/grid/index';
+import type { RowAction } from '#shared/adapters/grid/ports/grid.port';
 import { Badge } from '#shared/ui/Badge';
 import { SelectionToolbar } from '#shared/ui/SelectionToolbar';
 

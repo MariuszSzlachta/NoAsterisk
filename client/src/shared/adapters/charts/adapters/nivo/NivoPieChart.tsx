@@ -1,8 +1,8 @@
 import type { PieCustomLayerProps } from '@nivo/pie';
 import { ResponsivePie } from '@nivo/pie';
 
-import type { PieChartProps } from '#shared/charts/ports/chart.port';
-import { DEFAULT_CHART_HEIGHT } from '#shared/charts/adapters/nivo/nivo-defaults';
+import type { PieChartProps } from '#shared/adapters/charts/ports/chart.port';
+import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 
 const DONUT_INNER_RADIUS = 0.65;
 const MARGIN = { top: 10, right: 140, bottom: 10, left: 10 } as const;

@@ -1,7 +1,7 @@
 import { ResponsiveBar } from '@nivo/bar';
 
-import type { BarChartProps } from '#shared/charts/ports/chart.port';
-import { DEFAULT_CHART_HEIGHT } from '#shared/charts/adapters/nivo/nivo-defaults';
+import type { BarChartProps } from '#shared/adapters/charts/ports/chart.port';
+import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 
 const MARGIN = { top: 10, right: 60, bottom: 10, left: 120 } as const;
 

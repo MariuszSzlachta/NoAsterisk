@@ -1,8 +1,8 @@
 import type { LineSvgLayer, LineCustomSvgLayerProps, LineSeries } from '@nivo/line';
 import { ResponsiveLine } from '@nivo/line';
 
-import type { LineChartProps } from '#shared/charts/ports/chart.port';
-import { DEFAULT_CHART_HEIGHT } from '#shared/charts/adapters/nivo/nivo-defaults';
+import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
+import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
 
