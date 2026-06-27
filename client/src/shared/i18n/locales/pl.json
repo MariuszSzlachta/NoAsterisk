@@ -8,6 +8,7 @@
     "transactions": "Transakcje",
     "import": "Import CSV",
     "budgets": "Budżety",
+    "analytics": "Analiza",
     "rules": "Reguły",
     "openMenu": "Otwórz menu",
     "closeMenu": "Zamknij menu"
@@ -25,11 +26,8 @@
     "transactions": "Transakcje",
     "import": "Import",
     "budgets": "Budżety",
+    "analytics": "Analiza",
     "rules": "Reguły",
-    "reportBalance": "Raport salda",
-    "reportIncome": "Raport przychodów",
-    "reportExpenses": "Raport wydatków",
-    "reportSavings": "Raport oszczędności",
     "fallback": "Strona"
   },
   "titles": {
@@ -37,21 +35,37 @@
     "transactions": "Transakcje",
     "import": "Import CSV",
     "budgets": "Budżety",
+    "analytics": "Analiza",
     "rules": "Reguły",
-    "reportBalance": "Raport salda",
-    "reportIncome": "Raport przychodów",
-    "reportExpenses": "Raport wydatków",
-    "reportSavings": "Raport oszczędności",
     "fallback": "Strona"
   },
   "user": {
     "workspace": "Konto domowe",
     "email": "user@example.com"
   },
-  "reports": {
-    "balanceDescription": "Szczegółowy raport zmian salda w czasie.",
-    "incomeDescription": "Szczegółowy raport źródeł przychodów.",
-    "expenseDescription": "Szczegółowy raport struktury wydatków.",
-    "savingsDescription": "Szczegółowy raport oszczędności i celów."
+  "analytics": {
+    "metrics": {
+      "balance": "Saldo",
+      "income": "Przychody",
+      "expenses": "Wydatki",
+      "savings": "Oszczędności"
+    },
+    "periods": {
+      "1m": "1M",
+      "3m": "3M",
+      "6m": "6M",
+      "1y": "1R",
+      "ytd": "YTD"
+    },
+    "chartTypes": {
+      "line": "Liniowy",
+      "bar": "Słupkowy",
+      "area": "Warstwowy"
+    },
+    "granularity": {
+      "daily": "Dziennie",
+      "weekly": "Tygodniowo",
+      "monthly": "Miesięcznie"
+    }
   }
 }

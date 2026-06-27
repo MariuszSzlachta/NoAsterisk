@@ -12,10 +12,10 @@ export const KPI_ICONS: Record<KpiId, ReactNode> = {
 };
 
 export const KPI_REPORT_HREFS: Record<KpiId, string> = {
-  balance: '/reports/balance',
-  income: '/reports/income',
-  expenses: '/reports/expenses',
-  savings: '/reports/savings',
+  balance: '/analytics?metric=balance',
+  income: '/analytics?metric=income',
+  expenses: '/analytics?metric=expenses',
+  savings: '/analytics?metric=savings',
 };
 
 export const FALLBACK_ICON: ReactNode = React.createElement(CircleHelp, { size: 16 });

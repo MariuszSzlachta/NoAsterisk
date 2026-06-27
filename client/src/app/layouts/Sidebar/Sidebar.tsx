@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   LayoutGrid,
   List,
   SlidersHorizontal,
@@ -52,6 +53,10 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
 
         <SidebarNavLink icon={Wallet} to="/budgets" onClick={onNavigate}>
           {t('nav.budgets')}
+        </SidebarNavLink>
+
+        <SidebarNavLink icon={BarChart3} to="/analytics" onClick={onNavigate}>
+          {t('nav.analytics')}
         </SidebarNavLink>
 
         <SidebarNavLink icon={SlidersHorizontal} to="/admin/rules" onClick={onNavigate}>
