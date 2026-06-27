@@ -3,21 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 
-import type { AnalyticsFilters, MetricType } from '#features/analytics';
-import { AnalyticsChart, AnalyticsKpiRow, AnalyticsToolbar, useAnalyticsQuery } from '#features/analytics';
-
-const parseMetrics = (param: string | null): MetricType[] => {
-  if (!param) return ['expenses'];
-  const valid: MetricType[] = ['balance', 'income', 'expenses', 'savings'];
-  const parsed = param.split(',').filter((m): m is MetricType => valid.includes(m as MetricType));
-  return parsed.length > 0 ? parsed : ['expenses'];
-};
+import type { AnalyticsFilters } from '#features/analytics';
+import { AnalyticsChart, AnalyticsKpiRow, AnalyticsToolbar, parseMetricsParam, useAnalyticsQuery } from '#features/analytics';
 
 export const AnalyticsPage = (): React.JSX.Element => {
   const [searchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<AnalyticsFilters>({
-    metrics: parseMetrics(searchParams.get('metric')),
+    metrics: parseMetricsParam(searchParams.get('metric')),
     period: '6m',
     chartType: 'line',
     granularity: 'monthly',
