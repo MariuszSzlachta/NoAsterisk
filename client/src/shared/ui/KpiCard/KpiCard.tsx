@@ -1,6 +1,6 @@
-import { Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { Info } from 'lucide-react';
 
 import { Badge } from '#shared/ui/Badge';
 import { Tooltip } from '#shared/ui/Tooltip';
@@ -24,7 +24,16 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
-export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip, iconHref, iconTooltip }: KpiCardProps): React.JSX.Element => (
+export const KpiCard = ({
+  label,
+  value,
+  icon,
+  delta,
+  trend = 'neutral',
+  tooltip,
+  iconHref,
+  iconTooltip,
+}: KpiCardProps): React.JSX.Element => (
   <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card">
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
@@ -49,9 +58,16 @@ export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip,
         <span className="text-muted-foreground">{icon}</span>
       )}
     </div>
-    <span className="font-mono text-xl font-semibold tabular-nums text-foreground">{value}</span>
+    <span className="font-mono text-xl font-semibold tabular-nums text-foreground">
+      {value}
+    </span>
     {delta && (
-      <Badge variant="soft" color={TREND_COLOR[trend]} dot={false} className="w-fit">
+      <Badge
+        variant="soft"
+        color={TREND_COLOR[trend]}
+        dot={false}
+        className="w-fit"
+      >
         {delta}
       </Badge>
     )}

@@ -3,4 +3,10 @@ export { AnalyticsChart } from '#features/analytics/ui/AnalyticsChart';
 export { AnalyticsKpiRow } from '#features/analytics/ui/AnalyticsKpiRow';
 export { useAnalyticsQuery } from '#features/analytics/api/useAnalyticsQuery';
 export { parseMetricsParam } from '#features/analytics/model/parseMetricsParam';
-export type { AnalyticsFilters, MetricType, Period, ChartType, Granularity } from '#features/analytics/model/types';
+export type {
+  AnalyticsFilters,
+  MetricType,
+  Period,
+  ChartType,
+  Granularity,
+} from '#features/analytics/model/types';

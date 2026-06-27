@@ -1,6 +1,11 @@
-import { CircleHelp, DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
-import type { ReactNode } from 'react';
-import React from 'react';
+import React, { type ReactNode } from 'react';
+import {
+  CircleHelp,
+  DollarSign,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from 'lucide-react';
 
 import type { KpiId } from '#features/dashboard-widgets/model/types';
 
@@ -18,7 +23,9 @@ export const KPI_REPORT_HREFS: Record<KpiId, string> = {
   savings: '/analytics?metric=savings',
 };
 
-export const FALLBACK_ICON: ReactNode = React.createElement(CircleHelp, { size: 16 });
+export const FALLBACK_ICON: ReactNode = React.createElement(CircleHelp, {
+  size: 16,
+});
 
 export const KPI_ICON_TOOLTIPS: Record<KpiId, string> = {
   balance: 'Otwórz analizę salda',

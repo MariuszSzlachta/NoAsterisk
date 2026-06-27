@@ -37,15 +37,27 @@ const CATEGORY_DATA = [
   { label: 'Subskrypcje', value: 540 },
 ];
 
-const CHART_COLORS = ['#34d399', '#94a3b8', '#60a5fa', '#fbbf24', '#fb7185', '#a78bfa'];
+const CHART_COLORS = [
+  '#34d399',
+  '#94a3b8',
+  '#60a5fa',
+  '#fbbf24',
+  '#fb7185',
+  '#a78bfa',
+];
 
 export const Showcase: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <section>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Line chart</h3>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Line chart
+        </h3>
         <Card className="w-[600px]">
-          <CardHeader title="Przychody vs wydatki" subtitle="Ostatnie 6 miesięcy" />
+          <CardHeader
+            title="Przychody vs wydatki"
+            subtitle="Ostatnie 6 miesięcy"
+          />
           <LineChart
             data={[
               { id: 'Przychód', data: INCOME_DATA },
@@ -60,7 +72,9 @@ export const Showcase: Story = {
       </section>
 
       <section>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Bar chart</h3>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Bar chart
+        </h3>
         <Card className="w-[500px]">
           <CardHeader title="Wydatki wg kategorii" subtitle="Czerwiec 2026" />
           <BarChart
@@ -73,7 +87,9 @@ export const Showcase: Story = {
       </section>
 
       <section>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Pie chart</h3>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Pie chart
+        </h3>
         <Card className="w-[400px]">
           <CardHeader title="Struktura wydatków" subtitle="Czerwiec 2026" />
           <PieChart

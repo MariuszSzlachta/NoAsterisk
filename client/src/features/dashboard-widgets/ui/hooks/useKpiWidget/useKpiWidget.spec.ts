@@ -1,12 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { useKpiQuery } from '#features/dashboard-widgets/api/useKpiQuery';
 import { useKpiWidget } from '#features/dashboard-widgets/ui/hooks/useKpiWidget';
 
 vi.mock('#features/dashboard-widgets/api/useKpiQuery', () => ({
   useKpiQuery: vi.fn(),
 }));
-
-import { useKpiQuery } from '#features/dashboard-widgets/api/useKpiQuery';
 
 const mockUseKpiQuery = vi.mocked(useKpiQuery);
 
@@ -21,7 +20,15 @@ describe('useKpiWidget', () => {
 
   it('returns loaded state with mapped VMs when query succeeds', () => {
     mockUseKpiQuery.mockReturnValue({
-      data: [{ id: 'balance' as const, label: 'Saldo', value: '100 zł', deltaPercent: '+5%', trend: 'up' as const }],
+      data: [
+        {
+          id: 'balance' as const,
+          label: 'Saldo',
+          value: '100 zł',
+          deltaPercent: '+5%',
+          trend: 'up' as const,
+        },
+      ],
       isLoading: false,
     });
 

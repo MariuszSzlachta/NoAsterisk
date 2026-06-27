@@ -1,6 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import type { AnalyticsFilters, ChartType, Granularity, MetricType, Period } from '#features/analytics/model/types';
+import type {
+  AnalyticsFilters,
+  ChartType,
+  Granularity,
+  MetricType,
+  Period,
+} from '#features/analytics/model/types';
 
 interface AnalyticsToolbarProps {
   readonly filters: AnalyticsFilters;
@@ -12,7 +18,10 @@ const PERIODS: Period[] = ['1m', '3m', '6m', '1y', 'ytd'];
 const CHART_TYPES: ChartType[] = ['line', 'bar', 'area'];
 const GRANULARITIES: Granularity[] = ['daily', 'weekly', 'monthly'];
 
-export const AnalyticsToolbar = ({ filters, onFiltersChange }: AnalyticsToolbarProps): React.JSX.Element => {
+export const AnalyticsToolbar = ({
+  filters,
+  onFiltersChange,
+}: AnalyticsToolbarProps): React.JSX.Element => {
   const { t } = useTranslation();
 
   const toggleMetric = (metric: MetricType): void => {

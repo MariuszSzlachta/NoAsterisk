@@ -1,13 +1,19 @@
-import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
-import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { Meta, StoryObj } from '@storybook/react';
+import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
 import { KpiCard } from '#shared/ui/KpiCard/KpiCard';
 
 const meta: Meta<typeof KpiCard> = {
   title: 'shared/ui/KpiCard',
   component: KpiCard,
-  decorators: [(Story) => <MemoryRouter><Story /></MemoryRouter>],
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
 export default meta;
@@ -66,7 +72,8 @@ export const WithTooltip: Story = {
     icon: <Wallet size={16} />,
     delta: '+2,4%',
     trend: 'up',
-    tooltip: 'Suma wszystkich środków na kontach. Zmiana procentowa vs poprzedni miesiąc.',
+    tooltip:
+      'Suma wszystkich środków na kontach. Zmiana procentowa vs poprzedni miesiąc.',
   },
 };
 

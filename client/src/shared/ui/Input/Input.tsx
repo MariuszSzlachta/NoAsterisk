@@ -50,7 +50,11 @@ export const Input = ({
         />
       </div>
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-expense" role="alert">
+        <p
+          id={`${inputId}-error`}
+          className="text-xs text-expense"
+          role="alert"
+        >
           {error}
         </p>
       )}

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { ChartDataPoint } from '#shared/adapters/charts';
-import { PieChart } from '#shared/adapters/charts';
+import { PieChart, type ChartDataPoint } from '#shared/adapters/charts';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 const CATEGORY_COLORS = [
@@ -20,7 +19,12 @@ interface CategoryDonutWidgetProps {
   readonly action?: ReactNode;
 }
 
-export const CategoryDonutWidget = ({ data, title, subtitle, action }: CategoryDonutWidgetProps): React.JSX.Element => (
+export const CategoryDonutWidget = ({
+  data,
+  title,
+  subtitle,
+  action,
+}: CategoryDonutWidgetProps): React.JSX.Element => (
   <Card>
     <CardHeader title={title} subtitle={subtitle} action={action} />
     <PieChart data={data} height={260} colors={CATEGORY_COLORS} showLegend />

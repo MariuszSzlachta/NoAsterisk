@@ -1,20 +1,18 @@
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
 
-import { QueryRenderer } from '#shared/ui/QueryRenderer';
-import { Skeleton } from '#shared/ui/Skeleton';
-
+import { BudgetProgressWidget } from '#features/dashboard-widgets/ui/BudgetProgressWidget';
+import { CategoryDonutWidget } from '#features/dashboard-widgets/ui/CategoryDonutWidget';
 import { useBudgetProgressWidget } from '#features/dashboard-widgets/ui/hooks/useBudgetProgressWidget';
 import { useCategoryDonutWidget } from '#features/dashboard-widgets/ui/hooks/useCategoryDonutWidget';
 import { useKpiWidget } from '#features/dashboard-widgets/ui/hooks/useKpiWidget';
 import { useRecentTransactionsWidget } from '#features/dashboard-widgets/ui/hooks/useRecentTransactionsWidget';
 import { useTrendChartWidget } from '#features/dashboard-widgets/ui/hooks/useTrendChartWidget';
-
-import { BudgetProgressWidget } from '#features/dashboard-widgets/ui/BudgetProgressWidget';
-import { CategoryDonutWidget } from '#features/dashboard-widgets/ui/CategoryDonutWidget';
 import { KpiRowWidget } from '#features/dashboard-widgets/ui/KpiRowWidget';
 import { RecentTransactionsWidget } from '#features/dashboard-widgets/ui/RecentTransactionsWidget';
 import { TrendChartWidget } from '#features/dashboard-widgets/ui/TrendChartWidget';
+import { QueryRenderer } from '#shared/ui/QueryRenderer';
+import { Skeleton } from '#shared/ui/Skeleton';
 
 export enum WidgetType {
   KpiRow = 'KpiRow',
@@ -30,8 +28,17 @@ interface WidgetConfig {
   readonly Component: ComponentType;
 }
 
-const WidgetLink = ({ to, children }: { to: string; children: string }): React.JSX.Element => (
-  <Link to={to} className="text-xs font-medium text-primary transition-colors hover:text-primary/80">
+const WidgetLink = ({
+  to,
+  children,
+}: {
+  to: string;
+  children: string;
+}): React.JSX.Element => (
+  <Link
+    to={to}
+    className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
+  >
     {children}
   </Link>
 );
@@ -39,7 +46,10 @@ const WidgetLink = ({ to, children }: { to: string; children: string }): React.J
 const KpiRowEntry = (): React.JSX.Element => {
   const state = useKpiWidget();
   return (
-    <QueryRenderer state={state} skeleton={<Skeleton className="h-24 w-full" />}>
+    <QueryRenderer
+      state={state}
+      skeleton={<Skeleton className="h-24 w-full" />}
+    >
       {(items) => <KpiRowWidget items={items} />}
     </QueryRenderer>
   );
@@ -54,7 +64,11 @@ const TrendChartEntry = (): React.JSX.Element => {
           data={data}
           title="Przychody vs Wydatki"
           subtitle="Ostatnie 6 miesięcy"
-          action={<WidgetLink to="/analytics?metric=income,expenses">Analiza →</WidgetLink>}
+          action={
+            <WidgetLink to="/analytics?metric=income,expenses">
+              Analiza →
+            </WidgetLink>
+          }
         />
       )}
     </QueryRenderer>
@@ -70,7 +84,9 @@ const CategoryDonutEntry = (): React.JSX.Element => {
           data={data}
           title="Wydatki wg kategorii"
           subtitle="Bieżący miesiąc"
-          action={<WidgetLink to="/analytics?metric=expenses">Analiza →</WidgetLink>}
+          action={
+            <WidgetLink to="/analytics?metric=expenses">Analiza →</WidgetLink>
+          }
         />
       )}
     </QueryRenderer>
@@ -114,5 +130,9 @@ export const WIDGET_REGISTRY: WidgetConfig[] = [
   { id: WidgetType.TrendChart, cols: 2, Component: TrendChartEntry },
   { id: WidgetType.CategoryDonut, cols: 2, Component: CategoryDonutEntry },
   { id: WidgetType.BudgetProgress, cols: 2, Component: BudgetProgressEntry },
-  { id: WidgetType.RecentTransactions, cols: 2, Component: RecentTransactionsEntry },
+  {
+    id: WidgetType.RecentTransactions,
+    cols: 2,
+    Component: RecentTransactionsEntry,
+  },
 ];

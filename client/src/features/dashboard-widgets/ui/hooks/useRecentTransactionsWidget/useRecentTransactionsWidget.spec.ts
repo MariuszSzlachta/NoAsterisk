@@ -1,12 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { useRecentTransactionsQuery } from '#features/dashboard-widgets/api/useRecentTransactionsQuery';
 import { useRecentTransactionsWidget } from '#features/dashboard-widgets/ui/hooks/useRecentTransactionsWidget';
 
 vi.mock('#features/dashboard-widgets/api/useRecentTransactionsQuery', () => ({
   useRecentTransactionsQuery: vi.fn(),
 }));
-
-import { useRecentTransactionsQuery } from '#features/dashboard-widgets/api/useRecentTransactionsQuery';
 
 const mockQuery = vi.mocked(useRecentTransactionsQuery);
 
@@ -21,7 +20,16 @@ describe('useRecentTransactionsWidget', () => {
 
   it('returns loaded state with mapped transactions', () => {
     mockQuery.mockReturnValue({
-      data: [{ id: '1', merchant: 'SHOP', category: 'Zakupy', date: '27 cze', amount: '−50 zł', direction: 'expense' as const }],
+      data: [
+        {
+          id: '1',
+          merchant: 'SHOP',
+          category: 'Zakupy',
+          date: '27 cze',
+          amount: '−50 zł',
+          direction: 'expense' as const,
+        },
+      ],
       isLoading: false,
     });
 

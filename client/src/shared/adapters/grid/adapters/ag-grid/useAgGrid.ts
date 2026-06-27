@@ -7,9 +7,13 @@ import {
   type SortChangedEvent,
 } from 'ag-grid-community';
 
-import type { DataGridProps, GridColumn, GridSortConfig } from '#shared/adapters/grid/ports/grid.port';
+import type {
+  DataGridProps,
+  GridColumn,
+  GridSortConfig,
+} from '#shared/adapters/grid/ports/grid.port';
 
-const mapColumns = <TRow,>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
+const mapColumns = <TRow>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
   return columns.map((col): ColDef<TRow> => {
     const colDef: ColDef<TRow> = {
       headerName: col.headerName,
@@ -25,9 +29,19 @@ const mapColumns = <TRow,>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
 
     if (col.cellRenderer) {
       const renderer = col.cellRenderer;
-      colDef.cellRenderer = (params: { value: unknown; data: TRow; rowIndex: number }) => {
-        if (!params.data) return null;
-        return renderer({ value: params.value, data: params.data, rowIndex: params.rowIndex });
+      colDef.cellRenderer = (params: {
+        value: unknown;
+        data: TRow;
+        rowIndex: number;
+      }) => {
+        if (!params.data) {
+          return null;
+        }
+        return renderer({
+          value: params.value,
+          data: params.data,
+          rowIndex: params.rowIndex,
+        });
       };
     }
 
@@ -40,17 +54,27 @@ interface UseAgGridResult<TRow> {
   handleGridReady: (event: GridReadyEvent<TRow>) => void;
   handleCellValueChanged: (event: CellValueChangedEvent<TRow>) => void;
   handleSortChanged: (event: SortChangedEvent<TRow>) => void;
-  handleSelectionChanged: (event: { api: { getSelectedRows: () => TRow[] } }) => void;
+  handleSelectionChanged: (event: {
+    api: { getSelectedRows: () => TRow[] };
+  }) => void;
 }
 
-export const useAgGrid = <TRow,>({
+export const useAgGrid = <TRow>({
   columns,
   getRowId,
   sorting,
   onCellEdit,
   onSortChange,
   onSelectionChange,
-}: Pick<DataGridProps<TRow>, 'columns' | 'getRowId' | 'sorting' | 'onCellEdit' | 'onSortChange' | 'onSelectionChange'>): UseAgGridResult<TRow> => {
+}: Pick<
+  DataGridProps<TRow>,
+  | 'columns'
+  | 'getRowId'
+  | 'sorting'
+  | 'onCellEdit'
+  | 'onSortChange'
+  | 'onSelectionChange'
+>): UseAgGridResult<TRow> => {
   const gridApiRef = useRef<GridApi<TRow> | null>(null);
   const columnDefs = useMemo(() => mapColumns(columns), [columns]);
 
@@ -59,7 +83,9 @@ export const useAgGrid = <TRow,>({
   }, []);
 
   useEffect(() => {
-    if (!gridApiRef.current) return;
+    if (!gridApiRef.current) {
+      return;
+    }
     if (sorting) {
       gridApiRef.current.applyColumnState({
         state: [{ colId: sorting.field, sort: sorting.direction }],
@@ -72,7 +98,9 @@ export const useAgGrid = <TRow,>({
 
   const handleCellValueChanged = useCallback(
     (event: CellValueChangedEvent<TRow>): void => {
-      if (!onCellEdit || !event.data) return;
+      if (!onCellEdit || !event.data) {
+        return;
+      }
       const field = event.colDef.field;
       if (field) {
         onCellEdit(getRowId(event.data), field, event.newValue as unknown);
@@ -83,10 +111,15 @@ export const useAgGrid = <TRow,>({
 
   const handleSortChanged = useCallback(
     (event: SortChangedEvent<TRow>): void => {
-      if (!onSortChange) return;
+      if (!onSortChange) {
+        return;
+      }
       const sortModel = event.api.getColumnState().find((c) => c.sort);
       if (sortModel?.colId && sortModel.sort) {
-        onSortChange({ field: sortModel.colId, direction: sortModel.sort } as GridSortConfig);
+        onSortChange({
+          field: sortModel.colId,
+          direction: sortModel.sort,
+        } as GridSortConfig);
       } else {
         onSortChange(undefined);
       }
@@ -96,11 +129,19 @@ export const useAgGrid = <TRow,>({
 
   const handleSelectionChanged = useCallback(
     (event: { api: { getSelectedRows: () => TRow[] } }): void => {
-      if (!onSelectionChange) return;
+      if (!onSelectionChange) {
+        return;
+      }
       onSelectionChange(event.api.getSelectedRows().map(getRowId));
     },
     [onSelectionChange, getRowId],
   );
 
-  return { columnDefs, handleGridReady, handleCellValueChanged, handleSortChanged, handleSelectionChanged };
+  return {
+    columnDefs,
+    handleGridReady,
+    handleCellValueChanged,
+    handleSortChanged,
+    handleSelectionChanged,
+  };
 };

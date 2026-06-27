@@ -41,8 +41,13 @@ export const BudgetProgressList = ({
                 </span>
               </div>
               <span className="font-mono text-sm tabular-nums">
-                <span className="text-muted-foreground">{formatAmount(item.spent, currency)}</span>
-                <span className="text-subtle"> / {formatAmount(item.limit, currency)}</span>
+                <span className="text-muted-foreground">
+                  {formatAmount(item.spent, currency)}
+                </span>
+                <span className="text-subtle">
+                  {' '}
+                  / {formatAmount(item.limit, currency)}
+                </span>
               </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-3">

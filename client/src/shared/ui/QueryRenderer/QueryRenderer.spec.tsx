@@ -41,7 +41,10 @@ describe('QueryRenderer', () => {
   });
 
   it('renders error message when status is error', () => {
-    const state: QueryState<string> = { status: 'error', error: 'Something broke' };
+    const state: QueryState<string> = {
+      status: 'error',
+      error: 'Something broke',
+    };
 
     render(<QueryRenderer state={state}>{renderContent}</QueryRenderer>);
 

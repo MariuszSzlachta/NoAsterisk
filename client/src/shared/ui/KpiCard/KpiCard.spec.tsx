@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { KpiCard } from '#shared/ui/KpiCard';
@@ -49,22 +49,31 @@ describe('KpiCard', () => {
     });
 
     it('renders tooltip when tooltip prop is provided', () => {
-      renderWithRouter(<KpiCard {...DEFAULT_PROPS} tooltip="Suma środków na kontach." />);
+      renderWithRouter(
+        <KpiCard {...DEFAULT_PROPS} tooltip="Suma środków na kontach." />,
+      );
 
-      expect(screen.getByRole('tooltip')).toHaveTextContent('Suma środków na kontach.');
+      expect(screen.getByRole('tooltip')).toHaveTextContent(
+        'Suma środków na kontach.',
+      );
     });
 
     it('tooltip is accessible via aria-describedby', () => {
       renderWithRouter(<KpiCard {...DEFAULT_PROPS} tooltip="Info text" />);
 
       const tooltip = screen.getByRole('tooltip');
-      expect(tooltip.parentElement).toHaveAttribute('aria-describedby', tooltip.id);
+      expect(tooltip.parentElement).toHaveAttribute(
+        'aria-describedby',
+        tooltip.id,
+      );
     });
   });
 
   describe('iconHref', () => {
     it('renders icon as a link when iconHref is provided', () => {
-      renderWithRouter(<KpiCard {...DEFAULT_PROPS} iconHref="/reports/balance" />);
+      renderWithRouter(
+        <KpiCard {...DEFAULT_PROPS} iconHref="/reports/balance" />,
+      );
 
       const link = screen.getByRole('link', { name: /raport szczegółowy/i });
       expect(link).toHaveAttribute('href', '/reports/balance');

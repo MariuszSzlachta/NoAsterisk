@@ -29,7 +29,9 @@ const attemptTokenRefresh = async (baseUrl: string): Promise<boolean> => {
       credentials: 'include', // sends httpOnly refresh cookie
     });
 
-    if (!response.ok) return false;
+    if (!response.ok) {
+      return false;
+    }
 
     const data = (await response.json()) as { access_token: string };
     authTokens.setAccessToken(data.access_token);
@@ -169,7 +171,6 @@ export class HttpClient {
   }
 }
 
-export const apiClient = new HttpClient(
-  '/api',
-  () => authTokens.getAccessToken(),
+export const apiClient = new HttpClient('/api', () =>
+  authTokens.getAccessToken(),
 );

@@ -1,5 +1,5 @@
-import { Info } from 'lucide-react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Info } from 'lucide-react';
 
 import { Tooltip } from '#shared/ui/Tooltip/Tooltip';
 
@@ -68,7 +68,10 @@ export const EdgeCaseTopOfScreen: Story = {
   render: () => (
     <div className="flex items-center gap-2 pt-0">
       <span className="text-sm text-foreground">Przy górnej krawędzi</span>
-      <Tooltip content="Auto-flip: jeśli u góry brak miejsca, pokaże się poniżej." placement="top">
+      <Tooltip
+        content="Auto-flip: jeśli u góry brak miejsca, pokaże się poniżej."
+        placement="top"
+      >
         <Info size={14} className="text-muted-foreground" />
       </Tooltip>
     </div>

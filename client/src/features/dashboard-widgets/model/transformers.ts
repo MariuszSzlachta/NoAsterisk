@@ -9,7 +9,12 @@ import type {
   RecentTransactionVM,
 } from '#features/dashboard-widgets/model/types';
 
-export const mapKpiDtoToVm = (dto: KpiDto, icon: ReactNode, iconHref: string | undefined, iconTooltip: string | undefined): KpiItemVM => ({
+export const mapKpiDtoToVm = (
+  dto: KpiDto,
+  icon: ReactNode,
+  iconHref: string | undefined,
+  iconTooltip: string | undefined,
+): KpiItemVM => ({
   label: dto.label,
   value: dto.value,
   icon,
@@ -27,7 +32,9 @@ export const mapBudgetDtoToVm = (dto: BudgetDto): BudgetItemVM => ({
   color: dto.color,
 });
 
-export const mapRecentTransactionDtoToVm = (dto: RecentTransactionDto): RecentTransactionVM => ({
+export const mapRecentTransactionDtoToVm = (
+  dto: RecentTransactionDto,
+): RecentTransactionVM => ({
   id: dto.id,
   merchant: dto.merchant,
   category: dto.category,

@@ -16,7 +16,9 @@ describe('SelectionToolbar', () => {
 
   describe('rendering', () => {
     it('renders nothing when count is 0', () => {
-      const { container } = render(<SelectionToolbar {...defaultProps} count={0} />);
+      const { container } = render(
+        <SelectionToolbar {...defaultProps} count={0} />,
+      );
 
       expect(container).toBeEmptyDOMElement();
     });
@@ -55,7 +57,12 @@ describe('SelectionToolbar', () => {
 
     it('calls action onClick when action clicked', async () => {
       const onClick = vi.fn();
-      render(<SelectionToolbar {...defaultProps} actions={[{ label: 'Export', onClick }]} />);
+      render(
+        <SelectionToolbar
+          {...defaultProps}
+          actions={[{ label: 'Export', onClick }]}
+        />,
+      );
 
       await userEvent.click(screen.getByText('Export'));
 
@@ -64,7 +71,12 @@ describe('SelectionToolbar', () => {
 
     it('does not call onClick on disabled action', async () => {
       const onClick = vi.fn();
-      render(<SelectionToolbar {...defaultProps} actions={[{ label: 'Disabled', onClick, disabled: true }]} />);
+      render(
+        <SelectionToolbar
+          {...defaultProps}
+          actions={[{ label: 'Disabled', onClick, disabled: true }]}
+        />,
+      );
 
       await userEvent.click(screen.getByText('Disabled'));
 

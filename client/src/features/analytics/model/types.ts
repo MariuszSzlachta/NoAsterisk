@@ -1,3 +1,8 @@
+import type {
+  ChartSeries,
+  ChartSeriesDataPoint,
+} from '#shared/adapters/charts';
+
 export type MetricType = 'balance' | 'income' | 'expenses' | 'savings';
 
 export type Period = '1m' | '3m' | '6m' | '1y' | 'ytd';
@@ -12,8 +17,6 @@ export interface AnalyticsFilters {
   readonly chartType: ChartType;
   readonly granularity: Granularity;
 }
-
-import type { ChartSeries, ChartSeriesDataPoint } from '#shared/adapters/charts';
 
 export type AnalyticsDataPoint = ChartSeriesDataPoint;
 export type AnalyticsSeries = ChartSeries;

@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { SelectionToolbar } from '#shared/ui/SelectionToolbar';
 
@@ -18,10 +18,16 @@ const ShowcaseRender = (): React.JSX.Element => {
   return (
     <div className="flex flex-col items-center gap-4 p-8">
       <div className="flex gap-2">
-        <button className="rounded-md bg-surface-3 px-3 py-1.5 text-xs text-foreground" onClick={() => setCount((c) => c + 1)}>
+        <button
+          className="rounded-md bg-surface-3 px-3 py-1.5 text-xs text-foreground"
+          onClick={() => setCount((c) => c + 1)}
+        >
           + Zaznacz
         </button>
-        <button className="rounded-md bg-surface-3 px-3 py-1.5 text-xs text-foreground" onClick={() => setCount(0)}>
+        <button
+          className="rounded-md bg-surface-3 px-3 py-1.5 text-xs text-foreground"
+          onClick={() => setCount(0)}
+        >
           Wyczyść
         </button>
       </div>

@@ -17,7 +17,9 @@ const SampleWidget = ({ items }: { items: string[] }): React.JSX.Element => (
   <div className="rounded-lg bg-surface p-4">
     <ul className="flex flex-col gap-2">
       {items.map((item) => (
-        <li key={item} className="text-sm text-foreground">{item}</li>
+        <li key={item} className="text-sm text-foreground">
+          {item}
+        </li>
       ))}
     </ul>
   </div>
@@ -36,7 +38,10 @@ export const Loading: Story = {
 
 export const Error: Story = {
   render: () => {
-    const state: QueryState<string[]> = { status: 'error', error: 'Nie udało się pobrać danych.' };
+    const state: QueryState<string[]> = {
+      status: 'error',
+      error: 'Nie udało się pobrać danych.',
+    };
     return (
       <QueryRenderer state={state}>
         {(data) => <SampleWidget items={data} />}
@@ -47,7 +52,10 @@ export const Error: Story = {
 
 export const Loaded: Story = {
   render: () => {
-    const state: QueryState<string[]> = { status: 'loaded', data: ['BIEDRONKA', 'SPOTIFY', 'UBER'] };
+    const state: QueryState<string[]> = {
+      status: 'loaded',
+      data: ['BIEDRONKA', 'SPOTIFY', 'UBER'],
+    };
     return (
       <QueryRenderer state={state}>
         {(data) => <SampleWidget items={data} />}
@@ -60,7 +68,10 @@ export const CustomSkeleton: Story = {
   render: () => {
     const state: QueryState<string[]> = { status: 'loading' };
     return (
-      <QueryRenderer state={state} skeleton={<Skeleton className="h-24 w-full" />}>
+      <QueryRenderer
+        state={state}
+        skeleton={<Skeleton className="h-24 w-full" />}
+      >
         {(data) => <SampleWidget items={data} />}
       </QueryRenderer>
     );

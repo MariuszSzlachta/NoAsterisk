@@ -22,12 +22,15 @@ export const SelectionToolbar = ({
   onClear,
   label = 'zaznaczono',
 }: SelectionToolbarProps): React.JSX.Element | null => {
-  if (count === 0) return null;
+  if (count === 0) {
+    return null;
+  }
 
   return createPortal(
     <div className="animate-toolbar-enter fixed inset-x-0 bottom-6 z-[9998] mx-auto flex w-fit items-center gap-3 rounded-xl border border-border bg-surface px-4 py-2.5 shadow-card">
       <span className="text-xs text-muted-foreground">
-        <span className="font-mono font-medium text-foreground">{count}</span> {label}
+        <span className="font-mono font-medium text-foreground">{count}</span>{' '}
+        {label}
       </span>
 
       <div className="h-4 w-px bg-border" />
@@ -56,7 +59,16 @@ export const SelectionToolbar = ({
         className="flex items-center justify-center rounded-md p-1 text-subtle outline-none hover:bg-surface-3 hover:text-foreground"
         onClick={onClear}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>

@@ -1,6 +1,11 @@
 import type { MetricType } from '#features/analytics/model/types';
 
-const VALID_METRICS: MetricType[] = ['balance', 'income', 'expenses', 'savings'];
+const VALID_METRICS: MetricType[] = [
+  'balance',
+  'income',
+  'expenses',
+  'savings',
+];
 const DEFAULT_METRICS: MetricType[] = ['expenses'];
 
 export const parseMetricsParam = (param: string | null): MetricType[] => {

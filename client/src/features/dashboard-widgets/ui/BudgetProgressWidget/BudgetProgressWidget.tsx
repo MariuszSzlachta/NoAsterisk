@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
 
+import type { BudgetItemVM } from '#features/dashboard-widgets/model/types';
 import { BudgetProgressList } from '#shared/ui/BudgetProgressList';
 import { Card, CardHeader } from '#shared/ui/Card';
-
-import type { BudgetItemVM } from '#features/dashboard-widgets/model/types';
 
 interface BudgetProgressWidgetProps {
   readonly items: BudgetItemVM[];
@@ -13,7 +12,13 @@ interface BudgetProgressWidgetProps {
   readonly action?: ReactNode;
 }
 
-export const BudgetProgressWidget = ({ items, title, subtitle, currency, action }: BudgetProgressWidgetProps): React.JSX.Element => (
+export const BudgetProgressWidget = ({
+  items,
+  title,
+  subtitle,
+  currency,
+  action,
+}: BudgetProgressWidgetProps): React.JSX.Element => (
   <Card>
     <CardHeader title={title} subtitle={subtitle} action={action} />
     <BudgetProgressList items={items} currency={currency} />

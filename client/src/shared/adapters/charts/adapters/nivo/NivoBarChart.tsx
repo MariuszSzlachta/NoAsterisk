@@ -1,7 +1,7 @@
 import { ResponsiveBar } from '@nivo/bar';
 
-import type { BarChartProps } from '#shared/adapters/charts/ports/chart.port';
 import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import type { BarChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const MARGIN = { top: 10, right: 60, bottom: 10, left: 120 } as const;
 
@@ -41,9 +41,21 @@ export const NivoBarChart = ({
         axisBottom={null}
         theme={{
           axis: {
-            ticks: { text: { fill: 'var(--fg-muted)', fontSize: 12, fontFamily: "Geist, -apple-system, sans-serif" } },
+            ticks: {
+              text: {
+                fill: 'var(--fg-muted)',
+                fontSize: 12,
+                fontFamily: 'Geist, -apple-system, sans-serif',
+              },
+            },
           },
-          labels: { text: { fontSize: 11, fontFamily: "Geist Mono, monospace", fill: 'var(--fg)' } },
+          labels: {
+            text: {
+              fontSize: 11,
+              fontFamily: 'Geist Mono, monospace',
+              fill: 'var(--fg)',
+            },
+          },
         }}
       />
     </div>

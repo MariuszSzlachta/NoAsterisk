@@ -8,10 +8,25 @@ interface BudgetQueryResult {
 }
 
 const MOCK_DATA: BudgetDto[] = [
-  { label: 'Zakupy spożywcze', spent: 1850, limit: 2000, color: 'var(--cat-groceries)' },
+  {
+    label: 'Zakupy spożywcze',
+    spent: 1850,
+    limit: 2000,
+    color: 'var(--cat-groceries)',
+  },
   { label: 'Transport', spent: 620, limit: 800, color: 'var(--cat-transport)' },
-  { label: 'Subskrypcje', spent: 340, limit: 350, color: 'var(--cat-subscriptions)' },
-  { label: 'Jedzenie na mieście', spent: 890, limit: 1000, color: 'var(--cat-dining)' },
+  {
+    label: 'Subskrypcje',
+    spent: 340,
+    limit: 350,
+    color: 'var(--cat-subscriptions)',
+  },
+  {
+    label: 'Jedzenie na mieście',
+    spent: 890,
+    limit: 1000,
+    color: 'var(--cat-dining)',
+  },
 ];
 
 export const useBudgetQuery = (): BudgetQueryResult => ({

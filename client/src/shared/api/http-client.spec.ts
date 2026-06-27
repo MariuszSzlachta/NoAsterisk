@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, HttpClient } from '#shared/api/http-client';
 
-const createMockResponse = (body: Record<string, unknown>, status = 200): Response =>
+const createMockResponse = (
+  body: Record<string, unknown>,
+  status = 200,
+): Response =>
   new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
@@ -15,7 +18,9 @@ describe('HttpClient', () => {
   beforeEach(() => {
     client = new HttpClient('/api', tokenProvider);
     tokenProvider.mockReturnValue('test-token');
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(createMockResponse({ ok: true }));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      createMockResponse({ ok: true }),
+    );
   });
 
   afterEach(() => {
@@ -26,7 +31,10 @@ describe('HttpClient', () => {
     it('prepends baseUrl to path', async () => {
       await client.get('/users');
 
-      expect(fetch).toHaveBeenCalledWith('/api/users', expect.objectContaining({ method: 'GET' }));
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/users',
+        expect.objectContaining({ method: 'GET' }),
+      );
     });
 
     it('includes Authorization header when token exists', async () => {
@@ -35,7 +43,9 @@ describe('HttpClient', () => {
       expect(fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
+          headers: expect.objectContaining({
+            Authorization: 'Bearer test-token',
+          }),
         }),
       );
     });
@@ -45,7 +55,8 @@ describe('HttpClient', () => {
 
       await client.get('/users');
 
-      const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]?.headers as Record<string, string>;
+      const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
+        ?.headers as Record<string, string>;
       expect(headers['Authorization']).toBeUndefined();
     });
 
@@ -55,7 +66,9 @@ describe('HttpClient', () => {
       expect(fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+          }),
         }),
       );
     });
@@ -65,7 +78,10 @@ describe('HttpClient', () => {
     it('sends GET without body', async () => {
       await client.get('/items');
 
-      expect(fetch).toHaveBeenCalledWith('/api/items', expect.objectContaining({ method: 'GET', body: undefined }));
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/items',
+        expect.objectContaining({ method: 'GET', body: undefined }),
+      );
     });
 
     it('sends POST with JSON body', async () => {
@@ -73,7 +89,10 @@ describe('HttpClient', () => {
 
       expect(fetch).toHaveBeenCalledWith(
         '/api/items',
-        expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'test' }) }),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ name: 'test' }),
+        }),
       );
     });
 
@@ -82,20 +101,28 @@ describe('HttpClient', () => {
 
       expect(fetch).toHaveBeenCalledWith(
         '/api/items/1',
-        expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ name: 'updated' }) }),
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({ name: 'updated' }),
+        }),
       );
     });
 
     it('sends DELETE without body', async () => {
       await client.delete('/items/1');
 
-      expect(fetch).toHaveBeenCalledWith('/api/items/1', expect.objectContaining({ method: 'DELETE', body: undefined }));
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/items/1',
+        expect.objectContaining({ method: 'DELETE', body: undefined }),
+      );
     });
   });
 
   describe('response handling', () => {
     it('returns parsed JSON on success', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(createMockResponse({ data: 'value' }));
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        createMockResponse({ data: 'value' }),
+      );
 
       const result = await client.get<{ data: string }>('/test');
 
@@ -103,7 +130,9 @@ describe('HttpClient', () => {
     });
 
     it('returns empty object on 204 No Content', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(null, { status: 204 }),
+      );
 
       const result = await client.delete('/items/1');
 
@@ -112,7 +141,10 @@ describe('HttpClient', () => {
 
     it('throws ApiError on non-ok response', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify({ message: 'Not found' }), { status: 404, statusText: 'Not Found' }),
+        new Response(JSON.stringify({ message: 'Not found' }), {
+          status: 404,
+          statusText: 'Not Found',
+        }),
       );
 
       await expect(client.get('/missing')).rejects.toThrow(ApiError);
@@ -120,7 +152,10 @@ describe('HttpClient', () => {
 
     it('ApiError contains status and body', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify({ message: 'Forbidden' }), { status: 403, statusText: 'Forbidden' }),
+        new Response(JSON.stringify({ message: 'Forbidden' }), {
+          status: 403,
+          statusText: 'Forbidden',
+        }),
       );
 
       try {
@@ -152,7 +187,10 @@ describe('HttpClient', () => {
       expect(fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          headers: expect.objectContaining({ 'X-Custom': 'value', 'Content-Type': 'application/json' }),
+          headers: expect.objectContaining({
+            'X-Custom': 'value',
+            'Content-Type': 'application/json',
+          }),
         }),
       );
     });

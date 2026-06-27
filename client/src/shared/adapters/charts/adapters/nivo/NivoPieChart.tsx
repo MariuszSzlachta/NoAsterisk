@@ -1,8 +1,7 @@
-import type { PieCustomLayerProps } from '@nivo/pie';
-import { ResponsivePie } from '@nivo/pie';
+import { ResponsivePie, type PieCustomLayerProps } from '@nivo/pie';
 
-import type { PieChartProps } from '#shared/adapters/charts/ports/chart.port';
 import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import type { PieChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const DONUT_INNER_RADIUS = 0.65;
 const MARGIN = { top: 10, right: 140, bottom: 10, left: 10 } as const;
@@ -22,13 +21,27 @@ interface CenterTextProps {
 }
 
 const createCenterLayer = ({ total }: CenterTextProps) => {
-  const CenterText = ({ centerX, centerY }: PieCustomLayerProps<{ id: string; label: string; value: number }>): React.JSX.Element => (
+  const CenterText = ({
+    centerX,
+    centerY,
+  }: PieCustomLayerProps<{
+    id: string;
+    label: string;
+    value: number;
+  }>): React.JSX.Element => (
     <g>
       <text
         x={centerX}
         y={centerY - 6}
         textAnchor="middle"
-        style={{ fontSize: 17, fontWeight: 600, fontFamily: "Geist, -apple-system, sans-serif", fill: 'var(--fg)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}
+        style={{
+          fontSize: 17,
+          fontWeight: 600,
+          fontFamily: 'Geist, -apple-system, sans-serif',
+          fill: 'var(--fg)',
+          letterSpacing: '-0.02em',
+          fontVariantNumeric: 'tabular-nums',
+        }}
       >
         {total.toLocaleString('pl-PL')}
       </text>
@@ -36,7 +49,11 @@ const createCenterLayer = ({ total }: CenterTextProps) => {
         x={centerX}
         y={centerY + 14}
         textAnchor="middle"
-        style={{ fontSize: 10, fill: 'var(--fg-subtle)', fontFamily: "Geist, -apple-system, sans-serif" }}
+        style={{
+          fontSize: 10,
+          fill: 'var(--fg-subtle)',
+          fontFamily: 'Geist, -apple-system, sans-serif',
+        }}
       >
         zł / mies.
       </text>
@@ -73,7 +90,13 @@ export const NivoPieChart = ({
         enableArcLinkLabels={false}
         layers={['arcs', CenterLayer]}
         theme={{
-          legends: { text: { fill: 'var(--fg-muted)', fontSize: 12, fontFamily: "'Geist', sans-serif" } },
+          legends: {
+            text: {
+              fill: 'var(--fg-muted)',
+              fontSize: 12,
+              fontFamily: "'Geist', sans-serif",
+            },
+          },
         }}
         legends={showLegend ? [LEGEND_RIGHT] : []}
       />
