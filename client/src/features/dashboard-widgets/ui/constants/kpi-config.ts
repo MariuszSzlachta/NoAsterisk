@@ -19,3 +19,10 @@ export const KPI_REPORT_HREFS: Record<KpiId, string> = {
 };
 
 export const FALLBACK_ICON: ReactNode = React.createElement(CircleHelp, { size: 16 });
+
+export const KPI_ICON_TOOLTIPS: Record<KpiId, string> = {
+  balance: 'Otwórz analizę salda',
+  income: 'Otwórz analizę przychodów',
+  expenses: 'Otwórz analizę wydatków',
+  savings: 'Otwórz analizę oszczędności',
+};

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { BudgetProgressList } from '#shared/ui/BudgetProgressList';
 import { Card, CardHeader } from '#shared/ui/Card';
 
@@ -8,11 +10,12 @@ interface BudgetProgressWidgetProps {
   readonly title: string;
   readonly subtitle?: string;
   readonly currency: string;
+  readonly action?: ReactNode;
 }
 
-export const BudgetProgressWidget = ({ items, title, subtitle, currency }: BudgetProgressWidgetProps): React.JSX.Element => (
+export const BudgetProgressWidget = ({ items, title, subtitle, currency, action }: BudgetProgressWidgetProps): React.JSX.Element => (
   <Card>
-    <CardHeader title={title} subtitle={subtitle} />
+    <CardHeader title={title} subtitle={subtitle} action={action} />
     <BudgetProgressList items={items} currency={currency} />
   </Card>
 );

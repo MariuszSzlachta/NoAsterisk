@@ -9,7 +9,7 @@ import type {
   RecentTransactionVM,
 } from '#features/dashboard-widgets/model/types';
 
-export const mapKpiDtoToVm = (dto: KpiDto, icon: ReactNode, iconHref: string | undefined): KpiItemVM => ({
+export const mapKpiDtoToVm = (dto: KpiDto, icon: ReactNode, iconHref: string | undefined, iconTooltip: string | undefined): KpiItemVM => ({
   label: dto.label,
   value: dto.value,
   icon,
@@ -17,6 +17,7 @@ export const mapKpiDtoToVm = (dto: KpiDto, icon: ReactNode, iconHref: string | u
   trend: dto.trend,
   tooltip: dto.tooltip,
   iconHref,
+  iconTooltip,
 });
 
 export const mapBudgetDtoToVm = (dto: BudgetDto): BudgetItemVM => ({

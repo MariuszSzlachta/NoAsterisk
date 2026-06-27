@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { Link } from 'react-router-dom';
 
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 import { Skeleton } from '#shared/ui/Skeleton';
@@ -29,6 +30,12 @@ interface WidgetConfig {
   readonly Component: ComponentType;
 }
 
+const WidgetLink = ({ to, children }: { to: string; children: string }): React.JSX.Element => (
+  <Link to={to} className="text-xs font-medium text-primary transition-colors hover:text-primary/80">
+    {children}
+  </Link>
+);
+
 const KpiRowEntry = (): React.JSX.Element => {
   const state = useKpiWidget();
   return (
@@ -42,7 +49,14 @@ const TrendChartEntry = (): React.JSX.Element => {
   const state = useTrendChartWidget();
   return (
     <QueryRenderer state={state}>
-      {(data) => <TrendChartWidget data={data} title="Przychody vs Wydatki" subtitle="Ostatnie 6 miesięcy" />}
+      {(data) => (
+        <TrendChartWidget
+          data={data}
+          title="Przychody vs Wydatki"
+          subtitle="Ostatnie 6 miesięcy"
+          action={<WidgetLink to="/analytics?metric=income,expenses">Analiza →</WidgetLink>}
+        />
+      )}
     </QueryRenderer>
   );
 };
@@ -51,7 +65,14 @@ const CategoryDonutEntry = (): React.JSX.Element => {
   const state = useCategoryDonutWidget();
   return (
     <QueryRenderer state={state}>
-      {(data) => <CategoryDonutWidget data={data} title="Wydatki wg kategorii" subtitle="Bieżący miesiąc" />}
+      {(data) => (
+        <CategoryDonutWidget
+          data={data}
+          title="Wydatki wg kategorii"
+          subtitle="Bieżący miesiąc"
+          action={<WidgetLink to="/analytics?metric=expenses">Analiza →</WidgetLink>}
+        />
+      )}
     </QueryRenderer>
   );
 };
@@ -60,7 +81,15 @@ const BudgetProgressEntry = (): React.JSX.Element => {
   const state = useBudgetProgressWidget();
   return (
     <QueryRenderer state={state}>
-      {(data) => <BudgetProgressWidget items={data} title="Budżety" subtitle="Czerwiec 2025" currency="PLN" />}
+      {(data) => (
+        <BudgetProgressWidget
+          items={data}
+          title="Budżety"
+          subtitle="Czerwiec 2025"
+          currency="PLN"
+          action={<WidgetLink to="/budgets">Wszystkie →</WidgetLink>}
+        />
+      )}
     </QueryRenderer>
   );
 };
@@ -69,7 +98,13 @@ const RecentTransactionsEntry = (): React.JSX.Element => {
   const state = useRecentTransactionsWidget();
   return (
     <QueryRenderer state={state}>
-      {(data) => <RecentTransactionsWidget transactions={data} title="Ostatnie transakcje" />}
+      {(data) => (
+        <RecentTransactionsWidget
+          transactions={data}
+          title="Ostatnie transakcje"
+          action={<WidgetLink to="/transactions">Wszystkie →</WidgetLink>}
+        />
+      )}
     </QueryRenderer>
   );
 };

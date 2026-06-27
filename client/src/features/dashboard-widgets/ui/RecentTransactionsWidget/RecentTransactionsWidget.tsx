@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
 import { Card, CardHeader } from '#shared/ui/Card';
@@ -19,11 +21,12 @@ const DIRECTION_AMOUNT_CLASS: Record<Direction, string> = {
 interface RecentTransactionsWidgetProps {
   readonly transactions: RecentTransactionVM[];
   readonly title: string;
+  readonly action?: ReactNode;
 }
 
-export const RecentTransactionsWidget = ({ transactions, title }: RecentTransactionsWidgetProps): React.JSX.Element => (
+export const RecentTransactionsWidget = ({ transactions, title, action }: RecentTransactionsWidgetProps): React.JSX.Element => (
   <Card>
-    <CardHeader title={title} />
+    <CardHeader title={title} action={action} />
     <ul className="flex flex-col divide-y divide-border">
       {transactions.map((tx) => (
         <li key={tx.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">

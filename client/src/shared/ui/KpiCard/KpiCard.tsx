@@ -15,6 +15,7 @@ interface KpiCardProps {
   readonly trend?: DeltaTrend;
   readonly tooltip?: string;
   readonly iconHref?: string;
+  readonly iconTooltip?: string;
 }
 
 const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
@@ -23,7 +24,7 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
-export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip, iconHref }: KpiCardProps): React.JSX.Element => (
+export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip, iconHref, iconTooltip }: KpiCardProps): React.JSX.Element => (
   <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card">
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
@@ -35,13 +36,15 @@ export const KpiCard = ({ label, value, icon, delta, trend = 'neutral', tooltip,
         )}
       </span>
       {iconHref ? (
-        <Link
-          to={iconHref}
-          className="rounded-sm text-muted-foreground transition-colors duration-150 hover:text-primary"
-          aria-label={`${label} — raport szczegółowy`}
-        >
-          {icon}
-        </Link>
+        <Tooltip content={iconTooltip ?? 'Otwórz raport'}>
+          <Link
+            to={iconHref}
+            className="rounded-sm text-muted-foreground transition-colors duration-150 hover:text-primary"
+            aria-label={`${label} — raport szczegółowy`}
+          >
+            {icon}
+          </Link>
+        </Tooltip>
       ) : (
         <span className="text-muted-foreground">{icon}</span>
       )}
