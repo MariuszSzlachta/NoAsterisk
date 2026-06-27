@@ -17,9 +17,15 @@ export const useApiQuery = <TResponse extends Record<string, unknown>>(
     enabled: options.enabled,
   });
 
-  if (status === 'pending' && fetchStatus === 'idle') return { status: 'notLoaded' };
-  if (status === 'pending') return { status: 'loading' };
-  if (status === 'error') return { status: 'error', error: error.message };
+  if (status === 'pending' && fetchStatus === 'idle') {
+    return { status: 'notLoaded' };
+  }
+  if (status === 'pending') {
+    return { status: 'loading' };
+  }
+  if (status === 'error') {
+    return { status: 'error', error: error.message };
+  }
 
   return { status: 'loaded', data };
 };

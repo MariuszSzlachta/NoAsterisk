@@ -33,9 +33,10 @@ export const AppShell = (): React.JSX.Element => {
         <TopBar
           breadcrumb={t(meta.breadcrumbKey)}
           title={t(meta.titleKey)}
+          parentPath={meta.parentPath}
           onMenuOpen={openSidebar}
         />
-        <div className="flex-1 p-4 lg:p-6">
+        <div className="p-4 lg:p-6">
           <Outlet />
         </div>
       </main>

@@ -1,5 +1,5 @@
-import { ChevronsUpDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ChevronsUpDown } from 'lucide-react';
 
 export const UserSection = (): React.JSX.Element => {
   const { t } = useTranslation();

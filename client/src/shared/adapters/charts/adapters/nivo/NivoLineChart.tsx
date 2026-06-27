@@ -1,8 +1,12 @@
-import type { LineSvgLayer, LineCustomSvgLayerProps, LineSeries } from '@nivo/line';
-import { ResponsiveLine } from '@nivo/line';
+import {
+  ResponsiveLine,
+  type LineCustomSvgLayerProps,
+  type LineSeries,
+  type LineSvgLayer,
+} from '@nivo/line';
 
-import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
 import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
 
@@ -17,7 +21,9 @@ const LEGEND_TOP_RIGHT = {
 };
 
 const formatAxisValue = (v: number): string => {
-  if (v >= 1000) return `${(v / 1000).toFixed(0)}k`;
+  if (v >= 1000) {
+    return `${(v / 1000).toFixed(0)}k`;
+  }
   return String(v);
 };
 
@@ -34,7 +40,12 @@ const GradientDefs = (): React.JSX.Element => (
   </defs>
 );
 
-const GradientAreaLayer = ({ series, xScale, yScale, innerHeight }: LineCustomSvgLayerProps<LineSeries>): React.JSX.Element => {
+const GradientAreaLayer = ({
+  series,
+  xScale,
+  yScale,
+  innerHeight,
+}: LineCustomSvgLayerProps<LineSeries>): React.JSX.Element => {
   return (
     <g>
       <GradientDefs />
@@ -46,31 +57,35 @@ const GradientAreaLayer = ({ series, xScale, yScale, innerHeight }: LineCustomSv
             y: yScale(d.data.y as number),
           }));
 
-        if (points.length === 0) return null;
+        if (points.length === 0) {
+          return null;
+        }
 
         const first = points[0]!;
         const last = points[points.length - 1]!;
-        const linePath = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+        const linePath = points
+          .map((p, idx) => `${idx === 0 ? 'M' : 'L'}${p.x},${p.y}`)
+          .join(' ');
         const areaPath = `${linePath} L${last.x},${innerHeight} L${first.x},${innerHeight} Z`;
 
-        return (
-          <path
-            key={s.id}
-            d={areaPath}
-            fill={`url(#areaGradient${i})`}
-          />
-        );
+        return <path key={s.id} d={areaPath} fill={`url(#areaGradient${i})`} />;
       })}
     </g>
   );
 };
 
-const LastPointLayer = ({ series, xScale, yScale }: LineCustomSvgLayerProps<LineSeries>): React.JSX.Element => {
+const LastPointLayer = ({
+  series,
+  xScale,
+  yScale,
+}: LineCustomSvgLayerProps<LineSeries>): React.JSX.Element => {
   return (
     <g>
       {series.map((s) => {
         const last = s.data[s.data.length - 1];
-        if (!last || last.data.x === null || last.data.y === null) return null;
+        if (!last || last.data.x === null || last.data.y === null) {
+          return null;
+        }
         return (
           <circle
             key={s.id}
@@ -97,7 +112,13 @@ export const NivoLineChart = ({
   axisLeft,
 }: LineChartProps): React.JSX.Element => {
   const layers: LineSvgLayer<LineSeries>[] = [
-    'grid', 'axes', GradientAreaLayer, 'lines', LastPointLayer, 'crosshair', 'slices',
+    'grid',
+    'axes',
+    GradientAreaLayer,
+    'lines',
+    LastPointLayer,
+    'crosshair',
+    'slices',
   ];
 
   return (
@@ -116,15 +137,33 @@ export const NivoLineChart = ({
         pointSize={0}
         enablePointLabel={false}
         layers={layers}
-        axisBottom={axisBottom ? { legend: axisBottom.label } : { tickPadding: 10 }}
-        axisLeft={axisLeft ? { legend: axisLeft.label } : { tickPadding: 10, format: formatAxisValue }}
+        axisBottom={
+          axisBottom ? { legend: axisBottom.label } : { tickPadding: 10 }
+        }
+        axisLeft={
+          axisLeft
+            ? { legend: axisLeft.label }
+            : { tickPadding: 10, format: formatAxisValue }
+        }
         theme={{
           grid: { line: { stroke: 'var(--border)', strokeWidth: 1 } },
           axis: {
-            ticks: { text: { fill: 'var(--fg-subtle)', fontSize: 10, fontFamily: "'Geist Mono', monospace" } },
+            ticks: {
+              text: {
+                fill: 'var(--fg-subtle)',
+                fontSize: 10,
+                fontFamily: "'Geist Mono', monospace",
+              },
+            },
           },
           crosshair: { line: { stroke: 'var(--fg-subtle)', strokeWidth: 1 } },
-          legends: { text: { fill: 'var(--fg-muted)', fontSize: 12, fontFamily: "'Geist', sans-serif" } },
+          legends: {
+            text: {
+              fill: 'var(--fg-muted)',
+              fontSize: 12,
+              fontFamily: "'Geist', sans-serif",
+            },
+          },
         }}
         legends={showLegend ? [LEGEND_TOP_RIGHT] : []}
       />

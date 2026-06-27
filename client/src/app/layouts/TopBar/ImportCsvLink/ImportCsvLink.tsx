@@ -1,6 +1,6 @@
-import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 export const ImportCsvLink = (): React.JSX.Element => {
   const { t } = useTranslation();

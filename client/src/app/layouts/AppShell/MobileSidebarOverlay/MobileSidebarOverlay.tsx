@@ -6,7 +6,9 @@ interface MobileSidebarOverlayProps {
   onClose: () => void;
 }
 
-export const MobileSidebarOverlay = ({ onClose }: MobileSidebarOverlayProps): React.JSX.Element => {
+export const MobileSidebarOverlay = ({
+  onClose,
+}: MobileSidebarOverlayProps): React.JSX.Element => {
   const { t } = useTranslation();
 
   return (

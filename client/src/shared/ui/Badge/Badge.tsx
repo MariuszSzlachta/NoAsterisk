@@ -1,7 +1,15 @@
 import type { ReactNode } from 'react';
 
 type BadgeVariant = 'soft' | 'solid' | 'outline';
-type BadgeColor = 'primary' | 'income' | 'expense' | 'warning' | 'neutral' | 'purple' | 'blue' | 'amber';
+type BadgeColor =
+  | 'primary'
+  | 'income'
+  | 'expense'
+  | 'warning'
+  | 'neutral'
+  | 'purple'
+  | 'blue'
+  | 'amber';
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -62,7 +70,8 @@ export const Badge = ({
   className = '',
 }: BadgeProps): React.JSX.Element => {
   const colorClasses = COLOR_CLASSES[color][variant];
-  const borderBase = variant === 'outline' ? 'border' : 'border border-transparent';
+  const borderBase =
+    variant === 'outline' ? 'border' : 'border border-transparent';
 
   return (
     <span

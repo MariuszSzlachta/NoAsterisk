@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* --- Colors mapped from CSS vars --- */
@@ -51,7 +51,8 @@
 }
 
 /* ============ DARK THEME (default) ============ */
-:root, .dark {
+:root,
+.dark {
   --bg: #0a0b0e;
   --surface: #101319;
   --surface-2: #161a22;
@@ -98,11 +99,11 @@
   --primary-soft: rgba(37, 99, 235, 0.08);
   --ring: #2563eb;
   --income: #16a34a;
-  --income-soft: rgba(22, 163, 74, 0.10);
+  --income-soft: rgba(22, 163, 74, 0.1);
   --expense: #e11d48;
   --expense-soft: rgba(225, 29, 72, 0.08);
   --warning: #d97706;
-  --warning-soft: rgba(217, 119, 6, 0.10);
+  --warning-soft: rgba(217, 119, 6, 0.1);
   --cat-groceries: #10b981;
   --cat-transport: #3b82f6;
   --cat-subscriptions: #8b5cf6;
@@ -180,7 +181,7 @@ body {
   background-color: var(--primary-soft) !important;
 }
 
-.ag-header-cell[col-id="amount"],
+.ag-header-cell[col-id='amount'],
 .ag-header-cell:last-child {
   text-align: right;
 }
@@ -191,8 +192,14 @@ body {
 
 /* Animations */
 @keyframes toolbar-enter {
-  from { opacity: 0; transform: translateY(0.5rem); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-toolbar-enter {

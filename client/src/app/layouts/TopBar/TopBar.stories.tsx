@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
-
-import { ThemeProvider } from '#app/providers/ThemeProvider';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { TopBar } from '#app/layouts/TopBar/TopBar';
+import { ThemeProvider } from '#app/providers/ThemeProvider';
 
 const meta: Meta<typeof TopBar> = {
   title: 'app/layouts/TopBar',

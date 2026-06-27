@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
 import { ThemeContext, type Theme } from '#app/providers/ThemeContext';
 
@@ -13,7 +8,9 @@ const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
 const getInitialTheme = (): Theme => {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'dark' || stored === 'light') return stored;
+  if (stored === 'dark' || stored === 'light') {
+    return stored;
+  }
   return window.matchMedia(DARK_MEDIA_QUERY).matches ? 'dark' : 'light';
 };
 
@@ -21,7 +18,9 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export const ThemeProvider = ({ children }: ThemeProviderProps): React.JSX.Element => {
+export const ThemeProvider = ({
+  children,
+}: ThemeProviderProps): React.JSX.Element => {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {

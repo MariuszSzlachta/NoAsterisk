@@ -1,13 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { DataGrid } from '#shared/adapters/grid/index';
-
-const noop = (): void => {};
-import type { GridColumn } from '#shared/adapters/grid/index';
+import { DataGrid, type GridColumn } from '#shared/adapters/grid/index';
 import type { RowAction } from '#shared/adapters/grid/ports/grid.port';
 import { Badge } from '#shared/ui/Badge';
 import { SelectionToolbar } from '#shared/ui/SelectionToolbar';
+
+const noop = (): void => {};
 
 interface TransactionRow {
   id: string;
@@ -31,18 +30,126 @@ const formatAmount = (amount: number): string => {
 };
 
 const SAMPLE_TRANSACTIONS: TransactionRow[] = [
-  { id: '1', date: '26.06', title: 'BIEDRONKA', subtitle: 'Zakupy 1234 · Warszawa', category: 'Zakupy', categoryColor: 'income', account: 'Osobiste', amount: -87.43 },
-  { id: '2', date: '26.06', title: 'BOLT', subtitle: 'Przejazd · 8,2 km', category: 'Transport', categoryColor: 'blue', account: 'Osobiste', amount: -34.20 },
-  { id: '3', date: '25.06', title: 'SPOTIFY', subtitle: 'Premium · subskrypcja', category: 'Subskrypcje', categoryColor: 'purple', account: 'Osobiste', amount: -23.99 },
-  { id: '4', date: '25.06', title: 'ŻABKA', subtitle: 'Z7821 · Kraków', category: 'Zakupy', categoryColor: 'income', account: 'Osobiste', amount: -23.90 },
-  { id: '5', date: '24.06', title: 'ORLEN', subtitle: 'Stacja paliw · tankowanie', category: 'Transport', categoryColor: 'blue', account: 'Wspólne', amount: -250.00 },
-  { id: '6', date: '24.06', title: 'ALLEGRO', subtitle: 'Zamówienie 88421', category: 'Rozrywka', categoryColor: 'expense', account: 'Osobiste', amount: -149.00 },
-  { id: '7', date: '23.06', title: 'NETFLIX', subtitle: 'Standard · subskrypcja', category: 'Subskrypcje', categoryColor: 'purple', account: 'Wspólne', amount: -43.00 },
-  { id: '8', date: '22.06', title: 'PGE OBRÓT', subtitle: 'Energia elektryczna', category: 'Rachunki', categoryColor: 'neutral', account: 'Wspólne', amount: -180.00 },
-  { id: '9', date: '21.06', title: 'PIZZA DOMINIUM', subtitle: 'Zamówienie online', category: 'Jedzenie', categoryColor: 'amber', account: 'Osobiste', amount: -68.00 },
-  { id: '10', date: '20.06', title: 'PRACODAWCA SP. Z O.O.', subtitle: 'Wynagrodzenie · czerwiec', category: 'Przychód', categoryColor: 'income', account: 'Osobiste', amount: 8500.00 },
-  { id: '11', date: '19.06', title: 'ROSSMANN', subtitle: 'Drogeria · 4421', category: 'Zakupy', categoryColor: 'income', account: 'Osobiste', amount: -112.30 },
-  { id: '12', date: '18.06', title: 'UPC POLSKA', subtitle: 'Internet · abonament', category: 'Rachunki', categoryColor: 'neutral', account: 'Wspólne', amount: -89.00 },
+  {
+    id: '1',
+    date: '26.06',
+    title: 'BIEDRONKA',
+    subtitle: 'Zakupy 1234 · Warszawa',
+    category: 'Zakupy',
+    categoryColor: 'income',
+    account: 'Osobiste',
+    amount: -87.43,
+  },
+  {
+    id: '2',
+    date: '26.06',
+    title: 'BOLT',
+    subtitle: 'Przejazd · 8,2 km',
+    category: 'Transport',
+    categoryColor: 'blue',
+    account: 'Osobiste',
+    amount: -34.2,
+  },
+  {
+    id: '3',
+    date: '25.06',
+    title: 'SPOTIFY',
+    subtitle: 'Premium · subskrypcja',
+    category: 'Subskrypcje',
+    categoryColor: 'purple',
+    account: 'Osobiste',
+    amount: -23.99,
+  },
+  {
+    id: '4',
+    date: '25.06',
+    title: 'ŻABKA',
+    subtitle: 'Z7821 · Kraków',
+    category: 'Zakupy',
+    categoryColor: 'income',
+    account: 'Osobiste',
+    amount: -23.9,
+  },
+  {
+    id: '5',
+    date: '24.06',
+    title: 'ORLEN',
+    subtitle: 'Stacja paliw · tankowanie',
+    category: 'Transport',
+    categoryColor: 'blue',
+    account: 'Wspólne',
+    amount: -250.0,
+  },
+  {
+    id: '6',
+    date: '24.06',
+    title: 'ALLEGRO',
+    subtitle: 'Zamówienie 88421',
+    category: 'Rozrywka',
+    categoryColor: 'expense',
+    account: 'Osobiste',
+    amount: -149.0,
+  },
+  {
+    id: '7',
+    date: '23.06',
+    title: 'NETFLIX',
+    subtitle: 'Standard · subskrypcja',
+    category: 'Subskrypcje',
+    categoryColor: 'purple',
+    account: 'Wspólne',
+    amount: -43.0,
+  },
+  {
+    id: '8',
+    date: '22.06',
+    title: 'PGE OBRÓT',
+    subtitle: 'Energia elektryczna',
+    category: 'Rachunki',
+    categoryColor: 'neutral',
+    account: 'Wspólne',
+    amount: -180.0,
+  },
+  {
+    id: '9',
+    date: '21.06',
+    title: 'PIZZA DOMINIUM',
+    subtitle: 'Zamówienie online',
+    category: 'Jedzenie',
+    categoryColor: 'amber',
+    account: 'Osobiste',
+    amount: -68.0,
+  },
+  {
+    id: '10',
+    date: '20.06',
+    title: 'PRACODAWCA SP. Z O.O.',
+    subtitle: 'Wynagrodzenie · czerwiec',
+    category: 'Przychód',
+    categoryColor: 'income',
+    account: 'Osobiste',
+    amount: 8500.0,
+  },
+  {
+    id: '11',
+    date: '19.06',
+    title: 'ROSSMANN',
+    subtitle: 'Drogeria · 4421',
+    category: 'Zakupy',
+    categoryColor: 'income',
+    account: 'Osobiste',
+    amount: -112.3,
+  },
+  {
+    id: '12',
+    date: '18.06',
+    title: 'UPC POLSKA',
+    subtitle: 'Internet · abonament',
+    category: 'Rachunki',
+    categoryColor: 'neutral',
+    account: 'Wspólne',
+    amount: -89.0,
+  },
 ];
 
 const columns: GridColumn<TransactionRow>[] = [
@@ -51,7 +158,9 @@ const columns: GridColumn<TransactionRow>[] = [
     headerName: 'Data',
     width: 96,
     cellRenderer: ({ data }) => (
-      <span className="font-mono text-[12.5px] tabular-nums text-muted-foreground">{data.date}</span>
+      <span className="font-mono text-[12.5px] tabular-nums text-muted-foreground">
+        {data.date}
+      </span>
     ),
   },
   {
@@ -70,7 +179,9 @@ const columns: GridColumn<TransactionRow>[] = [
     headerName: 'Kategoria',
     width: 150,
     cellRenderer: ({ data }) => (
-      <Badge color={data.categoryColor} variant="soft">{data.category}</Badge>
+      <Badge color={data.categoryColor} variant="soft">
+        {data.category}
+      </Badge>
     ),
   },
   {
@@ -78,7 +189,9 @@ const columns: GridColumn<TransactionRow>[] = [
     headerName: 'Konto',
     width: 130,
     cellRenderer: ({ data }) => (
-      <span className="text-[12.5px] text-muted-foreground">{data.account}</span>
+      <span className="text-[12.5px] text-muted-foreground">
+        {data.account}
+      </span>
     ),
   },
   {
@@ -89,7 +202,9 @@ const columns: GridColumn<TransactionRow>[] = [
       const isIncome = data.amount > 0;
       return (
         <div className="flex w-full justify-end pr-2">
-          <span className={`font-mono text-[13px] tabular-nums ${isIncome ? 'text-income' : 'text-foreground'}`}>
+          <span
+            className={`font-mono text-[13px] tabular-nums ${isIncome ? 'text-income' : 'text-foreground'}`}
+          >
             {formatAmount(data.amount)}
           </span>
         </div>
@@ -116,7 +231,9 @@ const ShowcaseRender = (): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-8">
       <section>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Transactions grid</h3>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Transactions grid
+        </h3>
         <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-card">
           <DataGrid
             rows={SAMPLE_TRANSACTIONS}
@@ -128,18 +245,24 @@ const ShowcaseRender = (): React.JSX.Element => {
             rowActions={rowActions}
           />
           <div className="flex h-10 items-center gap-[18px] border-t border-border bg-surface-2 px-4 text-xs text-subtle">
-            <span><span className="font-mono font-medium text-foreground">245</span> transakcji</span>
+            <span>
+              <span className="font-mono font-medium text-foreground">245</span>{' '}
+              transakcji
+            </span>
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-warning" />
               12 bez kategorii
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-expense" />
-              3 możliwe dane osobowe
+              <span className="h-1.5 w-1.5 rounded-full bg-expense" />3 możliwe
+              dane osobowe
             </span>
             <div className="flex-1" />
             <span>
-              Suma wydatków: <span className="font-mono font-medium text-expense">−6 240,18 zł</span>
+              Suma wydatków:{' '}
+              <span className="font-mono font-medium text-expense">
+                −6 240,18 zł
+              </span>
             </span>
           </div>
           <SelectionToolbar
@@ -155,7 +278,9 @@ const ShowcaseRender = (): React.JSX.Element => {
       </section>
 
       <section>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Loading state</h3>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Loading state
+        </h3>
         <div className="h-[300px] overflow-hidden rounded-lg border border-border shadow-card">
           <DataGrid
             rows={[]}

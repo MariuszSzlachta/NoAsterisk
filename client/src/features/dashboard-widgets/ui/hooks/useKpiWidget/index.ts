@@ -1,0 +1,1 @@
+export { useKpiWidget } from './useKpiWidget';

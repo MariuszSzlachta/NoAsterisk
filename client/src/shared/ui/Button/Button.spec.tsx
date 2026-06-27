@@ -9,7 +9,9 @@ describe('Button', () => {
     it('renders children text', () => {
       render(<Button>Click me</Button>);
 
-      expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Click me' }),
+      ).toBeInTheDocument();
     });
 
     it('applies primary variant classes by default', () => {
@@ -28,11 +30,14 @@ describe('Button', () => {
       },
     );
 
-    it.each(['sm', 'md', 'lg'] as const)('renders %s size without error', (size) => {
-      render(<Button size={size}>Test</Button>);
+    it.each(['sm', 'md', 'lg'] as const)(
+      'renders %s size without error',
+      (size) => {
+        render(<Button size={size}>Test</Button>);
 
-      expect(screen.getByRole('button')).toBeInTheDocument();
-    });
+        expect(screen.getByRole('button')).toBeInTheDocument();
+      },
+    );
   });
 
   describe('interaction', () => {
@@ -47,7 +52,11 @@ describe('Button', () => {
 
     it('does not call onClick when disabled', async () => {
       const handleClick = vi.fn();
-      render(<Button onClick={handleClick} disabled>Click</Button>);
+      render(
+        <Button onClick={handleClick} disabled>
+          Click
+        </Button>,
+      );
 
       await userEvent.click(screen.getByRole('button'));
 
@@ -59,7 +68,9 @@ describe('Button', () => {
     it('supports aria-label', () => {
       render(<Button aria-label="Close dialog">×</Button>);
 
-      expect(screen.getByRole('button', { name: 'Close dialog' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Close dialog' }),
+      ).toBeInTheDocument();
     });
 
     it('renders as disabled with disabled attribute', () => {

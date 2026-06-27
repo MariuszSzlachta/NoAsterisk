@@ -11,15 +11,24 @@ interface CardHeaderProps {
   action?: ReactNode;
 }
 
-export const Card = ({ children, className = '' }: CardProps): React.JSX.Element => {
+export const Card = ({
+  children,
+  className = '',
+}: CardProps): React.JSX.Element => {
   return (
-    <div className={`rounded-lg border border-border bg-surface p-5 shadow-card ${className}`}>
+    <div
+      className={`rounded-lg border border-border bg-surface p-5 shadow-card ${className}`}
+    >
       {children}
     </div>
   );
 };
 
-export const CardHeader = ({ title, subtitle, action }: CardHeaderProps): React.JSX.Element => {
+export const CardHeader = ({
+  title,
+  subtitle,
+  action,
+}: CardHeaderProps): React.JSX.Element => {
   return (
     <div className="mb-4 flex items-start justify-between">
       <div>

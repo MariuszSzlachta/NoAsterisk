@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-
-import { ThemeProvider } from '#app/providers/ThemeProvider';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { AppShell } from '#app/layouts/AppShell/AppShell';
+import { ThemeProvider } from '#app/providers/ThemeProvider';
 
 const SampleContent = (): React.JSX.Element => (
   <div className="rounded-lg border border-border bg-surface p-6">

@@ -8,7 +8,9 @@ import '#shared/i18n/i18n';
 import './index.css';
 
 const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element not found');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
 
 createRoot(rootElement).render(
   <StrictMode>

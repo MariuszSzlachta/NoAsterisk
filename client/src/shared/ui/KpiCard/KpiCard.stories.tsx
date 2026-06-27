@@ -1,11 +1,19 @@
-import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { MemoryRouter } from 'react-router-dom';
 import type { Meta, StoryObj } from '@storybook/react';
+import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
 import { KpiCard } from '#shared/ui/KpiCard/KpiCard';
 
 const meta: Meta<typeof KpiCard> = {
   title: 'shared/ui/KpiCard',
   component: KpiCard,
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
 export default meta;
@@ -20,6 +28,7 @@ export const Showcase: Story = {
         icon={<Wallet size={16} />}
         delta="+2,4% vs prev month"
         trend="up"
+        tooltip="Suma wszystkich środków na kontach."
       />
       <KpiCard
         label="Przychody"
@@ -27,6 +36,7 @@ export const Showcase: Story = {
         icon={<TrendingUp size={16} />}
         delta="+12%"
         trend="up"
+        tooltip="Łączne wpływy w bieżącym miesiącu."
       />
       <KpiCard
         label="Wydatki"
@@ -34,6 +44,7 @@ export const Showcase: Story = {
         icon={<TrendingDown size={16} />}
         delta="+5,3%"
         trend="down"
+        tooltip="Suma wydatków w bieżącym miesiącu."
       />
       <KpiCard
         label="Oszczędności"
@@ -42,4 +53,38 @@ export const Showcase: Story = {
       />
     </div>
   ),
+};
+
+export const WithoutTooltip: Story = {
+  args: {
+    label: 'Saldo',
+    value: '12 450,00 zł',
+    icon: <Wallet size={16} />,
+    delta: '+2,4%',
+    trend: 'up',
+  },
+};
+
+export const WithTooltip: Story = {
+  args: {
+    label: 'Saldo',
+    value: '12 450,00 zł',
+    icon: <Wallet size={16} />,
+    delta: '+2,4%',
+    trend: 'up',
+    tooltip:
+      'Suma wszystkich środków na kontach. Zmiana procentowa vs poprzedni miesiąc.',
+  },
+};
+
+export const WithIconLink: Story = {
+  args: {
+    label: 'Saldo',
+    value: '12 450,00 zł',
+    icon: <Wallet size={16} />,
+    delta: '+2,4%',
+    trend: 'up',
+    tooltip: 'Suma wszystkich środków na kontach.',
+    iconHref: '/reports/balance',
+  },
 };

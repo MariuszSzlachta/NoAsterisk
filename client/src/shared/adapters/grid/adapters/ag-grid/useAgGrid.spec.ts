@@ -53,7 +53,10 @@ describe('useAgGrid', () => {
         useAgGrid({ columns, getRowId, sorting: undefined }),
       );
 
-      expect(result.current.columnDefs[0]).toMatchObject({ width: 200, flex: 1 });
+      expect(result.current.columnDefs[0]).toMatchObject({
+        width: 200,
+        flex: 1,
+      });
     });
   });
 
@@ -61,7 +64,12 @@ describe('useAgGrid', () => {
     it('calls onCellEdit with rowId, field, and new value', () => {
       const onCellEdit = vi.fn();
       const { result } = renderHook(() =>
-        useAgGrid({ columns: testColumns, getRowId, sorting: undefined, onCellEdit }),
+        useAgGrid({
+          columns: testColumns,
+          getRowId,
+          sorting: undefined,
+          onCellEdit,
+        }),
       );
 
       result.current.handleCellValueChanged({
@@ -92,7 +100,12 @@ describe('useAgGrid', () => {
     it('calls onSortChange with field and direction', () => {
       const onSortChange = vi.fn();
       const { result } = renderHook(() =>
-        useAgGrid({ columns: testColumns, getRowId, sorting: undefined, onSortChange }),
+        useAgGrid({
+          columns: testColumns,
+          getRowId,
+          sorting: undefined,
+          onSortChange,
+        }),
       );
 
       result.current.handleSortChanged({
@@ -101,13 +114,21 @@ describe('useAgGrid', () => {
         },
       } as never);
 
-      expect(onSortChange).toHaveBeenCalledWith({ field: 'amount', direction: 'asc' });
+      expect(onSortChange).toHaveBeenCalledWith({
+        field: 'amount',
+        direction: 'asc',
+      });
     });
 
     it('calls onSortChange with undefined when no sort active', () => {
       const onSortChange = vi.fn();
       const { result } = renderHook(() =>
-        useAgGrid({ columns: testColumns, getRowId, sorting: undefined, onSortChange }),
+        useAgGrid({
+          columns: testColumns,
+          getRowId,
+          sorting: undefined,
+          onSortChange,
+        }),
       );
 
       result.current.handleSortChanged({
@@ -122,7 +143,12 @@ describe('useAgGrid', () => {
     it('calls onSelectionChange with selected row ids', () => {
       const onSelectionChange = vi.fn();
       const { result } = renderHook(() =>
-        useAgGrid({ columns: testColumns, getRowId, sorting: undefined, onSelectionChange }),
+        useAgGrid({
+          columns: testColumns,
+          getRowId,
+          sorting: undefined,
+          onSelectionChange,
+        }),
       );
 
       result.current.handleSelectionChanged({

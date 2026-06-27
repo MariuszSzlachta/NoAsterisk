@@ -47,7 +47,11 @@ describe('DropdownMenu', () => {
 
     it('does not call onClick on disabled item', async () => {
       const onClick = vi.fn();
-      render(<DropdownMenu items={[{ label: 'Disabled', onClick, disabled: true }]} />);
+      render(
+        <DropdownMenu
+          items={[{ label: 'Disabled', onClick, disabled: true }]}
+        />,
+      );
 
       await userEvent.click(screen.getByRole('button'));
       await userEvent.click(screen.getByText('Disabled'));
@@ -69,11 +73,15 @@ describe('DropdownMenu', () => {
 
   describe('separators', () => {
     it('renders separator between items', async () => {
-      render(<DropdownMenu items={[
-        { label: 'Edit', onClick: vi.fn() },
-        { type: 'separator' },
-        { label: 'Delete', onClick: vi.fn(), variant: 'danger' },
-      ]} />);
+      render(
+        <DropdownMenu
+          items={[
+            { label: 'Edit', onClick: vi.fn() },
+            { type: 'separator' },
+            { label: 'Delete', onClick: vi.fn(), variant: 'danger' },
+          ]}
+        />,
+      );
 
       await userEvent.click(screen.getByRole('button'));
 

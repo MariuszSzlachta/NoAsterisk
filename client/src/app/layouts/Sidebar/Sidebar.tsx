@@ -1,18 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import {
+  BarChart3,
   LayoutGrid,
   List,
   SlidersHorizontal,
   Upload,
   Wallet,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-
-import { Badge } from '#shared/ui/Badge';
 
 import { SectionLabel } from '#app/layouts/Sidebar/SectionLabel/SectionLabel';
 import { SidebarLogo } from '#app/layouts/Sidebar/SidebarLogo/SidebarLogo';
 import { SidebarNavLink } from '#app/layouts/Sidebar/SidebarNavLink/SidebarNavLink';
 import { UserSection } from '#app/layouts/Sidebar/UserSection/UserSection';
+import { Badge } from '#shared/ui/Badge';
 
 interface SidebarProps {
   readonly onNavigate?: () => void;
@@ -27,7 +27,10 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
 
       <SectionLabel>{t('nav.overview')}</SectionLabel>
 
-      <nav aria-label={t('nav.overview')} className="flex flex-col gap-0.5 px-3 pt-1.5">
+      <nav
+        aria-label={t('nav.overview')}
+        className="flex flex-col gap-0.5 px-3 pt-1.5"
+      >
         <SidebarNavLink icon={LayoutGrid} to="/dashboard" onClick={onNavigate}>
           {t('nav.dashboard')}
         </SidebarNavLink>
@@ -38,7 +41,12 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
           onClick={onNavigate}
           trailing={
             // TODO: badge will be dynamic from server state (transaction count)
-            <Badge variant="soft" color="neutral" dot={false} className="px-1.5 py-0 text-[11px]">
+            <Badge
+              variant="soft"
+              color="neutral"
+              dot={false}
+              className="px-1.5 py-0 text-[11px]"
+            >
               245
             </Badge>
           }
@@ -54,7 +62,15 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
           {t('nav.budgets')}
         </SidebarNavLink>
 
-        <SidebarNavLink icon={SlidersHorizontal} to="/admin/rules" onClick={onNavigate}>
+        <SidebarNavLink icon={BarChart3} to="/analytics" onClick={onNavigate}>
+          {t('nav.analytics')}
+        </SidebarNavLink>
+
+        <SidebarNavLink
+          icon={SlidersHorizontal}
+          to="/admin/rules"
+          onClick={onNavigate}
+        >
           {t('nav.rules')}
         </SidebarNavLink>
       </nav>

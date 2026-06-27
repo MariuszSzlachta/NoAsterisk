@@ -1,6 +1,6 @@
-import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
 
 interface SidebarNavLinkProps {
   readonly icon: LucideIcon;

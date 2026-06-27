@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Search } from 'lucide-react';
 
 export const SearchButton = (): React.JSX.Element => {
   const { t } = useTranslation();

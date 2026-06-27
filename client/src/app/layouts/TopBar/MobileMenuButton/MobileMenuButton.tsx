@@ -1,5 +1,5 @@
-import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Menu } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 
@@ -7,7 +7,9 @@ interface MobileMenuButtonProps {
   readonly onClick: () => void;
 }
 
-export const MobileMenuButton = ({ onClick }: MobileMenuButtonProps): React.JSX.Element => {
+export const MobileMenuButton = ({
+  onClick,
+}: MobileMenuButtonProps): React.JSX.Element => {
   const { t } = useTranslation();
 
   return (
