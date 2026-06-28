@@ -66,3 +66,9 @@ export const mapRecentTransactionDtoToVm = (
   amount: dto.amount,
   direction: dto.direction,
 });
+
+export const getRateColor = (rate: number): string => {
+  if (rate >= 20) return 'var(--income)';
+  if (rate >= 10) return 'var(--warning)';
+  return 'var(--expense)';
+};

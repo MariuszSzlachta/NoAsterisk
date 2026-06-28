@@ -8,6 +8,7 @@ import type {
 } from '#features/dashboard-widgets/model/types';
 
 import {
+  getRateColor,
   groupCategoryTail,
   mapBudgetDtoToVm,
   mapKpiDtoToVm,
@@ -213,5 +214,18 @@ describe('groupCategoryTail', () => {
     expect(result[0].label).toBe('High');
     expect(result[6].label).toBe('Inne (1 kategorii)');
     expect(result[6].value).toBe(10);
+  });
+});
+
+describe('getRateColor', () => {
+  it.each([
+    [29, 'var(--income)'],
+    [20, 'var(--income)'],
+    [15, 'var(--warning)'],
+    [10, 'var(--warning)'],
+    [5, 'var(--expense)'],
+    [0, 'var(--expense)'],
+  ] as const)('returns correct color for rate %d', (rate, expected) => {
+    expect(getRateColor(rate)).toBe(expected);
   });
 });

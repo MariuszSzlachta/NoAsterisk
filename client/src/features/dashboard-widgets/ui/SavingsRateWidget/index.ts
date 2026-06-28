@@ -1,0 +1,1 @@
+export { SavingsRateWidget } from './SavingsRateWidget';

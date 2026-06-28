@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 
 import { BudgetProgressWidget } from '#features/dashboard-widgets/ui/BudgetProgressWidget';
 import { CategoryDonutWidget } from '#features/dashboard-widgets/ui/CategoryDonutWidget';
+import { SavingsRateWidget } from '#features/dashboard-widgets/ui/SavingsRateWidget';
 import { useBudgetProgressWidget } from '#features/dashboard-widgets/ui/hooks/useBudgetProgressWidget';
 import { useCategoryDonutWidget } from '#features/dashboard-widgets/ui/hooks/useCategoryDonutWidget';
 import { useKpiWidget } from '#features/dashboard-widgets/ui/hooks/useKpiWidget';
 import { useRecentTransactionsWidget } from '#features/dashboard-widgets/ui/hooks/useRecentTransactionsWidget';
+import { useSavingsRateWidget } from '#features/dashboard-widgets/ui/hooks/useSavingsRateWidget';
 import { useTrendChartWidget } from '#features/dashboard-widgets/ui/hooks/useTrendChartWidget';
 import { KpiRowWidget } from '#features/dashboard-widgets/ui/KpiRowWidget';
 import { RecentTransactionsWidget } from '#features/dashboard-widgets/ui/RecentTransactionsWidget';
@@ -18,6 +20,7 @@ export enum WidgetType {
   KpiRow = 'KpiRow',
   TrendChart = 'TrendChart',
   CategoryDonut = 'CategoryDonut',
+  SavingsRate = 'SavingsRate',
   BudgetProgress = 'BudgetProgress',
   RecentTransactions = 'RecentTransactions',
 }
@@ -93,6 +96,21 @@ const CategoryDonutEntry = (): React.JSX.Element => {
   );
 };
 
+const SavingsRateEntry = (): React.JSX.Element => {
+  const state = useSavingsRateWidget();
+  return (
+    <QueryRenderer state={state}>
+      {(data) => (
+        <SavingsRateWidget
+          data={data}
+          title="Stopa oszczędności"
+          subtitle="Bieżący miesiąc"
+        />
+      )}
+    </QueryRenderer>
+  );
+};
+
 const BudgetProgressEntry = (): React.JSX.Element => {
   const state = useBudgetProgressWidget();
   return (
@@ -129,6 +147,7 @@ export const WIDGET_REGISTRY: WidgetConfig[] = [
   { id: WidgetType.KpiRow, cols: 4, Component: KpiRowEntry },
   { id: WidgetType.TrendChart, cols: 2, Component: TrendChartEntry },
   { id: WidgetType.CategoryDonut, cols: 1, Component: CategoryDonutEntry },
+  { id: WidgetType.SavingsRate, cols: 1, Component: SavingsRateEntry },
   { id: WidgetType.BudgetProgress, cols: 2, Component: BudgetProgressEntry },
   {
     id: WidgetType.RecentTransactions,
