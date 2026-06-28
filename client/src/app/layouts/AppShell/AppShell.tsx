@@ -29,14 +29,14 @@ export const AppShell = (): React.JSX.Element => {
 
       {sidebarOpen && <MobileSidebarOverlay onClose={closeSidebar} />}
 
-      <main className="flex max-h-screen min-w-0 flex-1 flex-col overflow-y-auto">
+      <main className="flex max-h-screen min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           breadcrumb={t(meta.breadcrumbKey)}
           title={t(meta.titleKey)}
           parentPath={meta.parentPath}
           onMenuOpen={openSidebar}
         />
-        <div className="p-4 lg:p-6">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4 lg:p-6">
           <Outlet />
         </div>
       </main>

@@ -11,13 +11,13 @@ export const DashboardPage = (): React.JSX.Element => {
   const gridWidgets = WIDGET_REGISTRY.filter((w) => w.cols < 4);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col gap-4 overflow-hidden">
       {fullWidth.map((widget) => (
         <widget.Component key={widget.id} />
       ))}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-4 lg:grid-rows-[1.5fr_1.5fr_1fr]">
         {gridWidgets.map((widget) => (
-          <div key={widget.id} className={COL_SPAN[widget.cols]}>
+          <div key={widget.id} className={`min-h-0 overflow-hidden ${COL_SPAN[widget.cols]}`}>
             <widget.Component />
           </div>
         ))}
