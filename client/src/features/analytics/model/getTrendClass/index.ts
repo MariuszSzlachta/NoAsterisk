@@ -1,0 +1,1 @@
+export { getTrendClass } from './getTrendClass';

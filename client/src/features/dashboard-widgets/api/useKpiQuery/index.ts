@@ -1,0 +1,1 @@
+export { useKpiQuery } from './useKpiQuery';

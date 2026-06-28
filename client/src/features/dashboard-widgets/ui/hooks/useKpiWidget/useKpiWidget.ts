@@ -18,13 +18,12 @@ export const useKpiWidget = (): QueryState<KpiItemVM[]> => {
   return {
     status: 'loaded',
     data: data.map((dto) =>
-      mapKpiDtoToVm(
-        dto,
-        KPI_ICONS[dto.id] ?? FALLBACK_ICON,
-        KPI_REPORT_HREFS[dto.id],
-        KPI_ICON_TOOLTIPS[dto.id],
-        INVERTED_COLOR_KPI_IDS.has(dto.id),
-      ),
+      mapKpiDtoToVm(dto, {
+        icon: KPI_ICONS[dto.id] ?? FALLBACK_ICON,
+        iconHref: KPI_REPORT_HREFS[dto.id],
+        iconTooltip: KPI_ICON_TOOLTIPS[dto.id],
+        invertColor: INVERTED_COLOR_KPI_IDS.has(dto.id),
+      }),
     ),
   };
 };

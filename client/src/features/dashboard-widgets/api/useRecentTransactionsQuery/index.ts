@@ -1,0 +1,1 @@
+export { useRecentTransactionsQuery } from './useRecentTransactionsQuery';
