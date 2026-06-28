@@ -25,7 +25,6 @@ export const TrendChartWidget = ({
       showGrid
       showLegend
       axisBottom={{ label: '' }}
-      axisLeft={{ label: 'PLN' }}
     />
   </Card>
 );

@@ -39,6 +39,8 @@ const MOCK_DATA: KpiDto[] = [
     id: 'savings',
     label: 'Oszczędności',
     value: '2 450,00 zł',
+    deltaPercent: '+12,1%',
+    trend: 'up',
     tooltip: 'Różnica między przychodami a wydatkami w tym miesiącu.',
   },
 ];

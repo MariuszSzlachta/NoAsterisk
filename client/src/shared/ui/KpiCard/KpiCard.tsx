@@ -62,14 +62,17 @@ export const KpiCard = ({
       {value}
     </span>
     {delta && (
-      <Badge
-        variant="soft"
-        color={TREND_COLOR[trend]}
-        dot={false}
-        className="w-fit"
-      >
-        {delta}
-      </Badge>
+      <div className="flex items-center gap-1.5">
+        <Badge
+          variant="soft"
+          color={TREND_COLOR[trend]}
+          dot={false}
+          className="w-fit"
+        >
+          {delta}
+        </Badge>
+        <span className="text-xs text-muted-foreground">vs poprzedni miesiąc</span>
+      </div>
     )}
   </div>
 );

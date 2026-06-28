@@ -19,7 +19,7 @@ interface ChartBaseProps {
   showLegend?: boolean;
   showGrid?: boolean;
   axisBottom?: { label: string };
-  axisLeft?: { label: string };
+  axisLeft?: { label: string; tickValues?: number | number[] };
 }
 
 export interface LineChartProps extends ChartBaseProps {

@@ -12,6 +12,16 @@ const MOCK_DATA: ChartDataPoint[] = [
   { label: 'Jedzenie', value: 890 },
   { label: 'Rachunki', value: 1450 },
   { label: 'Rozrywka', value: 900 },
+  { label: 'Zdrowie', value: 430 },
+  { label: 'Edukacja', value: 350 },
+  { label: 'Odzież', value: 520 },
+  { label: 'Elektronika', value: 780 },
+  { label: 'Prezenty', value: 290 },
+  { label: 'Sport', value: 410 },
+  { label: 'Podróże', value: 650 },
+  { label: 'Zwierzęta', value: 180 },
+  { label: 'Dom i ogród', value: 370 },
+  { label: 'Kosmetyki', value: 260 },
 ];
 
 export const useCategoryBreakdownQuery = (): CategoryQueryResult => ({

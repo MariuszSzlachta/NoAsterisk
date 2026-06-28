@@ -1,6 +1,16 @@
 import { ResponsiveBar } from '@nivo/bar';
 
-import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import {
+  COLOR_FG,
+  COLOR_FG_MUTED,
+  DEFAULT_CHART_HEIGHT,
+  FONT_FEATURE_SETTINGS,
+  FONT_MONO,
+  FONT_SANS,
+  FONT_SIZE_MD,
+  FONT_SIZE_SM,
+  LETTER_SPACING_TIGHT,
+} from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 import type { BarChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const MARGIN = { top: 10, right: 60, bottom: 10, left: 120 } as const;
@@ -34,7 +44,7 @@ export const NivoBarChart = ({
         labelSkipWidth={20}
         labelPosition="end"
         labelOffset={8}
-        labelTextColor="var(--fg-muted)"
+        labelTextColor={COLOR_FG_MUTED}
         axisLeft={{
           tickPadding: 8,
         }}
@@ -43,17 +53,21 @@ export const NivoBarChart = ({
           axis: {
             ticks: {
               text: {
-                fill: 'var(--fg-muted)',
-                fontSize: 12,
-                fontFamily: 'Geist, -apple-system, sans-serif',
+                fill: COLOR_FG_MUTED,
+                fontSize: FONT_SIZE_MD,
+                fontFamily: FONT_SANS,
+                fontFeatureSettings: FONT_FEATURE_SETTINGS,
+                letterSpacing: LETTER_SPACING_TIGHT,
               },
             },
           },
           labels: {
             text: {
-              fontSize: 11,
-              fontFamily: 'Geist Mono, monospace',
-              fill: 'var(--fg)',
+              fontSize: FONT_SIZE_SM,
+              fontFamily: FONT_MONO,
+              fill: COLOR_FG,
+              fontFeatureSettings: FONT_FEATURE_SETTINGS,
+              letterSpacing: LETTER_SPACING_TIGHT,
             },
           },
         }}

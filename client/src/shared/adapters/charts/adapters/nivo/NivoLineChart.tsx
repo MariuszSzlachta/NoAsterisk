@@ -5,10 +5,23 @@ import {
   type LineSvgLayer,
 } from '@nivo/line';
 
-import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import { computeYTickValues, formatAxisValue } from '#shared/adapters/charts/adapters/nivo/utils/axis';
+import {
+  COLOR_BORDER,
+  COLOR_FG_MUTED,
+  COLOR_FG_SUBTLE,
+  COLOR_SURFACE,
+  DEFAULT_CHART_HEIGHT,
+  FONT_FEATURE_SETTINGS,
+  FONT_SANS,
+  FONT_SIZE_MD,
+  FONT_SIZE_XS,
+  LETTER_SPACING_TIGHT,
+} from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
+const CHART_MARGIN_WITH_LEGEND = { top: 30, right: 20, bottom: 44, left: 48 } as const;
 
 const LEGEND_TOP_RIGHT = {
   anchor: 'top-right' as const,
@@ -20,12 +33,7 @@ const LEGEND_TOP_RIGHT = {
   symbolShape: 'square' as const,
 };
 
-const formatAxisValue = (v: number): string => {
-  if (v >= 1000) {
-    return `${(v / 1000).toFixed(0)}k`;
-  }
-  return String(v);
-};
+
 
 const GradientDefs = (): React.JSX.Element => (
   <defs>
@@ -93,7 +101,7 @@ const LastPointLayer = ({
             cy={yScale(last.data.y as number)}
             r={3.5}
             fill={s.color}
-            stroke="var(--surface)"
+            stroke={COLOR_SURFACE}
             strokeWidth={2}
           />
         );
@@ -119,13 +127,14 @@ export const NivoLineChart = ({
     LastPointLayer,
     'crosshair',
     'slices',
+    'legends',
   ];
 
   return (
     <div style={{ height }}>
       <ResponsiveLine
         data={data}
-        margin={CHART_MARGIN}
+        margin={showLegend ? CHART_MARGIN_WITH_LEGEND : CHART_MARGIN}
         xScale={{ type: 'point' }}
         yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
         curve="linear"
@@ -142,26 +151,39 @@ export const NivoLineChart = ({
         }
         axisLeft={
           axisLeft
-            ? { legend: axisLeft.label }
-            : { tickPadding: 10, format: formatAxisValue }
+            ? {
+                legend: axisLeft.label,
+                legendOffset: -40,
+                legendPosition: 'middle' as const,
+                tickPadding: 10,
+                tickValues: axisLeft.tickValues ?? computeYTickValues(data),
+                format: formatAxisValue,
+              }
+            : {
+                tickPadding: 10,
+                tickValues: computeYTickValues(data),
+                format: formatAxisValue,
+              }
         }
         theme={{
-          grid: { line: { stroke: 'var(--border)', strokeWidth: 1 } },
+          grid: { line: { stroke: COLOR_BORDER, strokeWidth: 1 } },
           axis: {
             ticks: {
               text: {
-                fill: 'var(--fg-subtle)',
-                fontSize: 10,
-                fontFamily: "'Geist Mono', monospace",
+                fill: COLOR_FG_SUBTLE,
+                fontSize: FONT_SIZE_XS,
+                fontFamily: FONT_SANS,
+                fontFeatureSettings: FONT_FEATURE_SETTINGS,
+                letterSpacing: LETTER_SPACING_TIGHT,
               },
             },
           },
-          crosshair: { line: { stroke: 'var(--fg-subtle)', strokeWidth: 1 } },
+          crosshair: { line: { stroke: COLOR_FG_SUBTLE, strokeWidth: 1 } },
           legends: {
             text: {
-              fill: 'var(--fg-muted)',
-              fontSize: 12,
-              fontFamily: "'Geist', sans-serif",
+              fill: COLOR_FG_MUTED,
+              fontSize: FONT_SIZE_MD,
+              fontFamily: FONT_SANS,
             },
           },
         }}

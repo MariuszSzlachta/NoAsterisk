@@ -3,6 +3,11 @@ import type { ReactNode } from 'react';
 import { PieChart, type ChartDataPoint } from '#shared/adapters/charts';
 import { Card, CardHeader } from '#shared/ui/Card';
 
+import {
+  useCategoryLegend,
+  type LegendItem,
+} from './useCategoryLegend';
+
 const CATEGORY_COLORS = [
   'var(--cat-groceries)',
   'var(--cat-transport)',
@@ -10,7 +15,34 @@ const CATEGORY_COLORS = [
   'var(--cat-dining)',
   'var(--cat-bills)',
   'var(--cat-entertainment)',
+  '#4ade80',
+  '#facc15',
+  '#f97316',
+  '#06b6d4',
+  '#e879f9',
+  '#14b8a6',
+  '#f43f5e',
+  '#84cc16',
+  '#8b5cf6',
+  '#fb923c',
 ];
+
+const DONUT_HEIGHT = 180;
+
+interface LegendRowProps {
+  readonly item: LegendItem;
+}
+
+const LegendRow = ({ item }: LegendRowProps): React.JSX.Element => (
+  <li className="flex items-center gap-2 py-0.5" title={item.label}>
+    <span
+      className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
+      style={{ backgroundColor: item.color }}
+    />
+    <span className="text-sm text-foreground">{item.label}</span>
+    <span className="text-sm tabular-nums text-muted-foreground">{item.percent}%</span>
+  </li>
+);
 
 interface CategoryDonutWidgetProps {
   readonly data: ChartDataPoint[];
@@ -24,9 +56,33 @@ export const CategoryDonutWidget = ({
   title,
   subtitle,
   action,
-}: CategoryDonutWidgetProps): React.JSX.Element => (
-  <Card>
-    <CardHeader title={title} subtitle={subtitle} action={action} />
-    <PieChart data={data} height={260} colors={CATEGORY_COLORS} showLegend />
-  </Card>
-);
+}: CategoryDonutWidgetProps): React.JSX.Element => {
+  const legendItems = useCategoryLegend(data, CATEGORY_COLORS);
+
+  if (data.length === 0) {
+    return (
+      <Card>
+        <CardHeader title={title} subtitle={subtitle} action={action} />
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          Brak danych o wydatkach
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader title={title} subtitle={subtitle} action={action} />
+      <div className="flex flex-1 items-center gap-6">
+        <div className="h-[180px] w-[180px] shrink-0">
+          <PieChart data={data} height={DONUT_HEIGHT} colors={CATEGORY_COLORS} />
+        </div>
+        <ul className="flex flex-1 flex-col gap-0.5 overflow-y-auto" style={{ maxHeight: 180 }}>
+          {legendItems.map((item) => (
+            <LegendRow key={item.label} item={item} />
+          ))}
+        </ul>
+      </div>
+    </Card>
+  );
+};

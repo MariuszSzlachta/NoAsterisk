@@ -17,6 +17,23 @@ export const PIE_CORNER_RADIUS = 3;
 
 export const DEFAULT_CHART_HEIGHT = 300;
 
+// Typography
+export const FONT_SANS = 'Geist, sans-serif';
+export const FONT_MONO = "'Geist Mono', monospace";
+export const FONT_SIZE_XS = 14;
+export const FONT_SIZE_SM = 15;
+export const FONT_SIZE_MD = 16;
+export const FONT_SIZE_LG = 22;
+export const FONT_FEATURE_SETTINGS = '"cv01", "ss01"';
+export const LETTER_SPACING_TIGHT = '-0.16px';
+
+// Colors (CSS variables)
+export const COLOR_FG = 'var(--fg)';
+export const COLOR_FG_MUTED = 'var(--fg-muted)';
+export const COLOR_FG_SUBTLE = 'var(--fg-subtle)';
+export const COLOR_BORDER = 'var(--border)';
+export const COLOR_SURFACE = 'var(--surface)';
+
 export const LEGEND_BOTTOM_RIGHT = {
   anchor: 'bottom-right' as const,
   direction: 'column' as const,

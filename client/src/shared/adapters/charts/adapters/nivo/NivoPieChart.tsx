@@ -1,18 +1,52 @@
 import { ResponsivePie, type PieCustomLayerProps } from '@nivo/pie';
+import type { ComputedDatum } from '@nivo/pie';
 
-import { DEFAULT_CHART_HEIGHT } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import {
+  COLOR_FG,
+  COLOR_FG_MUTED,
+  COLOR_FG_SUBTLE,
+  DEFAULT_CHART_HEIGHT,
+  FONT_SANS,
+  FONT_SIZE_MD,
+  FONT_SIZE_XS,
+  FONT_SIZE_LG,
+} from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 import type { PieChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const DONUT_INNER_RADIUS = 0.65;
-const MARGIN = { top: 10, right: 140, bottom: 10, left: 10 } as const;
+const MARGIN_WITH_LEGEND = { top: 10, right: 160, bottom: 10, left: 10 } as const;
+const MARGIN_NO_LEGEND = { top: 10, right: 10, bottom: 10, left: 10 } as const;
+
+interface PieTooltipDatum {
+  id: string;
+  label: string;
+  value: number;
+}
+
+const PieTooltip = ({
+  datum,
+}: {
+  datum: ComputedDatum<PieTooltipDatum>;
+}): React.JSX.Element => (
+  <div className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm shadow-card">
+    <span
+      className="mr-2 inline-block h-2.5 w-2.5 rounded-sm"
+      style={{ backgroundColor: datum.color }}
+    />
+    <span className="font-medium text-foreground">{datum.label}</span>
+    <span className="ml-2 tabular-nums text-muted-foreground">
+      {datum.value.toLocaleString('pl-PL')} zł
+    </span>
+  </div>
+);
 
 const LEGEND_RIGHT = {
   anchor: 'right' as const,
   direction: 'column' as const,
-  translateX: 130,
-  itemWidth: 120,
-  itemHeight: 24,
-  symbolSize: 8,
+  translateX: 150,
+  itemWidth: 140,
+  itemHeight: 26,
+  symbolSize: 10,
   symbolShape: 'square' as const,
 };
 
@@ -35,10 +69,10 @@ const createCenterLayer = ({ total }: CenterTextProps) => {
         y={centerY - 6}
         textAnchor="middle"
         style={{
-          fontSize: 17,
+          fontSize: FONT_SIZE_LG,
           fontWeight: 600,
-          fontFamily: 'Geist, -apple-system, sans-serif',
-          fill: 'var(--fg)',
+          fontFamily: FONT_SANS,
+          fill: COLOR_FG,
           letterSpacing: '-0.02em',
           fontVariantNumeric: 'tabular-nums',
         }}
@@ -50,9 +84,9 @@ const createCenterLayer = ({ total }: CenterTextProps) => {
         y={centerY + 14}
         textAnchor="middle"
         style={{
-          fontSize: 10,
-          fill: 'var(--fg-subtle)',
-          fontFamily: 'Geist, -apple-system, sans-serif',
+          fontSize: FONT_SIZE_XS,
+          fill: COLOR_FG_SUBTLE,
+          fontFamily: FONT_SANS,
         }}
       >
         zł / mies.
@@ -78,23 +112,24 @@ export const NivoPieChart = ({
   const CenterLayer = createCenterLayer({ total });
 
   return (
-    <div style={{ height }}>
+    <div style={{ height, overflow: 'visible' }}>
       <ResponsivePie
         data={pieData}
-        margin={MARGIN}
+        margin={showLegend ? MARGIN_WITH_LEGEND : MARGIN_NO_LEGEND}
         innerRadius={DONUT_INNER_RADIUS}
         padAngle={0}
         cornerRadius={0}
         colors={colors}
         enableArcLabels={false}
         enableArcLinkLabels={false}
-        layers={['arcs', CenterLayer]}
+        tooltip={PieTooltip}
+        layers={['arcs', CenterLayer, 'legends']}
         theme={{
           legends: {
             text: {
-              fill: 'var(--fg-muted)',
-              fontSize: 12,
-              fontFamily: "'Geist', sans-serif",
+              fill: COLOR_FG_MUTED,
+              fontSize: FONT_SIZE_MD,
+              fontFamily: FONT_SANS,
             },
           },
         }}

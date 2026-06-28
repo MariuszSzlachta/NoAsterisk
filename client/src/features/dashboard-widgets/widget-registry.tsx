@@ -24,7 +24,7 @@ export enum WidgetType {
 
 interface WidgetConfig {
   readonly id: WidgetType;
-  readonly cols: 1 | 2 | 4;
+  readonly cols: 1 | 2 | 3 | 4;
   readonly Component: ComponentType;
 }
 
@@ -128,7 +128,7 @@ const RecentTransactionsEntry = (): React.JSX.Element => {
 export const WIDGET_REGISTRY: WidgetConfig[] = [
   { id: WidgetType.KpiRow, cols: 4, Component: KpiRowEntry },
   { id: WidgetType.TrendChart, cols: 2, Component: TrendChartEntry },
-  { id: WidgetType.CategoryDonut, cols: 2, Component: CategoryDonutEntry },
+  { id: WidgetType.CategoryDonut, cols: 1, Component: CategoryDonutEntry },
   { id: WidgetType.BudgetProgress, cols: 2, Component: BudgetProgressEntry },
   {
     id: WidgetType.RecentTransactions,

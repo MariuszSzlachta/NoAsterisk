@@ -66,6 +66,15 @@
       "daily": "Dziennie",
       "weekly": "Tygodniowo",
       "monthly": "Miesięcznie"
+    },
+    "breakdown": {
+      "expensesTitle": "Wydatki wg kategorii",
+      "incomeTitle": "Przychody wg kategorii"
+    },
+    "drilldown": {
+      "close": "Zamknij",
+      "trendTitle": "Trend w wybranym okresie",
+      "transactionsTitle": "Ostatnie transakcje"
     }
   }
 }

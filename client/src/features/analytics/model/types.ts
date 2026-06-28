@@ -27,3 +27,27 @@ export interface AnalyticsKpi {
   readonly delta: string;
   readonly trend: 'up' | 'down' | 'neutral';
 }
+
+export interface CategoryBreakdownItem {
+  readonly category: string;
+  readonly amount: number;
+  readonly percentage: number;
+}
+
+export interface CategoryDrilldownTransaction {
+  readonly id: string;
+  readonly title: string;
+  readonly amount: number;
+  readonly date: string;
+}
+
+export interface CategoryDrilldownData {
+  readonly trend: ChartSeries;
+  readonly transactions: CategoryDrilldownTransaction[];
+}
+
+export interface CategoryBreakdownFilters {
+  readonly metric: 'expenses' | 'income';
+  readonly period: Period;
+  readonly granularity: Granularity;
+}

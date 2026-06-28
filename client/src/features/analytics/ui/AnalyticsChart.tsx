@@ -34,7 +34,6 @@ export const AnalyticsChart = ({
           showGrid
           showLegend
           axisBottom={{ label: '' }}
-          axisLeft={{ label: 'PLN' }}
         />
       </div>
     </Card>

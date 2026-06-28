@@ -17,7 +17,7 @@ export const Card = ({
 }: CardProps): React.JSX.Element => {
   return (
     <div
-      className={`rounded-lg border border-border bg-surface p-5 shadow-card ${className}`}
+      className={`flex h-full flex-col rounded-lg border border-border bg-surface p-5 shadow-card ${className}`}
     >
       {children}
     </div>
