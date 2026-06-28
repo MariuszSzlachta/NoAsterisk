@@ -13,6 +13,7 @@ interface KpiCardProps {
   readonly icon: ReactNode;
   readonly delta?: string;
   readonly trend?: DeltaTrend;
+  readonly invertColor?: boolean;
   readonly tooltip?: string;
   readonly iconHref?: string;
   readonly iconTooltip?: string;
@@ -24,12 +25,19 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
+const TREND_COLOR_INVERTED: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
+  up: 'expense',
+  down: 'income',
+  neutral: 'neutral',
+};
+
 export const KpiCard = ({
   label,
   value,
   icon,
   delta,
   trend = 'neutral',
+  invertColor,
   tooltip,
   iconHref,
   iconTooltip,
@@ -65,7 +73,7 @@ export const KpiCard = ({
       <div className="flex items-center gap-1.5">
         <Badge
           variant="soft"
-          color={TREND_COLOR[trend]}
+          color={invertColor ? TREND_COLOR_INVERTED[trend] : TREND_COLOR[trend]}
           dot={false}
           className="w-fit"
         >

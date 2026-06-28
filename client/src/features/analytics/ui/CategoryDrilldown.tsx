@@ -12,6 +12,7 @@ const TREND_HEIGHT = 180;
 interface CategoryDrilldownProps {
   readonly id: string;
   readonly category: string;
+  readonly color: string;
   readonly filters: CategoryBreakdownFilters;
   readonly onClose: () => void;
 }
@@ -19,6 +20,7 @@ interface CategoryDrilldownProps {
 export const CategoryDrilldown = ({
   id,
   category,
+  color,
   filters,
   onClose,
 }: CategoryDrilldownProps): React.JSX.Element => {
@@ -51,7 +53,7 @@ export const CategoryDrilldown = ({
               <p className="mb-2 text-xs text-muted-foreground">
                 {t('analytics.drilldown.trendTitle')}
               </p>
-              <LineChart data={[data.trend]} height={TREND_HEIGHT} />
+              <LineChart data={[data.trend]} height={TREND_HEIGHT} colors={[color]} />
             </div>
             <div>
               <p className="mb-2 text-xs text-muted-foreground">
@@ -63,6 +65,7 @@ export const CategoryDrilldown = ({
                     key={tx.id}
                     transaction={tx}
                     isExpense={isExpense}
+                    color={color}
                   />
                 ))}
               </ul>

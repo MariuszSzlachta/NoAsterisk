@@ -31,7 +31,7 @@ const MOCK_DATA: KpiDto[] = [
     label: 'Wydatki',
     value: '6 050,00 zł',
     deltaPercent: '+5,3%',
-    trend: 'down',
+    trend: 'up',
     tooltip:
       'Suma wydatków w bieżącym miesiącu. Wzrost oznacza większe wydatki niż wcześniej.',
   },

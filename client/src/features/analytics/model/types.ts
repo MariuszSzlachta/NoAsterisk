@@ -26,6 +26,7 @@ export interface AnalyticsKpi {
   readonly value: string;
   readonly delta: string;
   readonly trend: 'up' | 'down' | 'neutral';
+  readonly invertColor?: boolean;
 }
 
 export interface CategoryBreakdownItem {

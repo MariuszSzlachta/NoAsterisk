@@ -33,3 +33,5 @@ export const KPI_ICON_TOOLTIPS: Record<KpiId, string> = {
   expenses: 'Otwórz analizę wydatków',
   savings: 'Otwórz analizę oszczędności',
 };
+
+export const INVERTED_COLOR_KPI_IDS: ReadonlySet<KpiId> = new Set(['expenses']);

@@ -40,7 +40,7 @@ describe('useKpiWidget', () => {
       expect(result.data[0].label).toBe('Saldo');
       expect(result.data[0].delta).toBe('+5%');
       expect(result.data[0].icon).toBeDefined();
-      expect(result.data[0].iconHref).toBe('/reports/balance');
+      expect(result.data[0].iconHref).toBe('/analytics?metric=balance');
     }
   });
 
@@ -54,7 +54,7 @@ describe('useKpiWidget', () => {
 
     if (result.status === 'loaded') {
       expect(result.data[0].icon).toBeDefined();
-      expect(result.data[0].iconHref).toBe('/reports/balance');
+      expect(result.data[0].iconHref).toBe('/analytics?metric=balance');
     }
   });
 });

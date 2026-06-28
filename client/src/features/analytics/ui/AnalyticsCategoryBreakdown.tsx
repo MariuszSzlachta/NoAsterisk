@@ -78,6 +78,12 @@ export const AnalyticsCategoryBreakdown = ({
               <CategoryDrilldown
                 id={DRILLDOWN_ID}
                 category={selectedCategory}
+                color={
+                  CATEGORY_COLORS[
+                    items.findIndex((i) => i.category === selectedCategory) %
+                      CATEGORY_COLORS.length
+                  ] ?? CATEGORY_COLORS[0]
+                }
                 filters={filters}
                 onClose={handleDrilldownClose}
               />

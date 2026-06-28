@@ -15,16 +15,7 @@ const CATEGORY_COLORS = [
   'var(--cat-dining)',
   'var(--cat-bills)',
   'var(--cat-entertainment)',
-  '#4ade80',
-  '#facc15',
-  '#f97316',
-  '#06b6d4',
-  '#e879f9',
-  '#14b8a6',
-  '#f43f5e',
-  '#84cc16',
-  '#8b5cf6',
-  '#fb923c',
+  'var(--fg-subtle)',
 ];
 
 const DONUT_HEIGHT = 180;

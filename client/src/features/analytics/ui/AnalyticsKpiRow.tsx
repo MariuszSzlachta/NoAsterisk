@@ -11,6 +11,15 @@ const TREND_CLASS: Record<AnalyticsKpi['trend'], string> = {
   neutral: 'text-muted-foreground',
 };
 
+const TREND_CLASS_INVERTED: Record<AnalyticsKpi['trend'], string> = {
+  up: 'text-expense',
+  down: 'text-income',
+  neutral: 'text-muted-foreground',
+};
+
+const getTrendClass = (trend: AnalyticsKpi['trend'], inverted?: boolean): string =>
+  inverted ? TREND_CLASS_INVERTED[trend] : TREND_CLASS[trend];
+
 export const AnalyticsKpiRow = ({
   kpis,
 }: AnalyticsKpiRowProps): React.JSX.Element => (
@@ -22,11 +31,11 @@ export const AnalyticsKpiRow = ({
             {kpi.label}
           </span>
           <span
-            className={`font-mono text-lg font-semibold tabular-nums ${TREND_CLASS[kpi.trend]}`}
+            className={`font-mono text-lg font-semibold tabular-nums ${getTrendClass(kpi.trend, kpi.invertColor)}`}
           >
             {kpi.value}
           </span>
-          <span className={`text-xs font-medium ${TREND_CLASS[kpi.trend]}`}>
+          <span className={`text-xs font-medium ${getTrendClass(kpi.trend, kpi.invertColor)}`}>
             {kpi.delta} vs poprzedni okres
           </span>
         </div>

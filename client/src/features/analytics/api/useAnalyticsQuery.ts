@@ -75,7 +75,8 @@ const MOCK_KPIS: Record<MetricType, AnalyticsKpi> = {
     label: 'Wydatki (bieżący)',
     value: '7 150,00 zł',
     delta: '−3,4%',
-    trend: 'up',
+    trend: 'down',
+    invertColor: true,
   },
   savings: {
     label: 'Oszczędności',

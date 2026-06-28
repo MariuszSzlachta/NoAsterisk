@@ -35,19 +35,6 @@ const LEGEND_TOP_RIGHT = {
 
 
 
-const GradientDefs = (): React.JSX.Element => (
-  <defs>
-    <linearGradient id="areaGradient0" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="var(--income)" stopOpacity={0.18} />
-      <stop offset="100%" stopColor="var(--income)" stopOpacity={0} />
-    </linearGradient>
-    <linearGradient id="areaGradient1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.16} />
-      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-    </linearGradient>
-  </defs>
-);
-
 const GradientAreaLayer = ({
   series,
   xScale,
@@ -56,7 +43,14 @@ const GradientAreaLayer = ({
 }: LineCustomSvgLayerProps<LineSeries>): React.JSX.Element => {
   return (
     <g>
-      <GradientDefs />
+      <defs>
+        {series.map((s, i) => (
+          <linearGradient key={s.id} id={`areaGradient${i}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={s.color} stopOpacity={0.18} />
+            <stop offset="100%" stopColor={s.color} stopOpacity={0} />
+          </linearGradient>
+        ))}
+      </defs>
       {series.map((s, i) => {
         const points = s.data
           .filter((d) => d.data.x !== null && d.data.y !== null)

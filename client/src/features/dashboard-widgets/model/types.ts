@@ -37,6 +37,7 @@ export interface KpiItemVM {
   readonly icon: ReactNode;
   readonly delta?: string;
   readonly trend?: 'up' | 'down' | 'neutral';
+  readonly invertColor?: boolean;
   readonly tooltip?: string;
   readonly iconHref?: string;
   readonly iconTooltip?: string;

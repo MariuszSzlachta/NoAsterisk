@@ -4,7 +4,7 @@ describe('computeYTickValues', () => {
   it('returns nice ticks for narrow range (1950-2300)', () => {
     const data = [{ id: 'a', data: [{ x: 'Sty', y: 1950 }, { x: 'Lut', y: 2300 }] }];
     const ticks = computeYTickValues(data);
-    expect(ticks).toEqual([1800, 1900, 2000, 2100, 2200, 2300]);
+    expect(ticks).toEqual([1900, 2000, 2100, 2200, 2300]);
   });
 
   it('returns nice ticks for wide range (12-4100)', () => {

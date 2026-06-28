@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import type { ChartDataPoint } from '#shared/adapters/charts';
 
-const SMALL_CATEGORY_THRESHOLD = 0.03;
+const INNE_PREFIX = 'Inne (';
 
 export interface LegendItem {
   readonly label: string;
@@ -20,37 +20,14 @@ export const useCategoryLegend = (
     const total = data.reduce((sum, d) => sum + d.value, 0);
     if (total === 0) return [];
 
-    const items: LegendItem[] = [];
-    let groupedValue = 0;
-    let groupedCount = 0;
-
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i]!;
-      const percent = item.value / total;
-
-      if (data.length > 12 && percent < SMALL_CATEGORY_THRESHOLD) {
-        groupedValue += item.value;
-        groupedCount++;
-      } else {
-        items.push({
-          label: item.label,
-          percent: Math.round(percent * 100),
-          color: colors[i % colors.length],
-          isGrouped: false,
-        });
-      }
-    }
-
-    if (groupedCount > 0) {
-      items.push({
-        label: `Inne (${groupedCount} kategorii)`,
-        percent: Math.round((groupedValue / total) * 100),
-        color: 'var(--fg-subtle)',
-        isGrouped: true,
-        groupedCount,
-      });
-    }
-
-    return items;
+    return data.map((item, i) => {
+      const isGrouped = item.label.startsWith(INNE_PREFIX);
+      return {
+        label: item.label,
+        percent: Math.round((item.value / total) * 100),
+        color: isGrouped ? 'var(--fg-subtle)' : colors[i % colors.length],
+        isGrouped,
+      };
+    });
   }, [data, colors]);
 };

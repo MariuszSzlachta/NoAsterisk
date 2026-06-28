@@ -12,8 +12,10 @@ export const formatAxisValue = (v: number): string => {
   }
   if (abs >= 1000) {
     const k = v / 1000;
-    const isRound = k === Math.floor(k);
-    return isRound ? `${k.toFixed(0)}k` : `${k.toFixed(1)}k`;
+    const formatted = k.toFixed(1);
+    return formatted.endsWith('.0')
+      ? `${formatted.slice(0, -2)}k`
+      : `${formatted}k`;
   }
   return String(v);
 };
