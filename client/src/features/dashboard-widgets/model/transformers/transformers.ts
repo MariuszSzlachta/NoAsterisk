@@ -72,3 +72,9 @@ export const getRateColor = (rate: number): string => {
   if (rate >= 10) return 'var(--warning)';
   return 'var(--expense)';
 };
+
+export const formatAmount = (amount: number): string =>
+  amount.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+
+export const toMonthlyAmount = (amount: number, cycle: string): number =>
+  cycle === 'yearly' ? amount / 12 : amount;

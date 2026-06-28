@@ -8,11 +8,13 @@ import type {
 } from '#features/dashboard-widgets/model/types';
 
 import {
+  formatAmount,
   getRateColor,
   groupCategoryTail,
   mapBudgetDtoToVm,
   mapKpiDtoToVm,
   mapRecentTransactionDtoToVm,
+  toMonthlyAmount,
 } from './transformers';
 
 const STUB_ICON = React.createElement('span', null, 'icon');
@@ -227,5 +229,25 @@ describe('getRateColor', () => {
     [0, 'var(--expense)'],
   ] as const)('returns correct color for rate %d', (rate, expected) => {
     expect(getRateColor(rate)).toBe(expected);
+  });
+});
+
+describe('formatAmount', () => {
+  it('formats number with 2 decimals and zł suffix', () => {
+    expect(formatAmount(23.99)).toBe('23,99 zł');
+  });
+
+  it('adds trailing zeros', () => {
+    expect(formatAmount(49)).toBe('49,00 zł');
+  });
+});
+
+describe('toMonthlyAmount', () => {
+  it('returns amount unchanged for monthly', () => {
+    expect(toMonthlyAmount(100, 'monthly')).toBe(100);
+  });
+
+  it('divides by 12 for yearly', () => {
+    expect(toMonthlyAmount(240, 'yearly')).toBe(20);
   });
 });

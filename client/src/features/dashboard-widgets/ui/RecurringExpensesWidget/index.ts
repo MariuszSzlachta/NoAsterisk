@@ -1,0 +1,1 @@
+export { RecurringExpensesWidget } from './RecurringExpensesWidget';

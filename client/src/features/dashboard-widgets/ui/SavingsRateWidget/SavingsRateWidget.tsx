@@ -1,4 +1,4 @@
-import type { SavingsRateVM } from '#features/dashboard-widgets/ui/hooks/useSavingsRateWidget/useSavingsRateWidget';
+import type { SavingsRateVM } from '#features/dashboard-widgets/ui/hooks/useSavingsRateWidget';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 const RING_SIZE = 160;

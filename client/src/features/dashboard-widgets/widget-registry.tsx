@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 
 import { BudgetProgressWidget } from '#features/dashboard-widgets/ui/BudgetProgressWidget';
 import { CategoryDonutWidget } from '#features/dashboard-widgets/ui/CategoryDonutWidget';
+import { RecurringExpensesWidget } from '#features/dashboard-widgets/ui/RecurringExpensesWidget';
 import { SavingsRateWidget } from '#features/dashboard-widgets/ui/SavingsRateWidget';
 import { useBudgetProgressWidget } from '#features/dashboard-widgets/ui/hooks/useBudgetProgressWidget';
 import { useCategoryDonutWidget } from '#features/dashboard-widgets/ui/hooks/useCategoryDonutWidget';
 import { useKpiWidget } from '#features/dashboard-widgets/ui/hooks/useKpiWidget';
 import { useRecentTransactionsWidget } from '#features/dashboard-widgets/ui/hooks/useRecentTransactionsWidget';
+import { useRecurringExpensesWidget } from '#features/dashboard-widgets/ui/hooks/useRecurringExpensesWidget';
 import { useSavingsRateWidget } from '#features/dashboard-widgets/ui/hooks/useSavingsRateWidget';
 import { useTrendChartWidget } from '#features/dashboard-widgets/ui/hooks/useTrendChartWidget';
 import { KpiRowWidget } from '#features/dashboard-widgets/ui/KpiRowWidget';
@@ -23,6 +25,7 @@ export enum WidgetType {
   SavingsRate = 'SavingsRate',
   BudgetProgress = 'BudgetProgress',
   RecentTransactions = 'RecentTransactions',
+  RecurringExpenses = 'RecurringExpenses',
 }
 
 interface WidgetConfig {
@@ -143,6 +146,21 @@ const RecentTransactionsEntry = (): React.JSX.Element => {
   );
 };
 
+const RecurringExpensesEntry = (): React.JSX.Element => {
+  const state = useRecurringExpensesWidget();
+  return (
+    <QueryRenderer state={state}>
+      {(data) => (
+        <RecurringExpensesWidget
+          data={data}
+          title="Stałe wydatki"
+          subtitle="Subskrypcje i opłaty"
+        />
+      )}
+    </QueryRenderer>
+  );
+};
+
 export const WIDGET_REGISTRY: WidgetConfig[] = [
   { id: WidgetType.KpiRow, cols: 4, Component: KpiRowEntry },
   { id: WidgetType.TrendChart, cols: 2, Component: TrendChartEntry },
@@ -153,5 +171,10 @@ export const WIDGET_REGISTRY: WidgetConfig[] = [
     id: WidgetType.RecentTransactions,
     cols: 2,
     Component: RecentTransactionsEntry,
+  },
+  {
+    id: WidgetType.RecurringExpenses,
+    cols: 2,
+    Component: RecurringExpensesEntry,
   },
 ];
