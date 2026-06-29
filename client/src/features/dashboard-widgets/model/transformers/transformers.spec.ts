@@ -9,6 +9,7 @@ import type {
 
 import {
   formatAmount,
+  getCategoryColor,
   getRateColor,
   groupCategoryTail,
   mapBudgetDtoToVm,
@@ -155,6 +156,7 @@ describe('mapRecentTransactionDtoToVm', () => {
       id: '1',
       merchant: 'BIEDRONKA',
       category: 'Zakupy',
+      categoryColor: 'var(--cat-groceries)',
       date: '27 cze',
       amount: '−87,43 zł',
       direction: 'expense',
@@ -175,6 +177,18 @@ describe('mapRecentTransactionDtoToVm', () => {
 
     expect(vm.direction).toBe('income');
     expect(vm.amount).toBe('+8 500,00 zł');
+  });
+});
+
+describe('getCategoryColor', () => {
+  it('returns mapped CSS var for known category', () => {
+    expect(getCategoryColor('Zakupy')).toBe('var(--cat-groceries)');
+    expect(getCategoryColor('Transport')).toBe('var(--cat-transport)');
+  });
+
+  it('returns fallback color for unknown category', () => {
+    expect(getCategoryColor('Wynagrodzenie')).toBe('var(--fg-subtle)');
+    expect(getCategoryColor('Nieznana')).toBe('var(--fg-subtle)');
   });
 });
 

@@ -56,12 +56,27 @@ export const mapBudgetDtoToVm = (dto: BudgetDto): BudgetItemVM => ({
   color: dto.color,
 });
 
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+  Zakupy: 'var(--cat-groceries)',
+  Transport: 'var(--cat-transport)',
+  Subskrypcje: 'var(--cat-subscriptions)',
+  Jedzenie: 'var(--cat-dining)',
+  Rachunki: 'var(--cat-bills)',
+  Rozrywka: 'var(--cat-entertainment)',
+};
+
+const FALLBACK_CATEGORY_COLOR = 'var(--fg-subtle)';
+
+export const getCategoryColor = (category: string): string =>
+  CATEGORY_COLOR_MAP[category] ?? FALLBACK_CATEGORY_COLOR;
+
 export const mapRecentTransactionDtoToVm = (
   dto: RecentTransactionDto,
 ): RecentTransactionVM => ({
   id: dto.id,
   merchant: dto.merchant,
   category: dto.category,
+  categoryColor: getCategoryColor(dto.category),
   date: dto.date,
   amount: dto.amount,
   direction: dto.direction,

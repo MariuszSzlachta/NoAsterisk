@@ -47,6 +47,7 @@ export interface RecentTransactionVM {
   readonly id: string;
   readonly merchant: string;
   readonly category: string;
+  readonly categoryColor: string;
   readonly date: string;
   readonly amount: string;
   readonly direction: 'income' | 'expense';

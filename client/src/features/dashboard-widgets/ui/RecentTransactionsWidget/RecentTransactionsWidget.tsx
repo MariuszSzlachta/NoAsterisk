@@ -1,15 +1,9 @@
 import type { ReactNode } from 'react';
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
 import type { RecentTransactionVM } from '#features/dashboard-widgets/model/types';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 type Direction = RecentTransactionVM['direction'];
-
-const DIRECTION_ICON: Record<Direction, React.JSX.Element> = {
-  income: <ArrowDownLeft size={14} className="text-income" />,
-  expense: <ArrowUpRight size={14} className="text-expense" />,
-};
 
 const DIRECTION_AMOUNT_CLASS: Record<Direction, string> = {
   income: 'text-income',
@@ -35,9 +29,10 @@ export const RecentTransactionsWidget = ({
           key={tx.id}
           className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2">
-            {DIRECTION_ICON[tx.direction]}
-          </span>
+          <span
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ backgroundColor: tx.categoryColor }}
+          />
           <div className="flex flex-1 flex-col">
             <span className="text-sm font-medium text-foreground">
               {tx.merchant}
