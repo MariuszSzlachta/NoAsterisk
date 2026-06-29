@@ -27,9 +27,9 @@ export const RecentTransactionsWidget = ({
   title,
   action,
 }: RecentTransactionsWidgetProps): React.JSX.Element => (
-  <Card>
+  <Card className="overflow-hidden">
     <CardHeader title={title} action={action} />
-    <ul className="flex flex-col divide-y divide-border">
+    <ul className="flex min-h-0 flex-1 flex-col divide-y divide-border overflow-y-auto">
       {transactions.map((tx) => (
         <li
           key={tx.id}

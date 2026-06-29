@@ -21,7 +21,7 @@ export const BudgetProgressWidget = ({
 }: BudgetProgressWidgetProps): React.JSX.Element => (
   <Card className="overflow-hidden">
     <CardHeader title={title} subtitle={subtitle} action={action} />
-    <div className="flex-1 overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-y-auto">
       <BudgetProgressList items={items} currency={currency} />
     </div>
   </Card>
