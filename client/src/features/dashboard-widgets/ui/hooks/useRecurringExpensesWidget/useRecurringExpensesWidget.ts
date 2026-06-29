@@ -19,11 +19,19 @@ const CYCLE_LABEL: Record<string, string> = {
   yearly: 'rocznie',
 };
 
+const MAX_ITEMS = 5;
+
 export const useRecurringExpensesWidget = (): QueryState<RecurringExpensesWidgetVM> => {
   const state = useRecurringExpensesQuery();
   if (state.status !== 'loaded') return state;
 
-  const items = state.data.map((dto) => ({
+  const sorted = [...state.data].sort(
+    (a, b) => toMonthlyAmount(b.amount, b.cycle) - toMonthlyAmount(a.amount, a.cycle),
+  );
+
+  const top = sorted.slice(0, MAX_ITEMS);
+
+  const items = top.map((dto) => ({
     id: dto.id,
     name: dto.name,
     amount: formatAmount(dto.amount),

@@ -155,6 +155,7 @@ const RecurringExpensesEntry = (): React.JSX.Element => {
           data={data}
           title="Stałe wydatki"
           subtitle="Subskrypcje i opłaty"
+          action={<WidgetLink to="/transactions?filter=recurring">Wszystkie →</WidgetLink>}
         />
       )}
     </QueryRenderer>
