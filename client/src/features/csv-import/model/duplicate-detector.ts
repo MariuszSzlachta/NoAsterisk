@@ -1,11 +1,20 @@
 import type { TransactionRow } from './types';
 
-const hashTransaction = (row: TransactionRow): string =>
-  `${row.date}|${row.amount}|${row.title.toLowerCase().trim()}`;
+/**
+ * Hash for dedup: date + amount + title.
+ * Used for cross-file duplicate detection (already imported transactions).
+ * Note: rows with NaN amount get unique hashes (won't false-match).
+ */
+const hashTransaction = (row: TransactionRow): string => {
+  const amount = isNaN(row.amount) ? crypto.randomUUID() : String(row.amount);
+  return `${row.date}|${amount}|${row.title.toLowerCase().trim()}`;
+};
 
 /**
  * Detect duplicate rows within a batch.
- * Returns updated rows with status='duplicate' for duplicates.
+ * First occurrence passes, subsequent identical rows flagged as duplicate.
+ * Note: legitimate same-day same-amount purchases (e.g. two Biedronka trips)
+ * will be flagged — user can un-flag in step 4 UI.
  */
 export const detectDuplicatesInBatch = (
   rows: readonly TransactionRow[],
@@ -13,25 +22,29 @@ export const detectDuplicatesInBatch = (
   const seen = new Map<string, number>();
 
   return rows.map((row) => {
+    if (row.status === 'error') return row; // don't dedup error rows
+
     const hash = hashTransaction(row);
-    const existing = seen.get(hash);
-    if (existing !== undefined) {
+    const count = seen.get(hash) ?? 0;
+    seen.set(hash, count + 1);
+
+    if (count > 0) {
       return { ...row, status: 'duplicate' as const, statusReason: 'Duplikat w pliku', duplicateHash: hash };
     }
-    seen.set(hash, row.amount);
     return { ...row, duplicateHash: hash };
   });
 };
 
 /**
  * Cross-check against existing transactions from backend.
- * Takes a set of hashes from backend and marks matches as duplicates.
  */
 export const detectDuplicatesAgainstExisting = (
   rows: readonly TransactionRow[],
   existingHashes: ReadonlySet<string>,
 ): TransactionRow[] =>
   rows.map((row) => {
+    if (row.status === 'error' || row.status === 'duplicate') return row;
+
     const hash = row.duplicateHash ?? hashTransaction(row);
     if (existingHashes.has(hash)) {
       return { ...row, status: 'duplicate' as const, statusReason: 'Już zaimportowano', duplicateHash: hash };
