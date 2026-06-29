@@ -1,55 +1,117 @@
-/** Raw row parsed from CSV file */
+// ═══════════════════════════════════════════════════════════════════
+// CSV Import — Domain Types (DEC-061: Enterprise CSV Engine)
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── Raw CSV ─────────────────────────────────────────────────────
+
 export interface CsvRow {
   readonly [columnName: string]: string;
 }
 
-/** Result of parsing a CSV file */
 export interface ParsedCsvData {
   readonly headers: readonly string[];
   readonly rows: readonly CsvRow[];
   readonly fileName: string;
+  readonly encoding: string;
+  readonly separator: string;
+  readonly rowCount: number;
 }
 
-/** System domain fields that CSV columns map to */
+// ─── Parser ──────────────────────────────────────────────────────
+
+export type DateFormat = 'DD.MM.YYYY' | 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'DD-MM-YYYY' | 'MM/DD/YYYY';
+export type AmountLocale = 'pl' | 'en';
+
+export interface ParserConfig {
+  readonly encoding: string;
+  readonly separator: string;
+  readonly dateFormat: DateFormat;
+  readonly amountLocale: AmountLocale;
+  readonly skipRows: number;
+}
+
+// ─── Column Mapping ──────────────────────────────────────────────
+
 export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance';
 
-/** Mapping from CSV column name to domain field */
 export type ColumnMapping = Partial<Record<string, DomainField>>;
 
-/** Saved mapping profile for reuse */
 export interface MappingProfile {
   readonly id: string;
   readonly name: string;
   readonly mapping: ColumnMapping;
+  readonly bankProfileId?: string;
   readonly createdAt: string;
 }
 
-/** Status of PII detection per cell */
-export type AnonymizationStatus = 'safe' | 'needs_review' | 'anonymized';
+// ─── Bank Profiles ───────────────────────────────────────────────
 
-/** Single detected PII match */
-export interface PiiMatch {
-  readonly start: number;
-  readonly end: number;
-  readonly type: 'iban' | 'phone' | 'name';
-  readonly original: string;
-  readonly masked: string;
+export interface BankProfile {
+  readonly id: string;
+  readonly bankName: string;
+  readonly headerSignatures: readonly (readonly string[])[];
+  readonly defaultMapping: ColumnMapping;
+  readonly dateFormat: DateFormat;
+  readonly amountLocale: AmountLocale;
+  readonly encoding?: string;
+  readonly separator?: string;
+  readonly skipRows?: number;
 }
 
-/** Anonymization entry for a single row */
+// ─── Anonymizer: Detection ───────────────────────────────────────
+
+export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address';
+
+export interface DetectionSpan {
+  readonly start: number;
+  readonly end: number;
+  readonly type: PiiType;
+  readonly confidence: number;
+  readonly original: string;
+  readonly detectorId: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface PiiDetector {
+  readonly id: string;
+  readonly priority: number;
+  detect(text: string, dictionaries: DictionarySet): readonly DetectionSpan[];
+}
+
+// ─── Anonymizer: Dictionaries ────────────────────────────────────
+
+export type DictionaryType = 'names_pl' | 'names_en' | 'surnames_pl' | 'merchants' | 'cities_pl' | 'phrases';
+
+export interface DictionarySet {
+  readonly firstNames: ReadonlySet<string>;
+  readonly surnames: ReadonlySet<string>;
+  readonly merchants: ReadonlySet<string>;
+  readonly cities: ReadonlySet<string>;
+  readonly phrases: ReadonlySet<string>;
+}
+
+export interface DictionaryProvider {
+  loadAll(): Promise<DictionarySet>;
+  isLoaded(): boolean;
+}
+
+// ─── Anonymizer: Pipeline Output ─────────────────────────────────
+
+export type AnonymizationStatus = 'safe' | 'needs_review' | 'anonymized';
+
 export interface AnonymizationEntry {
   readonly rowIndex: number;
   readonly originalTitle: string;
   readonly anonymizedTitle: string;
-  readonly matches: readonly PiiMatch[];
+  readonly spans: readonly DetectionSpan[];
   readonly status: AnonymizationStatus;
   readonly accepted: boolean;
 }
 
-/** Status of a transaction row in preview step */
+// ─── Transaction Row (mapped + processed) ────────────────────────
+
 export type RowStatus = 'ok' | 'duplicate' | 'warning' | 'error';
 
-/** Processed transaction row ready for preview */
 export interface TransactionRow {
   readonly id: string;
   readonly date: string;
@@ -63,15 +125,24 @@ export interface TransactionRow {
   readonly duplicateHash?: string;
 }
 
-/** Wizard step indices */
+// ─── Wizard State ────────────────────────────────────────────────
+
 export type WizardStep = 0 | 1 | 2 | 3 | 4;
 
-/** Import statistics for summary step */
 export interface ImportStats {
   readonly totalRows: number;
   readonly newTransactions: number;
   readonly duplicatesSkipped: number;
   readonly errorsSkipped: number;
-  readonly dateRange: { from: string; to: string };
+  readonly dateRange: { readonly from: string; readonly to: string };
   readonly detectedBank?: string;
+}
+
+// ─── User Corrections (feedback loop) ────────────────────────────
+
+export interface UserCorrection {
+  readonly text: string;
+  readonly action: 'accept' | 'reject';
+  readonly detectorId: string;
+  readonly timestamp: string;
 }
