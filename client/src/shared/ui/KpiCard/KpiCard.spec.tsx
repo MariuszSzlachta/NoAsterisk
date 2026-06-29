@@ -1,5 +1,6 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
 import { KpiCard } from '#shared/ui/KpiCard';
@@ -48,24 +49,29 @@ describe('KpiCard', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    it('renders tooltip when tooltip prop is provided', () => {
-      renderWithRouter(
+    it('renders tooltip when tooltip prop is provided', async () => {
+      const { container } = renderWithRouter(
         <KpiCard {...DEFAULT_PROPS} tooltip="Suma środków na kontach." />,
       );
+
+      const trigger = container.querySelector('[aria-describedby]')!;
+      await userEvent.hover(trigger);
 
       expect(screen.getByRole('tooltip')).toHaveTextContent(
         'Suma środków na kontach.',
       );
     });
 
-    it('tooltip is accessible via aria-describedby', () => {
-      renderWithRouter(<KpiCard {...DEFAULT_PROPS} tooltip="Info text" />);
+    it('tooltip is accessible via aria-describedby', async () => {
+      const { container } = renderWithRouter(
+        <KpiCard {...DEFAULT_PROPS} tooltip="Info text" />,
+      );
+
+      const trigger = container.querySelector('[aria-describedby]')!;
+      await userEvent.hover(trigger);
 
       const tooltip = screen.getByRole('tooltip');
-      expect(tooltip.parentElement).toHaveAttribute(
-        'aria-describedby',
-        tooltip.id,
-      );
+      expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
     });
   });
 

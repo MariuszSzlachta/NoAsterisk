@@ -1,13 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
-import { mapBreakdownToChartData } from '#features/analytics/model/transformers';
 import type {
   CategoryBreakdownFilters,
 } from '#features/analytics/model/types';
 import { BreakdownListItem } from '#features/analytics/ui/BreakdownListItem';
 import { CategoryDrilldown } from '#features/analytics/ui/CategoryDrilldown';
 import { useCategoryBreakdown } from '#features/analytics/ui/hooks/useCategoryBreakdown';
-import { PieChart } from '#shared/adapters/charts';
 import { Card, CardHeader } from '#shared/ui/Card';
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 
@@ -20,7 +18,6 @@ const CATEGORY_COLORS = [
   'var(--cat-entertainment)',
 ];
 
-const DONUT_HEIGHT = 240;
 const DRILLDOWN_ID = 'category-drilldown-panel';
 
 interface AnalyticsCategoryBreakdownProps {
@@ -48,15 +45,12 @@ export const AnalyticsCategoryBreakdown = ({
         }
       />
       <QueryRenderer state={state}>
-        {(items) => (
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <PieChart
-                data={mapBreakdownToChartData(items)}
-                height={DONUT_HEIGHT}
-                colors={CATEGORY_COLORS}
-              />
-              <ul className="flex flex-col justify-center">
+        {(items) => {
+          const maxAmount = Math.max(...items.map((i) => i.amount), 0);
+
+          return (
+            <div className="flex flex-col gap-4">
+              <ul className="flex flex-col gap-2">
                 {items.map((item, index) => (
                   <BreakdownListItem
                     key={item.category}
@@ -64,29 +58,30 @@ export const AnalyticsCategoryBreakdown = ({
                     color={
                       CATEGORY_COLORS[index % CATEGORY_COLORS.length]
                     }
+                    maxAmount={maxAmount}
                     isSelected={selectedCategory === item.category}
                     drilldownId={DRILLDOWN_ID}
                     onClick={createCategoryClickHandler(item.category)}
                   />
                 ))}
               </ul>
+              {selectedCategory !== undefined ? (
+                <CategoryDrilldown
+                  id={DRILLDOWN_ID}
+                  category={selectedCategory}
+                  color={
+                    CATEGORY_COLORS[
+                      items.findIndex((i) => i.category === selectedCategory) %
+                        CATEGORY_COLORS.length
+                    ] ?? CATEGORY_COLORS[0]
+                  }
+                  filters={filters}
+                  onClose={handleDrilldownClose}
+                />
+              ) : null}
             </div>
-            {selectedCategory !== undefined ? (
-              <CategoryDrilldown
-                id={DRILLDOWN_ID}
-                category={selectedCategory}
-                color={
-                  CATEGORY_COLORS[
-                    items.findIndex((i) => i.category === selectedCategory) %
-                      CATEGORY_COLORS.length
-                  ] ?? CATEGORY_COLORS[0]
-                }
-                filters={filters}
-                onClose={handleDrilldownClose}
-              />
-            ) : null}
-          </div>
-        )}
+          );
+        }}
       </QueryRenderer>
     </Card>
   );
