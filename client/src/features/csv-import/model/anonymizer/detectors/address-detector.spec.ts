@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '../../types';
-
 import { addressDetector } from './address-detector';
 
 const EMPTY_DICTS: DictionarySet = {

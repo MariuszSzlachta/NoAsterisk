@@ -14,7 +14,9 @@ export const computeYTickValues = (data: ChartSeries[]): number[] => {
   const { min, max } = getYRange(data);
   const range = max - min;
 
-  if (range === 0) return [min];
+  if (range === 0) {
+    return [min];
+  }
 
   const rawStep = range / MAX_Y_TICKS;
   let niceStep = roundToNiceStep(rawStep);

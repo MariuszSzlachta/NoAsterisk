@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 
 import { BudgetProgressWidget } from '#features/dashboard-widgets/ui/BudgetProgressWidget';
 import { CategoryDonutWidget } from '#features/dashboard-widgets/ui/CategoryDonutWidget';
-import { RecurringExpensesWidget } from '#features/dashboard-widgets/ui/RecurringExpensesWidget';
-import { SavingsRateWidget } from '#features/dashboard-widgets/ui/SavingsRateWidget';
 import { useBudgetProgressWidget } from '#features/dashboard-widgets/ui/hooks/useBudgetProgressWidget';
 import { useCategoryDonutWidget } from '#features/dashboard-widgets/ui/hooks/useCategoryDonutWidget';
 import { useKpiWidget } from '#features/dashboard-widgets/ui/hooks/useKpiWidget';
@@ -14,6 +12,8 @@ import { useSavingsRateWidget } from '#features/dashboard-widgets/ui/hooks/useSa
 import { useTrendChartWidget } from '#features/dashboard-widgets/ui/hooks/useTrendChartWidget';
 import { KpiRowWidget } from '#features/dashboard-widgets/ui/KpiRowWidget';
 import { RecentTransactionsWidget } from '#features/dashboard-widgets/ui/RecentTransactionsWidget';
+import { RecurringExpensesWidget } from '#features/dashboard-widgets/ui/RecurringExpensesWidget';
+import { SavingsRateWidget } from '#features/dashboard-widgets/ui/SavingsRateWidget';
 import { TrendChartWidget } from '#features/dashboard-widgets/ui/TrendChartWidget';
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 import { Skeleton } from '#shared/ui/Skeleton';
@@ -155,7 +155,11 @@ const RecurringExpensesEntry = (): React.JSX.Element => {
           data={data}
           title="Stałe wydatki"
           subtitle="Subskrypcje i opłaty"
-          action={<WidgetLink to="/transactions?filter=recurring">Wszystkie →</WidgetLink>}
+          action={
+            <WidgetLink to="/transactions?filter=recurring">
+              Wszystkie →
+            </WidgetLink>
+          }
         />
       )}
     </QueryRenderer>

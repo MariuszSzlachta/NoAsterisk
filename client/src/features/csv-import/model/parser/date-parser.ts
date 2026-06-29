@@ -3,7 +3,11 @@ import type { DateFormat } from '../types';
 interface DateFormatDef {
   readonly format: DateFormat;
   readonly regex: RegExp;
-  readonly parse: (match: RegExpMatchArray) => { year: number; month: number; day: number };
+  readonly parse: (match: RegExpMatchArray) => {
+    year: number;
+    month: number;
+    day: number;
+  };
 }
 
 const FORMATS: readonly DateFormatDef[] = [
@@ -32,9 +36,15 @@ const FORMATS: readonly DateFormatDef[] = [
 ];
 
 const isValidDate = (year: number, month: number, day: number): boolean => {
-  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return false;
+  }
   const d = new Date(year, month - 1, day);
-  return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
+  return (
+    d.getFullYear() === year &&
+    d.getMonth() === month - 1 &&
+    d.getDate() === day
+  );
 };
 
 /**
@@ -42,18 +52,26 @@ const isValidDate = (year: number, month: number, day: number): boolean => {
  * Returns the format where ALL samples parse to valid dates.
  * Prefers DD/MM over MM/DD for Polish locale (ambiguous cases).
  */
-export const detectDateFormat = (samples: readonly string[]): DateFormat | null => {
+export const detectDateFormat = (
+  samples: readonly string[],
+): DateFormat | null => {
   const trimmed = samples.map((s) => s.trim()).filter((s) => s.length > 0);
-  if (trimmed.length === 0) return null;
+  if (trimmed.length === 0) {
+    return null;
+  }
 
   for (const fmt of FORMATS) {
     const allValid = trimmed.every((sample) => {
       const match = sample.match(fmt.regex);
-      if (!match) return false;
+      if (!match) {
+        return false;
+      }
       const { year, month, day } = fmt.parse(match);
       return isValidDate(year, month, day);
     });
-    if (allValid) return fmt.format;
+    if (allValid) {
+      return fmt.format;
+    }
   }
 
   return null;
@@ -65,13 +83,19 @@ export const detectDateFormat = (samples: readonly string[]): DateFormat | null 
 export const parseDate = (value: string, format: DateFormat): string | null => {
   const trimmed = value.trim();
   const fmt = FORMATS.find((f) => f.format === format);
-  if (!fmt) return null;
+  if (!fmt) {
+    return null;
+  }
 
   const match = trimmed.match(fmt.regex);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const { year, month, day } = fmt.parse(match);
-  if (!isValidDate(year, month, day)) return null;
+  if (!isValidDate(year, month, day)) {
+    return null;
+  }
 
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 };

@@ -1,7 +1,9 @@
 import { useEffect, useRef, type InputHTMLAttributes } from 'react';
 
-interface CheckboxProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+interface CheckboxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'type'
+> {
   readonly indeterminate?: boolean;
   readonly label?: string;
 }

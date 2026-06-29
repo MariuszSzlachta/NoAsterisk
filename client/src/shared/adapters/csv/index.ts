@@ -9,7 +9,10 @@ export interface CsvParseOptions {
 export interface CsvParseResult<TRow> {
   readonly data: TRow[];
   readonly meta: { readonly fields?: string[] };
-  readonly errors: ReadonlyArray<{ readonly type: string; readonly row?: number }>;
+  readonly errors: ReadonlyArray<{
+    readonly type: string;
+    readonly row?: number;
+  }>;
 }
 
 /**

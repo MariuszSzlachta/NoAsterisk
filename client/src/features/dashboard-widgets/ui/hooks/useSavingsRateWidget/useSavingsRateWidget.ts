@@ -17,7 +17,9 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export const useSavingsRateWidget = (): QueryState<SavingsRateVM> => {
   const state = useSavingsRateQuery();
-  if (state.status !== 'loaded') return state;
+  if (state.status !== 'loaded') {
+    return state;
+  }
 
   const { rate, savedAmount, income } = state.data;
   return {

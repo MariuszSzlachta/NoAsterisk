@@ -22,14 +22,21 @@ export const detectDuplicatesInBatch = (
   const seen = new Map<string, number>();
 
   return rows.map((row) => {
-    if (row.status === 'error') return row; // don't dedup error rows
+    if (row.status === 'error') {
+      return row;
+    } // don't dedup error rows
 
     const hash = hashTransaction(row);
     const count = seen.get(hash) ?? 0;
     seen.set(hash, count + 1);
 
     if (count > 0) {
-      return { ...row, status: 'duplicate' as const, statusReason: 'Duplikat w pliku', duplicateHash: hash };
+      return {
+        ...row,
+        status: 'duplicate' as const,
+        statusReason: 'Duplikat w pliku',
+        duplicateHash: hash,
+      };
     }
     return { ...row, duplicateHash: hash };
   });
@@ -43,11 +50,18 @@ export const detectDuplicatesAgainstExisting = (
   existingHashes: ReadonlySet<string>,
 ): TransactionRow[] =>
   rows.map((row) => {
-    if (row.status === 'error' || row.status === 'duplicate') return row;
+    if (row.status === 'error' || row.status === 'duplicate') {
+      return row;
+    }
 
     const hash = row.duplicateHash ?? hashTransaction(row);
     if (existingHashes.has(hash)) {
-      return { ...row, status: 'duplicate' as const, statusReason: 'Już zaimportowano', duplicateHash: hash };
+      return {
+        ...row,
+        status: 'duplicate' as const,
+        statusReason: 'Już zaimportowano',
+        duplicateHash: hash,
+      };
     }
     return row;
   });

@@ -25,7 +25,10 @@ const TREND_COLOR: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
   neutral: 'neutral',
 };
 
-const TREND_COLOR_INVERTED: Record<DeltaTrend, 'income' | 'expense' | 'neutral'> = {
+const TREND_COLOR_INVERTED: Record<
+  DeltaTrend,
+  'income' | 'expense' | 'neutral'
+> = {
   up: 'expense',
   down: 'income',
   neutral: 'neutral',
@@ -79,7 +82,9 @@ export const KpiCard = ({
         >
           {delta}
         </Badge>
-        <span className="text-xs text-muted-foreground">vs poprzedni miesiąc</span>
+        <span className="text-xs text-muted-foreground">
+          vs poprzedni miesiąc
+        </span>
       </div>
     )}
   </div>

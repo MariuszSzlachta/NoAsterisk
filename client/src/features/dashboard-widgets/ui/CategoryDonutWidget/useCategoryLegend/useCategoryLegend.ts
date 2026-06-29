@@ -18,7 +18,9 @@ export const useCategoryLegend = (
 ): LegendItem[] => {
   return useMemo(() => {
     const total = data.reduce((sum, d) => sum + d.value, 0);
-    if (total === 0) return [];
+    if (total === 0) {
+      return [];
+    }
 
     return data.map((item, i) => {
       const isGrouped = item.label.startsWith(INNE_PREFIX);

@@ -2,12 +2,21 @@ import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
 // Keywords after which names typically appear in Polish bank titles
 const NAME_CONTEXT_KEYWORDS = [
-  'przelew', 'od', 'dla', 'na rzecz', 'nadawca', 'odbiorca',
-  'wpłata', 'wypłata', 'zleceniodawca', 'beneficjent',
+  'przelew',
+  'od',
+  'dla',
+  'na rzecz',
+  'nadawca',
+  'odbiorca',
+  'wpłata',
+  'wypłata',
+  'zleceniodawca',
+  'beneficjent',
 ];
 
 // Mixed-case: "Jan Kowalski", "Anna Nowak-Wiśniewska"
-const MIXED_CASE_NAME = /\b([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})(?:[\s-]([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})){1,2}\b/g;
+const MIXED_CASE_NAME =
+  /\b([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})(?:[\s-]([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})){1,2}\b/g;
 
 // ALL-CAPS: 2-3 consecutive ALL-CAPS words (3+ letters each)
 const ALL_CAPS_WORD = /\b[A-ZĄĆĘŁŃÓŚŹŻ]{3,}\b/g;
@@ -36,7 +45,9 @@ const findAllCapsNames = (text: string): MatchCandidate[] => {
 
     // Adjacent words (only whitespace/dash between them)
     const between = text.slice(a.start + a.word.length, b.start);
-    if (!/^[\s-]+$/.test(between)) continue;
+    if (!/^[\s-]+$/.test(between)) {
+      continue;
+    }
 
     const twoWord = text.slice(a.start, b.start + b.word.length);
     results.push({ original: twoWord, index: a.start });
@@ -59,17 +70,36 @@ const isWhitelisted = (text: string, dicts: DictionarySet): boolean => {
   const upper = text.toUpperCase();
   const lower = text.toLowerCase();
 
-  if (dicts.merchants.has(upper)) return true;
+  if (dicts.merchants.has(upper)) {
+    return true;
+  }
 
   const words = text.split(/[\s-]+/);
-  if (words.every((w) => dicts.cities.has(w.toUpperCase()))) return true;
-  if (dicts.phrases.has(lower)) return true;
+  if (words.every((w) => dicts.cities.has(w.toUpperCase()))) {
+    return true;
+  }
+  if (dicts.phrases.has(lower)) {
+    return true;
+  }
 
   // Multi-word merchant check (e.g. "POCZTA POLSKA")
-  if (words.length <= 3 && dicts.merchants.has(words.map((w) => w.toUpperCase()).join(' '))) return true;
+  if (
+    words.length <= 3 &&
+    dicts.merchants.has(words.map((w) => w.toUpperCase()).join(' '))
+  ) {
+    return true;
+  }
 
   // All words are merchants/cities
-  if (words.every((w) => dicts.merchants.has(w.toUpperCase()) || dicts.cities.has(w.toUpperCase()))) return true;
+  if (
+    words.every(
+      (w) =>
+        dicts.merchants.has(w.toUpperCase()) ||
+        dicts.cities.has(w.toUpperCase()),
+    )
+  ) {
+    return true;
+  }
 
   return false;
 };
@@ -88,11 +118,21 @@ const computeConfidence = (
   const anyFirstName = lowered.some((w) => dicts.firstNames.has(w));
   const anySurname = lowered.some((w) => dicts.surnames.has(w));
 
-  if (anyFirstName && anySurname) return 0.95;
-  if (anyFirstName && hasContext) return 0.85;
-  if (anySurname && hasContext) return 0.82;
-  if ((anyFirstName || anySurname) && !hasContext) return 0.72;
-  if (hasContext) return 0.65;
+  if (anyFirstName && anySurname) {
+    return 0.95;
+  }
+  if (anyFirstName && hasContext) {
+    return 0.85;
+  }
+  if (anySurname && hasContext) {
+    return 0.82;
+  }
+  if ((anyFirstName || anySurname) && !hasContext) {
+    return 0.72;
+  }
+  if (hasContext) {
+    return 0.65;
+  }
   return 0.3;
 };
 
@@ -109,16 +149,22 @@ export const nameDetector: PiiDetector = {
     const processCandidate = (candidate: MatchCandidate): void => {
       const { original, index: start } = candidate;
       const key = `${start}:${original.length}`;
-      if (seen.has(key)) return;
+      if (seen.has(key)) {
+        return;
+      }
       seen.add(key);
 
-      if (isWhitelisted(original, dictionaries)) return;
+      if (isWhitelisted(original, dictionaries)) {
+        return;
+      }
 
       const words = original.split(/[\s-]+/);
       const hasContext = hasNameContext(text, start);
       const confidence = computeConfidence(words, dictionaries, hasContext);
 
-      if (confidence < MIN_CONFIDENCE) return;
+      if (confidence < MIN_CONFIDENCE) {
+        return;
+      }
 
       spans.push({
         start,
@@ -128,8 +174,12 @@ export const nameDetector: PiiDetector = {
         original,
         detectorId: 'name',
         metadata: {
-          anyFirstNameInDict: words.some((w) => dictionaries.firstNames.has(w.toLowerCase())),
-          anySurnameInDict: words.some((w) => dictionaries.surnames.has(w.toLowerCase())),
+          anyFirstNameInDict: words.some((w) =>
+            dictionaries.firstNames.has(w.toLowerCase()),
+          ),
+          anySurnameInDict: words.some((w) =>
+            dictionaries.surnames.has(w.toLowerCase()),
+          ),
           hasContext,
         },
       });

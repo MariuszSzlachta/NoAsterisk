@@ -35,7 +35,9 @@ export const Select = ({
   const selectedOption = options.find((o) => o.value === value);
 
   const openList = useCallback((): void => {
-    if (disabled) return;
+    if (disabled) {
+      return;
+    }
     const rect = triggerRef.current?.getBoundingClientRect();
     if (rect) {
       setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
@@ -58,7 +60,9 @@ export const Select = ({
   );
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const handleOutside = (e: MouseEvent): void => {
       if (
         listRef.current &&
@@ -93,7 +97,9 @@ export const Select = ({
           break;
         case 'Enter':
           e.preventDefault();
-          if (highlightIndex >= 0) selectOption(options[highlightIndex].value);
+          if (highlightIndex >= 0) {
+            selectOption(options[highlightIndex].value);
+          }
           break;
         case 'Escape':
           e.preventDefault();
@@ -121,7 +127,11 @@ export const Select = ({
           {showDot && selectedOption && (
             <span className="h-2 w-2 shrink-0 rounded-full bg-income" />
           )}
-          <span className={selectedOption ? 'text-foreground' : 'text-muted-foreground'}>
+          <span
+            className={
+              selectedOption ? 'text-foreground' : 'text-muted-foreground'
+            }
+          >
             {selectedOption?.label ?? placeholder}
           </span>
         </span>
@@ -141,7 +151,9 @@ export const Select = ({
                 role="option"
                 aria-selected={option.value === value}
                 className={`cursor-pointer rounded-md px-3 py-1.5 text-sm ${
-                  i === highlightIndex ? 'bg-surface-3 text-foreground' : 'text-foreground'
+                  i === highlightIndex
+                    ? 'bg-surface-3 text-foreground'
+                    : 'text-foreground'
                 } ${option.value === value ? 'font-medium' : ''}`}
                 onMouseEnter={() => setHighlightIndex(i)}
                 onMouseDown={(e) => {

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
 import {
-  AnalyticsChart,
   AnalyticsCategoryBreakdown,
+  AnalyticsChart,
   AnalyticsKpiRow,
   AnalyticsToolbar,
   useAnalyticsFilters,

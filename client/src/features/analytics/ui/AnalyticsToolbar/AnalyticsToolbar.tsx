@@ -24,8 +24,12 @@ export const AnalyticsToolbar = ({
   onFiltersChange,
 }: AnalyticsToolbarProps): React.JSX.Element => {
   const { t } = useTranslation();
-  const { createToggleMetricHandler, createSetPeriodHandler, createSetChartTypeHandler, createSetGranularityHandler } =
-    useAnalyticsToolbar(filters, onFiltersChange);
+  const {
+    createToggleMetricHandler,
+    createSetPeriodHandler,
+    createSetChartTypeHandler,
+    createSetGranularityHandler,
+  } = useAnalyticsToolbar(filters, onFiltersChange);
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border-strong bg-surface p-3">

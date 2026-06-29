@@ -21,7 +21,9 @@ export const AnalyticsKpiRow = ({
           >
             {kpi.value}
           </span>
-          <span className={`text-xs font-medium ${getTrendClass(kpi.trend, kpi.invertColor)}`}>
+          <span
+            className={`text-xs font-medium ${getTrendClass(kpi.trend, kpi.invertColor)}`}
+          >
             {kpi.delta} vs poprzedni okres
           </span>
         </div>

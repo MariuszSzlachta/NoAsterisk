@@ -4,8 +4,15 @@ import { transformRows } from './row-transformer';
 
 describe('transformRows', () => {
   it('transforms valid rows to TransactionRow', () => {
-    const rows = [{ 'Data': '2026-06-26', 'Opis': 'BIEDRONKA', 'Kwota': '-87,43', 'Waluta': 'PLN' }];
-    const mapping = { 'Data': 'date' as const, 'Opis': 'title' as const, 'Kwota': 'amount' as const, 'Waluta': 'currency' as const };
+    const rows = [
+      { Data: '2026-06-26', Opis: 'BIEDRONKA', Kwota: '-87,43', Waluta: 'PLN' },
+    ];
+    const mapping = {
+      Data: 'date' as const,
+      Opis: 'title' as const,
+      Kwota: 'amount' as const,
+      Waluta: 'currency' as const,
+    };
 
     const result = transformRows(rows, mapping);
 
@@ -17,8 +24,12 @@ describe('transformRows', () => {
   });
 
   it('marks rows with invalid amount as error', () => {
-    const rows = [{ 'D': '2026-06-26', 'T': 'TEST', 'K': 'abc' }];
-    const mapping = { 'D': 'date' as const, 'T': 'title' as const, 'K': 'amount' as const };
+    const rows = [{ D: '2026-06-26', T: 'TEST', K: 'abc' }];
+    const mapping = {
+      D: 'date' as const,
+      T: 'title' as const,
+      K: 'amount' as const,
+    };
 
     const result = transformRows(rows, mapping);
 
@@ -27,8 +38,12 @@ describe('transformRows', () => {
   });
 
   it('marks rows with empty title as error', () => {
-    const rows = [{ 'D': '2026-06-26', 'T': '', 'K': '100' }];
-    const mapping = { 'D': 'date' as const, 'T': 'title' as const, 'K': 'amount' as const };
+    const rows = [{ D: '2026-06-26', T: '', K: '100' }];
+    const mapping = {
+      D: 'date' as const,
+      T: 'title' as const,
+      K: 'amount' as const,
+    };
 
     const result = transformRows(rows, mapping);
 
@@ -38,10 +53,14 @@ describe('transformRows', () => {
 
   it('marks rows with unparseable date as warning', () => {
     const rows = [
-      { 'D': '2026-06-26', 'T': 'OK', 'K': '100' },
-      { 'D': 'invalid', 'T': 'BAD DATE', 'K': '50' },
+      { D: '2026-06-26', T: 'OK', K: '100' },
+      { D: 'invalid', T: 'BAD DATE', K: '50' },
     ];
-    const mapping = { 'D': 'date' as const, 'T': 'title' as const, 'K': 'amount' as const };
+    const mapping = {
+      D: 'date' as const,
+      T: 'title' as const,
+      K: 'amount' as const,
+    };
 
     const result = transformRows(rows, mapping);
 
@@ -50,15 +69,19 @@ describe('transformRows', () => {
   });
 
   it('throws when required fields not mapped', () => {
-    const rows = [{ 'X': 'data' }];
-    const mapping = { 'X': 'currency' as const };
+    const rows = [{ X: 'data' }];
+    const mapping = { X: 'currency' as const };
 
     expect(() => transformRows(rows, mapping)).toThrow('Required fields');
   });
 
   it('defaults currency to PLN when not mapped', () => {
-    const rows = [{ 'D': '2026-06-26', 'T': 'TEST', 'K': '100' }];
-    const mapping = { 'D': 'date' as const, 'T': 'title' as const, 'K': 'amount' as const };
+    const rows = [{ D: '2026-06-26', T: 'TEST', K: '100' }];
+    const mapping = {
+      D: 'date' as const,
+      T: 'title' as const,
+      K: 'amount' as const,
+    };
 
     const result = transformRows(rows, mapping);
 

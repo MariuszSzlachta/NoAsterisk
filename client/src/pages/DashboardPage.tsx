@@ -17,7 +17,10 @@ export const DashboardPage = (): React.JSX.Element => {
       ))}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-4 lg:grid-rows-[1.5fr_1.5fr_1.3fr]">
         {gridWidgets.map((widget) => (
-          <div key={widget.id} className={`min-h-0 overflow-hidden ${COL_SPAN[widget.cols]}`}>
+          <div
+            key={widget.id}
+            className={`min-h-0 overflow-hidden ${COL_SPAN[widget.cols]}`}
+          >
             <widget.Component />
           </div>
         ))}

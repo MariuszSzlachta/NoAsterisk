@@ -62,12 +62,17 @@ describe('BudgetProgressList', () => {
     { spent: 1100, limit: 1000, expected: 'text-expense/60' },
     { spent: 1300, limit: 1000, expected: 'text-expense/80' },
     { spent: 1600, limit: 1000, expected: 'text-expense' },
-  ])('applies $expected when spent=$spent, limit=$limit', ({ spent, limit, expected }) => {
-    const { container } = render(
-      <BudgetProgressList items={[{ label: 'Test', spent, limit, color: '#34d399' }]} />,
-    );
+  ])(
+    'applies $expected when spent=$spent, limit=$limit',
+    ({ spent, limit, expected }) => {
+      const { container } = render(
+        <BudgetProgressList
+          items={[{ label: 'Test', spent, limit, color: '#34d399' }]}
+        />,
+      );
 
-    const spentSpan = container.querySelector('.font-mono span:first-child');
-    expect(spentSpan?.className).toContain(expected);
-  });
+      const spentSpan = container.querySelector('.font-mono span:first-child');
+      expect(spentSpan?.className).toContain(expected);
+    },
+  );
 });

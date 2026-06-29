@@ -6,15 +6,27 @@ const PL_PHONE = /(?:\+48[\s-]?)?(\d{3})[\s-]?(\d{3})[\s-]?(\d{3})\b/g;
 const INT_PHONE = /\+\d{1,3}[\s-]?\d{3,4}[\s-]?\d{3,4}[\s-]?\d{2,4}\b/g;
 
 // Context keywords that appear before/near phone numbers in bank titles
-const PHONE_CONTEXT_KEYWORDS = ['tel', 'tel.', 'telefon', 'mob', 'mobile', 'sms', 'kontakt'];
+const PHONE_CONTEXT_KEYWORDS = [
+  'tel',
+  'tel.',
+  'telefon',
+  'mob',
+  'mobile',
+  'sms',
+  'kontakt',
+];
 
 // Numbers that look like phones but aren't (invoice numbers, order IDs, etc.)
 const isLikelyNotPhone = (text: string, start: number): boolean => {
   const prefix = text.slice(Math.max(0, start - 15), start).toLowerCase();
   // Invoice/order patterns
-  if (/(?:fv|faktura|nr|numer|zamówienie|id|ref)[/\s:-]*$/i.test(prefix)) return true;
+  if (/(?:fv|faktura|nr|numer|zamówienie|id|ref)[/\s:-]*$/i.test(prefix)) {
+    return true;
+  }
   // If preceded by letters directly (like store number: "BIEDRONKA1234")
-  if (start > 0 && /[A-Za-z/]$/.test(text.slice(start - 1, start))) return true;
+  if (start > 0 && /[A-Za-z/]$/.test(text.slice(start - 1, start))) {
+    return true;
+  }
   return false;
 };
 
@@ -37,13 +49,17 @@ export const phoneDetector: PiiDetector = {
         const original = match[0];
         const start = match.index;
 
-        if (isLikelyNotPhone(text, start)) continue;
+        if (isLikelyNotPhone(text, start)) {
+          continue;
+        }
 
         // Bare 9-digit without +48: validate PL mobile prefix (5xx, 6xx, 7xx, 8xx)
         const hasPlus = original.startsWith('+');
         if (!hasPlus) {
           const firstDigit = original.replace(/\D/g, '')[0];
-          if (!['5', '6', '7', '8'].includes(firstDigit)) continue;
+          if (!['5', '6', '7', '8'].includes(firstDigit)) {
+            continue;
+          }
         }
 
         // +48 prefix = high confidence, context keyword = high, bare 9 digits = medium

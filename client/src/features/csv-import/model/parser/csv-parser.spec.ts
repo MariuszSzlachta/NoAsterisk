@@ -7,10 +7,16 @@ const createCsvFile = (content: string, name = 'test.csv'): File =>
 
 describe('parseCsvFile (orchestrator)', () => {
   it('parses semicolon-separated CSV (PL bank format)', async () => {
-    const csv = 'Data operacji;Opis operacji;Kwota;Waluta\n2026-06-26;BIEDRONKA;-87,43;PLN\n2026-06-25;BOLT;-34,20;PLN\n';
+    const csv =
+      'Data operacji;Opis operacji;Kwota;Waluta\n2026-06-26;BIEDRONKA;-87,43;PLN\n2026-06-25;BOLT;-34,20;PLN\n';
     const result = await parseCsvFile(createCsvFile(csv));
 
-    expect(result.headers).toEqual(['Data operacji', 'Opis operacji', 'Kwota', 'Waluta']);
+    expect(result.headers).toEqual([
+      'Data operacji',
+      'Opis operacji',
+      'Kwota',
+      'Waluta',
+    ]);
     expect(result.rows).toHaveLength(2);
     expect(result.separator).toBe(';');
     expect(result.encoding).toBe('utf-8');

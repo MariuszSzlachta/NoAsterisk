@@ -6,9 +6,15 @@ export { detectDateFormat, parseDate } from './model/parser/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
 export { autoDetectMapping } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
-export { detectDuplicatesInBatch, detectDuplicatesAgainstExisting } from './model/duplicate-detector';
+export {
+  detectDuplicatesInBatch,
+  detectDuplicatesAgainstExisting,
+} from './model/duplicate-detector';
 export { anonymizeTitle, processRows } from './model/anonymizer/pipeline';
-export { createDictionaryProvider, devDictionaryProvider } from './model/anonymizer/dictionaries/dictionary-provider';
+export {
+  createDictionaryProvider,
+  devDictionaryProvider,
+} from './model/anonymizer/dictionaries/dictionary-provider';
 
 export type {
   ParsedCsvData,

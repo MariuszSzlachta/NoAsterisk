@@ -7,7 +7,9 @@ export interface RecurringExpenseDto {
   readonly cycle: 'monthly' | 'yearly';
 }
 
-export const useRecurringExpensesQuery = (): QueryState<RecurringExpenseDto[]> => ({
+export const useRecurringExpensesQuery = (): QueryState<
+  RecurringExpenseDto[]
+> => ({
   status: 'loaded',
   data: [
     { id: '1', name: 'Spotify', amount: 23.99, cycle: 'monthly' },

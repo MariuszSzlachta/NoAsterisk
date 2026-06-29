@@ -13,7 +13,9 @@ describe('Tooltip', () => {
         </Tooltip>,
       );
 
-      expect(screen.getByRole('button', { name: 'Trigger' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Trigger' }),
+      ).toBeInTheDocument();
     });
 
     it('does not render tooltip until hovered', () => {

@@ -23,14 +23,17 @@ export const useCategoryBreakdown = (
   );
 
   const createCategoryClickHandler = (category: string) => (): void => {
-    setSelectedCategory(
-      selectedCategory === category ? undefined : category,
-    );
+    setSelectedCategory(selectedCategory === category ? undefined : category);
   };
 
   const handleDrilldownClose = (): void => {
     setSelectedCategory(undefined);
   };
 
-  return { state, selectedCategory, createCategoryClickHandler, handleDrilldownClose };
+  return {
+    state,
+    selectedCategory,
+    createCategoryClickHandler,
+    handleDrilldownClose,
+  };
 };

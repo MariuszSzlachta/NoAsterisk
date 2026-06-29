@@ -49,7 +49,12 @@ describe('DataTable', () => {
 
   it('shows checkboxes when selectable', () => {
     render(
-      <DataTable columns={COLUMNS} data={DATA} rowKey={(r) => r.id} selectable />,
+      <DataTable
+        columns={COLUMNS}
+        data={DATA}
+        rowKey={(r) => r.id}
+        selectable
+      />,
     );
 
     // 1 select-all + 3 row checkboxes

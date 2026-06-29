@@ -28,7 +28,9 @@ describe('FilterTabs', () => {
   });
 
   it('marks active tab with aria-selected', () => {
-    render(<FilterTabs tabs={TABS} activeTab="errors" onTabChange={() => {}} />);
+    render(
+      <FilterTabs tabs={TABS} activeTab="errors" onTabChange={() => {}} />,
+    );
 
     const activeTab = screen.getByRole('tab', { name: /Błędy/i });
     expect(activeTab).toHaveAttribute('aria-selected', 'true');
@@ -36,7 +38,9 @@ describe('FilterTabs', () => {
 
   it('calls onTabChange when tab clicked', async () => {
     const handleChange = vi.fn();
-    render(<FilterTabs tabs={TABS} activeTab="all" onTabChange={handleChange} />);
+    render(
+      <FilterTabs tabs={TABS} activeTab="all" onTabChange={handleChange} />,
+    );
 
     await userEvent.click(screen.getByRole('tab', { name: /Duplikaty/i }));
 

@@ -37,7 +37,9 @@ export const Stepper = ({
             </span>
             <span
               className={`text-xs ${
-                isActive ? 'font-medium text-foreground' : 'text-muted-foreground'
+                isActive
+                  ? 'font-medium text-foreground'
+                  : 'text-muted-foreground'
               }`}
             >
               {step.label}

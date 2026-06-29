@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
 
-import { PieChart, type ChartDataPoint } from '#shared/adapters/charts';
-import { Card, CardHeader } from '#shared/ui/Card';
-
 import { LegendRow } from '#features/dashboard-widgets/ui/CategoryDonutWidget/LegendRow';
 import { useCategoryLegend } from '#features/dashboard-widgets/ui/CategoryDonutWidget/useCategoryLegend';
+import { PieChart, type ChartDataPoint } from '#shared/adapters/charts';
+import { Card, CardHeader } from '#shared/ui/Card';
 
 const CATEGORY_COLORS = [
   'var(--cat-groceries)',
@@ -49,9 +48,16 @@ export const CategoryDonutWidget = ({
       <CardHeader title={title} subtitle={subtitle} action={action} />
       <div className="flex flex-1 items-center gap-6">
         <div className="h-[180px] w-[180px] shrink-0">
-          <PieChart data={data} height={DONUT_HEIGHT} colors={CATEGORY_COLORS} />
+          <PieChart
+            data={data}
+            height={DONUT_HEIGHT}
+            colors={CATEGORY_COLORS}
+          />
         </div>
-        <ul className="flex flex-1 flex-col gap-0.5 overflow-y-auto" style={{ maxHeight: 180 }}>
+        <ul
+          className="flex flex-1 flex-col gap-0.5 overflow-y-auto"
+          style={{ maxHeight: 180 }}
+        >
           {legendItems.map((item) => (
             <LegendRow key={item.label} item={item} />
           ))}

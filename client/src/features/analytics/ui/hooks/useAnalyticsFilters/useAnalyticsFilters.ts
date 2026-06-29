@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { useAnalyticsFiltersStore } from '#features/analytics/store/useAnalyticsFiltersStore';
-import type { AnalyticsFilters } from '#features/analytics/model/types';
 import { parseMetricsParam } from '#features/analytics/model/parseMetricsParam';
+import type { AnalyticsFilters } from '#features/analytics/model/types';
+import { useAnalyticsFiltersStore } from '#features/analytics/store/useAnalyticsFiltersStore';
 
 export const useAnalyticsFilters = (): {
   readonly filters: AnalyticsFilters;
@@ -14,7 +14,9 @@ export const useAnalyticsFilters = (): {
   const initialized = useRef(false);
 
   useEffect(() => {
-    if (initialized.current) return;
+    if (initialized.current) {
+      return;
+    }
     initialized.current = true;
     const current = useAnalyticsFiltersStore.getState().filters;
     const metrics = parseMetricsParam(searchParams.get('metric'));

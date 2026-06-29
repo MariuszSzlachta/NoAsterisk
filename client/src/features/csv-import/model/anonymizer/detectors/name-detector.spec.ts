@@ -1,15 +1,34 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '../../types';
-
 import { nameDetector } from './name-detector';
 
 const DICTS: DictionarySet = {
   firstNames: new Set(['jan', 'anna', 'piotr', 'maria', 'john', 'katarzyna']),
-  surnames: new Set(['kowalski', 'nowak', 'wiśniewski', 'wiśniewska', 'nowak-wiśniewska', 'smith']),
-  merchants: new Set(['BIEDRONKA', 'ALLEGRO', 'SPOTIFY', 'IKEA', 'POCZTA POLSKA', 'PGE', 'ŻABKA']),
+  surnames: new Set([
+    'kowalski',
+    'nowak',
+    'wiśniewski',
+    'wiśniewska',
+    'nowak-wiśniewska',
+    'smith',
+  ]),
+  merchants: new Set([
+    'BIEDRONKA',
+    'ALLEGRO',
+    'SPOTIFY',
+    'IKEA',
+    'POCZTA POLSKA',
+    'PGE',
+    'ŻABKA',
+  ]),
   cities: new Set(['WARSZAWA', 'KRAKÓW', 'POZNAŃ', 'JANKI', 'WROCŁAW']),
-  phrases: new Set(['przelew wychodzący', 'przelew przychodzący', 'płatność kartą', 'przelew własny']),
+  phrases: new Set([
+    'przelew wychodzący',
+    'przelew przychodzący',
+    'płatność kartą',
+    'przelew własny',
+  ]),
 };
 
 describe('nameDetector', () => {

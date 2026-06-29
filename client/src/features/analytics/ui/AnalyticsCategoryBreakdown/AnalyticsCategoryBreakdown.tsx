@@ -1,8 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import type {
-  CategoryBreakdownFilters,
-} from '#features/analytics/model/types';
+import type { CategoryBreakdownFilters } from '#features/analytics/model/types';
 import { BreakdownListItem } from '#features/analytics/ui/BreakdownListItem';
 import { CategoryDrilldown } from '#features/analytics/ui/CategoryDrilldown';
 import { useCategoryBreakdown } from '#features/analytics/ui/hooks/useCategoryBreakdown';
@@ -55,9 +53,7 @@ export const AnalyticsCategoryBreakdown = ({
                   <BreakdownListItem
                     key={item.category}
                     item={item}
-                    color={
-                      CATEGORY_COLORS[index % CATEGORY_COLORS.length]
-                    }
+                    color={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
                     maxAmount={maxAmount}
                     isSelected={selectedCategory === item.category}
                     drilldownId={DRILLDOWN_ID}

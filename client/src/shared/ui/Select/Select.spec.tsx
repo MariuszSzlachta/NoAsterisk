@@ -12,7 +12,13 @@ const OPTIONS: SelectOption[] = [
 
 describe('Select', () => {
   it('renders placeholder when no value selected', () => {
-    render(<Select options={OPTIONS} onChange={() => {}} placeholder="Wybierz pole" />);
+    render(
+      <Select
+        options={OPTIONS}
+        onChange={() => {}}
+        placeholder="Wybierz pole"
+      />,
+    );
 
     expect(screen.getByText('Wybierz pole')).toBeInTheDocument();
   });
@@ -76,7 +82,9 @@ describe('Select', () => {
       <Select options={OPTIONS} value="date" onChange={() => {}} showDot />,
     );
 
-    expect(container.querySelector('.rounded-full.bg-income')).toBeInTheDocument();
+    expect(
+      container.querySelector('.rounded-full.bg-income'),
+    ).toBeInTheDocument();
   });
 
   it('is disabled when disabled prop set', () => {

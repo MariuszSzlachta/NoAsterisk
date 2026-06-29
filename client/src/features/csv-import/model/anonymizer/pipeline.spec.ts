@@ -1,15 +1,47 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '../types';
-
 import { anonymizeTitle, processRows } from './pipeline';
 
 const DICTS: DictionarySet = {
-  firstNames: new Set(['jan', 'anna', 'piotr', 'katarzyna', 'maria', 'john', 'marcin']),
-  surnames: new Set(['kowalski', 'nowak', 'wiśniewski', 'wiśniewska', 'smith', 'lewandowski']),
-  merchants: new Set(['BIEDRONKA', 'ALLEGRO', 'SPOTIFY', 'NETFLIX', 'IKEA', 'PGE', 'ORLEN', 'BOLT', 'ŻABKA', 'ROSSMANN', 'POCZTA POLSKA']),
+  firstNames: new Set([
+    'jan',
+    'anna',
+    'piotr',
+    'katarzyna',
+    'maria',
+    'john',
+    'marcin',
+  ]),
+  surnames: new Set([
+    'kowalski',
+    'nowak',
+    'wiśniewski',
+    'wiśniewska',
+    'smith',
+    'lewandowski',
+  ]),
+  merchants: new Set([
+    'BIEDRONKA',
+    'ALLEGRO',
+    'SPOTIFY',
+    'NETFLIX',
+    'IKEA',
+    'PGE',
+    'ORLEN',
+    'BOLT',
+    'ŻABKA',
+    'ROSSMANN',
+    'POCZTA POLSKA',
+  ]),
   cities: new Set(['WARSZAWA', 'KRAKÓW', 'POZNAŃ', 'JANKI', 'WROCŁAW']),
-  phrases: new Set(['przelew wychodzący', 'przelew przychodzący', 'płatność kartą', 'przelew własny', 'zlecenie stałe']),
+  phrases: new Set([
+    'przelew wychodzący',
+    'przelew przychodzący',
+    'płatność kartą',
+    'przelew własny',
+    'zlecenie stałe',
+  ]),
 };
 
 describe('anonymizeTitle', () => {
@@ -60,12 +92,18 @@ describe('anonymizeTitle', () => {
   });
 
   it('detects email', () => {
-    const { spans } = anonymizeTitle('PRZELEW jan.kowalski@gmail.com opłata', DICTS);
+    const { spans } = anonymizeTitle(
+      'PRZELEW jan.kowalski@gmail.com opłata',
+      DICTS,
+    );
     expect(spans.some((s) => s.type === 'email')).toBe(true);
   });
 
   it('detects phone', () => {
-    const { spans } = anonymizeTitle('PRZELEW +48 601 234 567 za usługę', DICTS);
+    const { spans } = anonymizeTitle(
+      'PRZELEW +48 601 234 567 za usługę',
+      DICTS,
+    );
     expect(spans.some((s) => s.type === 'phone')).toBe(true);
   });
 });

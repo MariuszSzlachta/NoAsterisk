@@ -5,13 +5,17 @@ import type { AmountLocale } from '../types';
  * PL: "1 234,56" or "-87,43" (comma = decimal)
  * EN: "1,234.56" or "-87.43" (dot = decimal)
  */
-export const detectAmountLocale = (samples: readonly string[]): AmountLocale => {
+export const detectAmountLocale = (
+  samples: readonly string[],
+): AmountLocale => {
   let plScore = 0;
   let enScore = 0;
 
   for (const raw of samples) {
     const s = raw.trim();
-    if (!s) continue;
+    if (!s) {
+      continue;
+    }
 
     // Comma after last dot → PL (e.g. "1.234,56" — PL uses dot as thousands sometimes)
     // Dot after last comma → EN (e.g. "1,234.56")
@@ -37,7 +41,9 @@ export const detectAmountLocale = (samples: readonly string[]): AmountLocale => 
     }
 
     // No separator or integer → neutral, check for space thousands (PL pattern)
-    if (/\d\s\d/.test(s)) plScore++;
+    if (/\d\s\d/.test(s)) {
+      plScore++;
+    }
   }
 
   return plScore >= enScore ? 'pl' : 'en';
@@ -47,9 +53,14 @@ export const detectAmountLocale = (samples: readonly string[]): AmountLocale => 
  * Parse amount string to number using detected locale.
  * Returns null for unparseable values (never silently returns 0).
  */
-export const parseAmount = (value: string, locale: AmountLocale): number | null => {
+export const parseAmount = (
+  value: string,
+  locale: AmountLocale,
+): number | null => {
   let cleaned = value.trim();
-  if (cleaned === '') return null;
+  if (cleaned === '') {
+    return null;
+  }
 
   if (locale === 'pl') {
     // Remove space/dot thousands separators, convert comma decimal to dot

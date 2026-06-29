@@ -1,14 +1,16 @@
 import { parseCsv } from '#shared/adapters/csv';
 
 import type { CsvRow, ParsedCsvData } from '../types';
-
 import { decodeBuffer, detectEncoding } from './encoding-detector';
 import { detectSeparator } from './separator-detector';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export class CsvParseError extends Error {
-  constructor(message: string, public readonly code: string) {
+  constructor(
+    message: string,
+    public readonly code: string,
+  ) {
     super(message);
     this.name = 'CsvParseError';
   }
@@ -16,7 +18,10 @@ export class CsvParseError extends Error {
 
 const validateFile = (file: File): void => {
   if (!file.name.toLowerCase().endsWith('.csv')) {
-    throw new CsvParseError('Only .csv files are supported', 'INVALID_EXTENSION');
+    throw new CsvParseError(
+      'Only .csv files are supported',
+      'INVALID_EXTENSION',
+    );
   }
   if (file.size > MAX_FILE_SIZE_BYTES) {
     throw new CsvParseError('File exceeds 10 MB limit', 'FILE_TOO_LARGE');

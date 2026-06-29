@@ -74,7 +74,10 @@ export const Tooltip = ({
       if (placement === 'top' && rect.top < flipThreshold) {
         resolved = 'bottom';
       }
-      if (placement === 'bottom' && window.innerHeight - rect.bottom < flipThreshold) {
+      if (
+        placement === 'bottom' &&
+        window.innerHeight - rect.bottom < flipThreshold
+      ) {
         resolved = 'top';
       }
     }
@@ -83,16 +86,32 @@ export const Tooltip = ({
 
     switch (resolved) {
       case 'top':
-        setStyle({ top: rect.top - GAP, left: centerX, transform: 'translate(-50%, -100%)' });
+        setStyle({
+          top: rect.top - GAP,
+          left: centerX,
+          transform: 'translate(-50%, -100%)',
+        });
         break;
       case 'bottom':
-        setStyle({ top: rect.bottom + GAP, left: centerX, transform: 'translate(-50%, 0)' });
+        setStyle({
+          top: rect.bottom + GAP,
+          left: centerX,
+          transform: 'translate(-50%, 0)',
+        });
         break;
       case 'left':
-        setStyle({ top: rect.top + rect.height / 2, left: rect.left - GAP, transform: 'translate(-100%, -50%)' });
+        setStyle({
+          top: rect.top + rect.height / 2,
+          left: rect.left - GAP,
+          transform: 'translate(-100%, -50%)',
+        });
         break;
       case 'right':
-        setStyle({ top: rect.top + rect.height / 2, left: rect.right + GAP, transform: 'translate(0, -50%)' });
+        setStyle({
+          top: rect.top + rect.height / 2,
+          left: rect.right + GAP,
+          transform: 'translate(0, -50%)',
+        });
         break;
     }
 
@@ -117,18 +136,19 @@ export const Tooltip = ({
       >
         {children}
       </span>
-      {visible && createPortal(
-        <span
-          ref={tooltipRef}
-          id={id}
-          role="tooltip"
-          className={TOOLTIP_CLASSES}
-          style={style}
-        >
-          {content}
-        </span>,
-        document.body,
-      )}
+      {visible &&
+        createPortal(
+          <span
+            ref={tooltipRef}
+            id={id}
+            role="tooltip"
+            className={TOOLTIP_CLASSES}
+            style={style}
+          >
+            {content}
+          </span>,
+          document.body,
+        )}
     </>
   );
 };

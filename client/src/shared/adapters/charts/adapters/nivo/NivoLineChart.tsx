@@ -5,7 +5,6 @@ import {
   type LineSvgLayer,
 } from '@nivo/line';
 
-import { computeYTickValues, formatAxisValue } from '#shared/adapters/charts/adapters/nivo/utils/axis';
 import {
   COLOR_BORDER,
   COLOR_FG_MUTED,
@@ -18,10 +17,19 @@ import {
   FONT_SIZE_XS,
   LETTER_SPACING_TIGHT,
 } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
+import {
+  computeYTickValues,
+  formatAxisValue,
+} from '#shared/adapters/charts/adapters/nivo/utils/axis';
 import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
-const CHART_MARGIN_WITH_LEGEND = { top: 30, right: 20, bottom: 44, left: 48 } as const;
+const CHART_MARGIN_WITH_LEGEND = {
+  top: 30,
+  right: 20,
+  bottom: 44,
+  left: 48,
+} as const;
 
 const LEGEND_TOP_RIGHT = {
   anchor: 'top-right' as const,
@@ -33,8 +41,6 @@ const LEGEND_TOP_RIGHT = {
   symbolShape: 'square' as const,
 };
 
-
-
 const GradientAreaLayer = ({
   series,
   xScale,
@@ -45,7 +51,14 @@ const GradientAreaLayer = ({
     <g>
       <defs>
         {series.map((s, i) => (
-          <linearGradient key={s.id} id={`areaGradient${i}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient
+            key={s.id}
+            id={`areaGradient${i}`}
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
             <stop offset="0%" stopColor={s.color} stopOpacity={0.18} />
             <stop offset="100%" stopColor={s.color} stopOpacity={0} />
           </linearGradient>

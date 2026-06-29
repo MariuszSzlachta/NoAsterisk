@@ -1,5 +1,8 @@
-import { ResponsivePie, type PieCustomLayerProps } from '@nivo/pie';
-import type { ComputedDatum } from '@nivo/pie';
+import {
+  ResponsivePie,
+  type ComputedDatum,
+  type PieCustomLayerProps,
+} from '@nivo/pie';
 
 import {
   COLOR_FG,
@@ -7,14 +10,19 @@ import {
   COLOR_FG_SUBTLE,
   DEFAULT_CHART_HEIGHT,
   FONT_SANS,
+  FONT_SIZE_LG,
   FONT_SIZE_MD,
   FONT_SIZE_XS,
-  FONT_SIZE_LG,
 } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 import type { PieChartProps } from '#shared/adapters/charts/ports/chart.port';
 
 const DONUT_INNER_RADIUS = 0.65;
-const MARGIN_WITH_LEGEND = { top: 10, right: 160, bottom: 10, left: 10 } as const;
+const MARGIN_WITH_LEGEND = {
+  top: 10,
+  right: 160,
+  bottom: 10,
+  left: 10,
+} as const;
 const MARGIN_NO_LEGEND = { top: 10, right: 10, bottom: 10, left: 10 } as const;
 
 interface PieTooltipDatum {

@@ -52,7 +52,11 @@ export const CategoryDrilldown = ({
               <p className="mb-2 text-xs text-muted-foreground">
                 {t('analytics.drilldown.trendTitle')}
               </p>
-              <LineChart data={[data.trend]} height={TREND_HEIGHT} colors={[color]} />
+              <LineChart
+                data={[data.trend]}
+                height={TREND_HEIGHT}
+                colors={[color]}
+              />
             </div>
             <div>
               <p className="mb-2 text-xs text-muted-foreground">

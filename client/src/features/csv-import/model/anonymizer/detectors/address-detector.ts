@@ -1,7 +1,8 @@
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
 // Polish street patterns: ul./al./os./pl. + 1-4 words + number
-const ADDRESS_PATTERN = /\b(ul\.|al\.|os\.|pl\.|ulica|aleja|osiedle|plac)\s+(?:[A-ZĄĆĘŁŃÓŚŹŻa-ząćęłńóśźż]+[\s.]?){1,4}\s*\d{1,4}[A-Za-z]?(?:\/\d{1,4})?\b/gi;
+const ADDRESS_PATTERN =
+  /\b(ul\.|al\.|os\.|pl\.|ulica|aleja|osiedle|plac)\s+(?:[A-ZĄĆĘŁŃÓŚŹŻa-ząćęłńóśźż]+[\s.]?){1,4}\s*\d{1,4}[A-Za-z]?(?:\/\d{1,4})?\b/gi;
 
 export const addressDetector: PiiDetector = {
   id: 'address',

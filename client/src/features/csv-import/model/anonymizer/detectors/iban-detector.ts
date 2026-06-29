@@ -1,7 +1,8 @@
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
 // Matches IBAN: 2 letters + 2 check digits + 4-30 alphanumeric (with optional spaces)
-const IBAN_PATTERN = /\b([A-Z]{2})\s?(\d{2})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})\b/g;
+const IBAN_PATTERN =
+  /\b([A-Z]{2})\s?(\d{2})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})\b/g;
 // Also match compact form without spaces
 const IBAN_COMPACT = /\b([A-Z]{2})(\d{26})\b/g;
 
@@ -10,7 +11,9 @@ const IBAN_COMPACT = /\b([A-Z]{2})(\d{26})\b/g;
  */
 const validateMod97 = (iban: string): boolean => {
   const cleaned = iban.replace(/\s/g, '');
-  if (cleaned.length < 15 || cleaned.length > 34) return false;
+  if (cleaned.length < 15 || cleaned.length > 34) {
+    return false;
+  }
 
   // Move first 4 chars to end, convert letters to numbers (A=10, B=11, ...)
   const rearranged = cleaned.slice(4) + cleaned.slice(0, 4);

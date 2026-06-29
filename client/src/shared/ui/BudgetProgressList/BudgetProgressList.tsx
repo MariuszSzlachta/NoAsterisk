@@ -20,9 +20,15 @@ const formatAmount = (value: number, currency: string): string => {
 
 const getSpentAmountClass = (spent: number, limit: number): string => {
   const ratio = spent / limit;
-  if (ratio > 1.5) return 'text-expense';
-  if (ratio > 1.25) return 'text-expense/80';
-  if (ratio > 1) return 'text-expense/60';
+  if (ratio > 1.5) {
+    return 'text-expense';
+  }
+  if (ratio > 1.25) {
+    return 'text-expense/80';
+  }
+  if (ratio > 1) {
+    return 'text-expense/60';
+  }
   return 'text-muted-foreground';
 };
 

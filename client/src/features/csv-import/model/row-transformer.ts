@@ -1,7 +1,12 @@
-import type { ColumnMapping, CsvRow, DomainField, RowStatus, TransactionRow } from './types';
-
 import { detectAmountLocale, parseAmount } from './parser/amount-parser';
 import { detectDateFormat, parseDate } from './parser/date-parser';
+import type {
+  ColumnMapping,
+  CsvRow,
+  DomainField,
+  RowStatus,
+  TransactionRow,
+} from './types';
 
 const MIN_DATE_YEAR = 2000;
 const MAX_DATE_YEAR = 2030;
@@ -20,13 +25,14 @@ export const transformRows = (
   rows: readonly CsvRow[],
   mapping: ColumnMapping,
 ): TransactionRow[] => {
-  const fieldToColumn = Object.entries(mapping).reduce<Partial<Record<DomainField, string>>>(
-    (acc, [col, field]) => {
-      if (field) acc[field] = col;
-      return acc;
-    },
-    {},
-  );
+  const fieldToColumn = Object.entries(mapping).reduce<
+    Partial<Record<DomainField, string>>
+  >((acc, [col, field]) => {
+    if (field) {
+      acc[field] = col;
+    }
+    return acc;
+  }, {});
 
   if (!fieldToColumn.date || !fieldToColumn.title || !fieldToColumn.amount) {
     throw new Error('Required fields (date, title, amount) must be mapped');
@@ -40,7 +46,9 @@ export const transformRows = (
 
   // Auto-detect formats from sample data
   const dateSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[dateCol] ?? '');
-  const amountSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[amountCol] ?? '');
+  const amountSamples = rows
+    .slice(0, SAMPLE_SIZE)
+    .map((r) => r[amountCol] ?? '');
   const dateFormat = detectDateFormat(dateSamples);
   const amountLocale = detectAmountLocale(amountSamples);
 
@@ -60,10 +68,14 @@ export const transformRows = (
     const rawDate = row[dateCol] ?? '';
     const parsedDate = dateFormat ? parseDate(rawDate, dateFormat) : null;
     if (!parsedDate && rawDate) {
-      if (status === 'ok') status = 'warning';
+      if (status === 'ok') {
+        status = 'warning';
+      }
       reasons.push('Unparseable date');
     } else if (parsedDate && !isDateInRange(parsedDate)) {
-      if (status === 'ok') status = 'warning';
+      if (status === 'ok') {
+        status = 'warning';
+      }
       reasons.push('Date out of range');
     }
 

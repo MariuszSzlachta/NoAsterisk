@@ -26,7 +26,9 @@ export const Dropzone = ({
   error,
   className = '',
 }: DropzoneProps): React.JSX.Element => {
-  const [status, setStatus] = useState<DropzoneStatus>(error ? 'error' : 'idle');
+  const [status, setStatus] = useState<DropzoneStatus>(
+    error ? 'error' : 'idle',
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validate = useCallback(
@@ -60,7 +62,9 @@ export const Dropzone = ({
       e.preventDefault();
       setStatus('idle');
       const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      if (file) {
+        handleFile(file);
+      }
     },
     [handleFile],
   );
@@ -77,7 +81,9 @@ export const Dropzone = ({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
       const file = e.target.files?.[0];
-      if (file) handleFile(file);
+      if (file) {
+        handleFile(file);
+      }
     },
     [handleFile],
   );

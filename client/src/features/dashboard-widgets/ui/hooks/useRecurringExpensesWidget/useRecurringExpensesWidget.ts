@@ -1,5 +1,8 @@
 import { useRecurringExpensesQuery } from '#features/dashboard-widgets/api/useRecurringExpensesQuery';
-import { formatAmount, toMonthlyAmount } from '#features/dashboard-widgets/model/transformers';
+import {
+  formatAmount,
+  toMonthlyAmount,
+} from '#features/dashboard-widgets/model/transformers';
 import type { QueryState } from '#shared/api';
 
 export interface RecurringExpenseVM {
@@ -21,30 +24,34 @@ const CYCLE_LABEL: Record<string, string> = {
 
 const MAX_ITEMS = 5;
 
-export const useRecurringExpensesWidget = (): QueryState<RecurringExpensesWidgetVM> => {
-  const state = useRecurringExpensesQuery();
-  if (state.status !== 'loaded') return state;
+export const useRecurringExpensesWidget =
+  (): QueryState<RecurringExpensesWidgetVM> => {
+    const state = useRecurringExpensesQuery();
+    if (state.status !== 'loaded') {
+      return state;
+    }
 
-  const sorted = [...state.data].sort(
-    (a, b) => toMonthlyAmount(b.amount, b.cycle) - toMonthlyAmount(a.amount, a.cycle),
-  );
+    const sorted = [...state.data].sort(
+      (a, b) =>
+        toMonthlyAmount(b.amount, b.cycle) - toMonthlyAmount(a.amount, a.cycle),
+    );
 
-  const top = sorted.slice(0, MAX_ITEMS);
+    const top = sorted.slice(0, MAX_ITEMS);
 
-  const items = top.map((dto) => ({
-    id: dto.id,
-    name: dto.name,
-    amount: formatAmount(dto.amount),
-    cycle: CYCLE_LABEL[dto.cycle] ?? dto.cycle,
-  }));
+    const items = top.map((dto) => ({
+      id: dto.id,
+      name: dto.name,
+      amount: formatAmount(dto.amount),
+      cycle: CYCLE_LABEL[dto.cycle] ?? dto.cycle,
+    }));
 
-  const monthlyTotal = state.data.reduce(
-    (sum, dto) => sum + toMonthlyAmount(dto.amount, dto.cycle),
-    0,
-  );
+    const monthlyTotal = state.data.reduce(
+      (sum, dto) => sum + toMonthlyAmount(dto.amount, dto.cycle),
+      0,
+    );
 
-  return {
-    status: 'loaded',
-    data: { items, total: formatAmount(monthlyTotal) },
+    return {
+      status: 'loaded',
+      data: { items, total: formatAmount(monthlyTotal) },
+    };
   };
-};

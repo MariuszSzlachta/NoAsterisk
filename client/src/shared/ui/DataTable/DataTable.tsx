@@ -28,11 +28,14 @@ export const DataTable = <TRow extends Record<string, unknown>>({
   onSelectionChange,
   className = '',
 }: DataTableProps<TRow>): React.JSX.Element => {
-  const allSelected = data.length > 0 && data.every((row, i) => selectedKeys.has(rowKey(row, i)));
+  const allSelected =
+    data.length > 0 && data.every((row, i) => selectedKeys.has(rowKey(row, i)));
   const someSelected = data.some((row, i) => selectedKeys.has(rowKey(row, i)));
 
   const handleSelectAll = (): void => {
-    if (!onSelectionChange) return;
+    if (!onSelectionChange) {
+      return;
+    }
     if (allSelected) {
       onSelectionChange(new Set());
     } else {
@@ -41,7 +44,9 @@ export const DataTable = <TRow extends Record<string, unknown>>({
   };
 
   const handleSelectRow = (key: string): void => {
-    if (!onSelectionChange) return;
+    if (!onSelectionChange) {
+      return;
+    }
     const next = new Set(selectedKeys);
     if (next.has(key)) {
       next.delete(key);
@@ -94,7 +99,10 @@ export const DataTable = <TRow extends Record<string, unknown>>({
                   </td>
                 )}
                 {columns.map((col) => (
-                  <td key={col.key} className={`px-3 py-2 ${col.className ?? ''}`}>
+                  <td
+                    key={col.key}
+                    className={`px-3 py-2 ${col.className ?? ''}`}
+                  >
                     {col.render
                       ? col.render(row, i)
                       : String(row[col.key] ?? '')}

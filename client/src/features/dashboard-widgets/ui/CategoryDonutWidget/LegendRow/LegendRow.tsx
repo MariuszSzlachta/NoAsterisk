@@ -11,6 +11,8 @@ export const LegendRow = ({ item }: LegendRowProps): React.JSX.Element => (
       style={{ backgroundColor: item.color }}
     />
     <span className="text-sm text-foreground">{item.label}</span>
-    <span className="text-sm tabular-nums text-muted-foreground">{item.percent}%</span>
+    <span className="text-sm tabular-nums text-muted-foreground">
+      {item.percent}%
+    </span>
   </li>
 );

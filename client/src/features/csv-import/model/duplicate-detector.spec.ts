@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectDuplicatesAgainstExisting, detectDuplicatesInBatch, hashTransaction } from './duplicate-detector';
+import {
+  detectDuplicatesAgainstExisting,
+  detectDuplicatesInBatch,
+  hashTransaction,
+} from './duplicate-detector';
 import type { TransactionRow } from './types';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
@@ -39,7 +43,7 @@ describe('detectDuplicatesInBatch', () => {
   it('does not flag unique rows', () => {
     const rows = [
       makeRow({ id: '0', amount: -87.43 }),
-      makeRow({ id: '1', amount: -34.20 }),
+      makeRow({ id: '1', amount: -34.2 }),
     ];
     const result = detectDuplicatesInBatch(rows);
 

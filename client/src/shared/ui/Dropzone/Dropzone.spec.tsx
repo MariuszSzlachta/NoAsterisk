@@ -13,7 +13,9 @@ describe('Dropzone', () => {
   it('renders upload instructions', () => {
     render(<Dropzone onFileSelect={() => {}} />);
 
-    expect(screen.getByText('Przeciągnij i upuść plik CSV')).toBeInTheDocument();
+    expect(
+      screen.getByText('Przeciągnij i upuść plik CSV'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Wybierz plik')).toBeInTheDocument();
   });
 

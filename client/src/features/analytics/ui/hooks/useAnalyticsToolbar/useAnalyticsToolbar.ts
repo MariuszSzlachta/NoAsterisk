@@ -10,7 +10,9 @@ interface UseAnalyticsToolbarResult {
   readonly createToggleMetricHandler: (metric: MetricType) => () => void;
   readonly createSetPeriodHandler: (period: Period) => () => void;
   readonly createSetChartTypeHandler: (chartType: ChartType) => () => void;
-  readonly createSetGranularityHandler: (granularity: Granularity) => () => void;
+  readonly createSetGranularityHandler: (
+    granularity: Granularity,
+  ) => () => void;
 }
 
 export const useAnalyticsToolbar = (
@@ -34,9 +36,15 @@ export const useAnalyticsToolbar = (
     onFiltersChange({ ...filters, chartType });
   };
 
-  const createSetGranularityHandler = (granularity: Granularity) => (): void => {
-    onFiltersChange({ ...filters, granularity });
-  };
+  const createSetGranularityHandler =
+    (granularity: Granularity) => (): void => {
+      onFiltersChange({ ...filters, granularity });
+    };
 
-  return { createToggleMetricHandler, createSetPeriodHandler, createSetChartTypeHandler, createSetGranularityHandler };
+  return {
+    createToggleMetricHandler,
+    createSetPeriodHandler,
+    createSetChartTypeHandler,
+    createSetGranularityHandler,
+  };
 };

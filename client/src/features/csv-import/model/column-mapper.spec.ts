@@ -4,7 +4,13 @@ import { autoDetectMapping } from './column-mapper';
 
 describe('autoDetectMapping', () => {
   it('detects common Polish bank headers', () => {
-    const headers = ['Data operacji', 'Opis operacji', 'Kwota', 'Waluta', 'Saldo po operacji'];
+    const headers = [
+      'Data operacji',
+      'Opis operacji',
+      'Kwota',
+      'Waluta',
+      'Saldo po operacji',
+    ];
     const mapping = autoDetectMapping(headers);
 
     expect(mapping['Data operacji']).toBe('date');

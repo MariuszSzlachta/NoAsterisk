@@ -1,14 +1,15 @@
 import type { DictionaryProvider, DictionarySet } from '../../types';
-
-import namesPl from './stubs/names-pl.json';
-import namesEn from './stubs/names-en.json';
-import surnamesPl from './stubs/surnames-pl.json';
-import merchants from './stubs/merchants.json';
 import citiesPl from './stubs/cities-pl.json';
+import merchants from './stubs/merchants.json';
+import namesEn from './stubs/names-en.json';
+import namesPl from './stubs/names-pl.json';
 import phrases from './stubs/phrases.json';
+import surnamesPl from './stubs/surnames-pl.json';
 
-const toSet = (items: readonly string[], transform: (s: string) => string): ReadonlySet<string> =>
-  new Set(items.map(transform));
+const toSet = (
+  items: readonly string[],
+  transform: (s: string) => string,
+): ReadonlySet<string> => new Set(items.map(transform));
 
 const buildFromStubs = (): DictionarySet => ({
   firstNames: toSet([...namesPl, ...namesEn], (s) => s.toLowerCase()),

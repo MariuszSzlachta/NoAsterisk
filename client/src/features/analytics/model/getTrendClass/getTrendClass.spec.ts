@@ -10,7 +10,10 @@ describe('getTrendClass', () => {
     ['up', true, 'text-expense'],
     ['down', true, 'text-income'],
     ['neutral', true, 'text-muted-foreground'],
-  ] as const)('returns correct class for trend=%s inverted=%s', (trend, inverted, expected) => {
-    expect(getTrendClass(trend, inverted)).toBe(expected);
-  });
+  ] as const)(
+    'returns correct class for trend=%s inverted=%s',
+    (trend, inverted, expected) => {
+      expect(getTrendClass(trend, inverted)).toBe(expected);
+    },
+  );
 });

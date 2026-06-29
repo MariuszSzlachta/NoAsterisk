@@ -30,7 +30,10 @@ describe('mapKpiDtoToVm', () => {
       trend: 'up',
     };
 
-    const vm = mapKpiDtoToVm(dto, { icon: STUB_ICON, iconHref: '/analytics?metric=balance' });
+    const vm = mapKpiDtoToVm(dto, {
+      icon: STUB_ICON,
+      iconHref: '/analytics?metric=balance',
+    });
 
     expect(vm.label).toBe('Saldo');
     expect(vm.value).toBe('12 450,00 zł');
@@ -49,7 +52,10 @@ describe('mapKpiDtoToVm', () => {
   it('assigns the provided iconHref', () => {
     const dto: KpiDto = { id: 'income', label: 'Przychody', value: '1 zł' };
 
-    const vm = mapKpiDtoToVm(dto, { icon: STUB_ICON, iconHref: '/analytics?metric=income' });
+    const vm = mapKpiDtoToVm(dto, {
+      icon: STUB_ICON,
+      iconHref: '/analytics?metric=income',
+    });
 
     expect(vm.iconHref).toBe('/analytics?metric=income');
   });
@@ -91,13 +97,21 @@ describe('mapKpiDtoToVm', () => {
   it('maps iconTooltip from config', () => {
     const dto: KpiDto = { id: 'balance', label: 'Saldo', value: '1 zł' };
 
-    const vm = mapKpiDtoToVm(dto, { icon: STUB_ICON, iconTooltip: 'Zobacz raport' });
+    const vm = mapKpiDtoToVm(dto, {
+      icon: STUB_ICON,
+      iconTooltip: 'Zobacz raport',
+    });
 
     expect(vm.iconTooltip).toBe('Zobacz raport');
   });
 
   it('maps invertColor from config', () => {
-    const dto: KpiDto = { id: 'expenses', label: 'Wydatki', value: '1 zł', trend: 'down' };
+    const dto: KpiDto = {
+      id: 'expenses',
+      label: 'Wydatki',
+      value: '1 zł',
+      trend: 'down',
+    };
 
     const vm = mapKpiDtoToVm(dto, { icon: STUB_ICON, invertColor: true });
 

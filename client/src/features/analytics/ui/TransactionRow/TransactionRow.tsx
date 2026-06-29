@@ -19,7 +19,9 @@ export const TransactionRow = ({
       />
       <div className="flex flex-col">
         <span className="text-sm text-foreground">{transaction.title}</span>
-        <span className="text-xs text-muted-foreground">{transaction.date}</span>
+        <span className="text-xs text-muted-foreground">
+          {transaction.date}
+        </span>
       </div>
     </div>
     <span

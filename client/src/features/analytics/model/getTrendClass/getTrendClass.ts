@@ -12,5 +12,7 @@ const TREND_CLASS_INVERTED: Record<AnalyticsKpi['trend'], string> = {
   neutral: 'text-muted-foreground',
 };
 
-export const getTrendClass = (trend: AnalyticsKpi['trend'], inverted?: boolean): string =>
-  inverted ? TREND_CLASS_INVERTED[trend] : TREND_CLASS[trend];
+export const getTrendClass = (
+  trend: AnalyticsKpi['trend'],
+  inverted?: boolean,
+): string => (inverted ? TREND_CLASS_INVERTED[trend] : TREND_CLASS[trend]);

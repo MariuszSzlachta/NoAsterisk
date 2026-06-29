@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 
-import type { ChartDataPoint } from '#shared/adapters/charts';
-
 import type {
   BudgetDto,
   BudgetItemVM,
@@ -10,11 +8,14 @@ import type {
   RecentTransactionDto,
   RecentTransactionVM,
 } from '#features/dashboard-widgets/model/types';
+import type { ChartDataPoint } from '#shared/adapters/charts';
 
 const MAX_VISIBLE_CATEGORIES = 6;
 
 export const groupCategoryTail = (data: ChartDataPoint[]): ChartDataPoint[] => {
-  if (data.length <= MAX_VISIBLE_CATEGORIES) return data;
+  if (data.length <= MAX_VISIBLE_CATEGORIES) {
+    return data;
+  }
 
   const sorted = [...data].sort((a, b) => b.value - a.value);
   const visible = sorted.slice(0, MAX_VISIBLE_CATEGORIES);
@@ -83,13 +84,20 @@ export const mapRecentTransactionDtoToVm = (
 });
 
 export const getRateColor = (rate: number): string => {
-  if (rate >= 20) return 'var(--income)';
-  if (rate >= 10) return 'var(--warning)';
+  if (rate >= 20) {
+    return 'var(--income)';
+  }
+  if (rate >= 10) {
+    return 'var(--warning)';
+  }
   return 'var(--expense)';
 };
 
 export const formatAmount = (amount: number): string =>
-  amount.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+  amount.toLocaleString('pl-PL', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }) + ' zł';
 
 export const toMonthlyAmount = (amount: number, cycle: string): number =>
   cycle === 'yearly' ? amount / 12 : amount;

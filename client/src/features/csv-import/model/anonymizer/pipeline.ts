@@ -1,10 +1,15 @@
-import type { AnonymizationEntry, AnonymizationStatus, DetectionSpan, DictionarySet, PiiDetector } from '../types';
-
-import { ibanDetector } from './detectors/iban-detector';
-import { phoneDetector } from './detectors/phone-detector';
-import { emailDetector } from './detectors/email-detector';
-import { nameDetector } from './detectors/name-detector';
+import type {
+  AnonymizationEntry,
+  AnonymizationStatus,
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '../types';
 import { addressDetector } from './detectors/address-detector';
+import { emailDetector } from './detectors/email-detector';
+import { ibanDetector } from './detectors/iban-detector';
+import { nameDetector } from './detectors/name-detector';
+import { phoneDetector } from './detectors/phone-detector';
 
 // ─── Constants ───────────────────────────────────────────────────
 
@@ -38,13 +43,24 @@ const filterByWhitelist = (
     const upper = span.original.toUpperCase();
     const lower = span.original.toLowerCase();
 
-    if (dictionaries.merchants.has(upper)) return false;
-    if (dictionaries.cities.has(upper)) return false;
-    if (dictionaries.phrases.has(lower)) return false;
+    if (dictionaries.merchants.has(upper)) {
+      return false;
+    }
+    if (dictionaries.cities.has(upper)) {
+      return false;
+    }
+    if (dictionaries.phrases.has(lower)) {
+      return false;
+    }
 
     // Multi-word merchant check
     const words = span.original.split(/\s+/);
-    if (words.length <= 3 && dictionaries.merchants.has(words.map((w) => w.toUpperCase()).join(' '))) return false;
+    if (
+      words.length <= 3 &&
+      dictionaries.merchants.has(words.map((w) => w.toUpperCase()).join(' '))
+    ) {
+      return false;
+    }
 
     return true;
   });
@@ -54,8 +70,9 @@ const filterByWhitelist = (
 /**
  * Architecture doc § 4 step 5: discard spans below review threshold.
  */
-const applyConfidenceGate = (spans: readonly DetectionSpan[]): DetectionSpan[] =>
-  spans.filter((s) => s.confidence >= REVIEW_THRESHOLD);
+const applyConfidenceGate = (
+  spans: readonly DetectionSpan[],
+): DetectionSpan[] => spans.filter((s) => s.confidence >= REVIEW_THRESHOLD);
 
 // ─── Conflict Resolver ───────────────────────────────────────────
 
@@ -67,7 +84,9 @@ const resolveConflicts = (spans: readonly DetectionSpan[]): DetectionSpan[] => {
     const priA = PRIORITY_MAP.get(a.detectorId) ?? 0;
     const priB = PRIORITY_MAP.get(b.detectorId) ?? 0;
     const priDiff = priB - priA;
-    if (priDiff !== 0) return priDiff;
+    if (priDiff !== 0) {
+      return priDiff;
+    }
     return b.confidence - a.confidence;
   });
 
@@ -95,7 +114,9 @@ const MASK_STRATEGIES: Record<string, MaskFn> = {
   },
   name: (s) => {
     const parts = s.split(/[\s-]+/).filter((p) => p.length > 0);
-    return parts.map((p) => `${p[0]}${'•'.repeat(Math.min(p.length - 1, 6))}`).join(' ');
+    return parts
+      .map((p) => `${p[0]}${'•'.repeat(Math.min(p.length - 1, 6))}`)
+      .join(' ');
   },
   phone: (s) => {
     const digits = s.replace(/\D/g, '');
@@ -103,7 +124,9 @@ const MASK_STRATEGIES: Record<string, MaskFn> = {
   },
   email: (s) => {
     const atIdx = s.indexOf('@');
-    if (atIdx <= 0) return '•••@•••';
+    if (atIdx <= 0) {
+      return '•••@•••';
+    }
     return `${s[0]}•••@${s.slice(atIdx + 1)}`;
   },
   address: (s) => {
@@ -113,10 +136,17 @@ const MASK_STRATEGIES: Record<string, MaskFn> = {
 };
 
 const maskSpan = (span: DetectionSpan): string =>
-  (MASK_STRATEGIES[span.type] ?? ((o: string) => '•'.repeat(o.length)))(span.original);
+  (MASK_STRATEGIES[span.type] ?? ((o: string) => '•'.repeat(o.length)))(
+    span.original,
+  );
 
-const applyMasking = (text: string, spans: readonly DetectionSpan[]): string => {
-  if (spans.length === 0) return text;
+const applyMasking = (
+  text: string,
+  spans: readonly DetectionSpan[],
+): string => {
+  if (spans.length === 0) {
+    return text;
+  }
 
   let result = '';
   let lastEnd = 0;
@@ -130,9 +160,15 @@ const applyMasking = (text: string, spans: readonly DetectionSpan[]): string => 
 
 // ─── Pipeline ────────────────────────────────────────────────────
 
-const determineStatus = (spans: readonly DetectionSpan[]): AnonymizationStatus => {
-  if (spans.length === 0) return 'safe';
-  if (spans.every((s) => s.confidence >= AUTO_ACCEPT_THRESHOLD)) return 'anonymized';
+const determineStatus = (
+  spans: readonly DetectionSpan[],
+): AnonymizationStatus => {
+  if (spans.length === 0) {
+    return 'safe';
+  }
+  if (spans.every((s) => s.confidence >= AUTO_ACCEPT_THRESHOLD)) {
+    return 'anonymized';
+  }
   return 'needs_review';
 };
 
@@ -151,7 +187,9 @@ export const anonymizeTitle = (
   dictionaries: DictionarySet,
 ): { spans: DetectionSpan[]; masked: string; status: AnonymizationStatus } => {
   // 1. Run all detectors
-  const allSpans = DETECTORS.flatMap((detector) => detector.detect(text, dictionaries));
+  const allSpans = DETECTORS.flatMap((detector) =>
+    detector.detect(text, dictionaries),
+  );
 
   // 2. Whitelist filter
   const filtered = filterByWhitelist(allSpans, dictionaries);

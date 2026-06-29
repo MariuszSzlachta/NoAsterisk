@@ -19,7 +19,11 @@ export interface ParsedCsvData {
 
 // ─── Parser ──────────────────────────────────────────────────────
 
-export type DateFormat = 'DD.MM.YYYY' | 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'DD-MM-YYYY';
+export type DateFormat =
+  | 'DD.MM.YYYY'
+  | 'YYYY-MM-DD'
+  | 'DD/MM/YYYY'
+  | 'DD-MM-YYYY';
 export type AmountLocale = 'pl' | 'en';
 
 export interface ParserConfig {
@@ -80,7 +84,13 @@ export interface PiiDetector {
 
 // ─── Anonymizer: Dictionaries ────────────────────────────────────
 
-export type DictionaryType = 'names_pl' | 'names_en' | 'surnames_pl' | 'merchants' | 'cities_pl' | 'phrases';
+export type DictionaryType =
+  | 'names_pl'
+  | 'names_en'
+  | 'surnames_pl'
+  | 'merchants'
+  | 'cities_pl'
+  | 'phrases';
 
 export interface DictionarySet {
   readonly firstNames: ReadonlySet<string>;
