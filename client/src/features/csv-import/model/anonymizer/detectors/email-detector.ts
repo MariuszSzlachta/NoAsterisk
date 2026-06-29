@@ -13,12 +13,20 @@ export const emailDetector: PiiDetector = {
 
     let match: RegExpExecArray | null;
     while ((match = EMAIL_PATTERN.exec(text)) !== null) {
+      const email = match[0];
+      const [local] = email.split('@');
+
+      // Personal emails (jan.kowalski@, longer local parts) = higher confidence
+      // Short/generic (info@, admin@) = lower — may be business contact user wants to keep
+      const looksPersonal = local.includes('.') || local.length > 8;
+      const confidence = looksPersonal ? 0.97 : 0.82;
+
       spans.push({
         start: match.index,
-        end: match.index + match[0].length,
+        end: match.index + email.length,
         type: 'email',
-        confidence: 0.97,
-        original: match[0],
+        confidence,
+        original: email,
         detectorId: 'email',
       });
     }

@@ -1,4 +1,4 @@
-import type { DictionaryProvider, DictionarySet } from '../types';
+import type { DictionaryProvider, DictionarySet } from '../../types';
 
 import namesPl from './stubs/names-pl.json';
 import namesEn from './stubs/names-en.json';
@@ -10,7 +10,7 @@ import phrases from './stubs/phrases.json';
 const toSet = (items: readonly string[], transform: (s: string) => string): ReadonlySet<string> =>
   new Set(items.map(transform));
 
-const buildDictionarySet = (): DictionarySet => ({
+const buildFromStubs = (): DictionarySet => ({
   firstNames: toSet([...namesPl, ...namesEn], (s) => s.toLowerCase()),
   surnames: toSet(surnamesPl, (s) => s.toLowerCase()),
   merchants: toSet(merchants, (s) => s.toUpperCase()),
@@ -18,23 +18,34 @@ const buildDictionarySet = (): DictionarySet => ({
   phrases: toSet(phrases, (s) => s.toLowerCase()),
 });
 
-let cachedSet: DictionarySet | null = null;
-
 /**
- * Dev implementation — loads from bundled JSON stubs.
- * In production, replace with API-based provider.
+ * Factory: creates a DictionaryProvider with its own cache instance.
+ * In production, pass a loader that fetches from API.
+ * In dev/test, uses bundled JSON stubs.
  */
-export const devDictionaryProvider: DictionaryProvider = {
-  loadAll: async (): Promise<DictionarySet> => {
-    if (!cachedSet) {
-      cachedSet = buildDictionarySet();
-    }
-    return cachedSet;
-  },
-  isLoaded: (): boolean => cachedSet !== null,
+export const createDictionaryProvider = (
+  loader: () => Promise<DictionarySet> = async () => buildFromStubs(),
+): DictionaryProvider & { resetCache: () => void } => {
+  let cache: DictionarySet | null = null;
+
+  return {
+    loadAll: async (): Promise<DictionarySet> => {
+      if (!cache) {
+        cache = await loader();
+      }
+      return cache;
+    },
+    isLoaded: (): boolean => cache !== null,
+    resetCache: (): void => {
+      cache = null;
+    },
+  };
 };
 
-/** Reset cache — for testing only. */
+/** Default dev provider — uses bundled JSON stubs. */
+export const devDictionaryProvider = createDictionaryProvider();
+
+/** @deprecated Use createDictionaryProvider() for new code. */
 export const resetDictionaryCache = (): void => {
-  cachedSet = null;
+  devDictionaryProvider.resetCache();
 };

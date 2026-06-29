@@ -13,13 +13,21 @@ const EMPTY_DICTS: DictionarySet = {
 };
 
 describe('emailDetector', () => {
-  it('detects standard email', () => {
+  it('detects standard email with high confidence (personal-looking)', () => {
     const text = 'PRZELEW jan.kowalski@gmail.com za usługę';
     const spans = emailDetector.detect(text, EMPTY_DICTS);
 
     expect(spans).toHaveLength(1);
     expect(spans[0].original).toBe('jan.kowalski@gmail.com');
     expect(spans[0].confidence).toBe(0.97);
+  });
+
+  it('gives lower confidence to short/generic emails', () => {
+    const text = 'PRZELEW info@firma.pl za usługę';
+    const spans = emailDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(1);
+    expect(spans[0].confidence).toBe(0.82);
   });
 
   it('detects email with subdomain', () => {
