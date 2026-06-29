@@ -14,7 +14,7 @@ const MOCK_DATA: BudgetDto[] = [
     limit: 2000,
     color: 'var(--cat-groceries)',
   },
-  { label: 'Transport', spent: 620, limit: 800, color: 'var(--cat-transport)' },
+  { label: 'Transport', spent: 980, limit: 800, color: 'var(--cat-transport)' },
   {
     label: 'Subskrypcje',
     spent: 340,
@@ -23,9 +23,21 @@ const MOCK_DATA: BudgetDto[] = [
   },
   {
     label: 'Jedzenie na mieście',
-    spent: 890,
+    spent: 1320,
     limit: 1000,
     color: 'var(--cat-dining)',
+  },
+  {
+    label: 'Rozrywka',
+    spent: 890,
+    limit: 500,
+    color: 'var(--cat-entertainment)',
+  },
+  {
+    label: 'Rachunki',
+    spent: 450,
+    limit: 600,
+    color: 'var(--cat-bills)',
   },
 ];
 
