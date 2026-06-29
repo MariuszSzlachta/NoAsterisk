@@ -97,7 +97,7 @@ describe('nameDetector', () => {
 
     const nameSpan = spans.find((s) => s.original === 'JAN KOWALSKI');
     expect(nameSpan).toBeDefined();
-    expect(nameSpan!.confidence).toBe(0.95);
+    expect(nameSpan?.confidence).toBe(0.95);
   });
 
   it('does NOT flag ALL-CAPS merchants (PGE OBRÓT)', () => {

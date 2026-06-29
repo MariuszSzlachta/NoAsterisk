@@ -33,3 +33,8 @@ export const devDictionaryProvider: DictionaryProvider = {
   },
   isLoaded: (): boolean => cachedSet !== null,
 };
+
+/** Reset cache — for testing only. */
+export const resetDictionaryCache = (): void => {
+  cachedSet = null;
+};

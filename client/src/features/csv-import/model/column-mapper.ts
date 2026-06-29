@@ -42,34 +42,44 @@ export const applyMapping = (
   rows: readonly CsvRow[],
   mapping: ColumnMapping,
 ): TransactionRow[] => {
-  const fieldToColumn = Object.entries(mapping).reduce<Record<DomainField, string>>(
+  const fieldToColumn = Object.entries(mapping).reduce<Partial<Record<DomainField, string>>>(
     (acc, [col, field]) => {
       if (field) acc[field] = col;
       return acc;
     },
-    {} as Record<DomainField, string>,
+    {},
   );
 
+  if (!fieldToColumn.date || !fieldToColumn.title || !fieldToColumn.amount) {
+    throw new Error('Required fields (date, title, amount) must be mapped');
+  }
+
+  const dateCol = fieldToColumn.date;
+  const titleCol = fieldToColumn.title;
+  const amountCol = fieldToColumn.amount;
+  const currencyCol = fieldToColumn.currency;
+  const balanceCol = fieldToColumn.balance;
+
   // Auto-detect formats from sample data
-  const dateSamples = rows.slice(0, 10).map((r) => r[fieldToColumn.date] ?? '');
-  const amountSamples = rows.slice(0, 10).map((r) => r[fieldToColumn.amount] ?? '');
+  const dateSamples = rows.slice(0, 10).map((r) => r[dateCol] ?? '');
+  const amountSamples = rows.slice(0, 10).map((r) => r[amountCol] ?? '');
   const dateFormat = detectDateFormat(dateSamples);
   const amountLocale = detectAmountLocale(amountSamples);
 
-  return rows.map((row, i) => {
-    const rawAmount = row[fieldToColumn.amount] ?? '';
+  return rows.map((row) => {
+    const rawAmount = row[amountCol] ?? '';
     const amount = parseAmount(rawAmount, amountLocale);
 
     return {
       id: crypto.randomUUID(),
       date: dateFormat
-        ? (parseDate(row[fieldToColumn.date] ?? '', dateFormat) ?? row[fieldToColumn.date] ?? '')
-        : (row[fieldToColumn.date] ?? ''),
-      title: row[fieldToColumn.title] ?? '',
+        ? (parseDate(row[dateCol] ?? '', dateFormat) ?? row[dateCol] ?? '')
+        : (row[dateCol] ?? ''),
+      title: row[titleCol] ?? '',
       amount: amount ?? 0,
-      currency: row[fieldToColumn.currency] ?? 'PLN',
-      balance: fieldToColumn.balance
-        ? (parseAmount(row[fieldToColumn.balance] ?? '', amountLocale) ?? undefined)
+      currency: currencyCol ? (row[currencyCol] ?? 'PLN') : 'PLN',
+      balance: balanceCol
+        ? (parseAmount(row[balanceCol] ?? '', amountLocale) ?? undefined)
         : undefined,
       status: amount === null ? 'error' as const : 'ok' as const,
       statusReason: amount === null ? 'Invalid amount' : undefined,

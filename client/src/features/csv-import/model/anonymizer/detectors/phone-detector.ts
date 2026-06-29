@@ -39,8 +39,14 @@ export const phoneDetector: PiiDetector = {
 
         if (isLikelyNotPhone(text, start)) continue;
 
-        // +48 prefix = high confidence, context keyword = high, bare 9 digits = medium
+        // Bare 9-digit without +48: validate PL mobile prefix (5xx, 6xx, 7xx, 8xx)
         const hasPlus = original.startsWith('+');
+        if (!hasPlus) {
+          const firstDigit = original.replace(/\D/g, '')[0];
+          if (!['5', '6', '7', '8'].includes(firstDigit)) continue;
+        }
+
+        // +48 prefix = high confidence, context keyword = high, bare 9 digits = medium
         const hasContext = hasPhoneContext(text, start);
         const confidence = hasPlus ? 0.95 : hasContext ? 0.9 : 0.75;
 

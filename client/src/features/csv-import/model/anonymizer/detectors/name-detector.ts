@@ -9,28 +9,45 @@ const NAME_CONTEXT_KEYWORDS = [
 // Mixed-case: "Jan Kowalski", "Anna Nowak-Wiśniewska"
 const MIXED_CASE_NAME = /\b([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})(?:[\s-]([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})){1,2}\b/g;
 
-// ALL-CAPS: extract 2-3 word candidates near context keywords
-const findAllCapsNames = (text: string): Array<{ start: number; original: string }> => {
-  const results: Array<{ start: number; original: string }> = [];
-  const words = text.split(/\s+/);
-  let pos = 0;
+// ALL-CAPS: 2-3 consecutive ALL-CAPS words (3+ letters each)
+const ALL_CAPS_WORD = /\b[A-ZĄĆĘŁŃÓŚŹŻ]{3,}\b/g;
 
-  for (let i = 0; i < words.length; i++) {
-    const wordStart = text.indexOf(words[i], pos);
-    pos = wordStart + words[i].length;
+interface MatchCandidate {
+  readonly original: string;
+  readonly index: number;
+}
 
-    // Check if this word starts a potential ALL-CAPS name (2-3 words, 3+ chars each)
-    const isAllCaps = (w: string): boolean => /^[A-ZĄĆĘŁŃÓŚŹŻ]{3,}$/.test(w);
+/**
+ * Find ALL-CAPS name candidates using regex for accurate positions.
+ */
+const findAllCapsNames = (text: string): MatchCandidate[] => {
+  const results: MatchCandidate[] = [];
+  const wordMatches: Array<{ word: string; start: number }> = [];
 
-    if (isAllCaps(words[i]) && i + 1 < words.length && isAllCaps(words[i + 1])) {
-      // Try 2-word match
-      const twoWord = `${words[i]} ${words[i + 1]}`;
-      results.push({ start: wordStart, original: twoWord });
+  ALL_CAPS_WORD.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = ALL_CAPS_WORD.exec(text)) !== null) {
+    wordMatches.push({ word: m[0], start: m.index });
+  }
 
-      // Try 3-word match
-      if (i + 2 < words.length && isAllCaps(words[i + 2])) {
-        const threeWord = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
-        results.push({ start: wordStart, original: threeWord });
+  for (let i = 0; i < wordMatches.length - 1; i++) {
+    const a = wordMatches[i];
+    const b = wordMatches[i + 1];
+
+    // Adjacent words (only whitespace/dash between them)
+    const between = text.slice(a.start + a.word.length, b.start);
+    if (!/^[\s-]+$/.test(between)) continue;
+
+    const twoWord = text.slice(a.start, b.start + b.word.length);
+    results.push({ original: twoWord, index: a.start });
+
+    // Try 3-word
+    if (i + 2 < wordMatches.length) {
+      const c = wordMatches[i + 2];
+      const between2 = text.slice(b.start + b.word.length, c.start);
+      if (/^[\s-]+$/.test(between2)) {
+        const threeWord = text.slice(a.start, c.start + c.word.length);
+        results.push({ original: threeWord, index: a.start });
       }
     }
   }
@@ -51,7 +68,7 @@ const isWhitelisted = (text: string, dicts: DictionarySet): boolean => {
   // Multi-word merchant check (e.g. "POCZTA POLSKA")
   if (words.length <= 3 && dicts.merchants.has(words.map((w) => w.toUpperCase()).join(' '))) return true;
 
-  // Single word in merchants — only if ALL words are merchants/cities (avoid "ADAM" false match)
+  // All words are merchants/cities
   if (words.every((w) => dicts.merchants.has(w.toUpperCase()) || dicts.cities.has(w.toUpperCase()))) return true;
 
   return false;
@@ -67,7 +84,6 @@ const computeConfidence = (
   dicts: DictionarySet,
   hasContext: boolean,
 ): number => {
-  // Check both positions (first/last name can be in either order)
   const lowered = words.map((w) => w.toLowerCase());
   const anyFirstName = lowered.some((w) => dicts.firstNames.has(w));
   const anySurname = lowered.some((w) => dicts.surnames.has(w));
@@ -77,7 +93,7 @@ const computeConfidence = (
   if (anySurname && hasContext) return 0.82;
   if ((anyFirstName || anySurname) && !hasContext) return 0.72;
   if (hasContext) return 0.65;
-  return 0.3; // No evidence — don't report (below threshold)
+  return 0.3;
 };
 
 const MIN_CONFIDENCE = 0.6;
@@ -90,9 +106,8 @@ export const nameDetector: PiiDetector = {
     const spans: DetectionSpan[] = [];
     const seen = new Set<string>();
 
-    const processMatch = (match: RegExpExecArray): void => {
-      const original = match[0];
-      const start = match.index;
+    const processCandidate = (candidate: MatchCandidate): void => {
+      const { original, index: start } = candidate;
       const key = `${start}:${original.length}`;
       if (seen.has(key)) return;
       seen.add(key);
@@ -120,16 +135,16 @@ export const nameDetector: PiiDetector = {
       });
     };
 
-    // Run both patterns
+    // Mixed-case pattern
     MIXED_CASE_NAME.lastIndex = 0;
     let match: RegExpExecArray | null;
-    while ((match = MIXED_CASE_NAME.exec(text)) !== null) processMatch(match);
+    while ((match = MIXED_CASE_NAME.exec(text)) !== null) {
+      processCandidate({ original: match[0], index: match.index });
+    }
 
-    // ALL-CAPS candidates
+    // ALL-CAPS candidates (with accurate position tracking via regex)
     for (const candidate of findAllCapsNames(text)) {
-      const fakeMatch = [candidate.original] as unknown as RegExpExecArray;
-      fakeMatch.index = candidate.start;
-      processMatch(fakeMatch);
+      processCandidate(candidate);
     }
 
     return spans;
