@@ -27,11 +27,8 @@ const FORMATS: readonly DateFormatDef[] = [
     regex: /^(\d{2})-(\d{2})-(\d{4})$/,
     parse: (m) => ({ year: +m[3], month: +m[2], day: +m[1] }),
   },
-  {
-    format: 'MM/DD/YYYY',
-    regex: /^(\d{2})\/(\d{2})\/(\d{4})$/,
-    parse: (m) => ({ year: +m[3], month: +m[1], day: +m[2] }),
-  },
+  // MM/DD/YYYY intentionally excluded — PL-focused app. All Polish/EU banks use DD/MM.
+  // If needed in future, add disambiguation logic (check if any sample has day > 12).
 ];
 
 const isValidDate = (year: number, month: number, day: number): boolean => {

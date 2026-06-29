@@ -19,7 +19,7 @@ export interface ParsedCsvData {
 
 // ─── Parser ──────────────────────────────────────────────────────
 
-export type DateFormat = 'DD.MM.YYYY' | 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'DD-MM-YYYY' | 'MM/DD/YYYY';
+export type DateFormat = 'DD.MM.YYYY' | 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'DD-MM-YYYY';
 export type AmountLocale = 'pl' | 'en';
 
 export interface ParserConfig {

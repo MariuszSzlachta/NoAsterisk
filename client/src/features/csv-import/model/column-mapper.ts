@@ -76,7 +76,7 @@ export const applyMapping = (
         ? (parseDate(row[dateCol] ?? '', dateFormat) ?? row[dateCol] ?? '')
         : (row[dateCol] ?? ''),
       title: row[titleCol] ?? '',
-      amount: amount ?? 0,
+      amount: amount ?? NaN,
       currency: currencyCol ? (row[currencyCol] ?? 'PLN') : 'PLN',
       balance: balanceCol
         ? (parseAmount(row[balanceCol] ?? '', amountLocale) ?? undefined)
