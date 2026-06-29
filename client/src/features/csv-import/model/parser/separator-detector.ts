@@ -10,6 +10,7 @@ export const detectSeparator = (text: string): string => {
     .split(/\r?\n/)
     .filter((l) => l.trim().length > 0)
     .slice(0, SAMPLE_LINES);
+
   if (lines.length === 0) {
     return ';';
   }

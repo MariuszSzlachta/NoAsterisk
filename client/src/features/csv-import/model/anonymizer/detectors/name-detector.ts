@@ -1,6 +1,25 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
+;
 
+// todo it should be a dictionary from BE and th should be much larger
 // Keywords after which names typically appear in Polish bank titles
+import type { DetectionSpan, DictionarySet } from '#features/csv-import';
+import type { PiiDetector } from '#features/csv-import/model/types.ts';
+
+
+
+
+
+;
+
+
+
+
+
+
+
+
+
+
 const NAME_CONTEXT_KEYWORDS = [
   'przelew',
   'od',
@@ -25,6 +44,8 @@ interface MatchCandidate {
   readonly original: string;
   readonly index: number;
 }
+
+//todo handle TS18048
 
 /**
  * Find ALL-CAPS name candidates using regex for accurate positions.

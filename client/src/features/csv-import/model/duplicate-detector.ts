@@ -59,7 +59,7 @@ export const detectDuplicatesAgainstExisting = (
       return {
         ...row,
         status: 'duplicate' as const,
-        statusReason: 'Już zaimportowano',
+        statusReason: 'Już zaimportowano', // todo only eng
         duplicateHash: hash,
       };
     }

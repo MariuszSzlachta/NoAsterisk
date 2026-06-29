@@ -10,6 +10,7 @@ interface DateFormatDef {
   };
 }
 
+// todo possibly undefined
 const FORMATS: readonly DateFormatDef[] = [
   {
     format: 'YYYY-MM-DD',

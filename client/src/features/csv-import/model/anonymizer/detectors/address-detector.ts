@@ -1,5 +1,11 @@
+;
+// todo relative import
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
+
+// todo check it it covers cities and ordering like where semicolon may appear or may not
+// ul. Tadeusza Kościuszki 43, 00-123 Bielsko-Biała
+// 00-123 Bielsko-Biała, ul. Tadeusza Kościuszki 43,
 // Polish street patterns: ul./al./os./pl. + 1-4 words + number
 const ADDRESS_PATTERN =
   /\b(ul\.|al\.|os\.|pl\.|ulica|aleja|osiedle|plac)\s+(?:[A-ZĄĆĘŁŃÓŚŹŻa-ząćęłńóśźż]+[\s.]?){1,4}\s*\d{1,4}[A-Za-z]?(?:\/\d{1,4})?\b/gi;

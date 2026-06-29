@@ -1,5 +1,6 @@
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
+// todo add case where +XXYYYYYY no space between prefix or (+AB) XYZ
 // Polish mobile: +48 XXX XXX XXX or XXX XXX XXX or XXXXXXXXX (9 digits)
 const PL_PHONE = /(?:\+48[\s-]?)?(\d{3})[\s-]?(\d{3})[\s-]?(\d{3})\b/g;
 // International: +XX XXXXXXXXX (country code + 7-12 digits)
