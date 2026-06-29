@@ -1,4 +1,4 @@
-import Papa from 'papaparse';
+import { parseCsv } from '#shared/adapters/csv';
 
 import type { CsvRow, ParsedCsvData } from '../types';
 
@@ -43,7 +43,7 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
   const text = decodeBuffer(buffer, encoding);
   const separator = detectSeparator(text);
 
-  const result = Papa.parse<Record<string, string>>(text, {
+  const result = parseCsv<Record<string, string>>(text, {
     header: true,
     delimiter: separator,
     skipEmptyLines: true,
@@ -53,7 +53,7 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     throw new CsvParseError('No headers detected in CSV', 'NO_HEADERS');
   }
 
-  // Reject if >10% of rows have fatal parse errors
+  // Reject if >10% of rows have parse errors
   if (result.errors.length > 0 && result.data.length > 0) {
     const errorRate = result.errors.length / result.data.length;
     if (errorRate > 0.1) {

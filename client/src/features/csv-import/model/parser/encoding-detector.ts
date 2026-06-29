@@ -1,4 +1,4 @@
-import jschardet from 'jschardet';
+import { detectCharset } from '#shared/adapters/encoding';
 
 const SAMPLE_SIZE = 4096;
 const CONFIDENCE_THRESHOLD = 0.8;
@@ -32,7 +32,7 @@ export const detectEncoding = (buffer: ArrayBuffer): string => {
 
   // Use jschardet on binary string
   const binaryStr = Array.from(bytes).map((b) => String.fromCharCode(b)).join('');
-  const result = jschardet.detect(binaryStr);
+  const result = detectCharset(binaryStr);
 
   if (result.confidence >= CONFIDENCE_THRESHOLD) {
     return normalizeEncoding(result.encoding);
