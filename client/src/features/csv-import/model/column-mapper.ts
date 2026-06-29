@@ -56,17 +56,23 @@ export const applyMapping = (
   const dateFormat = detectDateFormat(dateSamples);
   const amountLocale = detectAmountLocale(amountSamples);
 
-  return rows.map((row, i) => ({
-    id: String(i),
-    date: dateFormat
-      ? (parseDate(row[fieldToColumn.date] ?? '', dateFormat) ?? row[fieldToColumn.date] ?? '')
-      : (row[fieldToColumn.date] ?? ''),
-    title: row[fieldToColumn.title] ?? '',
-    amount: parseAmount(row[fieldToColumn.amount] ?? '0', amountLocale),
-    currency: row[fieldToColumn.currency] ?? 'PLN',
-    balance: fieldToColumn.balance
-      ? parseAmount(row[fieldToColumn.balance] ?? '0', amountLocale)
-      : undefined,
-    status: 'ok' as const,
-  }));
+  return rows.map((row, i) => {
+    const rawAmount = row[fieldToColumn.amount] ?? '';
+    const amount = parseAmount(rawAmount, amountLocale);
+
+    return {
+      id: crypto.randomUUID(),
+      date: dateFormat
+        ? (parseDate(row[fieldToColumn.date] ?? '', dateFormat) ?? row[fieldToColumn.date] ?? '')
+        : (row[fieldToColumn.date] ?? ''),
+      title: row[fieldToColumn.title] ?? '',
+      amount: amount ?? 0,
+      currency: row[fieldToColumn.currency] ?? 'PLN',
+      balance: fieldToColumn.balance
+        ? (parseAmount(row[fieldToColumn.balance] ?? '', amountLocale) ?? undefined)
+        : undefined,
+      status: amount === null ? 'error' as const : 'ok' as const,
+      statusReason: amount === null ? 'Invalid amount' : undefined,
+    };
+  });
 };

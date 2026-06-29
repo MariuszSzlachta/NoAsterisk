@@ -45,6 +45,7 @@ describe('applyMapping', () => {
     expect(result[0].amount).toBe(-87.43);
     expect(result[0].currency).toBe('PLN');
     expect(result[0].status).toBe('ok');
+    expect(result[0].id).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   it('defaults currency to PLN when not mapped', () => {

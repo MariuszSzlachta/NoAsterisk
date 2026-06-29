@@ -50,8 +50,8 @@ describe('parseAmount', () => {
     expect(parseAmount('-1,234.56', 'en')).toBe(-1234.56);
   });
 
-  it('returns 0 for invalid input', () => {
-    expect(parseAmount('abc', 'pl')).toBe(0);
-    expect(parseAmount('', 'en')).toBe(0);
+  it('returns null for invalid input', () => {
+    expect(parseAmount('abc', 'pl')).toBeNull();
+    expect(parseAmount('', 'en')).toBeNull();
   });
 });

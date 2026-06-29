@@ -45,9 +45,11 @@ export const detectAmountLocale = (samples: readonly string[]): AmountLocale => 
 
 /**
  * Parse amount string to number using detected locale.
+ * Returns null for unparseable values (never silently returns 0).
  */
-export const parseAmount = (value: string, locale: AmountLocale): number => {
+export const parseAmount = (value: string, locale: AmountLocale): number | null => {
   let cleaned = value.trim();
+  if (cleaned === '') return null;
 
   if (locale === 'pl') {
     // Remove space/dot thousands separators, convert comma decimal to dot
@@ -58,5 +60,5 @@ export const parseAmount = (value: string, locale: AmountLocale): number => {
   }
 
   const num = parseFloat(cleaned);
-  return isNaN(num) ? 0 : num;
+  return isNaN(num) ? null : num;
 };

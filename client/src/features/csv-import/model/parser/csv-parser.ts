@@ -53,6 +53,17 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     throw new CsvParseError('No headers detected in CSV', 'NO_HEADERS');
   }
 
+  // Reject if >10% of rows have fatal parse errors
+  if (result.errors.length > 0 && result.data.length > 0) {
+    const errorRate = result.errors.length / result.data.length;
+    if (errorRate > 0.1) {
+      throw new CsvParseError(
+        `CSV has ${result.errors.length} parse errors in ${result.data.length} rows`,
+        'PARSE_ERRORS',
+      );
+    }
+  }
+
   if (result.data.length === 0) {
     throw new CsvParseError('CSV contains no data rows', 'NO_DATA');
   }

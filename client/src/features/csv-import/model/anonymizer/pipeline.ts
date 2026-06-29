@@ -1,10 +1,15 @@
-import type { AnonymizationEntry, AnonymizationStatus, DetectionSpan, DictionarySet, PiiDetector, PiiType } from '../types';
+import type { AnonymizationEntry, AnonymizationStatus, DetectionSpan, DictionarySet, PiiDetector } from '../types';
 
 import { ibanDetector } from './detectors/iban-detector';
 import { phoneDetector } from './detectors/phone-detector';
 import { emailDetector } from './detectors/email-detector';
 import { nameDetector } from './detectors/name-detector';
 import { addressDetector } from './detectors/address-detector';
+
+// ─── Constants ───────────────────────────────────────────────────
+
+const AUTO_ACCEPT_THRESHOLD = 0.9;
+const REVIEW_THRESHOLD = 0.7;
 
 // ─── Registry ────────────────────────────────────────────────────
 
@@ -16,19 +21,57 @@ const DETECTORS: readonly PiiDetector[] = [
   addressDetector,
 ];
 
+const PRIORITY_MAP = new Map<string, number>(
+  DETECTORS.map((d) => [d.id, d.priority]),
+);
+
+// ─── Whitelist Filter ────────────────────────────────────────────
+
+/**
+ * Architecture doc § 4 step 3: discard spans whose text matches known entities.
+ */
+const filterByWhitelist = (
+  spans: readonly DetectionSpan[],
+  dictionaries: DictionarySet,
+): DetectionSpan[] =>
+  spans.filter((span) => {
+    const upper = span.original.toUpperCase();
+    const lower = span.original.toLowerCase();
+
+    if (dictionaries.merchants.has(upper)) return false;
+    if (dictionaries.cities.has(upper)) return false;
+    if (dictionaries.phrases.has(lower)) return false;
+
+    // Multi-word merchant check
+    const words = span.original.split(/\s+/);
+    if (words.length <= 3 && dictionaries.merchants.has(words.map((w) => w.toUpperCase()).join(' '))) return false;
+
+    return true;
+  });
+
+// ─── Confidence Gate ─────────────────────────────────────────────
+
+/**
+ * Architecture doc § 4 step 5: discard spans below review threshold.
+ */
+const applyConfidenceGate = (spans: readonly DetectionSpan[]): DetectionSpan[] =>
+  spans.filter((s) => s.confidence >= REVIEW_THRESHOLD);
+
 // ─── Conflict Resolver ───────────────────────────────────────────
 
 /**
- * Resolve overlapping spans: higher priority wins.
- * If same priority: higher confidence wins.
+ * Architecture doc § 4 step 4: higher priority wins, then higher confidence.
  */
 const resolveConflicts = (spans: readonly DetectionSpan[]): DetectionSpan[] => {
   const sorted = [...spans].sort((a, b) => {
-    const priDiff = b.confidence - a.confidence; // Higher confidence first
-    return priDiff;
+    const priA = PRIORITY_MAP.get(a.detectorId) ?? 0;
+    const priB = PRIORITY_MAP.get(b.detectorId) ?? 0;
+    const priDiff = priB - priA;
+    if (priDiff !== 0) return priDiff;
+    return b.confidence - a.confidence;
   });
-  const resolved: DetectionSpan[] = [];
 
+  const resolved: DetectionSpan[] = [];
   for (const span of sorted) {
     const overlaps = resolved.some(
       (existing) => span.start < existing.end && span.end > existing.start,
@@ -43,13 +86,15 @@ const resolveConflicts = (spans: readonly DetectionSpan[]): DetectionSpan[] => {
 
 // ─── Masker ──────────────────────────────────────────────────────
 
-const MASK_STRATEGIES: Record<PiiType, (original: string) => string> = {
+type MaskFn = (original: string) => string;
+
+const MASK_STRATEGIES: Record<string, MaskFn> = {
   iban: (s) => {
     const clean = s.replace(/\s/g, '');
     return `${clean.slice(0, 4)} •••• •••• ${clean.slice(-4)}`;
   },
   name: (s) => {
-    const parts = s.split(/[\s-]+/);
+    const parts = s.split(/[\s-]+/).filter((p) => p.length > 0);
     return parts.map((p) => `${p[0]}${'•'.repeat(Math.min(p.length - 1, 6))}`).join(' ');
   },
   phone: (s) => {
@@ -57,8 +102,9 @@ const MASK_STRATEGIES: Record<PiiType, (original: string) => string> = {
     return `••• ••• ${digits.slice(-3)}`;
   },
   email: (s) => {
-    const [local, domain] = s.split('@');
-    return `${local[0]}•••@${domain}`;
+    const atIdx = s.indexOf('@');
+    if (atIdx <= 0) return '•••@•••';
+    return `${s[0]}•••@${s.slice(atIdx + 1)}`;
   },
   address: (s) => {
     const prefix = s.match(/^(ul\.|al\.|os\.|pl\.)/i);
@@ -67,7 +113,7 @@ const MASK_STRATEGIES: Record<PiiType, (original: string) => string> = {
 };
 
 const maskSpan = (span: DetectionSpan): string =>
-  MASK_STRATEGIES[span.type](span.original);
+  (MASK_STRATEGIES[span.type] ?? ((o: string) => '•'.repeat(o.length)))(span.original);
 
 const applyMasking = (text: string, spans: readonly DetectionSpan[]): string => {
   if (spans.length === 0) return text;
@@ -86,12 +132,19 @@ const applyMasking = (text: string, spans: readonly DetectionSpan[]): string => 
 
 const determineStatus = (spans: readonly DetectionSpan[]): AnonymizationStatus => {
   if (spans.length === 0) return 'safe';
-  if (spans.every((s) => s.confidence >= 0.9)) return 'anonymized';
+  if (spans.every((s) => s.confidence >= AUTO_ACCEPT_THRESHOLD)) return 'anonymized';
   return 'needs_review';
 };
 
 /**
  * Run full anonymization pipeline on a single title.
+ *
+ * Pipeline steps (per architecture doc § 4):
+ * 1. Run all detectors
+ * 2. Whitelist filter (merchants/cities/phrases)
+ * 3. Confidence gate (discard < 0.7)
+ * 4. Conflict resolution (priority > confidence)
+ * 5. Masking
  */
 export const anonymizeTitle = (
   text: string,
@@ -100,13 +153,19 @@ export const anonymizeTitle = (
   // 1. Run all detectors
   const allSpans = DETECTORS.flatMap((detector) => detector.detect(text, dictionaries));
 
-  // 2. Resolve conflicts (overlapping spans)
-  const resolved = resolveConflicts(allSpans);
+  // 2. Whitelist filter
+  const filtered = filterByWhitelist(allSpans, dictionaries);
 
-  // 3. Apply masking
+  // 3. Confidence gate
+  const gated = applyConfidenceGate(filtered);
+
+  // 4. Resolve conflicts
+  const resolved = resolveConflicts(gated);
+
+  // 5. Apply masking
   const masked = applyMasking(text, resolved);
 
-  // 4. Determine status
+  // 6. Determine status
   const status = determineStatus(resolved);
 
   return { spans: resolved, masked, status };
@@ -114,6 +173,9 @@ export const anonymizeTitle = (
 
 /**
  * Process all rows through the anonymization pipeline.
+ *
+ * ⚠️ Security: returned entries contain originalTitle for review UI only.
+ * MUST be stripped before persisting in store or sending to backend.
  */
 export const processRows = (
   titles: readonly string[],
