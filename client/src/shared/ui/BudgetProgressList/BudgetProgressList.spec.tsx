@@ -47,7 +47,7 @@ describe('BudgetProgressList', () => {
     const { container } = render(<BudgetProgressList items={[items[1]]} />);
 
     const bar = container.querySelector('[style*="width"]');
-    expect(bar?.className).toContain('bg-expense');
+    expect(bar?.getAttribute('style')).toContain('background-color');
   });
 
   it('applies item color when within budget', () => {
@@ -55,6 +55,19 @@ describe('BudgetProgressList', () => {
 
     const bar = container.querySelector('[style*="width"]');
     expect(bar?.getAttribute('style')).toContain('background-color');
-    expect(bar?.className).not.toContain('bg-expense');
+  });
+
+  it.each([
+    { spent: 800, limit: 1000, expected: 'text-muted-foreground' },
+    { spent: 1100, limit: 1000, expected: 'text-expense/60' },
+    { spent: 1300, limit: 1000, expected: 'text-expense/80' },
+    { spent: 1600, limit: 1000, expected: 'text-expense' },
+  ])('applies $expected when spent=$spent, limit=$limit', ({ spent, limit, expected }) => {
+    const { container } = render(
+      <BudgetProgressList items={[{ label: 'Test', spent, limit, color: '#34d399' }]} />,
+    );
+
+    const spentSpan = container.querySelector('.font-mono span:first-child');
+    expect(spentSpan?.className).toContain(expected);
   });
 });

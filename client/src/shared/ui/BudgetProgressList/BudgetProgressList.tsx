@@ -18,6 +18,14 @@ const formatAmount = (value: number, currency: string): string => {
   return `${formatted} ${currency}`;
 };
 
+const getSpentAmountClass = (spent: number, limit: number): string => {
+  const ratio = spent / limit;
+  if (ratio > 1.5) return 'text-expense';
+  if (ratio > 1.25) return 'text-expense/80';
+  if (ratio > 1) return 'text-expense/60';
+  return 'text-muted-foreground';
+};
+
 export const BudgetProgressList = ({
   items,
   currency = 'zł',
@@ -26,7 +34,6 @@ export const BudgetProgressList = ({
     <div className="flex flex-col gap-4">
       {items.map((item) => {
         const percentage = Math.min(100, (item.spent / item.limit) * 100);
-        const isOverBudget = item.spent > item.limit;
 
         return (
           <div key={item.label}>
@@ -41,7 +48,7 @@ export const BudgetProgressList = ({
                 </span>
               </div>
               <span className="font-mono text-sm tabular-nums">
-                <span className="text-muted-foreground">
+                <span className={getSpentAmountClass(item.spent, item.limit)}>
                   {formatAmount(item.spent, currency)}
                 </span>
                 <span className="text-subtle">
@@ -52,10 +59,10 @@ export const BudgetProgressList = ({
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
               <div
-                className={`h-full rounded-full transition-all duration-300 ${isOverBudget ? 'bg-expense' : ''}`}
+                className="h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${percentage}%`,
-                  ...(isOverBudget ? {} : { backgroundColor: item.color }),
+                  backgroundColor: item.color,
                 }}
               />
             </div>
