@@ -1,25 +1,7 @@
-;
+import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
+import { COMPANY_FORM_VARIANTS } from '../constants';
 
-// todo it should be a dictionary from BE and th should be much larger
 // Keywords after which names typically appear in Polish bank titles
-import type { DetectionSpan, DictionarySet } from '#features/csv-import';
-import type { PiiDetector } from '#features/csv-import/model/types.ts';
-
-
-
-
-
-;
-
-
-
-
-
-
-
-
-
-
 const NAME_CONTEXT_KEYWORDS = [
   'przelew',
   'od',
@@ -45,8 +27,6 @@ interface MatchCandidate {
   readonly index: number;
 }
 
-//todo handle TS18048
-
 /**
  * Find ALL-CAPS name candidates using regex for accurate positions.
  */
@@ -64,6 +44,10 @@ const findAllCapsNames = (text: string): MatchCandidate[] => {
     const a = wordMatches[i];
     const b = wordMatches[i + 1];
 
+    if (a === undefined || b === undefined) {
+      continue;
+    }
+
     // Adjacent words (only whitespace/dash between them)
     const between = text.slice(a.start + a.word.length, b.start);
     if (!/^[\s-]+$/.test(between)) {
@@ -76,15 +60,22 @@ const findAllCapsNames = (text: string): MatchCandidate[] => {
     // Try 3-word
     if (i + 2 < wordMatches.length) {
       const c = wordMatches[i + 2];
-      const between2 = text.slice(b.start + b.word.length, c.start);
-      if (/^[\s-]+$/.test(between2)) {
-        const threeWord = text.slice(a.start, c.start + c.word.length);
-        results.push({ original: threeWord, index: a.start });
+      if (c !== undefined) {
+        const between2 = text.slice(b.start + b.word.length, c.start);
+        if (/^[\s-]+$/.test(between2)) {
+          const threeWord = text.slice(a.start, c.start + c.word.length);
+          results.push({ original: threeWord, index: a.start });
+        }
       }
     }
   }
 
   return results;
+};
+
+const hasCompanyContext = (text: string, start: number): boolean => {
+  const prefix = text.slice(Math.max(0, start - 20), start).toLowerCase();
+  return COMPANY_FORM_VARIANTS.some((cp) => prefix.includes(cp));
 };
 
 const isWhitelisted = (text: string, dicts: DictionarySet): boolean => {
@@ -176,6 +167,11 @@ export const nameDetector: PiiDetector = {
       seen.add(key);
 
       if (isWhitelisted(original, dictionaries)) {
+        return;
+      }
+
+      // Names preceded by business entity abbreviations are company names, not PII
+      if (hasCompanyContext(text, start)) {
         return;
       }
 

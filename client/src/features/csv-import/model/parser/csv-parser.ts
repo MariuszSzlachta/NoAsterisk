@@ -1,23 +1,18 @@
 import { parseCsv } from '#shared/adapters/csv';
 
-
-
 import type { CsvRow, ParsedCsvData } from '../types';
 import { decodeBuffer, detectEncoding } from './encoding-detector';
 import { detectSeparator } from './separator-detector';
 
-
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export class CsvParseError extends Error {
-  constructor(
-    message: string,
-    // todo change
-    // TS1294: This syntax is not allowed when erasableSyntaxOnly is enabled.
-    public readonly code: string,
-  ) {
+  readonly code: string;
+
+  constructor(message: string, code: string) {
     super(message);
     this.name = 'CsvParseError';
+    this.code = code;
   }
 }
 

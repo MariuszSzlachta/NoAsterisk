@@ -1,0 +1,60 @@
+﻿Wyciąg z rachunku
+Numer rachunku: 92 1020 2892 0000 5102 0876 4310
+Właściciel: TOMASZ RAFAŁ KOWALCZYK
+Okres: 01.06.2025 - 30.06.2025
+Waluta: PLN
+
+"Data waluty";"Data operacji";"Typ";"Opis";"Kwota";"Waluta"
+"2025-06-01";"2025-06-02";"Przelew przychodzący";"Wynagrodzenie z tyt. umowy o pracę
+Nadawca: AUTOTECH SERWIS SP. Z O.O.
+Ul. Przemysłowa 7, 30-701 KRAKÓW
+Nr rach.: 45 1020 1156 0000 7402 0115 8832";"+9 200,00";"PLN"
+"2025-06-03";"2025-06-03";"Płatność kartą";"TRANSAKCJA KARTĄ 4532****7891
+CARREFOUR HIPERMARKET 2103
+M.KRAKÓW UL.ZAKOPIAŃSKA 62
+DATA TRANS.: 2025-06-02 GODZ.: 18:47
+KWOTA ORYG.: 234,87 PLN";"-234,87";"PLN"
+"2025-06-05";"2025-06-05";"Przelew wychodzący";"przelew własny
+odbiorca: Tomasz Kowalczyk
+RENOVBANK KONTO OSZCZĘDNOŚCIOWE
+31 1020 2892 0000 5702 0876 5519";"-3 000,00";"PLN"
+"2025-06-07";"2025-06-08";"Płatność kartą";"OPERACJA BLIK
+Numer tel.: +48 601***489
+UBER *TRIP AMSAB HELP.UBER.COM NLD
+REF: BLK25060700847291";"-34,00";"PLN"
+
+"2025-06-09";"2025-06-09";"Zlecenie stałe";"POLISA UBEZPIECZENIOWA nr PZU/KR/2024/88412
+PZU ŻYCIE S.A.
+al. Jana Pawła II 24, 00-133 Warszawa
+Nr polisy klienta: TK-882/2024
+kontakt: t.kowalczyk.pzu@gmail.com";"-289,00";"PLN"
+"2025-06-11";"2025-06-12";"Przelew wychodzący";"OPŁATA ZA PRZEDSZKOLE - CZERWIEC 2025
+Dziecko: MAJA KOWALCZYK grupa BIEDRONKI
+Przedszkole nr 128
+konto: 70 8589 0006 0000 0011 2345 6001";"-1 850,00";"PLN"
+"2025-06-14";"2025-06-14";"Płatność kartą";"ZAKUP W INTERNECIE
+Sprzedawca: AMAZON EU S.A.R.L.
+Nr zamówienia: 407-1284967-8843219
+Karta: 4532****7891 autoryzacja: 847291";"-412,99";"PLN"
+"2025-06-14";"2025-06-14";"Płatność kartą";"ZAKUP W INTERNECIE
+Sprzedawca: AMAZON EU S.A.R.L.
+Nr zamówienia: 407-1284967-8843219
+Karta: 4532****7891 autoryzacja: 847292";"-412,99";"PLN"
+"2025-06-17";"2025-06-18";"Przelew przychodzący";"zwrot podatku PIT za rok 2024
+NR DEC.: US-KR2/PIT/2025/T.KOWALCZYK/4481
+Urząd Skarbowy kraków-Krowodrza
+52 1010 0055 0201 8170 0000 0000";"+2 847,00";"PLN"
+"2025-06-20";"2025-06-20";"Płatność kartą";"STACJA PALIW ORLEN NR 1847 kraków
+KARTA: 4532 **** **** 7891
+ORIG AMT: 287.43PLN
+data operacji: 19/06/2025";"-287,43";"PLN"
+"2025-06-25";"2025-06-26";"Przelew wychodzący";"Czesne - studia podyplomowe AGH sem. letni 2025
+nr albumu: 412876
+wpłata za: Tomasz R. KOWALCZYK
+AGH im. S.Staszica, konto 65 1240 4722 1111 0000 4854 2871";"-2 400,00";"PLN"
+
+Liczba operacji: 11
+Suma uznań: +12 047,00
+Suma obciążeń: -8 921,28
+Saldo końcowe: 15 466,39
+Wygenerowano: 2025-07-01 08:14:22

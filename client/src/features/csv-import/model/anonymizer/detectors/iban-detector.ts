@@ -6,8 +6,6 @@ const IBAN_PATTERN =
 // Also match compact form without spaces
 const IBAN_COMPACT = /\b([A-Z]{2})(\d{26})\b/g;
 
-// todo check if it handles the case where some number is partially anonymized it happens for cards
-
 /**
  * Validate IBAN via mod97 algorithm (ISO 7064).
  */

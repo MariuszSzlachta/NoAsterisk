@@ -37,7 +37,7 @@ describe('detectDuplicatesInBatch', () => {
 
     expect(result[0].status).toBe('ok');
     expect(result[1].status).toBe('duplicate');
-    expect(result[1].statusReason).toBe('Duplikat w pliku');
+    expect(result[1].statusReason).toBe('Duplicate in file');
   });
 
   it('does not flag unique rows', () => {
@@ -59,7 +59,7 @@ describe('detectDuplicatesAgainstExisting', () => {
     const result = detectDuplicatesAgainstExisting(rows, existing);
 
     expect(result[0].status).toBe('duplicate');
-    expect(result[0].statusReason).toBe('Już zaimportowano');
+    expect(result[0].statusReason).toBe('Already imported');
   });
 
   it('does not flag rows not in existing set', () => {

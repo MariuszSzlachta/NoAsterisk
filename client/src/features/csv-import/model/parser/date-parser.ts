@@ -7,30 +7,61 @@ interface DateFormatDef {
     year: number;
     month: number;
     day: number;
-  };
+  } | null;
 }
 
-// todo possibly undefined
 const FORMATS: readonly DateFormatDef[] = [
   {
     format: 'YYYY-MM-DD',
     regex: /^(\d{4})-(\d{2})-(\d{2})$/,
-    parse: (m) => ({ year: +m[1], month: +m[2], day: +m[3] }),
+    parse: (m) => {
+      const year = m[1];
+      const month = m[2];
+      const day = m[3];
+      if (year === undefined || month === undefined || day === undefined) {
+        return null;
+      }
+      return { year: +year, month: +month, day: +day };
+    },
   },
   {
     format: 'DD.MM.YYYY',
     regex: /^(\d{2})\.(\d{2})\.(\d{4})$/,
-    parse: (m) => ({ year: +m[3], month: +m[2], day: +m[1] }),
+    parse: (m) => {
+      const day = m[1];
+      const month = m[2];
+      const year = m[3];
+      if (day === undefined || month === undefined || year === undefined) {
+        return null;
+      }
+      return { year: +year, month: +month, day: +day };
+    },
   },
   {
     format: 'DD/MM/YYYY',
     regex: /^(\d{2})\/(\d{2})\/(\d{4})$/,
-    parse: (m) => ({ year: +m[3], month: +m[2], day: +m[1] }),
+    parse: (m) => {
+      const day = m[1];
+      const month = m[2];
+      const year = m[3];
+      if (day === undefined || month === undefined || year === undefined) {
+        return null;
+      }
+      return { year: +year, month: +month, day: +day };
+    },
   },
   {
     format: 'DD-MM-YYYY',
     regex: /^(\d{2})-(\d{2})-(\d{4})$/,
-    parse: (m) => ({ year: +m[3], month: +m[2], day: +m[1] }),
+    parse: (m) => {
+      const day = m[1];
+      const month = m[2];
+      const year = m[3];
+      if (day === undefined || month === undefined || year === undefined) {
+        return null;
+      }
+      return { year: +year, month: +month, day: +day };
+    },
   },
   // MM/DD/YYYY intentionally excluded — PL-focused app. All Polish/EU banks use DD/MM.
   // If needed in future, add disambiguation logic (check if any sample has day > 12).
@@ -67,8 +98,11 @@ export const detectDateFormat = (
       if (!match) {
         return false;
       }
-      const { year, month, day } = fmt.parse(match);
-      return isValidDate(year, month, day);
+      const parsed = fmt.parse(match);
+      if (parsed === null) {
+        return false;
+      }
+      return isValidDate(parsed.year, parsed.month, parsed.day);
     });
     if (allValid) {
       return fmt.format;
@@ -93,7 +127,12 @@ export const parseDate = (value: string, format: DateFormat): string | null => {
     return null;
   }
 
-  const { year, month, day } = fmt.parse(match);
+  const parsed = fmt.parse(match);
+  if (parsed === null) {
+    return null;
+  }
+
+  const { year, month, day } = parsed;
   if (!isValidDate(year, month, day)) {
     return null;
   }

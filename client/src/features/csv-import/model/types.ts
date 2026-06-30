@@ -64,7 +64,7 @@ export interface BankProfile {
 
 // ─── Anonymizer: Detection ───────────────────────────────────────
 
-export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address';
+export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address' | 'card';
 
 export interface DetectionSpan {
   readonly start: number;

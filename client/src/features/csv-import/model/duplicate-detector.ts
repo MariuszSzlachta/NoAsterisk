@@ -34,7 +34,7 @@ export const detectDuplicatesInBatch = (
       return {
         ...row,
         status: 'duplicate' as const,
-        statusReason: 'Duplikat w pliku',
+        statusReason: 'Duplicate in file',
         duplicateHash: hash,
       };
     }
@@ -59,7 +59,7 @@ export const detectDuplicatesAgainstExisting = (
       return {
         ...row,
         status: 'duplicate' as const,
-        statusReason: 'Już zaimportowano', // todo only eng
+        statusReason: 'Already imported',
         duplicateHash: hash,
       };
     }

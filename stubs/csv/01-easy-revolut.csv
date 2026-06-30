@@ -1,0 +1,11 @@
+Date,Description,Amount,Currency,Original Amount,Original Currency,Category,Counterparty,Counterparty IBAN
+2025-06-01,Salary Jun 2025,8500.00,PLN,,,Income,TechCorp Sp. z o.o.,PL61109010140000071219812874
+2025-06-02,To Biedronka Sklep 4412,-87.43,PLN,,,Groceries,Biedronka,
+2025-06-03,To Netflix,-49.99,PLN,-11.99,EUR,Entertainment,Netflix International B.V.,
+2025-06-05,To Anna Nowak,-2000.00,PLN,,,Transfer,anna.nowak84@gmail.com,PL27114020040000300201355387
+2025-06-07,From Marta Wiśniewska,3200.00,PLN,,,Income,m.wisniewska@digitalsolve.pl,PL83101010230000261395100000
+2025-06-10,To Uber BV,-23.50,PLN,-5.47,EUR,Transport,Uber,
+2025-06-12,To PGE Obrót S.A.,-189.00,PLN,,,Bills,PGE Obrót S.A.,PL95109024020000000136470001
+2025-06-15,ATM - Euronet Kraków,-500.00,PLN,,,Cash,,
+2025-06-18,To Restauracja Pod Lipą,-156.80,PLN,,,Dining,Restauracja Pod Lipą,
+2025-06-22,To CityFit,-149.00,PLN,,,Health,CityFit Sp. z o.o.,
