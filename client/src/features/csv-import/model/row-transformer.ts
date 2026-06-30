@@ -1,5 +1,5 @@
 import { detectAmountLocale, parseAmount } from './parser/amount-parser';
-import { detectDateFormat, parseDate } from './parser/date-parser';
+import { detectDateFormat, parseDate, parseDateFlexible } from './parser/date-parser';
 import type {
   ColumnMapping,
   CsvRow,
@@ -66,7 +66,9 @@ export const transformRows = (
 
     // Parse date
     const rawDate = row[dateCol] ?? '';
-    const parsedDate = dateFormat ? parseDate(rawDate, dateFormat) : null;
+    const parsedDate = dateFormat
+      ? parseDate(rawDate, dateFormat)
+      : parseDateFlexible(rawDate);
     if (!parsedDate && rawDate) {
       if (status === 'ok') {
         status = 'warning';

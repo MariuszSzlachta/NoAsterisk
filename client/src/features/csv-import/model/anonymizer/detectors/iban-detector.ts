@@ -1,10 +1,18 @@
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../../types';
 
-// Matches IBAN: 2 letters + 2 check digits + 4-30 alphanumeric (with optional spaces)
+// Matches IBAN: 2 letters + 2 check digits + 24 digits (with optional spaces)
 const IBAN_PATTERN =
   /\b([A-Z]{2})\s?(\d{2})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})\b/g;
 // Also match compact form without spaces
 const IBAN_COMPACT = /\b([A-Z]{2})(\d{26})\b/g;
+
+// Bare Polish account number: 26 digits (2 check + 24), with optional spaces every 4 digits
+// Optionally preceded by single quote (Polish bank CSV convention: '68 1050 1214...)
+const BARE_PL_IBAN =
+  /(?<!\d)'?(\d{2})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})[\s]?(\d{4})(?!\d)/g;
+
+// Compact bare: 26 digits without spaces, optionally preceded by quote
+const BARE_PL_COMPACT = /(?<!\d)'?(\d{26})(?!\d)/g;
 
 /**
  * Validate IBAN via mod97 algorithm (ISO 7064).
@@ -35,6 +43,17 @@ const validateMod97 = (iban: string): boolean => {
   return remainder === 1;
 };
 
+/**
+ * Validate a bare Polish account number by prepending 'PL' and running mod97.
+ */
+const validateBarePl = (digits: string): boolean => {
+  const cleaned = digits.replace(/\s/g, '');
+  if (cleaned.length !== 26) {
+    return false;
+  }
+  return validateMod97('PL' + cleaned);
+};
+
 export const ibanDetector: PiiDetector = {
   id: 'iban',
   priority: 90,
@@ -42,15 +61,14 @@ export const ibanDetector: PiiDetector = {
   detect(text: string, _dictionaries: DictionarySet): readonly DetectionSpan[] {
     const spans: DetectionSpan[] = [];
 
+    // 1. Full IBAN with country code
     for (const pattern of [IBAN_PATTERN, IBAN_COMPACT]) {
       pattern.lastIndex = 0;
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(text)) !== null) {
         const original = match[0];
         const cleaned = original.replace(/\s/g, '');
-        const valid = validateMod97(cleaned);
-
-        if (valid) {
+        if (validateMod97(cleaned)) {
           spans.push({
             start: match.index,
             end: match.index + original.length,
@@ -58,13 +76,45 @@ export const ibanDetector: PiiDetector = {
             confidence: 0.99,
             original,
             detectorId: 'iban',
-            metadata: { checksumValid: true },
+            metadata: { checksumValid: true, format: 'full' },
           });
         }
       }
     }
 
-    // Deduplicate overlapping spans (both patterns may match same IBAN)
+    // 2. Bare Polish account numbers (26 digits, no PL prefix)
+    for (const pattern of [BARE_PL_IBAN, BARE_PL_COMPACT]) {
+      pattern.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(text)) !== null) {
+        const original = match[0];
+
+        // Skip if already covered by a full IBAN span
+        const overlaps = spans.some(
+          (s) =>
+            match.index < s.end && match.index + match[0].length > s.start,
+        );
+        if (overlaps) {
+          continue;
+        }
+
+        // Strip leading quote (Polish bank CSV convention)
+        const digits = original.replace(/^'/, '').replace(/\s/g, '');
+        if (validateBarePl(digits)) {
+          spans.push({
+            start: match.index,
+            end: match.index + original.length,
+            type: 'iban',
+            confidence: 0.97,
+            original,
+            detectorId: 'iban',
+            metadata: { checksumValid: true, format: 'bare_pl' },
+          });
+        }
+      }
+    }
+
+    // Deduplicate overlapping spans
     const unique: DetectionSpan[] = [];
     for (const span of spans.sort((a, b) => a.start - b.start)) {
       if (!unique.some((u) => span.start < u.end && span.end > u.start)) {

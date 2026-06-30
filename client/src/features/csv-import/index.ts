@@ -2,7 +2,7 @@
 // Only these exports are available to pages and other features.
 
 export { parseCsvFile, CsvParseError } from './model/parser/csv-parser';
-export { detectDateFormat, parseDate } from './model/parser/date-parser';
+export { detectDateFormat, parseDate, parseDateFlexible } from './model/parser/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
 export { autoDetectMapping } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';

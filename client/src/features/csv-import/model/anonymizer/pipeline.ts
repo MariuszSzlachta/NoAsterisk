@@ -7,10 +7,14 @@ import type {
 } from '../types';
 import { resolveConflicts } from './conflict-resolver';
 import { addressDetector } from './detectors/address-detector';
+import { birthDateDetector } from './detectors/birth-date-detector';
 import { cardDetector } from './detectors/card-detector';
 import { emailDetector } from './detectors/email-detector';
 import { ibanDetector } from './detectors/iban-detector';
 import { nameDetector } from './detectors/name-detector';
+import { nationalIdDetector } from './detectors/national-id-detector';
+import { nipDetector } from './detectors/nip-detector';
+import { peselDetector } from './detectors/pesel-detector';
 import { phoneDetector } from './detectors/phone-detector';
 import { applyMasking } from './masker';
 
@@ -21,18 +25,23 @@ const REVIEW_THRESHOLD = 0.7;
 
 // ─── Registry ────────────────────────────────────────────────────
 
-const DETECTORS: readonly PiiDetector[] = [
+const DEFAULT_DETECTORS: readonly PiiDetector[] = [
+  peselDetector,
   ibanDetector,
   cardDetector,
+  nipDetector,
   phoneDetector,
+  nationalIdDetector,
   emailDetector,
+  birthDateDetector,
   nameDetector,
   addressDetector,
 ];
 
-const PRIORITY_MAP = new Map<string, number>(
-  DETECTORS.map((d) => [d.id, d.priority]),
-);
+const buildPriorityMap = (
+  detectors: readonly PiiDetector[],
+): Map<string, number> =>
+  new Map(detectors.map((d) => [d.id, d.priority]));
 
 // ─── Whitelist Filter ────────────────────────────────────────────
 
@@ -105,9 +114,12 @@ const determineStatus = (
 export const anonymizeTitle = (
   text: string,
   dictionaries: DictionarySet,
+  detectors: readonly PiiDetector[] = DEFAULT_DETECTORS,
 ): { spans: DetectionSpan[]; masked: string; status: AnonymizationStatus } => {
+  const priorityMap = buildPriorityMap(detectors);
+
   // 1. Run all detectors
-  const allSpans = DETECTORS.flatMap((detector) =>
+  const allSpans = detectors.flatMap((detector) =>
     detector.detect(text, dictionaries),
   );
 
@@ -118,7 +130,7 @@ export const anonymizeTitle = (
   const gated = applyConfidenceGate(filtered);
 
   // 4. Resolve conflicts
-  const resolved = resolveConflicts(gated, PRIORITY_MAP);
+  const resolved = resolveConflicts(gated, priorityMap);
 
   // 5. Apply masking
   const masked = applyMasking(text, resolved);

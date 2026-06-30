@@ -1,6 +1,7 @@
 import { parseCsv } from '#shared/adapters/csv';
 
 import type { CsvRow, ParsedCsvData } from '../types';
+import { detectDataBoundaries } from './data-boundary-detector';
 import { decodeBuffer, detectEncoding } from './encoding-detector';
 import { detectSeparator } from './separator-detector';
 
@@ -32,25 +33,48 @@ const validateFile = (file: File): void => {
 };
 
 /**
+ * Strip BOM character if present (UTF-8 BOM decoded as \uFEFF).
+ */
+const stripBom = (text: string): string =>
+  text.startsWith('\uFEFF') ? text.slice(1) : text;
+
+/**
+ * Normalize non-breaking spaces to regular spaces.
+ * NBSP (\u00A0) is used as thousands separator in Polish bank exports.
+ */
+const normalizeNbsp = (text: string): string =>
+  text.replace(/\u00A0/g, ' ');
+
+/**
  * Full CSV parsing pipeline:
  * 1. Validate file
  * 2. Read as ArrayBuffer
- * 3. Detect encoding → decode
- * 4. Detect separator
- * 5. Parse with papaparse
- * 6. Return structured result
+ * 3. Detect encoding → decode → strip BOM
+ * 4. Detect data boundaries (skip metadata header + footer)
+ * 5. Detect separator on data portion
+ * 6. Parse with papaparse
+ * 7. Return structured result
  */
 export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
   validateFile(file);
 
   const buffer = await file.arrayBuffer();
   const encoding = detectEncoding(buffer);
-  const text = decodeBuffer(buffer, encoding);
-  const separator = detectSeparator(text);
+  const rawText = normalizeNbsp(stripBom(decodeBuffer(buffer, encoding)));
 
-  const result = parseCsv<Record<string, string>>(text, {
+  // First pass: detect separator on the full text (needed for boundary detection)
+  const separator = detectSeparator(rawText);
+
+  // Detect where actual data begins/ends (skip metadata + footer)
+  const boundaries = detectDataBoundaries(rawText, separator);
+  const dataText = boundaries.dataText;
+
+  // Re-detect separator on data portion only (metadata lines might have skewed it)
+  const dataSeparator = detectSeparator(dataText);
+
+  const result = parseCsv<Record<string, string>>(dataText, {
     header: true,
-    delimiter: separator,
+    delimiter: dataSeparator,
     skipEmptyLines: true,
   });
 
@@ -80,7 +104,7 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     rows,
     fileName: file.name,
     encoding,
-    separator,
+    separator: dataSeparator,
     rowCount: rows.length,
   };
 };

@@ -5,7 +5,7 @@ const EMAIL_PATTERN = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 
 export const emailDetector: PiiDetector = {
   id: 'email',
-  priority: 88,
+  priority: 70,
 
   detect(text: string, _dictionaries: DictionarySet): readonly DetectionSpan[] {
     const spans: DetectionSpan[] = [];

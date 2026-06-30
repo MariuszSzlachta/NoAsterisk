@@ -4,7 +4,7 @@ type MaskFn = (original: string) => string;
 
 const MASK_STRATEGIES: Record<string, MaskFn> = {
   iban: (s) => {
-    const clean = s.replace(/\s/g, '');
+    const clean = s.replace(/^'/, '').replace(/\s/g, '');
     return `${clean.slice(0, 4)} •••• •••• ${clean.slice(-4)}`;
   },
   card: (s) => {
@@ -14,6 +14,20 @@ const MASK_STRATEGIES: Record<string, MaskFn> = {
     }
     // Already masked pattern — keep as-is or standardize
     return `•••• •••• •••• ${s.slice(-4)}`;
+  },
+  pesel: (s) => {
+    const digits = s.replace(/\D/g, '');
+    return `${digits.slice(0, 2)}•••••••${digits.slice(-2)}`;
+  },
+  nip: (s) => {
+    const digits = s.replace(/\D/g, '');
+    return `${digits.slice(0, 3)}-•••-••-${digits.slice(-2)}`;
+  },
+  national_id: (s) => {
+    return `${s.slice(0, 3)} ••••••`;
+  },
+  birth_date: () => {
+    return 'ur. ••.••.••••';
   },
   name: (s) => {
     const parts = s.split(/[\s-]+/).filter((p) => p.length > 0);

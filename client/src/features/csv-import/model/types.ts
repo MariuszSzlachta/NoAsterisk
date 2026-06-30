@@ -23,7 +23,12 @@ export type DateFormat =
   | 'DD.MM.YYYY'
   | 'YYYY-MM-DD'
   | 'DD/MM/YYYY'
-  | 'DD-MM-YYYY';
+  | 'DD-MM-YYYY'
+  | 'YYYY/MM/DD'
+  | 'DD.MM.YY'
+  | 'DD/MM/YY'
+  | 'DD-MMM-YYYY'
+  | 'DD Mon YYYY';
 export type AmountLocale = 'pl' | 'en';
 
 export interface ParserConfig {
@@ -64,7 +69,7 @@ export interface BankProfile {
 
 // ─── Anonymizer: Detection ───────────────────────────────────────
 
-export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address' | 'card';
+export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address' | 'card' | 'pesel' | 'nip' | 'national_id' | 'birth_date';
 
 export interface DetectionSpan {
   readonly start: number;

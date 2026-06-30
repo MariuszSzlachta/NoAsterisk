@@ -45,6 +45,6 @@ describe('emailDetector', () => {
 
   it('has correct priority and id', () => {
     expect(emailDetector.id).toBe('email');
-    expect(emailDetector.priority).toBe(88);
+    expect(emailDetector.priority).toBe(70);
   });
 });
