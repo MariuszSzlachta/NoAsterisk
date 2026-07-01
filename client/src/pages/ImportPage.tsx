@@ -5,6 +5,7 @@ import { Stepper } from '#shared/ui/Stepper';
 
 import {
   ColumnMappingStep,
+  ImportConfirmStep,
   ImportPreviewGrid,
   useImportWizard,
 } from '#features/csv-import';
@@ -32,11 +33,7 @@ export const ImportPage = (): React.JSX.Element => {
 
       {step === 2 && <ImportPreviewGrid />}
 
-      {step === 3 && (
-        <div className="text-center text-muted-foreground">
-          <p>{t('import.confirm.placeholder')}</p>
-        </div>
-      )}
+      {step === 3 && <ImportConfirmStep />}
     </div>
   );
 };

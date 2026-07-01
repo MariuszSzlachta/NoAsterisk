@@ -2,6 +2,8 @@ import { hasRequiredFields } from '#features/csv-import/model/column-mapper';
 import { detectDuplicatesInBatch } from '#features/csv-import/model/duplicate-detector';
 import { parseCsvFile } from '#features/csv-import/model/parser/csv-parser';
 import { autoDetectMapping } from '#features/csv-import/model/column-mapper';
+import { processRows } from '#features/csv-import/model/anonymizer/pipeline';
+import { devDictionaryProvider } from '#features/csv-import/model/anonymizer/dictionaries/dictionary-provider';
 import { transformRows } from '#features/csv-import/model/row-transformer';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { WizardStep } from '#features/csv-import/model/types';
@@ -31,6 +33,7 @@ export const useImportWizard = (): ImportWizardActions => {
   const setParseError = useImportWizardStore((s) => s.setParseError);
   const setDetectedMapping = useImportWizardStore((s) => s.setDetectedMapping);
   const setRows = useImportWizardStore((s) => s.setRows);
+  const setAnonymizationEntries = useImportWizardStore((s) => s.setAnonymizationEntries);
   const setStep = useImportWizardStore((s) => s.setStep);
   const nextStep = useImportWizardStore((s) => s.nextStep);
   const reset = useImportWizardStore((s) => s.reset);
@@ -48,18 +51,36 @@ export const useImportWizard = (): ImportWizardActions => {
       nextStep();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : 'Nie udało się sparsować pliku';
+        err instanceof Error ? err.message : 'Failed to parse file';
       setParseError(message);
     }
   };
 
-  const handleMappingConfirm = (): void => {
+  const handleMappingConfirm = async (): Promise<void> => {
     if (!parsedData) {
       return;
     }
 
+    // Transform raw CSV rows to typed TransactionRows
     const transformed = transformRows(parsedData.rows, columnMapping);
-    const withDuplicates = detectDuplicatesInBatch(transformed);
+
+    // Anonymize titles — raw data NEVER leaves the browser
+    const dictionaries = await devDictionaryProvider.loadAll();
+    const titles = transformed.map((r) => r.title);
+    const anonymizationEntries = processRows(titles, dictionaries);
+    setAnonymizationEntries(anonymizationEntries);
+
+    // Apply anonymized titles to rows
+    const anonymizedRows = transformed.map((row, idx) => {
+      const entry = anonymizationEntries[idx];
+      if (entry && entry.status === 'anonymized') {
+        return { ...row, title: entry.anonymizedTitle };
+      }
+      return row;
+    });
+
+    // Run duplicate detection on anonymized rows
+    const withDuplicates = detectDuplicatesInBatch(anonymizedRows);
 
     setRows(withDuplicates);
     nextStep();

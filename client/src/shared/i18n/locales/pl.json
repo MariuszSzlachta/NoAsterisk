@@ -117,7 +117,16 @@
       "info": "Info"
     },
     "confirm": {
-      "placeholder": "Potwierdzenie importu — wkrótce"
+      "title": "Potwierdzenie importu",
+      "readyDescription": "Gotowe do importu: {{count}} transakcji zostanie wysłanych na serwer.",
+      "submit": "Importuj transakcje",
+      "progress": "Wysyłanie paczki {{completed}} z {{total}}...",
+      "saved": "Zapisano {{count}} transakcji",
+      "success": "Import zakończony pomyślnie",
+      "successDetail": "Zapisano: {{saved}}, pominięto duplikatów: {{duplicates}}",
+      "failed": "Import zakończony z błędami",
+      "partialSuccess": "Częściowo zapisano: {{saved}} transakcji",
+      "retry": "Ponów import"
     },
     "batchEdit": {
       "title": "Znaleziono {{count}} podobnych transakcji",

@@ -14,6 +14,7 @@ export {
 export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
 export { findSimilarRows } from './model/find-similar-rows';
+export { createImportChunks, computeContentHash, computeBatchHash } from './model/import-chunks';
 export {
   detectDuplicatesInBatch,
   detectDuplicatesAgainstExisting,
@@ -27,14 +28,19 @@ export {
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
 
+// API
+export { useImportMutation } from './api/useImportMutation';
+
 // UI — Components
 export { ColumnMappingStep } from './ui/ColumnMappingStep';
 export { ImportPreviewGrid } from './ui/ImportPreviewGrid';
 export { BatchEditPanel } from './ui/BatchEditPanel';
+export { ImportConfirmStep } from './ui/ImportConfirmStep';
 
 // UI — Hooks
 export { useImportWizard } from './ui/hooks/useImportWizard';
 export { useBatchEditPanel } from './ui/hooks/useBatchEditPanel';
+export { useImportSubmit } from './ui/hooks/useImportSubmit';
 
 // Types
 export type {
@@ -52,6 +58,10 @@ export type {
   MappingProfile,
   BankProfile,
   UserCorrection,
+  ImportRowPayload,
+  ImportChunkPayload,
+  ImportChunkResult,
+  ImportProgress,
 } from './model/types';
 
 export type { DecodeWarning } from './model/parser/encoding-detector';
