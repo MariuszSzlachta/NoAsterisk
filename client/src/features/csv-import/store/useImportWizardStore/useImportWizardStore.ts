@@ -43,6 +43,7 @@ interface ImportWizardState {
   // Step 3: Confirmation
   readonly isSubmitting: boolean;
   readonly submitError: string | undefined;
+  readonly batchId: string | undefined;
 
   // UI state
   readonly selectedRowIds: ReadonlyArray<string>;
@@ -95,6 +96,7 @@ const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep'
   anonymizationEntries: [],
   isSubmitting: false,
   submitError: undefined,
+  batchId: undefined,
   selectedRowIds: [],
   batchEditPanel: {
     isOpen: false,

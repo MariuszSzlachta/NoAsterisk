@@ -5,6 +5,7 @@ import { Card } from '#shared/ui/Card';
 
 import { ColumnMappingRow } from '#features/csv-import/ui/ColumnMappingRow';
 import { useColumnMappingStep } from '#features/csv-import/ui/hooks/useColumnMappingStep';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 
 export const ColumnMappingStep = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export const ColumnMappingStep = (): React.JSX.Element => {
     handleFieldChange,
     handleConfirm,
   } = useColumnMappingStep();
+  const { isProcessing, handlePrevStep } = useImportWizard();
 
   return (
     <div className="flex flex-col gap-4">
@@ -36,8 +38,11 @@ export const ColumnMappingStep = (): React.JSX.Element => {
           ))}
         </div>
       </Card>
-      <div className="flex justify-end">
-        <Button onClick={handleConfirm} disabled={!isMappingComplete}>
+      <div className="flex items-center justify-between">
+        <Button variant="secondary" onClick={handlePrevStep}>
+          {t('import.nav.back')}
+        </Button>
+        <Button onClick={handleConfirm} disabled={!isMappingComplete || isProcessing}>
           {t('import.mapping.confirm')}
         </Button>
       </div>

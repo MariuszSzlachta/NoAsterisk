@@ -2,12 +2,14 @@ import { useTranslation } from 'react-i18next';
 
 import { DataGrid } from '#shared/adapters/grid';
 import { Badge } from '#shared/ui/Badge';
+import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 
 import type { TransactionRow } from '#features/csv-import/model/types';
 import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
 import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
 import { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import {
   createImportGridColumns,
   IMPORT_GRID_PAGE_SIZE,
@@ -20,8 +22,13 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { rows, stats, handleSelectionChange } = useImportPreviewGrid();
   const { handleCellEdit } = useBatchEditPanel();
+  const { handleNextStep, handlePrevStep } = useImportWizard();
 
   const columns = createImportGridColumns(t);
+
+  const importableCount = rows.filter(
+    (r) => r.status === 'ok' || r.status === 'warning',
+  ).length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,6 +72,15 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
           onSelectionChange={handleSelectionChange}
         />
       </Card>
+
+      <div className="flex items-center justify-between">
+        <Button variant="secondary" onClick={handlePrevStep}>
+          {t('import.nav.back')}
+        </Button>
+        <Button onClick={handleNextStep} disabled={importableCount === 0}>
+          {t('import.nav.continue', { count: importableCount })}
+        </Button>
+      </div>
     </div>
   );
 };

@@ -28,7 +28,7 @@ export const computeBatchHash = async (
   rows: ReadonlyArray<TransactionRow>,
 ): Promise<string> => {
   const combined = rows
-    .map((r) => `${r.date}|${r.amount}|${r.title}`)
+    .map((r) => `${r.date}|${r.amount}|${r.title.toLowerCase().trim()}`)
     .join('\n');
   const encoded = new TextEncoder().encode(combined);
   const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);

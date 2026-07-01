@@ -22,6 +22,7 @@ const sleep = (ms: number): Promise<void> =>
 export const useImportSubmit = (): UseImportSubmitResult => {
   const rows = useImportWizardStore((s) => s.rows);
   const file = useImportWizardStore((s) => s.file);
+  const batchId = useImportWizardStore((s) => s.batchId);
   const setSubmitting = useImportWizardStore((s) => s.setSubmitting);
 
   const { submitChunk } = useImportMutation();
@@ -35,6 +36,11 @@ export const useImportSubmit = (): UseImportSubmitResult => {
     errors: [],
     status: 'idle',
   });
+
+  // Track which chunk indices have been successfully sent
+  const [completedChunkIndices, setCompletedChunkIndices] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
 
   const importableCount = rows.filter(
     (r) => r.status === 'ok' || r.status === 'warning',
@@ -70,15 +76,30 @@ export const useImportSubmit = (): UseImportSubmitResult => {
   const handleSubmit = async (): Promise<void> => {
     setSubmitting(true);
 
-    const batchId = crypto.randomUUID();
+    // BUG-2 FIX: Use stable batchId from store (generated once per wizard session)
+    const stableBatchId = batchId ?? crypto.randomUUID();
+    // Store it if first submission
+    if (!batchId) {
+      useImportWizardStore.getState().setSubmitError(undefined);
+      // Set batchId in store for retry persistence
+      useImportWizardStore.setState({ batchId: stableBatchId });
+    }
+
+    const isRetry = completedChunkIndices.size > 0;
+
     const chunks = await createImportChunks(rows, {
-      batchId,
+      batchId: stableBatchId,
       sourceFilename: file?.name,
     });
 
+    // HIGH-1 FIX: Set isRetry flag on retry submissions
+    const chunksWithRetry: readonly ImportChunkPayload[] = isRetry
+      ? chunks.map((c) => ({ ...c, isRetry: true }))
+      : chunks;
+
     setProgress({
       totalChunks: chunks.length,
-      completedChunks: 0,
+      completedChunks: completedChunkIndices.size,
       totalRows: importableCount,
       savedRows: 0,
       duplicatesSkipped: 0,
@@ -89,25 +110,34 @@ export const useImportSubmit = (): UseImportSubmitResult => {
     let savedTotal = 0;
     let duplicatesTotal = 0;
     const errors: Array<{ chunkIndex: number; message: string }> = [];
+    const newCompleted = new Set(completedChunkIndices);
 
-    for (let i = 0; i < chunks.length; i++) {
-      const result = await submitWithRetry(chunks[i], i);
+    for (let i = 0; i < chunksWithRetry.length; i++) {
+      // Skip already-completed chunks on retry
+      if (completedChunkIndices.has(i)) {
+        continue;
+      }
+
+      const result = await submitWithRetry(chunksWithRetry[i], i);
 
       if ('error' in result) {
         errors.push({ chunkIndex: i, message: result.error });
       } else {
         savedTotal += result.saved;
         duplicatesTotal += result.duplicatesSkipped;
+        newCompleted.add(i);
       }
 
       setProgress((prev) => ({
         ...prev,
-        completedChunks: i + 1,
+        completedChunks: newCompleted.size,
         savedRows: savedTotal,
         duplicatesSkipped: duplicatesTotal,
         errors: [...errors],
       }));
     }
+
+    setCompletedChunkIndices(newCompleted);
 
     const finalStatus = errors.length > 0 ? 'failed' : 'completed';
     setProgress((prev) => ({ ...prev, status: finalStatus }));

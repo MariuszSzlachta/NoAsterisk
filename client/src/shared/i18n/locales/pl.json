@@ -128,6 +128,10 @@
       "partialSuccess": "Częściowo zapisano: {{saved}} transakcji",
       "retry": "Ponów import"
     },
+    "nav": {
+      "back": "Wstecz",
+      "continue": "Dalej — importuj {{count}} transakcji"
+    },
     "batchEdit": {
       "title": "Znaleziono {{count}} podobnych transakcji",
       "description": "Czy zmienić pole \"{{field}}\" również w tych transakcjach?",

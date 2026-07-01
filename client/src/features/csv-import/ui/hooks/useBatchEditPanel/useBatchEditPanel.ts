@@ -41,6 +41,18 @@ export const useBatchEditPanel = (): BatchEditPanelResult => {
     // Apply the edit to the current row immediately
     updateRow(rowId, { [field]: newValue });
 
+    // HIGH-3 FIX: Re-validate after edit — empty title = error
+    if (field === 'title' && !newValue.trim()) {
+      const store = useImportWizardStore.getState();
+      const updatedRows = store.rows.map((r) =>
+        r.id === rowId
+          ? { ...r, status: 'error' as const, statusReason: 'Empty title' }
+          : r,
+      );
+      store.setRows(updatedRows);
+      return; // Don't offer batch edit for invalid value
+    }
+
     // Find similar rows that could benefit from the same edit
     const similar = findSimilarRows(rows, rowId, originalValue);
 
