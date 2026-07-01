@@ -30,7 +30,7 @@ const isLikelyNotPhone = (text: string, start: number): boolean => {
     return true;
   }
   // Insurance policy numbers ("NR POLISY", "nr polisy klienta")
-  if (/(?:polis[ya]|polisy)\b.*$/i.test(prefix)) {
+  if (/(?:polis[ya]|polisy)\b/i.test(prefix)) {
     return true;
   }
   // REF/ patterns (bank reference codes, e.g. "REF/2025/06/000001")

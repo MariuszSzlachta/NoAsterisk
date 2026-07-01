@@ -96,13 +96,8 @@ export const transformRows = (
   // Auto-detect formats from sample data
   const dateSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[dateCol] ?? '');
 
-  // For amount locale detection, use whichever column(s) have data
-  const amountSampleCol = amountCol ?? debitCol ?? creditCol;
-  if (!amountSampleCol) {
-    throw new Error(
-      'Required fields (date, title, amount or debit/credit) must be mapped',
-    );
-  }
+  // For amount locale detection — hasAmountSource is guaranteed truthy after guard
+  const amountSampleCol = hasAmountSource;
   const amountSamples = rows
     .slice(0, SAMPLE_SIZE)
     .map((r) => r[amountSampleCol] ?? '');
