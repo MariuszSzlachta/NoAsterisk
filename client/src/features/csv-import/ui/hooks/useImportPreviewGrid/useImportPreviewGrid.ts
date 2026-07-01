@@ -12,7 +12,6 @@ interface ImportStats {
 interface ImportPreviewGridResult {
   readonly rows: ReadonlyArray<TransactionRow>;
   readonly stats: ImportStats;
-  readonly handleCellEdit: (rowId: string, field: string, value: unknown) => void;
   readonly handleSelectionChange: (ids: string[]) => void;
 }
 
@@ -42,16 +41,9 @@ const computeStats = (rows: ReadonlyArray<TransactionRow>): ImportStats => {
 
 export const useImportPreviewGrid = (): ImportPreviewGridResult => {
   const rows = useImportWizardStore((s) => s.rows);
-  const updateRow = useImportWizardStore((s) => s.updateRow);
   const setSelectedRowIds = useImportWizardStore((s) => s.setSelectedRowIds);
 
   const stats = computeStats(rows);
-
-  const handleCellEdit = (rowId: string, field: string, value: unknown): void => {
-    if (field === 'title' || field === 'category') {
-      updateRow(rowId, { [field]: value as string });
-    }
-  };
 
   const handleSelectionChange = (ids: string[]): void => {
     setSelectedRowIds(ids);
@@ -60,7 +52,6 @@ export const useImportPreviewGrid = (): ImportPreviewGridResult => {
   return {
     rows,
     stats,
-    handleCellEdit,
     handleSelectionChange,
   };
 };

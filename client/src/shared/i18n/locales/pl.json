@@ -118,6 +118,16 @@
     },
     "confirm": {
       "placeholder": "Potwierdzenie importu — wkrótce"
+    },
+    "batchEdit": {
+      "title": "Znaleziono {{count}} podobnych transakcji",
+      "description": "Czy zmienić pole \"{{field}}\" również w tych transakcjach?",
+      "applyAll": "Zmień wszystkie ({{count}})",
+      "skip": "Nie, tylko tę",
+      "fields": {
+        "title": "tytuł",
+        "category": "kategoria"
+      }
     }
   }
 }

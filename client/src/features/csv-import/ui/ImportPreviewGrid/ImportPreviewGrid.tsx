@@ -5,6 +5,8 @@ import { Badge } from '#shared/ui/Badge';
 import { Card } from '#shared/ui/Card';
 
 import type { TransactionRow } from '#features/csv-import/model/types';
+import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
+import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
 import { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid';
 import {
   createImportGridColumns,
@@ -16,8 +18,8 @@ const getRowId = (row: TransactionRow): string => row.id;
 
 export const ImportPreviewGrid = (): React.JSX.Element => {
   const { t } = useTranslation();
-  const { rows, stats, handleCellEdit, handleSelectionChange } =
-    useImportPreviewGrid();
+  const { rows, stats, handleSelectionChange } = useImportPreviewGrid();
+  const { handleCellEdit } = useBatchEditPanel();
 
   const columns = createImportGridColumns(t);
 
@@ -48,6 +50,9 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
           </Badge>
         )}
       </div>
+
+      <BatchEditPanel />
+
       <Card className="overflow-hidden p-0">
         <DataGrid
           rows={rows}

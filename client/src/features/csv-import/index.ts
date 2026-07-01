@@ -13,6 +13,7 @@ export {
 } from './model/parser/encoding-detector';
 export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
+export { findSimilarRows } from './model/find-similar-rows';
 export {
   detectDuplicatesInBatch,
   detectDuplicatesAgainstExisting,
@@ -29,9 +30,11 @@ export { useImportWizardStore } from './store/useImportWizardStore';
 // UI — Components
 export { ColumnMappingStep } from './ui/ColumnMappingStep';
 export { ImportPreviewGrid } from './ui/ImportPreviewGrid';
+export { BatchEditPanel } from './ui/BatchEditPanel';
 
 // UI — Hooks
 export { useImportWizard } from './ui/hooks/useImportWizard';
+export { useBatchEditPanel } from './ui/hooks/useBatchEditPanel';
 
 // Types
 export type {

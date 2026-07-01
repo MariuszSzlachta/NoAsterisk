@@ -11,6 +11,16 @@ import type {
   WizardStep,
 } from '#features/csv-import/model/types';
 
+// ─── Batch Edit Panel ────────────────────────────────────────────
+
+interface PendingBatchEdit {
+  readonly editedRowId: string;
+  readonly field: 'title' | 'category';
+  readonly originalValue: string;
+  readonly newValue: string;
+  readonly similarRowIds: ReadonlyArray<string>;
+}
+
 // ─── State Interface ─────────────────────────────────────────────
 
 interface ImportWizardState {
@@ -37,6 +47,12 @@ interface ImportWizardState {
   // UI state
   readonly selectedRowIds: ReadonlyArray<string>;
 
+  // Batch edit panel
+  readonly batchEditPanel: {
+    readonly isOpen: boolean;
+    readonly pendingEdit: PendingBatchEdit | undefined;
+  };
+
   // Actions
   readonly setStep: (step: WizardStep) => void;
   readonly nextStep: () => void;
@@ -58,12 +74,17 @@ interface ImportWizardState {
   readonly setSubmitting: (submitting: boolean) => void;
   readonly setSubmitError: (error: string | undefined) => void;
 
+  // Batch edit actions
+  readonly openBatchEditPanel: (pendingEdit: PendingBatchEdit) => void;
+  readonly closeBatchEditPanel: () => void;
+  readonly applyBatchEdit: () => void;
+
   readonly reset: () => void;
 }
 
 // ─── Initial State ───────────────────────────────────────────────
 
-const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep' | 'setFile' | 'setParsedData' | 'setParseError' | 'setDetectedMapping' | 'updateColumnMapping' | 'confirmMapping' | 'setRows' | 'updateRow' | 'setAnonymizationEntries' | 'setSelectedRowIds' | 'setSubmitting' | 'setSubmitError' | 'reset'> = {
+const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep' | 'setFile' | 'setParsedData' | 'setParseError' | 'setDetectedMapping' | 'updateColumnMapping' | 'confirmMapping' | 'setRows' | 'updateRow' | 'setAnonymizationEntries' | 'setSelectedRowIds' | 'setSubmitting' | 'setSubmitError' | 'openBatchEditPanel' | 'closeBatchEditPanel' | 'applyBatchEdit' | 'reset'> = {
   step: 0,
   file: undefined,
   parsedData: undefined,
@@ -75,6 +96,10 @@ const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep'
   isSubmitting: false,
   submitError: undefined,
   selectedRowIds: [],
+  batchEditPanel: {
+    isOpen: false,
+    pendingEdit: undefined,
+  },
 };
 
 // ─── Store ───────────────────────────────────────────────────────
@@ -132,6 +157,27 @@ export const useImportWizardStore = create<ImportWizardState>()(
     setSelectedRowIds: (ids) => set({ selectedRowIds: ids }),
     setSubmitting: (submitting) => set({ isSubmitting: submitting }),
     setSubmitError: (error) => set({ submitError: error }),
+
+    // Batch edit panel
+    openBatchEditPanel: (pendingEdit) =>
+      set({ batchEditPanel: { isOpen: true, pendingEdit } }),
+    closeBatchEditPanel: () =>
+      set({ batchEditPanel: { isOpen: false, pendingEdit: undefined } }),
+    applyBatchEdit: () =>
+      set((state) => {
+        const pending = state.batchEditPanel.pendingEdit;
+        if (!pending) {
+          return;
+        }
+        const rows = state.rows as TransactionRow[];
+        for (const rowId of pending.similarRowIds) {
+          const idx = rows.findIndex((r) => r.id === rowId);
+          if (idx !== -1) {
+            rows[idx] = { ...rows[idx], [pending.field]: pending.newValue };
+          }
+        }
+        state.batchEditPanel = { isOpen: false, pendingEdit: undefined };
+      }),
 
     // Reset
     reset: () => set(INITIAL_STATE),
