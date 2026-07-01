@@ -4,7 +4,7 @@
 export { parseCsvFile, CsvParseError } from './model/parser/csv-parser';
 export { detectDateFormat, parseDate, parseDateFlexible } from './model/parser/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
-export { autoDetectMapping } from './model/column-mapper';
+export { autoDetectMapping, normalizeHeader } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
 export {
   detectDuplicatesInBatch,

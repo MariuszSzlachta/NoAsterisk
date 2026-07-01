@@ -58,6 +58,49 @@ describe('phoneDetector', () => {
     expect(spans).toHaveLength(0);
   });
 
+  it('does NOT flag BLIK reference numbers', () => {
+    const text = 'OPERACJA BLIK REF: BLK25060700847291';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(0);
+  });
+
+  it('does NOT flag insurance policy numbers', () => {
+    const text = 'PZU nr polisy: PKR/2025/KA-BRZOZ/601234567';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(0);
+  });
+
+  it('does NOT flag NR POLISY patterns', () => {
+    const text = 'Nr polisy klienta: 501987654';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(0);
+  });
+
+  it('does NOT flag bank REF/ reference codes', () => {
+    const text = 'Przelew REF/501234567 uznanie';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(0);
+  });
+
+  it('does NOT flag authorization codes', () => {
+    const text = 'Karta 4532****7891 autoryzacja: 847291654';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(0);
+  });
+
+  it('still detects phone after BLIK keyword (real phone in title)', () => {
+    const text = 'BLIK Numer tel.: +48 601 234 567';
+    const spans = phoneDetector.detect(text, EMPTY_DICTS);
+
+    expect(spans).toHaveLength(1);
+    expect(spans[0].original).toBe('+48 601 234 567');
+  });
+
   it('has correct priority and id', () => {
     expect(phoneDetector.id).toBe('phone');
     expect(phoneDetector.priority).toBe(85);

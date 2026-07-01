@@ -41,7 +41,7 @@ export interface ParserConfig {
 
 // ─── Column Mapping ──────────────────────────────────────────────
 
-export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance';
+export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'debit' | 'credit';
 
 export type ColumnMapping = Partial<Record<string, DomainField>>;
 

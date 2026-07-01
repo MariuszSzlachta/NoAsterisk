@@ -75,6 +75,13 @@ describe('transformRows', () => {
     expect(() => transformRows(rows, mapping)).toThrow('Required fields');
   });
 
+  it('throws when neither amount nor debit/credit mapped', () => {
+    const rows = [{ D: '2026-06-26', T: 'TEST' }];
+    const mapping = { D: 'date' as const, T: 'title' as const };
+
+    expect(() => transformRows(rows, mapping)).toThrow('Required fields');
+  });
+
   it('defaults currency to PLN when not mapped', () => {
     const rows = [{ D: '2026-06-26', T: 'TEST', K: '100' }];
     const mapping = {
@@ -86,5 +93,122 @@ describe('transformRows', () => {
     const result = transformRows(rows, mapping);
 
     expect(result[0].currency).toBe('PLN');
+  });
+
+  describe('debit/credit split handling', () => {
+    it('resolves credit (Ma) as positive amount', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW PRZYCHODZĄCY', Wn: '', Ma: '8 500,00' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(8500);
+      expect(result[0].status).toBe('ok');
+    });
+
+    it('resolves debit (Wn) as negative amount', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'ZAKUP KARTĄ', Wn: '234,87', Ma: '' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(-234.87);
+      expect(result[0].status).toBe('ok');
+    });
+
+    it('handles debit with only one column mapped', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'OPŁATA', Wn: '100,00' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(-100);
+      expect(result[0].status).toBe('ok');
+    });
+
+    it('handles rows where debit is "0" and credit has value', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'WPŁYW', Wn: '0,00', Ma: '1 200,00' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(1200);
+    });
+
+    it('marks row as error when both debit and credit are empty', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'DZIWNA OPERACJA', Wn: '', Ma: '' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].status).toBe('error');
+      expect(result[0].statusReason).toContain('Invalid amount');
+    });
+
+    it('makes debit always negative even if value has sign', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW', Wn: '-500,00', Ma: '' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(-500);
+    });
+
+    it('makes credit always positive even if value has sign', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'WPŁYW', Wn: '', Ma: '+3 000,00' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        Wn: 'debit' as const,
+        Ma: 'credit' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0].amount).toBe(3000);
+    });
   });
 });

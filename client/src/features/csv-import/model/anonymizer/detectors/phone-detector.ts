@@ -20,9 +20,25 @@ const PHONE_CONTEXT_KEYWORDS = [
 
 // Numbers that look like phones but aren't (invoice numbers, order IDs, etc.)
 const isLikelyNotPhone = (text: string, start: number): boolean => {
-  const prefix = text.slice(Math.max(0, start - 15), start).toLowerCase();
-  // Invoice/order patterns
+  const prefix = text.slice(Math.max(0, start - 20), start).toLowerCase();
+  // Invoice/order/reference patterns
   if (/(?:fv|faktura|nr|numer|zamówienie|id|ref)[/\s:-]*$/i.test(prefix)) {
+    return true;
+  }
+  // BLK reference numbers (BLIK transaction IDs, e.g. "BLK25060700847291")
+  if (/blk\d*$/i.test(prefix)) {
+    return true;
+  }
+  // Insurance policy numbers ("NR POLISY", "nr polisy klienta")
+  if (/(?:polis[ya]|polisy)\b.*$/i.test(prefix)) {
+    return true;
+  }
+  // REF/ patterns (bank reference codes, e.g. "REF/2025/06/000001")
+  if (/ref[/\s:-]*$/i.test(prefix)) {
+    return true;
+  }
+  // Authorization codes ("autoryzacja:", "auth:")
+  if (/(?:autoryzacja|auth)[/\s:-]*$/i.test(prefix)) {
     return true;
   }
   // If preceded by letters directly (like store number: "BIEDRONKA1234")
