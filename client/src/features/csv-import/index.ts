@@ -4,6 +4,12 @@
 export { parseCsvFile, CsvParseError } from './model/parser/csv-parser';
 export { detectDateFormat, parseDate, parseDateFlexible } from './model/parser/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
+export {
+  detectEncoding,
+  decodeBuffer,
+  decodeBufferWithWarning,
+  countReplacementChars,
+} from './model/parser/encoding-detector';
 export { autoDetectMapping, normalizeHeader } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
 export {
@@ -32,3 +38,5 @@ export type {
   BankProfile,
   UserCorrection,
 } from './model/types';
+
+export type { DecodeWarning } from './model/parser/encoding-detector';

@@ -1,21 +1,67 @@
 import type { DateFormat } from '../types';
 
-// ─── Polish & English Month Abbreviations ────────────────────────
+// ─── i18n Month Registry ─────────────────────────────────────────
 
-const PL_MONTHS: Record<string, number> = {
-  sty: 1, lut: 2, mar: 3, kwi: 4, maj: 5, cze: 6,
-  lip: 7, sie: 8, wrz: 9, paź: 10, paz: 10, lis: 11, gru: 12,
+interface MonthLocale {
+  readonly id: string;
+  readonly months: Readonly<Record<string, number>>;
+}
+
+const PL_LOCALE: MonthLocale = {
+  id: 'pl',
+  months: {
+    // Abbreviations
+    sty: 1, lut: 2, mar: 3, kwi: 4, maj: 5, cze: 6,
+    lip: 7, sie: 8, wrz: 9, paź: 10, paz: 10, lis: 11, gru: 12,
+    // Full names
+    styczeń: 1, styczen: 1, luty: 2, marzec: 3, kwiecień: 4, kwiecien: 4,
+    czerwiec: 6, lipiec: 7, sierpień: 8, sierpien: 8,
+    wrzesień: 9, wrzesien: 9, październik: 10, pazdziernik: 10,
+    listopad: 11, grudzień: 12, grudzien: 12,
+  },
 };
 
-const EN_MONTHS: Record<string, number> = {
-  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+const EN_LOCALE: MonthLocale = {
+  id: 'en',
+  months: {
+    // Abbreviations
+    jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+    jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+    // Full names
+    january: 1, february: 2, march: 3, april: 4,
+    june: 6, july: 7, august: 8, september: 9,
+    october: 10, november: 11, december: 12,
+  },
 };
 
-// TODO(i18n): extract to MonthLocale registry when third language needed (see CR-15)
+const DE_LOCALE: MonthLocale = {
+  id: 'de',
+  months: {
+    // Abbreviations
+    jan: 1, feb: 2, mär: 3, mar: 3, apr: 4, mai: 5, jun: 6,
+    jul: 7, aug: 8, sep: 9, okt: 10, nov: 11, dez: 12,
+    // Full names
+    januar: 1, februar: 2, märz: 3, marz: 3, april: 4,
+    juni: 6, juli: 7, august: 8, september: 9,
+    oktober: 10, november: 11, dezember: 12,
+  },
+};
+
+/**
+ * Month locale registry. Add new locales here to support additional languages.
+ * Lookup is case-insensitive, checked in order (PL first for Polish bank CSVs).
+ */
+const MONTH_LOCALES: readonly MonthLocale[] = [PL_LOCALE, EN_LOCALE, DE_LOCALE];
+
 const resolveMonth = (monthStr: string): number | null => {
   const lower = monthStr.toLowerCase();
-  return PL_MONTHS[lower] ?? EN_MONTHS[lower] ?? null;
+  for (const locale of MONTH_LOCALES) {
+    const month = locale.months[lower];
+    if (month !== undefined) {
+      return month;
+    }
+  }
+  return null;
 };
 
 const resolveYear = (yearStr: string): number | null => {
@@ -74,10 +120,10 @@ const NUMERIC_FORMATS: readonly NumericFormatDef[] = [
 ];
 
 const MONTH_NAME_FORMATS: readonly MonthNameFormatDef[] = [
-  // DD-MMM-YYYY (05-CZE-2025)
+  // DD-MMM-YYYY (05-CZE-2025, 14-Januar-2025, 01-Październik-2025)
   {
     format: 'DD-MMM-YYYY',
-    regex: /^(\d{2})-([A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż]{3,4})-(\d{4})$/,
+    regex: /^(\d{2})-([A-Za-zÄäÖöÜüßĄąĆćĘęŁłŃńÓóŚśŹźŻż]{3,12})-(\d{4})$/,
     parse: (m) => {
       const dayStr = m[1];
       const monthStr = m[2];
@@ -92,10 +138,10 @@ const MONTH_NAME_FORMATS: readonly MonthNameFormatDef[] = [
       return { year: +yearStr, month, day: +dayStr };
     },
   },
-  // DD Mon YYYY (10 Jun 2025)
+  // DD Mon YYYY (10 Jun 2025, 10 Juni 2025, 10 Czerwiec 2025)
   {
     format: 'DD Mon YYYY',
-    regex: /^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/,
+    regex: /^(\d{1,2})\s+([A-Za-zÄäÖöÜüßĄąĆćĘęŁłŃńÓóŚśŹźŻż]{3,12})\s+(\d{4})$/,
     parse: (m) => {
       const dayStr = m[1];
       const monthStr = m[2];

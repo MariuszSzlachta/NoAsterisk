@@ -74,10 +74,57 @@ export const detectEncoding = (buffer: ArrayBuffer): string => {
 
 /**
  * Decode file buffer using detected or specified encoding.
+ * Counts U+FFFD replacement characters that indicate encoding mismatch.
  */
 export const decodeBuffer = (buffer: ArrayBuffer, encoding: string): string => {
   const decoder = new TextDecoder(encoding, { fatal: false });
   return decoder.decode(buffer);
+};
+
+/** Unicode replacement character inserted when decoding fails for a byte */
+const REPLACEMENT_CHAR = '\uFFFD';
+
+/**
+ * Count replacement characters (U+FFFD) in decoded text.
+ * Non-zero count indicates the chosen encoding may be wrong.
+ */
+export const countReplacementChars = (text: string): number => {
+  let count = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === REPLACEMENT_CHAR) {
+      count++;
+    }
+  }
+  return count;
+};
+
+export interface DecodeWarning {
+  readonly replacementCharCount: number;
+  readonly message: string;
+}
+
+/**
+ * Decode buffer and check for encoding issues.
+ * Returns decoded text plus optional warning if replacement chars found.
+ */
+export const decodeBufferWithWarning = (
+  buffer: ArrayBuffer,
+  encoding: string,
+): { text: string; warning: DecodeWarning | undefined } => {
+  const text = decodeBuffer(buffer, encoding);
+  const replacementCharCount = countReplacementChars(text);
+
+  if (replacementCharCount > 0) {
+    return {
+      text,
+      warning: {
+        replacementCharCount,
+        message: `Detected ${replacementCharCount} unreadable character(s). The file encoding may be incorrect (detected: ${encoding}).`,
+      },
+    };
+  }
+
+  return { text, warning: undefined };
 };
 
 export { SUPPORTED_ENCODINGS };

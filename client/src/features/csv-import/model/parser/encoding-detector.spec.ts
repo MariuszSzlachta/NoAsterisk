@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { decodeBuffer, detectEncoding } from './encoding-detector';
+import {
+  countReplacementChars,
+  decodeBuffer,
+  decodeBufferWithWarning,
+  detectEncoding,
+} from './encoding-detector';
 
 const toBuffer = (bytes: number[]): ArrayBuffer => new Uint8Array(bytes).buffer;
 
@@ -48,5 +53,56 @@ describe('decodeBuffer', () => {
   it('decodes ASCII subset as UTF-8', () => {
     const buffer = textToBuffer('Hello World');
     expect(decodeBuffer(buffer, 'utf-8')).toBe('Hello World');
+  });
+});
+
+describe('countReplacementChars', () => {
+  it('returns 0 for clean text', () => {
+    expect(countReplacementChars('Hello World')).toBe(0);
+    expect(countReplacementChars('Żółć i barszcz')).toBe(0);
+  });
+
+  it('counts single replacement character', () => {
+    expect(countReplacementChars('Hello \uFFFD World')).toBe(1);
+  });
+
+  it('counts multiple replacement characters', () => {
+    expect(countReplacementChars('\uFFFD\uFFFD\uFFFD')).toBe(3);
+    expect(countReplacementChars('a\uFFFDb\uFFFDc')).toBe(2);
+  });
+
+  it('returns 0 for empty string', () => {
+    expect(countReplacementChars('')).toBe(0);
+  });
+});
+
+describe('decodeBufferWithWarning', () => {
+  it('returns no warning for clean UTF-8 text', () => {
+    const buffer = textToBuffer('Żółć i barszcz');
+    const result = decodeBufferWithWarning(buffer, 'utf-8');
+
+    expect(result.text).toBe('Żółć i barszcz');
+    expect(result.warning).toBeUndefined();
+  });
+
+  it('returns warning when replacement chars present', () => {
+    // Decode Windows-1250 bytes as UTF-8 → will produce replacement chars
+    // ą in Win-1250 = 0xB9, which is invalid in UTF-8
+    const bytes = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0xb9, 0xea]; // "Hello" + Win-1250 ąę
+    const buffer = toBuffer(bytes);
+    const result = decodeBufferWithWarning(buffer, 'utf-8');
+
+    expect(result.warning).toBeDefined();
+    expect(result.warning?.replacementCharCount).toBeGreaterThan(0);
+    expect(result.warning?.message).toContain('unreadable character');
+    expect(result.warning?.message).toContain('utf-8');
+  });
+
+  it('includes encoding name in warning message', () => {
+    const bytes = [0xb9, 0xea]; // invalid UTF-8 bytes
+    const buffer = toBuffer(bytes);
+    const result = decodeBufferWithWarning(buffer, 'utf-8');
+
+    expect(result.warning?.message).toContain('utf-8');
   });
 });
