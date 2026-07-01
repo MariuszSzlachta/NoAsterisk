@@ -15,7 +15,6 @@ const importChunkResultSchema = z.object({
 
 interface UseImportMutationResult {
   readonly submitChunk: (chunk: ImportChunkPayload) => Promise<ImportChunkResult>;
-  readonly isLoading: boolean;
 }
 
 export const useImportMutation = (): UseImportMutationResult => {
@@ -48,6 +47,5 @@ export const useImportMutation = (): UseImportMutationResult => {
 
   return {
     submitChunk,
-    isLoading: mutation.isPending,
   };
 };
