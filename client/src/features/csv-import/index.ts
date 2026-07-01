@@ -1,6 +1,7 @@
 // CSV Import — Public API
 // Only these exports are available to pages and other features.
 
+// Model — parsers & transformers
 export { parseCsvFile, CsvParseError } from './model/parser/csv-parser';
 export { detectDateFormat, parseDate, parseDateFlexible } from './model/parser/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
@@ -10,7 +11,7 @@ export {
   decodeBufferWithWarning,
   countReplacementChars,
 } from './model/parser/encoding-detector';
-export { autoDetectMapping, normalizeHeader } from './model/column-mapper';
+export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapper';
 export { transformRows } from './model/row-transformer';
 export {
   detectDuplicatesInBatch,
@@ -22,6 +23,17 @@ export {
   devDictionaryProvider,
 } from './model/anonymizer/dictionaries/dictionary-provider';
 
+// Store
+export { useImportWizardStore } from './store/useImportWizardStore';
+
+// UI — Components
+export { ColumnMappingStep } from './ui/ColumnMappingStep';
+export { ImportPreviewGrid } from './ui/ImportPreviewGrid';
+
+// UI — Hooks
+export { useImportWizard } from './ui/hooks/useImportWizard';
+
+// Types
 export type {
   ParsedCsvData,
   CsvRow,

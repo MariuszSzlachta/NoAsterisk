@@ -1,5 +1,30 @@
 import type { ColumnMapping, DomainField } from './types';
 
+const VALID_DOMAIN_FIELDS: ReadonlySet<string> = new Set<DomainField>([
+  'date', 'title', 'amount', 'currency', 'balance', 'debit', 'credit',
+]);
+
+/**
+ * Type guard: checks if a string is a valid DomainField.
+ */
+export const isDomainField = (value: string): value is DomainField =>
+  VALID_DOMAIN_FIELDS.has(value);
+
+/**
+ * Check if a column mapping has the minimum required fields for transformation.
+ * Required: date + title + (amount OR debit/credit).
+ */
+export const hasRequiredFields = (mapping: ColumnMapping): boolean => {
+  const fields = Object.values(mapping).filter(Boolean) as DomainField[];
+  const hasDate = fields.includes('date');
+  const hasTitle = fields.includes('title');
+  const hasAmount =
+    fields.includes('amount') ||
+    fields.includes('debit') ||
+    fields.includes('credit');
+  return hasDate && hasTitle && hasAmount;
+};
+
 const HEADER_HEURISTICS: Record<string, DomainField> = {
   'data operacji': 'date',
   'data transakcji': 'date',

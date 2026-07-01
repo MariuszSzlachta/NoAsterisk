@@ -76,5 +76,48 @@
       "trendTitle": "Trend w wybranym okresie",
       "transactionsTitle": "Ostatnie transakcje"
     }
+  },
+  "import": {
+    "steps": {
+      "file": "Plik",
+      "columns": "Kolumny",
+      "preview": "Podgląd",
+      "import": "Import"
+    },
+    "mapping": {
+      "title": "Mapowanie kolumn",
+      "description": "Przyporządkuj kolumny z pliku CSV do pól transakcji. Wymagane: data, tytuł, kwota (lub obciążenia/uznania).",
+      "skip": "— pomiń —",
+      "confirm": "Dalej — podgląd danych",
+      "fields": {
+        "date": "Data",
+        "title": "Tytuł / Opis",
+        "amount": "Kwota",
+        "currency": "Waluta",
+        "balance": "Saldo",
+        "debit": "Obciążenia (Wn)",
+        "credit": "Uznania (Ma)"
+      }
+    },
+    "preview": {
+      "rows": "{{count}} wierszy",
+      "ok": "{{count}} OK",
+      "warnings": "{{count}} ostrzeżeń",
+      "duplicates": "{{count}} duplikatów",
+      "errors": "{{count}} błędów",
+      "noCategory": "Brak"
+    },
+    "grid": {
+      "status": "",
+      "date": "Data",
+      "title": "Tytuł",
+      "amount": "Kwota",
+      "currency": "Waluta",
+      "category": "Kategoria",
+      "info": "Info"
+    },
+    "confirm": {
+      "placeholder": "Potwierdzenie importu — wkrótce"
+    }
   }
 }
