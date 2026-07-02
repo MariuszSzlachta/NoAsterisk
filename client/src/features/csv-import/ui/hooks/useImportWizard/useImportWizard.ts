@@ -58,8 +58,6 @@ export const useImportWizard = (): ImportWizardResult => {
 
       const mapping = autoDetectMapping(parsed.headers);
       setDetectedMapping(mapping);
-
-      nextStep();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to parse file';

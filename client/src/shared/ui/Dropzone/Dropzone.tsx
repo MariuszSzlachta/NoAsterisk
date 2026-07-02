@@ -14,7 +14,7 @@ interface DropzoneProps {
 }
 
 const STATUS_CLASSES: Record<DropzoneStatus, string> = {
-  idle: 'border-border bg-surface-2',
+  idle: 'border-border-strong bg-surface-2',
   dragover: 'border-primary bg-primary/5',
   error: 'border-expense bg-expense-soft/10',
 };
@@ -99,17 +99,19 @@ export const Dropzone = ({
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      className={`flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-10 transition-colors ${STATUS_CLASSES[currentStatus]} ${className}`}
+      className={`flex flex-col items-center justify-center gap-3 rounded-xl border-[1.5px] border-dashed px-6 py-11 transition-colors ${STATUS_CLASSES[currentStatus]} ${className}`}
       role="button"
       tabIndex={0}
       aria-label="Upuść plik CSV lub kliknij aby wybrać"
     >
-      <Upload size={24} className="text-muted-foreground" />
+      <span className="flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-primary-soft text-primary">
+        <Upload size={24} />
+      </span>
       <div className="text-center">
-        <p className="text-sm font-medium text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           Przeciągnij i upuść plik CSV
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="mt-0.5 text-[12.5px] text-subtle">
           lub kliknij, aby wybrać z dysku · maks. {maxSizeMb} MB
         </p>
       </div>

@@ -24,6 +24,7 @@ export {
   createDictionaryProvider,
   devDictionaryProvider,
 } from './model/anonymizer/dictionaries/dictionary-provider';
+export { detectBankFromHeaders } from './model/bank-detector';
 
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
@@ -36,6 +37,8 @@ export { ColumnMappingStep } from './ui/ColumnMappingStep';
 export { ImportPreviewGrid } from './ui/ImportPreviewGrid';
 export { BatchEditPanel } from './ui/BatchEditPanel';
 export { ImportConfirmStep } from './ui/ImportConfirmStep';
+export { UploadStepCard } from './ui/UploadStepCard';
+export { AnonymizationStepPlaceholder } from './ui/AnonymizationStepPlaceholder';
 
 // UI — Hooks
 export { useImportWizard } from './ui/hooks/useImportWizard';

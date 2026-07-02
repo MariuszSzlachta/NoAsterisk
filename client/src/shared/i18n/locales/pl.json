@@ -79,10 +79,34 @@
   },
   "import": {
     "steps": {
-      "file": "Plik",
-      "columns": "Kolumny",
+      "file": "Upload",
+      "columns": "Mapowanie",
+      "anonymization": "Anonimizacja",
       "preview": "Podgląd",
       "import": "Import"
+    },
+    "upload": {
+      "heading": "Importuj wyciąg bankowy",
+      "description": "Obsługujemy pliki CSV z dowolnego banku. Plik jest analizowany w przeglądarce.",
+      "securityNote": "Dane parsowane lokalnie — nic nie jest wysyłane na serwer.",
+      "next": "Dalej",
+      "remove": "Usuń",
+      "detectedAuto": "Wykryto automatycznie",
+      "chipEncoding": "Kodowanie",
+      "chipSeparator": "Separator",
+      "chipHeaders": "Nagłówki",
+      "chipHeadersValue": "Wiersz 1",
+      "chipBank": "Bank",
+      "profileRecognized": "Rozpoznano profil {{bank}}",
+      "profileDescription": "Zapisane mapowanie kolumn jest gotowe do użycia.",
+      "profileUse": "Użyj profilu",
+      "profileCustomize": "Dostosuj",
+      "rows": "{{count}} wierszy"
+    },
+    "anonymization": {
+      "heading": "Anonimizacja danych",
+      "description": "Dane osobowe są wykrywane i maskowane lokalnie. Sprawdź sugestie przed importem.",
+      "placeholder": "Widok anonimizacji — w budowie"
     },
     "mapping": {
       "title": "Mapowanie kolumn",

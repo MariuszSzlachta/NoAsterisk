@@ -1,0 +1,1 @@
+export { BankProfileBar } from './BankProfileBar';

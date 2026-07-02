@@ -22,10 +22,10 @@ export const Stepper = ({
 
       return (
         <div key={step.label} className="flex flex-1 items-center">
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-2">
             <span
               aria-current={isActive ? 'step' : undefined}
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                 isCompleted
                   ? 'bg-primary text-primary-foreground'
                   : isActive
@@ -36,7 +36,7 @@ export const Stepper = ({
               {isCompleted ? <Check size={14} /> : i + 1}
             </span>
             <span
-              className={`text-xs ${
+              className={`text-sm whitespace-nowrap ${
                 isActive
                   ? 'font-medium text-foreground'
                   : 'text-muted-foreground'
@@ -47,7 +47,7 @@ export const Stepper = ({
           </div>
           {i < steps.length - 1 && (
             <div
-              className={`mx-2 h-px flex-1 ${
+              className={`mx-3 h-px flex-1 ${
                 i < currentStep ? 'bg-primary' : 'bg-border'
               }`}
             />

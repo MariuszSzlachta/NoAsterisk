@@ -1,39 +1,43 @@
 import { useTranslation } from 'react-i18next';
 
-import { Dropzone } from '#shared/ui/Dropzone';
 import { Stepper } from '#shared/ui/Stepper';
 
 import {
+  AnonymizationStepPlaceholder,
   ColumnMappingStep,
   ImportConfirmStep,
   ImportPreviewGrid,
+  UploadStepCard,
   useImportWizard,
 } from '#features/csv-import';
 
 export const ImportPage = (): React.JSX.Element => {
   const { t } = useTranslation();
-  const { step, parseError, handleFileSelect } = useImportWizard();
+  const { step } = useImportWizard();
 
   const wizardSteps = [
     { label: t('import.steps.file') },
     { label: t('import.steps.columns') },
+    { label: t('import.steps.anonymization') },
     { label: t('import.steps.preview') },
     { label: t('import.steps.import') },
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <Stepper steps={wizardSteps} currentStep={step} />
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="rounded-xl border border-border bg-surface px-6 py-4">
+        <Stepper steps={wizardSteps} currentStep={step} />
+      </div>
 
-      {step === 0 && (
-        <Dropzone onFileSelect={handleFileSelect} error={parseError} />
-      )}
+      {step === 0 && <UploadStepCard />}
 
       {step === 1 && <ColumnMappingStep />}
 
-      {step === 2 && <ImportPreviewGrid />}
+      {step === 2 && <AnonymizationStepPlaceholder />}
 
-      {step === 3 && <ImportConfirmStep />}
+      {step === 3 && <ImportPreviewGrid />}
+
+      {step === 4 && <ImportConfirmStep />}
     </div>
   );
 };

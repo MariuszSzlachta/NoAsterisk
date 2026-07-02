@@ -1,0 +1,1 @@
+export { DetectionChip } from './DetectionChip';
