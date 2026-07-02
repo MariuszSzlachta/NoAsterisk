@@ -1,0 +1,1 @@
+export { DataPreviewTable } from './DataPreviewTable';

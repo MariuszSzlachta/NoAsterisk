@@ -110,9 +110,14 @@
     },
     "mapping": {
       "title": "Mapowanie kolumn",
-      "description": "Przyporządkuj kolumny z pliku CSV do pól transakcji. Wymagane: data, tytuł, kwota (lub obciążenia/uznania).",
+      "description": "Sprawdź podgląd surowych danych i przypisz kolumny do pól systemowych.",
       "skip": "— pomiń —",
       "confirm": "Dalej — podgląd danych",
+      "csvColumn": "kolumna CSV",
+      "example": "przykład",
+      "fieldAssignment": "Przypisanie pól",
+      "saveProfilePrompt": "Zapisać to mapowanie jako profil importu na przyszłość?",
+      "saveProfileButton": "Zapisz jako...",
       "fields": {
         "date": "Data",
         "title": "Tytuł / Opis",

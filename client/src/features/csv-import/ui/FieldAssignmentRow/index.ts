@@ -1,0 +1,1 @@
+export { FieldAssignmentRow } from './FieldAssignmentRow';
