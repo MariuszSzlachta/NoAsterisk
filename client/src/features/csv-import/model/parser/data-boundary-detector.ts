@@ -1,93 +1,120 @@
 /**
- * Detect header offset (metadata lines before actual CSV data) and footer
- * (summary lines after data ends).
+ * Detect where actual CSV data begins in raw text.
  *
- * Strategy:
- * 1. Determine separator for the file
- * 2. Find the first line with consistent separator count (= header row)
- * 3. Count columns from that header
- * 4. Data rows follow — lines with same column count
- * 5. Footer = trailing lines with different column count or empty
+ * 3-Phase Algorithm:
+ * 1. Find First Data Row (FDR) — first line with a date pattern in field[0] or field[1]
+ * 2. Walk Back — from FDR, look for the closest preceding non-empty line as header candidate
+ * 3. Classify Candidate — check if candidate has header keywords and NO date values
+ *
+ * Handles:
+ * - Metadata before headers (mBank: 26 rows, SBI: 7 rows)
+ * - Header at row 0 (Revolut, generic CSVs)
+ * - No header / pseudoheader (Santander: row 0 has account data)
+ * - Overflow in descriptions (data rows with more separators than header)
  */
 
-const MIN_COLUMNS = 3;
-const KEYWORD_SCORE_WEIGHT = 0.3;
-const KEYWORD_SCORE_CAP = 1.5;
-const COLUMN_COUNT_WEIGHT = 0.5;
-const CONSISTENCY_WEIGHT = 0.5;
-const MAX_SCAN_LINES = 50;
+const MIN_COLUMNS = 2;
+const MIN_DATA_ROW_COLUMNS = 4;
+const MAX_SCAN_LINES = 100;
 
-// Known CSV header keywords (PL + EN) — extracted for extensibility
-const HEADER_KEYWORDS = [
-  'data',
-  'date',
-  'kwota',
-  'amount',
-  'opis',
-  'description',
-  'saldo',
-  'balance',
-  'tytuł',
-  'title',
-  'typ',
-  'type',
-  'waluta',
-  'currency',
-  'operacja',
-  'operacji',
-  'numer',
-  'konta',
-  'ref',
-  'kategoria',
-  'category',
-  'nadawca',
-  'odbiorca',
-  'counterparty',
-  'szczegóły',
-  'transakcja',
+// ─── Date Detection ──────────────────────────────────────────────
+
+const DATE_PATTERNS = [
+  /^\d{4}[-/.]\d{2}[-/.]\d{2}$/,   // YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD
+  /^\d{2}[-/.]\d{2}[-/.]\d{4}$/,   // DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY
+  /^\d{2}[-/.]\d{2}[-/.]\d{2}$/,   // DD/MM/YY, DD.MM.YY
 ];
 
 /**
- * Score how "header-like" a line looks.
- * Headers tend to have: no digits-only fields, known header words, title case / ALL CAPS.
- * Data rows have: dates, numbers, amounts — penalize those.
+ * Check if a string looks like a date value.
+ * Guards against false positives: version numbers (1.2.3), amounts (12.345,67).
+ * Validates that numeric segments fall within plausible date ranges.
  */
-const scoreHeaderLine = (line: string, separator: string): number => {
+const isDateValue = (value: string): boolean => {
+  const trimmed = value.trim().replace(/^"|"$/g, '');
+  if (!DATE_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+    return false;
+  }
+
+  // Extract numeric parts and validate ranges
+  const parts = trimmed.split(/[-/.]/).map(Number);
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  const [a, b, c] = parts;
+  if (a === undefined || b === undefined || c === undefined) {
+    return false;
+  }
+
+  // YYYY-MM-DD: year 1900-2099, month 1-12, day 1-31
+  if (a >= 1900 && a <= 2099) {
+    return b >= 1 && b <= 12 && c >= 1 && c <= 31;
+  }
+  // DD-MM-YYYY: day 1-31, month 1-12, year 1900-2099
+  if (c >= 1900 && c <= 2099) {
+    return a >= 1 && a <= 31 && b >= 1 && b <= 12;
+  }
+  // DD-MM-YY: day 1-31, month 1-12, year 0-99
+  if (a >= 1 && a <= 31 && b >= 1 && b <= 12 && c >= 0 && c <= 99) {
+    return true;
+  }
+
+  return false;
+};
+
+// ─── Header Keywords ─────────────────────────────────────────────
+
+/**
+ * Known header column keywords for Polish (PL) and English (EN) bank CSVs.
+ * Scope: targets banks available in Poland (mBank, PKO BP, ING, Santander,
+ * Millennium) and international services (Revolut, Wise, N26).
+ *
+ * Exotic languages (Vietnamese, Turkish, Japanese, etc.) are NOT covered —
+ * those CSVs gracefully degrade to headerless mode where user maps columns
+ * manually in the UI.
+ */
+const HEADER_KEYWORDS = [
+  'data', 'date', 'started', 'completed', 'value',
+  'kwota', 'amount', 'debit', 'credit', 'fee',
+  'opis', 'description', 'details', 'title', 'memo',
+  'saldo', 'balance',
+  'tytuł', 'typ', 'type', 'state', 'status',
+  'waluta', 'currency',
+  'operacja', 'operacji', 'transaction', 'trans',
+  'numer', 'ref', 'reference',
+  'kategoria', 'category',
+  'nadawca', 'odbiorca', 'counterparty', 'beneficiary', 'payee',
+  'rachunek', 'account', 'channel',
+  'szczegóły', 'product',
+  'withdrawal', 'deposit',
+];
+
+const KEYWORD_MATCH_THRESHOLD = 2;
+
+/**
+ * Check if a line looks like a header row (has column name keywords, no date values).
+ */
+const isHeaderLine = (line: string, separator: string): boolean => {
   const fields = splitRespectingQuotes(line, separator);
   if (fields.length < MIN_COLUMNS) {
-    return 0;
+    return false;
   }
 
-  let score = 0;
+  // Disqualify: if any of the first 3 fields is a date → this is data, not header
+  const fieldsToCheck = fields.slice(0, 3);
+  if (fieldsToCheck.some((f) => isDateValue(f))) {
+    return false;
+  }
 
-  // Fields that look like column names (contain letters, not purely numeric)
-  const nonNumericFields = fields.filter(
-    (f) => f.trim().length > 0 && !/^[\d\s.,+-]+$/.test(f.trim()),
-  );
-  score += nonNumericFields.length / fields.length;
-
-  const lower = line.toLowerCase();
+  // Count keyword matches across all fields
+  const lower = line.toLowerCase().replace(/^#/gm, '');
   const keywordHits = HEADER_KEYWORDS.filter((kw) => lower.includes(kw)).length;
-  score += Math.min(keywordHits * KEYWORD_SCORE_WEIGHT, KEYWORD_SCORE_CAP);
 
-  // Penalty: if any field looks like a date or amount, this is data, not header
-  const hasDatePattern = fields.some((f) =>
-    /^\d{2,4}[./-]\d{2}[./-]\d{2,4}$/.test(f.trim()),
-  );
-  if (hasDatePattern) {
-    return -1; // Definitely a data row, not a header
-  }
-
-  // Penalty: multiple numeric-only fields suggest data
-  const numericFields = fields.filter(
-    (f) => /^[+-]?[\d\s.,]+$/.test(f.trim()) && f.trim().length > 0,
-  );
-  if (numericFields.length >= 2) {
-    score -= 1;
-  }
-
-  return score;
+  return keywordHits >= KEYWORD_MATCH_THRESHOLD;
 };
+
+// ─── Utilities ───────────────────────────────────────────────────
 
 /**
  * Split a line by separator, respecting quoted fields.
@@ -113,38 +140,25 @@ const splitRespectingQuotes = (line: string, separator: string): string[] => {
   return fields;
 };
 
-/**
- * Count separator occurrences in a line, ignoring quoted sections.
- */
-const countSeparators = (line: string, separator: string): number => {
-  let count = 0;
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === '"') {
-      inQuotes = !inQuotes;
-    } else if (line[i] === separator && !inQuotes) {
-      count++;
-    }
-  }
-  return count;
-};
+// ─── Main Interface ──────────────────────────────────────────────
 
 export interface DataBoundaries {
-  /** Number of metadata lines before header */
+  /** Index of the header row (null = no keyword header found, use positional) */
+  readonly headerRow: number | null;
+  /** Index of the first data row */
+  readonly dataStartRow: number;
+  /** Number of metadata lines before data (= dataStartRow or headerRow) */
   readonly skipRows: number;
-  /** Number of footer lines to ignore at the end */
-  readonly footerLines: number;
-  /** The text content with only the data portion (header + data rows, no metadata/footer) */
+  /** The text content with header (if found) + data rows */
   readonly dataText: string;
 }
 
 /**
- * Detect where actual CSV data begins and ends in raw text.
+ * 3-Phase boundary detection algorithm.
  *
- * Handles:
- * - Metadata rows before headers (bank name, account number, period, etc.)
- * - Footer rows after data (summaries, counts, generation timestamps)
- * - Blank lines interspersed in metadata/footer
+ * Phase 1: Find First Data Row (FDR) — line with date in field[0..1]
+ * Phase 2: Walk back from FDR to find header candidate
+ * Phase 3: Classify candidate with keyword heuristic
  */
 export const detectDataBoundaries = (
   text: string,
@@ -152,10 +166,8 @@ export const detectDataBoundaries = (
 ): DataBoundaries => {
   const allLines = text.split(/\r?\n/);
 
-  // Find the header line: the first line with a good header score
-  // AND consistent separator count with following lines
-  let headerLineIndex = 0;
-  let bestHeaderScore = 0;
+  // ─── Phase 1: Find First Data Row ───────────────────────────────
+  let firstDataRow = -1;
 
   for (let i = 0; i < Math.min(allLines.length, MAX_SCAN_LINES); i++) {
     const line = allLines[i];
@@ -163,48 +175,113 @@ export const detectDataBoundaries = (
       continue;
     }
 
-    const sepCount = countSeparators(line, separator);
-    if (sepCount < MIN_COLUMNS - 1) {
+    const fields = splitRespectingQuotes(line, separator);
+    if (fields.length < MIN_DATA_ROW_COLUMNS) {
       continue;
     }
 
-    const score = scoreHeaderLine(line, separator);
-
-    // Also check: do the next 2-3 lines have the same separator count?
-    let consistentFollowers = 0;
-    for (let j = i + 1; j < Math.min(i + 4, allLines.length); j++) {
-      const follower = allLines[j];
-      if (follower === undefined || follower.trim().length === 0) {
-        continue;
-      }
-      if (countSeparators(follower, separator) === sepCount) {
-        consistentFollowers++;
-      }
-    }
-
-    const totalScore = score + consistentFollowers * CONSISTENCY_WEIGHT;
-    // Prefer lines with more columns — real CSV headers have more fields than metadata
-    const columnBonus = sepCount * COLUMN_COUNT_WEIGHT;
-    const finalScore = totalScore + columnBonus;
-    if (finalScore > bestHeaderScore) {
-      bestHeaderScore = finalScore;
-      headerLineIndex = i;
+    // Check first 2 fields for date pattern
+    const hasDate = fields.slice(0, 2).some((f) => isDateValue(f));
+    if (hasDate) {
+      firstDataRow = i;
+      break;
     }
   }
 
-  // No footer detection — papaparse handles multiline quoted fields and
-  // trailing empty lines. Trying to detect footer on raw lines breaks when
-  // CSV has multiline fields (PKO BP). Let papaparse handle it.
-  const footerLines = 0;
+  // Fallback: no date found — use old keyword scoring as last resort
+  if (firstDataRow === -1) {
+    return fallbackKeywordDetection(allLines, separator);
+  }
 
-  // Extract data portion (header + data rows)
-  const dataEndIndex = allLines.length - footerLines;
-  const dataLines = allLines.slice(headerLineIndex, dataEndIndex);
+  // ─── Phase 2: Walk Back from FDR ───────────────────────────────
+  let headerCandidate: number | null = null;
+
+  for (let i = firstDataRow - 1; i >= 0; i--) {
+    const line = allLines[i];
+    if (line === undefined || line.trim().length === 0) {
+      continue;
+    }
+    // First non-empty line above FDR is candidate
+    headerCandidate = i;
+    break;
+  }
+
+  // ─── Phase 3: Classify Header Candidate ─────────────────────────
+  let headerRow: number | null = null;
+
+  if (headerCandidate !== null) {
+    const candidateLine = allLines[headerCandidate] ?? '';
+    if (isHeaderLine(candidateLine, separator)) {
+      headerRow = headerCandidate;
+    } else {
+      // Candidate doesn't look like a header — maybe it's another metadata line.
+      // Keep searching further back for a real header.
+      for (let i = headerCandidate - 1; i >= 0; i--) {
+        const line = allLines[i];
+        if (line === undefined || line.trim().length === 0) {
+          continue;
+        }
+        if (isHeaderLine(line, separator)) {
+          headerRow = i;
+          break;
+        }
+      }
+    }
+  }
+
+  // ─── Build Result ───────────────────────────────────────────────
+  const startLine = headerRow ?? firstDataRow;
+  const dataLines = allLines.slice(startLine);
   const dataText = dataLines.join('\n');
 
   return {
-    skipRows: headerLineIndex,
-    footerLines,
+    headerRow,
+    dataStartRow: firstDataRow,
+    skipRows: startLine,
+    dataText,
+  };
+};
+
+// ─── Fallback ────────────────────────────────────────────────────
+
+/**
+ * Fallback for files with no recognizable date patterns (edge case).
+ * Uses keyword scoring without columnBonus.
+ */
+const fallbackKeywordDetection = (
+  allLines: string[],
+  separator: string,
+): DataBoundaries => {
+  let bestIndex = 0;
+  let bestScore = -1;
+
+  for (let i = 0; i < Math.min(allLines.length, MAX_SCAN_LINES); i++) {
+    const line = allLines[i];
+    if (line === undefined || line.trim().length === 0) {
+      continue;
+    }
+
+    const fields = splitRespectingQuotes(line, separator);
+    if (fields.length < MIN_COLUMNS) {
+      continue;
+    }
+
+    const lower = line.toLowerCase();
+    const keywordHits = HEADER_KEYWORDS.filter((kw) => lower.includes(kw)).length;
+
+    if (keywordHits > bestScore) {
+      bestScore = keywordHits;
+      bestIndex = i;
+    }
+  }
+
+  const dataLines = allLines.slice(bestIndex);
+  const dataText = dataLines.join('\n');
+
+  return {
+    headerRow: bestIndex,
+    dataStartRow: bestIndex + 1,
+    skipRows: bestIndex,
     dataText,
   };
 };
