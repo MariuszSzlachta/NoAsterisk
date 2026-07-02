@@ -34,6 +34,27 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
   const rows = parsedData?.rows ?? [];
   const previewRows = rows.slice(0, MAX_PREVIEW_ROWS);
 
+  if (import.meta.env.DEV && parsedData) {
+    console.info('[column-mapping] Parsed data', {
+      headers,
+      totalRows: rows.length,
+      previewRows,
+      firstRow: rows[0],
+      rows,
+    });
+
+    // Extract unique categories if #Kategoria column exists
+    const categoryHeader = headers.find((h) => h.toLowerCase().includes('kategoria') || h.toLowerCase().includes('category'));
+    if (categoryHeader) {
+      const uniqueCategories = [...new Set(rows.map((r) => r[categoryHeader]).filter(Boolean))].sort();
+      console.info('[column-mapping] Unique categories from CSV', {
+        column: categoryHeader,
+        count: uniqueCategories.length,
+        categories: uniqueCategories,
+      });
+    }
+  }
+
   const fieldOptions: SelectOption[] = [
     { value: '', label: t('import.mapping.skip') },
     { value: 'date', label: t('import.mapping.fields.date') },

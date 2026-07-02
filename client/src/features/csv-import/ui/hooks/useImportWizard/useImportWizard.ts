@@ -58,9 +58,30 @@ export const useImportWizard = (): ImportWizardResult => {
 
       const mapping = autoDetectMapping(parsed.headers);
       setDetectedMapping(mapping);
+
+      if (import.meta.env.DEV) {
+        console.info('[csv-import] Parse OK', {
+          file: file.name,
+          size: file.size,
+          headers: parsed.headers,
+          rowCount: parsed.rows.length,
+          separator: parsed.separator,
+          encoding: parsed.encoding,
+        });
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to parse file';
+
+      if (import.meta.env.DEV) {
+        console.warn('[csv-import] Parse FAILED', {
+          file: file.name,
+          size: file.size,
+          type: file.type,
+          error: err,
+        });
+      }
+
       setParseError(message);
     } finally {
       setIsProcessing(false);
@@ -97,9 +118,28 @@ export const useImportWizard = (): ImportWizardResult => {
 
       setRows(withDuplicates);
       nextStep();
+
+      if (import.meta.env.DEV) {
+        console.info('[csv-import] Mapping confirm OK', {
+          inputRows: parsedData.rows.length,
+          transformedRows: transformed.length,
+          anonymized: anonymizationEntries.filter((e) => e.status === 'anonymized').length,
+          duplicates: withDuplicates.filter((r) => r.isDuplicate).length,
+          mapping: columnMapping,
+        });
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Processing failed';
+
+      if (import.meta.env.DEV) {
+        console.warn('[csv-import] Mapping confirm FAILED', {
+          rowCount: parsedData.rows.length,
+          mapping: columnMapping,
+          error: err,
+        });
+      }
+
       setParseError(message);
     } finally {
       setIsProcessing(false);

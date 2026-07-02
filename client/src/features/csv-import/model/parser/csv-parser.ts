@@ -72,6 +72,23 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
   // Re-detect separator on data portion only (metadata lines might have skewed it)
   const dataSeparator = detectSeparator(dataText);
 
+  if (import.meta.env.DEV) {
+    const allLines = rawText.split('\n');
+    console.info('[csv-parser] Full file info', {
+      totalLines: allLines.length,
+      separator,
+      first30Lines: allLines.slice(0, 30).map((l, i) => `[${i}] ${l.slice(0, 80)}`),
+    });
+    const dataLines = dataText.split('\n');
+    console.info('[csv-parser] Boundary detection', {
+      skipRows: boundaries.skipRows,
+      footerLines: boundaries.footerLines,
+      dataLinesCount: dataLines.length,
+      firstDataLines: dataLines.slice(0, 5),
+      dataSeparator,
+    });
+  }
+
   const result = parseCsv<Record<string, string>>(dataText, {
     header: true,
     delimiter: dataSeparator,
@@ -82,15 +99,13 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     throw new CsvParseError('No headers detected in CSV', 'NO_HEADERS');
   }
 
-  // Reject if >10% of rows have parse errors
-  if (result.errors.length > 0 && result.data.length > 0) {
-    const errorRate = result.errors.length / result.data.length;
-    if (errorRate > 0.1) {
-      throw new CsvParseError(
-        `CSV has ${result.errors.length} parse errors in ${result.data.length} rows`,
-        'PARSE_ERRORS',
-      );
-    }
+  // Log raw parse result in dev for diagnostics
+  if (import.meta.env.DEV) {
+    console.info('[csv-parser] Raw parse', {
+      headers: result.meta.fields,
+      dataRows: result.data.length,
+      errors: result.errors,
+    });
   }
 
   if (result.data.length === 0) {

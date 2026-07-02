@@ -10,12 +10,12 @@
  * 5. Footer = trailing lines with different column count or empty
  */
 
-const MIN_COLUMNS = 2;
+const MIN_COLUMNS = 3;
 const KEYWORD_SCORE_WEIGHT = 0.3;
 const KEYWORD_SCORE_CAP = 1.5;
-const POSITION_BIAS_FACTOR = 0.05;
+const COLUMN_COUNT_WEIGHT = 0.5;
 const CONSISTENCY_WEIGHT = 0.5;
-const MAX_SCAN_LINES = 15;
+const MAX_SCAN_LINES = 50;
 
 // Known CSV header keywords (PL + EN) — extracted for extensibility
 const HEADER_KEYWORDS = [
@@ -183,9 +183,9 @@ export const detectDataBoundaries = (
     }
 
     const totalScore = score + consistentFollowers * CONSISTENCY_WEIGHT;
-    // Prefer earlier lines as header (slight position bias)
-    const positionBias = (MAX_SCAN_LINES - i) * POSITION_BIAS_FACTOR;
-    const finalScore = totalScore + positionBias;
+    // Prefer lines with more columns — real CSV headers have more fields than metadata
+    const columnBonus = sepCount * COLUMN_COUNT_WEIGHT;
+    const finalScore = totalScore + columnBonus;
     if (finalScore > bestHeaderScore) {
       bestHeaderScore = finalScore;
       headerLineIndex = i;
@@ -196,7 +196,9 @@ export const detectDataBoundaries = (
   const headerLine = allLines[headerLineIndex] ?? '';
   const expectedColumns = countSeparators(headerLine, separator);
 
-  // Find footer: scan from the end, skip empty lines and lines that don't match column count
+  // Footer detection: scan from end, skip empty lines and lines with
+  // FEWER columns than header (summaries, metadata).
+  // Lines with MORE or EQUAL columns are valid data (e.g. description contains separators).
   let footerLines = 0;
   for (let i = allLines.length - 1; i > headerLineIndex; i--) {
     const line = allLines[i];
@@ -205,7 +207,7 @@ export const detectDataBoundaries = (
       continue;
     }
     const sepCount = countSeparators(line, separator);
-    if (sepCount !== expectedColumns) {
+    if (sepCount < expectedColumns) {
       footerLines++;
     } else {
       break;
