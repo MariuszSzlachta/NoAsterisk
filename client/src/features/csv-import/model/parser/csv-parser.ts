@@ -4,6 +4,7 @@ import type { CsvRow, ParsedCsvData } from '../types';
 import { detectDataBoundaries } from './data-boundary-detector';
 import { decodeBuffer, detectEncoding } from './encoding-detector';
 import { detectSeparator } from './separator-detector';
+import { resolveStrategy } from './strategies';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -89,33 +90,49 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     });
   }
 
-  const result = parseCsv<Record<string, string>>(dataText, {
-    header: true,
+  const result = parseCsv<string[]>(dataText, {
+    header: false,
     delimiter: dataSeparator,
     skipEmptyLines: true,
   });
 
-  if (result.meta.fields === undefined || result.meta.fields.length === 0) {
+  const [headerRow, ...dataRows] = result.data;
+
+  if (!headerRow || headerRow.length === 0) {
     throw new CsvParseError('No headers detected in CSV', 'NO_HEADERS');
   }
 
-  // Log raw parse result in dev for diagnostics
+  // Resolve reassembly strategy based on header + data sampling
+  const { strategy, config } = resolveStrategy(headerRow, dataRows, dataSeparator);
+
+  // Log raw parse result + strategy in dev
   if (import.meta.env.DEV) {
     console.info('[csv-parser] Raw parse', {
-      headers: result.meta.fields,
-      dataRows: result.data.length,
-      errors: result.errors,
+      headers: headerRow,
+      dataRows: dataRows.length,
+      errors: result.errors.length,
+      strategy: strategy.type,
+      config,
+      sampleFieldCounts: dataRows.slice(0, 5).map((r) => r.length),
     });
   }
 
-  if (result.data.length === 0) {
+  // Reassemble rows using selected strategy, then map to Record<string, string>
+  const rows: CsvRow[] = dataRows.map((rawTokens) => {
+    const assembled = strategy.reassemble(rawTokens, config);
+    const record: Record<string, string> = {};
+    for (let i = 0; i < headerRow.length; i++) {
+      record[headerRow[i]] = assembled[i] ?? '';
+    }
+    return record;
+  });
+
+  if (rows.length === 0) {
     throw new CsvParseError('CSV contains no data rows', 'NO_DATA');
   }
 
-  const rows: CsvRow[] = result.data;
-
   return {
-    headers: result.meta.fields,
+    headers: headerRow,
     rows,
     fileName: file.name,
     encoding,

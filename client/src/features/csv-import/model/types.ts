@@ -39,6 +39,26 @@ export interface ParserConfig {
   readonly skipRows: number;
 }
 
+// ─── Row Reassembly (Strategy Pattern) ───────────────────────────
+
+export type ReassemblyStrategyType = 'direct' | 'overflow-merge';
+
+export interface ReassemblyConfig {
+  /** Number of columns in the header row */
+  readonly expectedColumnCount: number;
+  /** Separator used in the CSV (needed to rejoin overflow tokens) */
+  readonly separator: string;
+  /** Index of the column that absorbs overflow tokens (e.g. 1 for mBank #Opis operacji) */
+  readonly overflowColumnIndex?: number;
+  /** Number of fixed columns AFTER the overflow column (counted from end) */
+  readonly fixedTailColumns?: number;
+}
+
+export interface ReassemblyStrategy {
+  readonly type: ReassemblyStrategyType;
+  reassemble(rawTokens: readonly string[], config: ReassemblyConfig): readonly string[];
+}
+
 // ─── Column Mapping ──────────────────────────────────────────────
 
 export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'debit' | 'credit';

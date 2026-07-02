@@ -192,27 +192,10 @@ export const detectDataBoundaries = (
     }
   }
 
-  // Determine column count from header
-  const headerLine = allLines[headerLineIndex] ?? '';
-  const expectedColumns = countSeparators(headerLine, separator);
-
-  // Footer detection: scan from end, skip empty lines and lines with
-  // FEWER columns than header (summaries, metadata).
-  // Lines with MORE or EQUAL columns are valid data (e.g. description contains separators).
-  let footerLines = 0;
-  for (let i = allLines.length - 1; i > headerLineIndex; i--) {
-    const line = allLines[i];
-    if (line === undefined || line.trim().length === 0) {
-      footerLines++;
-      continue;
-    }
-    const sepCount = countSeparators(line, separator);
-    if (sepCount < expectedColumns) {
-      footerLines++;
-    } else {
-      break;
-    }
-  }
+  // No footer detection — papaparse handles multiline quoted fields and
+  // trailing empty lines. Trying to detect footer on raw lines breaks when
+  // CSV has multiline fields (PKO BP). Let papaparse handle it.
+  const footerLines = 0;
 
   // Extract data portion (header + data rows)
   const dataEndIndex = allLines.length - footerLines;
