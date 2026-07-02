@@ -13,7 +13,7 @@ export const SaveProfileBar = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-2 px-4 py-3">
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3">
       <Save size={16} className="shrink-0 text-muted-foreground" />
       <p className="flex-1 text-[13px] text-muted-foreground">
         {t('import.mapping.saveProfilePrompt')}

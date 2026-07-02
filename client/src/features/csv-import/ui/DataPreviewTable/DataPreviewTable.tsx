@@ -10,13 +10,13 @@ export const DataPreviewTable = ({
   rows,
 }: DataPreviewTableProps): React.JSX.Element => (
   <div className="overflow-x-auto rounded-lg border border-border">
-    <table className="w-full text-left font-mono text-[12.5px]">
+    <table className="w-full min-w-[640px] border-collapse font-mono text-xs leading-normal">
       <thead>
         <tr className="border-b border-border bg-surface-2">
           {headers.map((header, idx) => (
             <th
               key={`${header}-${idx}`}
-              className="whitespace-nowrap px-4 py-2.5 font-medium text-muted-foreground"
+              className="whitespace-nowrap px-4 py-2 text-left font-medium text-subtle"
             >
               {header}
             </th>
@@ -32,7 +32,7 @@ export const DataPreviewTable = ({
             {headers.map((header, colIdx) => (
               <td
                 key={`${header}-${colIdx}`}
-                className="whitespace-nowrap px-4 py-2 text-foreground"
+                className="whitespace-nowrap px-4 py-1.5 text-muted-foreground"
               >
                 {row[header] ?? ''}
               </td>

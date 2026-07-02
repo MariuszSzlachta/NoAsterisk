@@ -119,7 +119,7 @@ export const Select = ({
         aria-expanded={open}
         aria-haspopup="listbox"
         disabled={disabled}
-        className={`inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 text-sm transition-colors hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        className={`inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm transition-colors hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
         onClick={open ? close : openList}
         onKeyDown={handleKeyDown}
       >

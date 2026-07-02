@@ -23,8 +23,16 @@ export const FieldAssignmentRow = ({
   const { t } = useTranslation();
   const { handleChange } = useFieldAssignmentRow(header, onFieldChange);
 
+  const isMapped = value !== '';
+
   return (
-    <div className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-b-0">
+    <div
+      className={`flex items-center gap-4 rounded-lg border border-border px-4 py-4 ${
+        isMapped
+          ? 'border-l-2 border-l-income bg-surface-2'
+          : 'bg-surface-2'
+      }`}
+    >
       {/* Column name */}
       <div className="w-44 shrink-0">
         <p className="font-mono text-[13px] font-medium text-foreground">
