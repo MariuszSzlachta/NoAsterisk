@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
@@ -15,10 +16,12 @@ interface ColumnMappingStepResult {
   readonly fieldOptions: readonly SelectOption[];
   readonly isMappingComplete: boolean;
   readonly isProcessing: boolean;
+  readonly selectedPreviewRowIndex: number;
   readonly handleFieldChange: (column: string, value: string) => void;
   readonly handleConfirm: () => void;
   readonly handlePrevStep: () => void;
   readonly handleSaveProfile: () => void;
+  readonly handlePreviewRowSelect: (index: number) => void;
   readonly getExampleValue: (header: string) => string;
 }
 
@@ -29,6 +32,8 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
   const updateColumnMapping = useImportWizardStore((s) => s.updateColumnMapping);
   const { isMappingComplete, isProcessing, handleMappingConfirm, handlePrevStep } =
     useImportWizard();
+
+  const [selectedPreviewRowIndex, setSelectedPreviewRowIndex] = useState(0);
 
   const headers = parsedData?.headers ?? [];
   const rows = parsedData?.rows ?? [];
@@ -75,11 +80,15 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
   };
 
   const getExampleValue = (header: string): string => {
-    const firstRow = rows[0];
-    if (!firstRow) {
+    const row = rows[selectedPreviewRowIndex];
+    if (!row) {
       return '';
     }
-    return firstRow[header] ?? '';
+    return row[header] ?? '';
+  };
+
+  const handlePreviewRowSelect = (index: number): void => {
+    setSelectedPreviewRowIndex(index);
   };
 
   // TODO: implement save profile dialog
@@ -94,10 +103,12 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     fieldOptions,
     isMappingComplete,
     isProcessing,
+    selectedPreviewRowIndex,
     handleFieldChange,
     handleConfirm: handleMappingConfirm,
     handlePrevStep,
     handleSaveProfile,
+    handlePreviewRowSelect,
     getExampleValue,
   };
 };

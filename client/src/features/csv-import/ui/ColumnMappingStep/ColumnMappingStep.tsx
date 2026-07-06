@@ -17,10 +17,12 @@ export const ColumnMappingStep = (): React.JSX.Element => {
     fieldOptions,
     isMappingComplete,
     isProcessing,
+    selectedPreviewRowIndex,
     handleFieldChange,
     handleConfirm,
     handlePrevStep,
     handleSaveProfile,
+    handlePreviewRowSelect,
     getExampleValue,
   } = useColumnMappingStep();
 
@@ -37,7 +39,12 @@ export const ColumnMappingStep = (): React.JSX.Element => {
 
         {/* Data preview table */}
         <div className="mt-5">
-          <DataPreviewTable headers={headers} rows={previewRows} />
+          <DataPreviewTable
+            headers={headers}
+            rows={previewRows}
+            selectedRowIndex={selectedPreviewRowIndex}
+            onRowSelect={handlePreviewRowSelect}
+          />
         </div>
 
         {/* Field assignment section */}
