@@ -22,4 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-storybook-statice2e-results/
+storybook-static
+e2e-results/

@@ -22,7 +22,7 @@ export const overflowMergeStrategy: ReassemblyStrategy = {
     rawTokens: readonly string[],
     config: ReassemblyConfig,
   ): readonly string[] {
-    const { expectedColumnCount, separator, overflowColumnIndex, fixedTailColumns } = config;
+    const { expectedColumnCount, separator, overflowColumnIndex } = config;
 
     // No overflow — delegate to direct mapping
     if (rawTokens.length <= expectedColumnCount) {
