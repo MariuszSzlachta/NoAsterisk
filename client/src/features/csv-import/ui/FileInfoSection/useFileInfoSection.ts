@@ -1,5 +1,5 @@
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
-import { detectBankFromHeaders } from '#features/csv-import/model/bank-detector';
+import { detectBankFromHeaders } from '#features/csv-import/model/column-mapping/bank-profiles';
 
 import { formatFileSize, formatSeparator } from './format-helpers';
 

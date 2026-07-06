@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
-import { hasRequiredFields } from '#features/csv-import/model/column-mapper';
-import { detectDuplicatesInBatch } from '#features/csv-import/model/duplicate-detector';
-import { parseCsvFile } from '#features/csv-import/model/parser/csv-parser';
-import { autoDetectMapping } from '#features/csv-import/model/column-mapper';
-import { processRows } from '#features/csv-import/model/anonymizer/pipeline';
-import { devDictionaryProvider } from '#features/csv-import/model/anonymizer/dictionaries/dictionary-provider';
-import { transformRows } from '#features/csv-import/model/row-transformer';
+import { hasRequiredFields } from '#features/csv-import/model/column-mapping/column-mapper';
+import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector';
+import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser';
+import { autoDetectMapping } from '#features/csv-import/model/column-mapping/column-mapper';
+import { processRows } from '#features/csv-import/model/anonymization/pipeline';
+import { devDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary.provider';
+import { transformRows } from '#features/csv-import/model/transformation/row-transformer';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { WizardStep } from '#features/csv-import/model/types';
 

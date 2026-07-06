@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { ApiError } from '#shared/api';
 import { useImportMutation } from '#features/csv-import/api/useImportMutation';
-import { createImportChunks } from '#features/csv-import/model/import-chunks';
+import { createImportChunks } from '#features/csv-import/model/submission/import-chunks';
 import type { ImportChunkPayload, ImportProgress } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 

@@ -2,29 +2,29 @@
 // Only these exports are available to pages and other features.
 
 // Model — parsers & transformers
-export { parseCsvFile, CsvParseError } from './model/parser/csv-parser';
-export { detectDateFormat, parseDate, parseDateFlexible } from './model/parser/date-parser';
-export { detectAmountLocale, parseAmount } from './model/parser/amount-parser';
+export { parseCsvFile, CsvParseError } from './model/parsing/csv-parser';
+export { detectDateFormat, parseDate, parseDateFlexible } from './model/parsing/date-parser';
+export { detectAmountLocale, parseAmount } from './model/parsing/amount-parser';
 export {
   detectEncoding,
   decodeBuffer,
   decodeBufferWithWarning,
   countReplacementChars,
-} from './model/parser/encoding-detector';
-export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapper';
-export { transformRows } from './model/row-transformer';
-export { findSimilarRows } from './model/find-similar-rows';
-export { createImportChunks, computeContentHash, computeBatchHash } from './model/import-chunks';
+} from './model/parsing/encoding-detector';
+export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapping/column-mapper';
+export { transformRows } from './model/transformation/row-transformer';
+export { findSimilarRows } from './model/transformation/find-similar-rows';
+export { createImportChunks, computeContentHash, computeBatchHash } from './model/submission/import-chunks';
 export {
   detectDuplicatesInBatch,
   detectDuplicatesAgainstExisting,
-} from './model/duplicate-detector';
-export { anonymizeTitle, processRows } from './model/anonymizer/pipeline';
+} from './model/transformation/duplicate-detector';
+export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
 export {
   createDictionaryProvider,
   devDictionaryProvider,
-} from './model/anonymizer/dictionaries/dictionary-provider';
-export { detectBankFromHeaders } from './model/bank-detector';
+} from './model/anonymization/dictionaries/dictionary.provider';
+export { detectBankFromHeaders } from './model/column-mapping/bank-profiles';
 
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
@@ -67,4 +67,4 @@ export type {
   ImportProgress,
 } from './model/types';
 
-export type { DecodeWarning } from './model/parser/encoding-detector';
+export type { DecodeWarning } from './model/parsing/encoding-detector';

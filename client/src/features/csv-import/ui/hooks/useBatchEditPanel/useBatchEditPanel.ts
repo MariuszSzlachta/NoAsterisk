@@ -1,4 +1,4 @@
-import { findSimilarRows } from '#features/csv-import/model/find-similar-rows';
+import { findSimilarRows } from '#features/csv-import/model/transformation/find-similar-rows';
 import type { TransactionRow } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
