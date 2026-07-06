@@ -40,6 +40,14 @@ const stripBom = (text: string): string =>
   text.startsWith('\uFEFF') ? text.slice(1) : text;
 
 /**
+ * Normalize CRLF and standalone CR line endings to LF.
+ * Windows-origin CSVs (e.g. 08-exotic-deceptive-simple) have \r\n endings
+ * which leave trailing \r in last field after split.
+ */
+const normalizeCrlf = (text: string): string =>
+  text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+/**
  * Normalize non-breaking spaces to regular spaces.
  * NBSP (\u00A0) is used as thousands separator in Polish bank exports.
  */
@@ -52,6 +60,90 @@ const normalizeNbsp = (text: string): string =>
  */
 const generatePositionalHeaders = (firstRow: readonly string[]): readonly string[] =>
   firstRow.map((value, i) => value.trim() || `Column ${i + 1}`);
+
+interface TrailingNormalized {
+  readonly headers: readonly string[];
+  readonly dataRows: readonly (readonly string[])[];
+}
+
+/**
+ * Strip consistent trailing empty tokens from headers and all data rows.
+ *
+ * Many banks (mBank, others) end every line with the separator character,
+ * which produces a trailing empty string token after split. This inflates
+ * the token count and confuses overflow detection.
+ *
+ * Algorithm:
+ * 1. Count trailing empty tokens in header row
+ * 2. Verify ≥80% of data rows also have at least that many trailing empties
+ * 3. If consistent → strip from header + all rows
+ *
+ * This is safe because:
+ * - Real data columns are never consistently empty across ALL rows
+ * - Trailing separator is a format artifact, not data
+ */
+const normalizeTrailingSeparator = (
+  headers: readonly string[],
+  dataRows: readonly (readonly string[])[],
+): TrailingNormalized => {
+  // Count trailing empty tokens in header
+  let headerTrailingCount = 0;
+  for (let i = headers.length - 1; i >= 0; i--) {
+    if (headers[i] === '') {
+      headerTrailingCount++;
+    } else {
+      break;
+    }
+  }
+
+  if (headerTrailingCount === 0) {
+    return { headers, dataRows };
+  }
+
+  // Verify consistency: ≥80% of data rows must have at least as many trailing empties
+  const sampleSize = Math.min(dataRows.length, 20);
+  let matchingRows = 0;
+
+  for (let r = 0; r < sampleSize; r++) {
+    const row = dataRows[r];
+    if (!row) {
+      continue;
+    }
+    let rowTrailing = 0;
+    for (let i = row.length - 1; i >= 0; i--) {
+      if (row[i] === '') {
+        rowTrailing++;
+      } else {
+        break;
+      }
+    }
+    if (rowTrailing >= headerTrailingCount) {
+      matchingRows++;
+    }
+  }
+
+  const consistency = matchingRows / sampleSize;
+  if (consistency < 0.8) {
+    return { headers, dataRows };
+  }
+
+  // Strip trailing empties
+  const strippedHeaders = headers.slice(0, headers.length - headerTrailingCount);
+  const strippedRows = dataRows.map((row) => {
+    // Strip same count from end, but only if they're actually empty
+    let toStrip = 0;
+    for (let i = row.length - 1; i >= 0 && toStrip < headerTrailingCount; i--) {
+      if (row[i] === '') {
+        toStrip++;
+      } else {
+        break;
+      }
+    }
+    return toStrip > 0 ? row.slice(0, row.length - toStrip) : row;
+  });
+
+  return { headers: strippedHeaders, dataRows: strippedRows };
+};
 
 /**
  * Full CSV parsing pipeline:
@@ -69,7 +161,7 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
 
   const buffer = await file.arrayBuffer();
   const encoding = detectEncoding(buffer);
-  const rawText = normalizeNbsp(stripBom(decodeBuffer(buffer, encoding)));
+  const rawText = normalizeNbsp(normalizeCrlf(stripBom(decodeBuffer(buffer, encoding))));
 
   // First pass: detect separator on the full text (needed for boundary detection)
   const separator = detectSeparator(rawText);
@@ -125,6 +217,14 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     headers = generatePositionalHeaders(firstRow);
     dataRows = result.data;
   }
+
+  // ─── Trailing Separator Normalization ────────────────────────────
+  // mBank and others end every line with separator (e.g. "data;opis;kwota;")
+  // producing a trailing empty token. Strip consistent trailing empties from
+  // header + all data rows so overflow detection isn't confused by them.
+  const trailingNormalized = normalizeTrailingSeparator(headers, dataRows);
+  headers = trailingNormalized.headers;
+  dataRows = trailingNormalized.dataRows;
 
   // Resolve reassembly strategy based on headers + data sampling
   const { strategy, config } = resolveStrategy(headers, dataRows, dataSeparator);

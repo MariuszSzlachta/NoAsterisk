@@ -125,7 +125,8 @@
         "currency": "Waluta",
         "balance": "Saldo",
         "debit": "Obciążenia (Wn)",
-        "credit": "Uznania (Ma)"
+        "credit": "Uznania (Ma)",
+        "category": "Kategoria"
       }
     },
     "preview": {
