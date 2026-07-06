@@ -3,20 +3,20 @@ import {
   IMPORT_BATCH_REPOSITORY,
   ImportBatchRepository,
 } from '@imports/application/ports/import-batch.repository';
-import { ImportBatch } from '@imports/domain/import-batch.entity';
+import {
+  ImportBatch,
+  Transaction,
+  TransactionType,
+  DomainError,
+} from '@budget/domain';
 import {
   TRANSACTION_REPOSITORY,
   TransactionRepository,
 } from '@transactions/application/ports/transaction.repository';
 import {
-  Transaction,
-  TransactionType,
-} from '@transactions/domain/transaction.entity';
-import {
   IMPORT_PROFILE_REPOSITORY,
   ImportProfileRepository,
 } from '@import-profiles/application/ports/import-profile.repository';
-import { DomainError } from '@shared/domain/domain.error';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
@@ -34,6 +34,7 @@ export interface ImportTransactionRow {
 export interface ImportTransactionsCommand {
   batchId: string;
   workspaceId: string;
+  accountId: string;
   batchHash: string;
   sourceFilename?: string;
   profileId?: string;
@@ -94,6 +95,7 @@ export class ImportTransactionsHandler {
       clean.length > 0
         ? await this.saveNewTransactions(
             command.workspaceId,
+            command.accountId,
             command.batchId,
             clean,
           )
@@ -145,8 +147,7 @@ export class ImportTransactionsHandler {
 
     await this.assertNoDuplicateBatch(command);
 
-    const batch = ImportBatch.create({
-      id: command.batchId,
+    const batch = ImportBatch.createWithExternalId(command.batchId, {
       workspaceId: command.workspaceId,
       batchHash: command.batchHash,
       sourceFilename: command.sourceFilename,
@@ -176,6 +177,7 @@ export class ImportTransactionsHandler {
 
   private async saveNewTransactions(
     workspaceId: string,
+    accountId: string,
     batchId: string,
     rows: ImportTransactionRow[],
   ): Promise<{ saved: number; duplicatesSkipped: number }> {
@@ -183,7 +185,12 @@ export class ImportTransactionsHandler {
     let duplicatesSkipped = 0;
 
     for (const row of rows) {
-      const result = await this.processRow(workspaceId, batchId, row);
+      const result = await this.processRow(
+        workspaceId,
+        accountId,
+        batchId,
+        row,
+      );
       if (result === 'saved') saved++;
       else duplicatesSkipped++;
     }
@@ -193,6 +200,7 @@ export class ImportTransactionsHandler {
 
   private async processRow(
     workspaceId: string,
+    accountId: string,
     batchId: string,
     row: ImportTransactionRow,
   ): Promise<'saved' | 'skipped'> {
@@ -206,6 +214,7 @@ export class ImportTransactionsHandler {
 
     const transaction = Transaction.create({
       workspaceId,
+      accountId,
       amount: row.amount,
       currency: row.currency,
       type: ROW_TYPE_MAP[row.type],

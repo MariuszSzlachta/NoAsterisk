@@ -20,6 +20,10 @@ import {
 } from '@categories/presentation/category.dto';
 import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
 import { UuidParam } from '@shared/presentation/common.dto';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '@auth/presentation/decorators/current-user.decorator';
 
 @Controller('categories')
 export class CategoriesController {
@@ -32,9 +36,13 @@ export class CategoriesController {
 
   @Post()
   async create(
+    @CurrentUser() user: CurrentUserPayload,
     @Body(new ZodValidationPipe(CreateCategoryDto)) dto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return this.createHandler.execute(dto);
+    return this.createHandler.execute({
+      workspaceId: user.workspaceId,
+      name: dto.name,
+    });
   }
 
   @Get()

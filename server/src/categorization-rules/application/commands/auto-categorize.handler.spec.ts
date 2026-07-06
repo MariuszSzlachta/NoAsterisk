@@ -4,12 +4,13 @@ import { TransactionRepository } from '@transactions/application/ports/transacti
 import {
   CategorizationRule,
   MatcherType,
-} from '@categorization-rules/domain/categorization-rule.entity';
-import {
   Transaction,
   TransactionType,
-} from '@transactions/domain/transaction.entity';
-import { Money } from '@transactions/domain/value-objects/money';
+  Money,
+} from '@budget/domain';
+
+const TEST_WORKSPACE_ID = 'ws-1';
+const TEST_ACCOUNT_ID = 'acc-001';
 
 const buildRule = (
   keyword: string,
@@ -18,7 +19,7 @@ const buildRule = (
 ): CategorizationRule =>
   new CategorizationRule(
     `r-${keyword}`,
-    'ws-1',
+    TEST_WORKSPACE_ID,
     keyword,
     categoryId,
     MatcherType.Contains,
@@ -29,7 +30,8 @@ const buildRule = (
 const buildTransaction = (id: string, description: string): Transaction =>
   new Transaction(
     id,
-    'ws-1',
+    TEST_WORKSPACE_ID,
+    TEST_ACCOUNT_ID,
     Money.of(100, 'PLN'),
     TransactionType.Expense,
     [],
@@ -69,7 +71,7 @@ describe('AutoCategorizeHandler', () => {
       buildTransaction('tx-1', 'Zakupy BIEDRONKA'),
     ]);
 
-    const result = await handler.execute({ workspaceId: 'ws-1' });
+    const result = await handler.execute({ workspaceId: TEST_WORKSPACE_ID });
 
     expect(result).toEqual({ categorized: 1, total: 1 });
     expect(transactionRepo.saveMany).toHaveBeenCalledTimes(1);
@@ -84,7 +86,7 @@ describe('AutoCategorizeHandler', () => {
       buildTransaction('tx-1', 'BIEDRONKA zakupy'),
     ]);
 
-    await handler.execute({ workspaceId: 'ws-1' });
+    await handler.execute({ workspaceId: TEST_WORKSPACE_ID });
 
     const saved = transactionRepo.saveMany.mock.calls[0]?.[0] as Transaction[];
     expect(saved[0]?.categoryIds).toContain('cat-high');
@@ -98,7 +100,7 @@ describe('AutoCategorizeHandler', () => {
       buildTransaction('tx-1', 'NETFLIX subscription'),
     ]);
 
-    const result = await handler.execute({ workspaceId: 'ws-1' });
+    const result = await handler.execute({ workspaceId: TEST_WORKSPACE_ID });
 
     expect(result).toEqual({ categorized: 0, total: 1 });
     expect(transactionRepo.saveMany).not.toHaveBeenCalled();
@@ -110,7 +112,7 @@ describe('AutoCategorizeHandler', () => {
       buildTransaction('tx-1', 'something'),
     ]);
 
-    const result = await handler.execute({ workspaceId: 'ws-1' });
+    const result = await handler.execute({ workspaceId: TEST_WORKSPACE_ID });
 
     expect(result).toEqual({ categorized: 0, total: 1 });
   });
@@ -119,7 +121,7 @@ describe('AutoCategorizeHandler', () => {
     ruleRepo.findByWorkspaceId.mockResolvedValue([buildRule('X', 'cat-1')]);
     transactionRepo.findUncategorized.mockResolvedValue([]);
 
-    const result = await handler.execute({ workspaceId: 'ws-1' });
+    const result = await handler.execute({ workspaceId: TEST_WORKSPACE_ID });
 
     expect(result).toEqual({ categorized: 0, total: 0 });
   });

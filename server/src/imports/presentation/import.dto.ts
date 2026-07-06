@@ -15,6 +15,7 @@ const ImportTransactionRowDto = z
 export const ImportTransactionsDto = z
   .object({
     batchId: z.uuid(),
+    accountId: z.uuid(),
     batchHash: z.string().regex(/^[a-f0-9]{64}$/),
     sourceFilename: z
       .string()

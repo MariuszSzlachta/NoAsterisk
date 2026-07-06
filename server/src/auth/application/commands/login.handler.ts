@@ -8,7 +8,7 @@ import {
   PasswordHasherPort,
 } from '@auth/domain/ports/password-hasher.port';
 import { TOKEN_PORT, TokenPort } from '@auth/domain/ports/token.port';
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
 
 export interface LoginCommand {

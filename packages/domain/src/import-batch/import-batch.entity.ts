@@ -1,4 +1,5 @@
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '#domain/shared/domain-error';
+import { generateId } from '#domain/shared/identifier';
 
 export enum ImportBatchStatus {
   Pending = 'Pending',
@@ -8,6 +9,12 @@ export enum ImportBatchStatus {
 }
 
 export class ImportBatch {
+  /**
+   * Constructor used for reconstitution from persistence and for creating
+   * batches with externally-provided IDs (e.g. client-supplied batchId for
+   * retry idempotency). Prefer `create()` for new batches with auto-generated
+   * IDs, or `createWithExternalId()` when the caller controls identity.
+   */
   constructor(
     public readonly id: string,
     public readonly workspaceId: string,
@@ -40,14 +47,41 @@ export class ImportBatch {
   }
 
   static create(props: {
-    id: string;
     workspaceId: string;
     batchHash: string;
     sourceFilename?: string;
     totalRows: number;
   }): ImportBatch {
     return new ImportBatch(
-      props.id,
+      generateId(),
+      props.workspaceId,
+      props.batchHash,
+      props.sourceFilename,
+      props.totalRows,
+      0,
+      ImportBatchStatus.Pending,
+      new Date(),
+      undefined,
+    );
+  }
+
+  /**
+   * Creates a new ImportBatch with a client-provided ID. Used in the import
+   * flow where the client supplies a stable batchId for retry idempotency —
+   * if the same batchId is sent again, the handler can detect and resume
+   * rather than creating a duplicate batch.
+   */
+  static createWithExternalId(
+    id: string,
+    props: {
+      workspaceId: string;
+      batchHash: string;
+      sourceFilename?: string;
+      totalRows: number;
+    },
+  ): ImportBatch {
+    return new ImportBatch(
+      id,
       props.workspaceId,
       props.batchHash,
       props.sourceFilename,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ImportBatch } from '@imports/domain/import-batch.entity';
+import { ImportBatch } from '@budget/domain';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
 import {
   PagedResult,

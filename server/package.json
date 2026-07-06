@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@budget/domain": "*",
     "@nestjs/common": "11.1.27",
     "@nestjs/core": "11.1.27",
     "@nestjs/jwt": "11.0.2",
@@ -54,7 +55,7 @@
     "ts-loader": "9.6.2",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.62.0"
   },
   "jest": {
@@ -66,9 +67,16 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "tsconfig.json" }]
     },
     "moduleNameMapper": {
+      "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",
+      "^#domain/shared/(.*)$": "<rootDir>/../../packages/domain/src/shared/$1",
+      "^#domain/transaction/(.*)$": "<rootDir>/../../packages/domain/src/transaction/$1",
+      "^#domain/account/(.*)$": "<rootDir>/../../packages/domain/src/account/$1",
+      "^#domain/import-batch/(.*)$": "<rootDir>/../../packages/domain/src/import-batch/$1",
+      "^#domain/categorization-rule/(.*)$": "<rootDir>/../../packages/domain/src/categorization-rule/$1",
+      "^#domain/category/(.*)$": "<rootDir>/../../packages/domain/src/category/$1",
       "^@shared/(.*)$": "<rootDir>/shared/$1",
       "^@transactions/(.*)$": "<rootDir>/transactions/$1",
       "^@categories/(.*)$": "<rootDir>/categories/$1",

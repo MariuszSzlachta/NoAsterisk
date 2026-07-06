@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Transaction } from '@transactions/domain/transaction.entity';
+import { Transaction } from '@budget/domain';
 import {
   TransactionRepository,
   TransactionFilter,

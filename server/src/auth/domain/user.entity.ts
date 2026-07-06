@@ -1,4 +1,9 @@
-import { DomainError } from '@shared/domain/domain.error';
+/**
+ * ARCH-EXCEPTION: User remains in server/ (not extracted to packages/domain/).
+ * Reason: Auth entities (User, Permission) are server-only infrastructure concerns,
+ * not financial domain. They will never be shared with the client package.
+ */
+import { DomainError } from '@budget/domain';
 import { UserRole } from './user-role.enum';
 
 export class User {

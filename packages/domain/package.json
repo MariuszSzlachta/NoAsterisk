@@ -1,0 +1,25 @@
+{
+  "name": "@budget/domain",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "imports": {
+    "#domain/shared/*": "./src/shared/*",
+    "#domain/transaction/*": "./src/transaction/*",
+    "#domain/account/*": "./src/account/*",
+    "#domain/import-batch/*": "./src/import-batch/*",
+    "#domain/categorization-rule/*": "./src/categorization-rule/*",
+    "#domain/category/*": "./src/category/*"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
+  }
+}

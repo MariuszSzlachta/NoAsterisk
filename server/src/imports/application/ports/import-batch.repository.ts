@@ -1,4 +1,4 @@
-import { ImportBatch } from '@imports/domain/import-batch.entity';
+import { ImportBatch } from '@budget/domain';
 import {
   PagedResult,
   PageOptions,

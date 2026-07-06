@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Category } from '@categories/domain/category.entity';
+import { Category } from '@budget/domain';
 import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
@@ -8,6 +8,7 @@ import { CategoryResponseDto } from '@categories/application/dto/category-respon
 import { CategoryResponseMapper } from '@categories/application/mappers/category-response.mapper';
 
 export interface CreateCategoryCommand {
+  workspaceId: string;
   name: string;
 }
 
@@ -19,7 +20,10 @@ export class CreateCategoryHandler {
   ) {}
 
   async execute(command: CreateCategoryCommand): Promise<CategoryResponseDto> {
-    const category = Category.create({ name: command.name });
+    const category = Category.create({
+      workspaceId: command.workspaceId,
+      name: command.name,
+    });
     const saved = await this.repo.save(category);
     return CategoryResponseMapper.toDto(saved);
   }

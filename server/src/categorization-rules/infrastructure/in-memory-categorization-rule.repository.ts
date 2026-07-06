@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
+import { CategorizationRule } from '@budget/domain';
 import { CategorizationRuleRepository } from '@categorization-rules/application/ports/categorization-rule.repository';
 import {
   PagedResult,

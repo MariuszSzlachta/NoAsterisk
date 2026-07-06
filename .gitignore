@@ -2,10 +2,11 @@ node_modules/
 dist/
 .env
 *.log
+*.tsbuildinfo
 .idea/
 temp/
 
 # Graphify — local-only files
 graphify-out/cost.json
-graphify-out/cache/client/e2e-results/
+graphify-out/cache/*
 client/playwright-report/

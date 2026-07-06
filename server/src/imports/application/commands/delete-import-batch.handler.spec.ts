@@ -1,10 +1,7 @@
 import { DeleteImportBatchHandler } from '@imports/application/commands/delete-import-batch.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
-import {
-  ImportBatch,
-  ImportBatchStatus,
-} from '@imports/domain/import-batch.entity';
+import { ImportBatch, ImportBatchStatus } from '@budget/domain';
 
 describe('DeleteImportBatchHandler', () => {
   let handler: DeleteImportBatchHandler;

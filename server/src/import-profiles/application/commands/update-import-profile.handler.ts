@@ -6,7 +6,7 @@ import {
 import { ColumnMapping } from '@import-profiles/domain/value-objects/column-mapping';
 import { ParserConfig } from '@import-profiles/domain/value-objects/parser-config';
 import { AnonymizationConfig } from '@import-profiles/domain/value-objects/anonymization-config';
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 import { ImportProfileResponseDto } from '@import-profiles/application/dto/import-profile-response.dto';
 import { ImportProfileResponseMapper } from '@import-profiles/application/mappers/import-profile-response.mapper';
 import {

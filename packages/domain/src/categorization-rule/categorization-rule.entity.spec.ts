@@ -1,8 +1,7 @@
-import {
-  CategorizationRule,
-  MatcherType,
-} from '@categorization-rules/domain/categorization-rule.entity';
-import { DomainError } from '@shared/domain/domain.error';
+import { describe, it, expect } from 'vitest';
+import { CategorizationRule } from '#domain/categorization-rule/categorization-rule.entity';
+import { MatcherType } from '#domain/categorization-rule/matcher-type.enum';
+import { DomainError } from '#domain/shared/domain-error';
 
 describe('CategorizationRule', () => {
   describe('constructor invariants', () => {

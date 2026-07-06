@@ -1,7 +1,4 @@
-import {
-  ImportBatch,
-  ImportBatchStatus,
-} from '@imports/domain/import-batch.entity';
+import { ImportBatch, ImportBatchStatus } from '@budget/domain';
 import { ImportBatchResponseDto } from '@imports/application/dto/import-batch-response.dto';
 
 const STATUS_MAP: Record<ImportBatchStatus, ImportBatchResponseDto['status']> =

@@ -1,7 +1,5 @@
-import {
-  ContainsMatcher,
-  ExactMatcher,
-} from '@categorization-rules/domain/matchers';
+import { describe, it, expect } from 'vitest';
+import { ContainsMatcher, ExactMatcher } from '#domain/categorization-rule/matchers';
 
 describe('ContainsMatcher', () => {
   const matcher = new ContainsMatcher();
@@ -13,7 +11,7 @@ describe('ContainsMatcher', () => {
     ['Zakupy LIDL', 'biedronka', false],
     ['', 'biedronka', false],
     ['BIEDRONKA', '', false],
-  ])('matches("%s", "%s") = %s', (description, keyword, expected) => {
+  ] as const)('matches("%s", "%s") = %s', (description, keyword, expected) => {
     expect(matcher.matches(description, keyword)).toBe(expected);
   });
 });
@@ -28,7 +26,7 @@ describe('ExactMatcher', () => {
     ['Netflix subscription', 'Netflix', false],
     ['My Netflix', 'Netflix', false],
     ['', '', false],
-  ])('matches("%s", "%s") = %s', (description, keyword, expected) => {
+  ] as const)('matches("%s", "%s") = %s', (description, keyword, expected) => {
     expect(matcher.matches(description, keyword)).toBe(expected);
   });
 });

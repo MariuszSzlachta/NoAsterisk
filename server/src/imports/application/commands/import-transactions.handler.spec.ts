@@ -6,11 +6,7 @@ import {
 } from '@imports/application/commands/import-transactions.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
-import {
-  ImportBatch,
-  ImportBatchStatus,
-} from '@imports/domain/import-batch.entity';
-import { DomainError } from '@shared/domain/domain.error';
+import { ImportBatch, ImportBatchStatus, DomainError } from '@budget/domain';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { ImportProfileRepository } from '@import-profiles/application/ports/import-profile.repository';
@@ -41,6 +37,7 @@ describe('ImportTransactionsHandler', () => {
   ): ImportTransactionsCommand => ({
     batchId: 'batch-001',
     workspaceId: 'ws-001',
+    accountId: 'acc-001',
     batchHash: 'batch-hash-abc',
     sourceFilename: 'historia.csv',
     rows: [
@@ -143,12 +140,17 @@ describe('ImportTransactionsHandler', () => {
   describe('workspace ownership', () => {
     it('throws when batch belongs to different workspace', async () => {
       batchRepo.findById.mockResolvedValue(
-        ImportBatch.create({
-          id: 'batch-001',
-          workspaceId: 'ws-OTHER',
-          batchHash: 'batch-hash-abc',
-          totalRows: 2,
-        }),
+        new ImportBatch(
+          'batch-001',
+          'ws-OTHER',
+          'batch-hash-abc',
+          undefined,
+          2,
+          0,
+          ImportBatchStatus.Pending,
+          new Date(),
+          undefined,
+        ),
       );
 
       const command = buildCommand({ workspaceId: 'ws-001' });
@@ -186,12 +188,17 @@ describe('ImportTransactionsHandler', () => {
 
     it('rejects entire batch when batch hash already exists', async () => {
       batchRepo.findByBatchHash.mockResolvedValue(
-        ImportBatch.create({
-          id: 'existing-batch',
-          workspaceId: 'ws-001',
-          batchHash: 'batch-hash-abc',
-          totalRows: 2,
-        }),
+        new ImportBatch(
+          'existing-batch',
+          'ws-001',
+          'batch-hash-abc',
+          undefined,
+          2,
+          0,
+          ImportBatchStatus.Pending,
+          new Date(),
+          undefined,
+        ),
       );
 
       const command = buildCommand();
@@ -208,12 +215,17 @@ describe('ImportTransactionsHandler', () => {
 
   describe('retry (existing batch)', () => {
     it('appends to existing batch on retry', async () => {
-      const existingBatch = ImportBatch.create({
-        id: 'batch-001',
-        workspaceId: 'ws-001',
-        batchHash: 'batch-hash-abc',
-        totalRows: 5,
-      }).recordSavedRows(3);
+      const existingBatch = new ImportBatch(
+        'batch-001',
+        'ws-001',
+        'batch-hash-abc',
+        undefined,
+        5,
+        0,
+        ImportBatchStatus.Pending,
+        new Date(),
+        undefined,
+      ).recordSavedRows(3);
 
       batchRepo.findById.mockResolvedValue(existingBatch);
 

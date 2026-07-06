@@ -1,4 +1,4 @@
-import { Category } from '@categories/domain/category.entity';
+import { Category } from '@budget/domain';
 import { CategoryResponseDto } from '@categories/application/dto/category-response.dto';
 
 export class CategoryResponseMapper {

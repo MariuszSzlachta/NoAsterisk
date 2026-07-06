@@ -1,6 +1,4 @@
-import { Transaction } from '@transactions/domain/transaction.entity';
-import { Money } from '@transactions/domain/value-objects/money';
-import { isTransactionType } from '@transactions/domain/value-objects/transaction-type.guard';
+import { Transaction, Money, isTransactionType } from '@budget/domain';
 import { TransactionRecord } from '@transactions/infrastructure/transaction.record';
 
 export class TransactionMapper {
@@ -14,6 +12,7 @@ export class TransactionMapper {
     return new Transaction(
       record.id,
       record.workspace_id,
+      record.account_id,
       Money.of(record.amount, record.currency),
       record.type,
       record.category_ids,
@@ -22,6 +21,7 @@ export class TransactionMapper {
       new Date(record.created_at),
       record.content_hash,
       record.import_batch_id,
+      record.balance,
     );
   }
 
@@ -29,6 +29,7 @@ export class TransactionMapper {
     return {
       id: entity.id,
       workspace_id: entity.workspaceId,
+      account_id: entity.accountId,
       amount: entity.money.amount,
       currency: entity.money.currency,
       type: entity.type,
@@ -38,6 +39,7 @@ export class TransactionMapper {
       created_at: entity.createdAt.toISOString(),
       content_hash: entity.contentHash,
       import_batch_id: entity.importBatchId,
+      balance: entity.balance,
     };
   }
 }

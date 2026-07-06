@@ -1,4 +1,4 @@
-import { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
+import { MatcherType } from '@budget/domain';
 
 export type MatcherTypeDto = 'Contains' | 'Exact';
 

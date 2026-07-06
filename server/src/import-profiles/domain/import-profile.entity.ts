@@ -1,4 +1,10 @@
-import { DomainError } from '@shared/domain/domain.error';
+/**
+ * ARCH-EXCEPTION: ImportProfile remains in server/ (not extracted to packages/domain/).
+ * Reason: ImportProfile depends on complex value objects (AnonymizationConfig, ColumnMapping,
+ * ParserConfig) that are tightly coupled to the server-side CSV parsing pipeline. Extracting
+ * requires migrating all VOs together — planned for phase 2 of domain extraction.
+ */
+import { DomainError } from '@budget/domain';
 import { AnonymizationConfig } from './value-objects/anonymization-config';
 import { ColumnMapping } from './value-objects/column-mapping';
 import { ParserConfig } from './value-objects/parser-config';

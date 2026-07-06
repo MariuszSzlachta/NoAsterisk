@@ -4,11 +4,7 @@ import { DeleteRuleHandler } from '@categorization-rules/application/commands/de
 import { GetRulesHandler } from '@categorization-rules/application/queries/get-rules.handler';
 import { CategorizationRuleRepository } from '@categorization-rules/application/ports/categorization-rule.repository';
 import { CategoryRepository } from '@categories/application/ports/category.repository';
-import {
-  CategorizationRule,
-  MatcherType,
-} from '@categorization-rules/domain/categorization-rule.entity';
-import { Category } from '@categories/domain/category.entity';
+import { CategorizationRule, MatcherType, Category } from '@budget/domain';
 import { BadRequestException } from '@nestjs/common';
 
 const buildRepo = (): jest.Mocked<CategorizationRuleRepository> => ({
@@ -48,7 +44,7 @@ describe('CreateRuleHandler', () => {
     const repo = buildRepo();
     const categoryRepo = buildCategoryRepo();
     categoryRepo.findById.mockResolvedValue(
-      new Category('cat-1', 'Groceries', new Date()),
+      new Category('cat-1', 'ws-1', 'Groceries', new Date()),
     );
     const handler = new CreateRuleHandler(
       repo,

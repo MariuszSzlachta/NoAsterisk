@@ -1,10 +1,7 @@
 import { GetImportBatchesHandler } from '@imports/application/queries/get-import-batches.handler';
 import { GetImportBatchByIdHandler } from '@imports/application/queries/get-import-batch-by-id.handler';
 import { ImportBatchRepository } from '@imports/application/ports/import-batch.repository';
-import {
-  ImportBatch,
-  ImportBatchStatus,
-} from '@imports/domain/import-batch.entity';
+import { ImportBatch, ImportBatchStatus } from '@budget/domain';
 
 interface BatchOverrides {
   id?: string;

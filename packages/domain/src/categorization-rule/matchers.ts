@@ -1,4 +1,4 @@
-import { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
+import { MatcherType } from '#domain/categorization-rule/matcher-type.enum';
 
 export interface CategorizationMatcher {
   matches(description: string, keyword: string): boolean;

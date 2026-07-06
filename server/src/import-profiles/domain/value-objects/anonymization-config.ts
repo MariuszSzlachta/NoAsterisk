@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 import { AnonymizationStrategy } from '../anonymization-strategy.enum';
 
 export class AnonymizationConfig {

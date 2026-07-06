@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '#domain/shared/domain-error';
 
 export class Money {
   constructor(

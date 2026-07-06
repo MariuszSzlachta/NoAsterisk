@@ -4,7 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { CategorizationRulesModule } from '@categorization-rules/categorization-rules.module';
 import { CATEGORY_REPOSITORY } from '@categories/application/ports/category.repository';
-import { Category } from '@categories/domain/category.entity';
+import { Category } from '@budget/domain';
 
 describe('CategorizationRulesController', () => {
   let app: INestApplication<App>;
@@ -29,7 +29,7 @@ describe('CategorizationRulesController', () => {
     // Seed a category so rules can reference it
     const categoryRepo = app.get(CATEGORY_REPOSITORY);
     await categoryRepo.save(
-      new Category(testCategoryId, 'Groceries', new Date()),
+      new Category(testCategoryId, 'ws-test', 'Groceries', new Date()),
     );
   });
 

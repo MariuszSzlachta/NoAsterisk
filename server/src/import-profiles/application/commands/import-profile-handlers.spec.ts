@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 import { CreateImportProfileHandler } from '@import-profiles/application/commands/create-import-profile.handler';
 import { UpdateImportProfileHandler } from '@import-profiles/application/commands/update-import-profile.handler';
 import { DeleteImportProfileHandler } from '@import-profiles/application/commands/delete-import-profile.handler';

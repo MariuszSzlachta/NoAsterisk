@@ -1,4 +1,4 @@
-import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
+import { CategorizationRule } from '@budget/domain';
 import { CategorizationRuleResponseDto } from '@categorization-rules/application/dto/categorization-rule-response.dto';
 import { MATCHER_TYPE_TO_DTO } from '@categorization-rules/application/mappers/matcher-type.mapping';
 

@@ -1,8 +1,5 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
-import {
-  Transaction,
-  TransactionType,
-} from '@transactions/domain/transaction.entity';
+import { Transaction, TransactionType } from '@budget/domain';
 import {
   TRANSACTION_REPOSITORY,
   TransactionRepository,
@@ -16,9 +13,10 @@ import { TransactionResponseMapper } from '@transactions/application/mappers/tra
 
 export interface CreateTransactionCommand {
   workspaceId: string;
+  accountId: string;
   amount: number;
   currency: string;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'adjustment';
   categoryIds: string[];
   description: string;
   date: Date;
@@ -30,6 +28,7 @@ const COMMAND_TYPE_MAP: Record<
 > = {
   income: TransactionType.Income,
   expense: TransactionType.Expense,
+  adjustment: TransactionType.Adjustment,
 };
 
 @Injectable()
@@ -53,6 +52,7 @@ export class CreateTransactionHandler {
 
     const transaction = Transaction.create({
       workspaceId: command.workspaceId,
+      accountId: command.accountId,
       amount: command.amount,
       currency: command.currency,
       type: COMMAND_TYPE_MAP[command.type],

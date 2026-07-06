@@ -20,7 +20,7 @@ import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 import { Permission } from '@auth/domain/permission.entity';
 import { Workspace } from '@workspaces/domain/workspace.entity';
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
 
 export interface RegisterCommand {

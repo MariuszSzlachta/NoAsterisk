@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "#domain/shared/*": ["./src/shared/*"],
+      "#domain/transaction/*": ["./src/transaction/*"],
+      "#domain/account/*": ["./src/account/*"],
+      "#domain/import-batch/*": ["./src/import-batch/*"],
+      "#domain/categorization-rule/*": ["./src/categorization-rule/*"],
+      "#domain/category/*": ["./src/category/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts"]
+}

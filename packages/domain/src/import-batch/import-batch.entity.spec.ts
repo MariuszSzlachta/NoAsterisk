@@ -1,12 +1,9 @@
-import {
-  ImportBatch,
-  ImportBatchStatus,
-} from '@imports/domain/import-batch.entity';
-import { DomainError } from '@shared/domain/domain.error';
+import { describe, it, expect } from 'vitest';
+import { ImportBatch, ImportBatchStatus } from '#domain/import-batch/import-batch.entity';
+import { DomainError } from '#domain/shared/domain-error';
 
 describe('ImportBatch', () => {
   const validProps = {
-    id: 'batch-001',
     workspaceId: 'ws-001',
     batchHash: 'abc123hash',
     sourceFilename: 'historia_2026-06.csv',
@@ -14,10 +11,11 @@ describe('ImportBatch', () => {
   };
 
   describe('create', () => {
-    it('creates batch with Pending status and zero saved rows', () => {
+    it('creates batch with generated ID, Pending status, and zero saved rows', () => {
       const batch = ImportBatch.create(validProps);
 
-      expect(batch.id).toBe('batch-001');
+      expect(batch.id).toBeDefined();
+      expect(batch.id.length).toBeGreaterThan(0);
       expect(batch.workspaceId).toBe('ws-001');
       expect(batch.batchHash).toBe('abc123hash');
       expect(batch.sourceFilename).toBe('historia_2026-06.csv');
@@ -25,6 +23,12 @@ describe('ImportBatch', () => {
       expect(batch.savedRows).toBe(0);
       expect(batch.status).toBe(ImportBatchStatus.Pending);
       expect(batch.completedAt).toBeUndefined();
+    });
+
+    it('generates unique IDs', () => {
+      const batch1 = ImportBatch.create(validProps);
+      const batch2 = ImportBatch.create(validProps);
+      expect(batch1.id).not.toBe(batch2.id);
     });
 
     it('creates batch without sourceFilename', () => {
@@ -37,28 +41,40 @@ describe('ImportBatch', () => {
     });
   });
 
-  describe('invariants', () => {
+  describe('constructor invariants', () => {
     it('throws when id is empty', () => {
-      expect(() => ImportBatch.create({ ...validProps, id: '' })).toThrow(
-        DomainError,
-      );
+      expect(() =>
+        new ImportBatch('', 'ws-1', 'hash', undefined, 10, 0, ImportBatchStatus.Pending, new Date(), undefined),
+      ).toThrow(DomainError);
     });
 
     it('throws when workspaceId is empty', () => {
       expect(() =>
-        ImportBatch.create({ ...validProps, workspaceId: '' }),
+        new ImportBatch('id-1', '', 'hash', undefined, 10, 0, ImportBatchStatus.Pending, new Date(), undefined),
       ).toThrow(DomainError);
     });
 
     it('throws when batchHash is empty', () => {
       expect(() =>
-        ImportBatch.create({ ...validProps, batchHash: '' }),
+        new ImportBatch('id-1', 'ws-1', '', undefined, 10, 0, ImportBatchStatus.Pending, new Date(), undefined),
       ).toThrow(DomainError);
     });
 
     it('throws when totalRows is negative', () => {
       expect(() =>
-        ImportBatch.create({ ...validProps, totalRows: -1 }),
+        new ImportBatch('id-1', 'ws-1', 'hash', undefined, -1, 0, ImportBatchStatus.Pending, new Date(), undefined),
+      ).toThrow(DomainError);
+    });
+
+    it('throws when savedRows is negative', () => {
+      expect(() =>
+        new ImportBatch('id-1', 'ws-1', 'hash', undefined, 10, -1, ImportBatchStatus.Pending, new Date(), undefined),
+      ).toThrow(DomainError);
+    });
+
+    it('throws when savedRows exceeds totalRows', () => {
+      expect(() =>
+        new ImportBatch('id-1', 'ws-1', 'hash', undefined, 10, 11, ImportBatchStatus.Pending, new Date(), undefined),
       ).toThrow(DomainError);
     });
   });

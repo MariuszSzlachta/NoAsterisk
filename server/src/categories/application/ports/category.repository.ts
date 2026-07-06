@@ -1,4 +1,4 @@
-import { Category } from '@categories/domain/category.entity';
+import { Category } from '@budget/domain';
 
 export const CATEGORY_REPOSITORY = Symbol('CATEGORY_REPOSITORY');
 

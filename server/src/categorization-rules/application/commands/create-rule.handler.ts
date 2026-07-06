@@ -7,7 +7,7 @@ import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
 } from '@categories/application/ports/category.repository';
-import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
+import { CategorizationRule } from '@budget/domain';
 import { CategorizationRuleResponseDto } from '@categorization-rules/application/dto/categorization-rule-response.dto';
 import { CategorizationRuleResponseMapper } from '@categorization-rules/application/mappers/categorization-rule-response.mapper';
 import {

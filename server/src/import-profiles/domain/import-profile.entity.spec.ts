@@ -3,7 +3,7 @@ import { ColumnMapping } from './value-objects/column-mapping';
 import { ParserConfig } from './value-objects/parser-config';
 import { AnonymizationConfig } from './value-objects/anonymization-config';
 import { AnonymizationStrategy } from './anonymization-strategy.enum';
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 
 const buildColumnMapping = (
   overrides?: Partial<{

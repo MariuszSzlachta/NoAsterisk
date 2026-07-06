@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/domain.error';
+import { DomainError } from '@budget/domain';
 
 export type ResourceType = 'workspace' | 'sub_budget' | 'account';
 export type Action = 'read' | 'write' | 'delete' | 'admin';

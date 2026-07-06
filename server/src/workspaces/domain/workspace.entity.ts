@@ -1,4 +1,9 @@
-import { DomainError } from '@shared/domain/domain.error';
+/**
+ * ARCH-EXCEPTION: Workspace remains in server/ (not extracted to packages/domain/).
+ * Reason: Workspace is auth/tenant infrastructure, not financial domain.
+ * It defines the boundary FOR domain entities but is not a domain entity itself.
+ */
+import { DomainError } from '@budget/domain';
 
 /**
  * Workspace — top-level tenant boundary.

@@ -1,4 +1,4 @@
-import { Transaction } from '@transactions/domain/transaction.entity';
+import { Transaction } from '@budget/domain';
 import {
   PagedQuery,
   PagedResult,

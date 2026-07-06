@@ -1,4 +1,4 @@
-import { CategorizationRule } from '@categorization-rules/domain/categorization-rule.entity';
+import { CategorizationRule } from '@budget/domain';
 import {
   PagedResult,
   PageOptions,

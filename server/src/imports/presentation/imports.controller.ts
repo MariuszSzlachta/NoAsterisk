@@ -55,6 +55,7 @@ export class ImportsController {
       const result = await this.importHandler.execute({
         batchId: dto.batchId,
         workspaceId: user.workspaceId,
+        accountId: dto.accountId,
         batchHash: dto.batchHash,
         sourceFilename: dto.sourceFilename,
         profileId: dto.profileId,

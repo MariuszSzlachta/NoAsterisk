@@ -1,8 +1,7 @@
-import { DomainError } from '@shared/domain/domain.error';
-import { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
-import { MATCHERS } from '@categorization-rules/domain/matchers';
-
-export { MatcherType } from '@categorization-rules/domain/matcher-type.enum';
+import { DomainError } from '#domain/shared/domain-error';
+import { generateId } from '#domain/shared/identifier';
+import { MatcherType } from '#domain/categorization-rule/matcher-type.enum';
+import { MATCHERS } from '#domain/categorization-rule/matchers';
 
 export class CategorizationRule {
   constructor(
@@ -44,7 +43,7 @@ export class CategorizationRule {
     priority?: number;
   }): CategorizationRule {
     return new CategorizationRule(
-      crypto.randomUUID(),
+      generateId(),
       props.workspaceId,
       props.keyword.trim(),
       props.categoryId,

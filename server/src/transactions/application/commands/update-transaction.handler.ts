@@ -4,7 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { TransactionType } from '@transactions/domain/transaction.entity';
+import { TransactionType } from '@budget/domain';
 import {
   TRANSACTION_REPOSITORY,
   TransactionRepository,
@@ -20,7 +20,7 @@ export interface UpdateTransactionCommand {
   id: string;
   amount?: number;
   currency?: string;
-  type?: 'income' | 'expense';
+  type?: 'income' | 'expense' | 'adjustment';
   categoryIds?: string[];
   description?: string;
   date?: Date;
@@ -29,6 +29,7 @@ export interface UpdateTransactionCommand {
 const COMMAND_TYPE_MAP: Record<string, TransactionType> = {
   income: TransactionType.Income,
   expense: TransactionType.Expense,
+  adjustment: TransactionType.Adjustment,
 };
 
 @Injectable()
