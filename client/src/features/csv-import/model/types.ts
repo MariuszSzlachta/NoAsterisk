@@ -1,223 +1,48 @@
 // ═══════════════════════════════════════════════════════════════════
-// CSV Import — Domain Types (DEC-061: Enterprise CSV Engine)
+// CSV Import Types — Barrel (re-exports from per-group modules)
 // ═══════════════════════════════════════════════════════════════════
 
-// ─── Raw CSV ─────────────────────────────────────────────────────
+export type {
+  CsvRow,
+  ParsedCsvData,
+  DateFormat,
+  AmountLocale,
+  ParserConfig,
+  ReassemblyStrategyType,
+  ReassemblyConfig,
+  ReassemblyStrategy,
+} from './parsing/types';
 
-export interface CsvRow {
-  readonly [columnName: string]: string;
-}
+export type {
+  DomainField,
+  ColumnMapping,
+  MappingProfile,
+  BankProfile,
+} from './column-mapping/types';
 
-export interface ParsedCsvData {
-  readonly headers: readonly string[];
-  readonly rows: readonly CsvRow[];
-  readonly fileName: string;
-  readonly encoding: string;
-  readonly separator: string;
-  readonly rowCount: number;
-}
+export type {
+  RowStatus,
+  TransactionRow,
+  WizardStep,
+  ImportStats,
+  UserCorrection,
+} from './transformation/types';
 
-// ─── Parser ──────────────────────────────────────────────────────
+export type {
+  PiiType,
+  DetectionSpan,
+  PiiDetector,
+  DictionaryType,
+  DictionarySet,
+  DictionaryProvider,
+  AnonymizationStatus,
+  AnonymizationEntry,
+} from './anonymization/types';
 
-export type DateFormat =
-  | 'DD.MM.YYYY'
-  | 'YYYY-MM-DD'
-  | 'DD/MM/YYYY'
-  | 'DD-MM-YYYY'
-  | 'YYYY/MM/DD'
-  | 'DD.MM.YY'
-  | 'DD/MM/YY'
-  | 'DD-MMM-YYYY'
-  | 'DD Mon YYYY';
-export type AmountLocale = 'pl' | 'en';
-
-export interface ParserConfig {
-  readonly encoding: string;
-  readonly separator: string;
-  readonly dateFormat: DateFormat;
-  readonly amountLocale: AmountLocale;
-  readonly skipRows: number;
-}
-
-// ─── Row Reassembly (Strategy Pattern) ───────────────────────────
-
-export type ReassemblyStrategyType = 'direct' | 'overflow-merge';
-
-export interface ReassemblyConfig {
-  /** Number of columns in the header row */
-  readonly expectedColumnCount: number;
-  /** Separator used in the CSV (needed to rejoin overflow tokens) */
-  readonly separator: string;
-  /** Index of the column that absorbs overflow tokens (e.g. 1 for mBank #Opis operacji) */
-  readonly overflowColumnIndex?: number;
-  /** Number of fixed columns AFTER the overflow column (counted from end) */
-  readonly fixedTailColumns?: number;
-}
-
-export interface ReassemblyStrategy {
-  readonly type: ReassemblyStrategyType;
-  reassemble(rawTokens: readonly string[], config: ReassemblyConfig): readonly string[];
-}
-
-// ─── Column Mapping ──────────────────────────────────────────────
-
-export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'debit' | 'credit' | 'category';
-
-export type ColumnMapping = Partial<Record<string, DomainField>>;
-
-export interface MappingProfile {
-  readonly id: string;
-  readonly name: string;
-  readonly mapping: ColumnMapping;
-  readonly bankProfileId?: string;
-  readonly createdAt: string;
-}
-
-// ─── Bank Profiles ───────────────────────────────────────────────
-
-export interface BankProfile {
-  readonly id: string;
-  readonly bankName: string;
-  readonly headerSignatures: readonly (readonly string[])[];
-  readonly defaultMapping: ColumnMapping;
-  readonly dateFormat: DateFormat;
-  readonly amountLocale: AmountLocale;
-  readonly encoding?: string;
-  readonly separator?: string;
-  readonly skipRows?: number;
-}
-
-// ─── Anonymizer: Detection ───────────────────────────────────────
-
-export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address' | 'card' | 'pesel' | 'nip' | 'national_id' | 'birth_date';
-
-export interface DetectionSpan {
-  readonly start: number;
-  readonly end: number;
-  readonly type: PiiType;
-  readonly confidence: number;
-  readonly original: string;
-  readonly detectorId: string;
-  readonly metadata?: Readonly<Record<string, unknown>>;
-}
-
-export interface PiiDetector {
-  readonly id: string;
-  readonly priority: number;
-  detect(text: string, dictionaries: DictionarySet): readonly DetectionSpan[];
-}
-
-// ─── Anonymizer: Dictionaries ────────────────────────────────────
-
-export type DictionaryType =
-  | 'names_pl'
-  | 'names_en'
-  | 'surnames_pl'
-  | 'merchants'
-  | 'cities_pl'
-  | 'phrases';
-
-export interface DictionarySet {
-  readonly firstNames: ReadonlySet<string>;
-  readonly surnames: ReadonlySet<string>;
-  readonly merchants: ReadonlySet<string>;
-  readonly cities: ReadonlySet<string>;
-  readonly phrases: ReadonlySet<string>;
-}
-
-export interface DictionaryProvider {
-  loadAll(): Promise<DictionarySet>;
-  isLoaded(): boolean;
-}
-
-// ─── Anonymizer: Pipeline Output ─────────────────────────────────
-
-export type AnonymizationStatus = 'safe' | 'needs_review' | 'anonymized';
-
-export interface AnonymizationEntry {
-  readonly rowIndex: number;
-  readonly originalTitle: string;
-  readonly anonymizedTitle: string;
-  readonly spans: readonly DetectionSpan[];
-  readonly status: AnonymizationStatus;
-  readonly accepted: boolean;
-}
-
-// ─── Transaction Row (mapped + processed) ────────────────────────
-
-export type RowStatus = 'ok' | 'duplicate' | 'warning' | 'error';
-
-export interface TransactionRow {
-  readonly id: string;
-  readonly date: string;
-  readonly title: string;
-  readonly amount: number;
-  readonly currency: string;
-  readonly balance?: number;
-  readonly category?: string;
-  readonly status: RowStatus;
-  readonly statusReason?: string;
-  readonly duplicateHash?: string;
-}
-
-// ─── Wizard State ────────────────────────────────────────────────
-
-export type WizardStep = 0 | 1 | 2 | 3 | 4;
-
-export interface ImportStats {
-  readonly totalRows: number;
-  readonly newTransactions: number;
-  readonly duplicatesSkipped: number;
-  readonly errorsSkipped: number;
-  readonly dateRange: { readonly from: string; readonly to: string };
-  readonly detectedBank?: string;
-}
-
-// ─── User Corrections (feedback loop) ────────────────────────────
-
-export interface UserCorrection {
-  readonly text: string;
-  readonly action: 'accept' | 'reject';
-  readonly detectorId: string;
-  readonly timestamp: string;
-}
-
-// ─── Import Submission (API integration) ─────────────────────────
-
-export type TransactionType = 'income' | 'expense';
-
-export interface ImportRowPayload {
-  readonly amount: number;
-  readonly currency: string;
-  readonly type: TransactionType;
-  readonly description: string;
-  readonly date: string;
-  readonly categoryIds: readonly string[];
-  readonly contentHash: string;
-}
-
-export interface ImportChunkPayload {
-  readonly batchId: string;
-  readonly batchHash: string;
-  readonly sourceFilename?: string;
-  readonly profileId?: string;
-  readonly rows: readonly ImportRowPayload[];
-  readonly isRetry?: boolean;
-}
-
-export interface ImportChunkResult {
-  readonly status: 'accepted' | 'partial' | 'rejected';
-  readonly saved: number;
-  readonly duplicatesSkipped: number;
-  readonly rejected?: ReadonlyArray<{ readonly rowIndex: number; readonly reason: string }>;
-}
-
-export interface ImportProgress {
-  readonly totalChunks: number;
-  readonly completedChunks: number;
-  readonly totalRows: number;
-  readonly savedRows: number;
-  readonly duplicatesSkipped: number;
-  readonly errors: ReadonlyArray<{ readonly chunkIndex: number; readonly message: string }>;
-  readonly status: 'idle' | 'submitting' | 'completed' | 'failed';
-}
+export type {
+  TransactionType,
+  ImportRowPayload,
+  ImportChunkPayload,
+  ImportChunkResult,
+  ImportProgress,
+} from './submission/types';
