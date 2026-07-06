@@ -69,6 +69,7 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     { value: 'balance', label: t('import.mapping.fields.balance') },
     { value: 'debit', label: t('import.mapping.fields.debit') },
     { value: 'credit', label: t('import.mapping.fields.credit') },
+    { value: 'category', label: t('import.mapping.fields.category') },
   ];
 
   const handleFieldChange = (column: string, value: string): void => {

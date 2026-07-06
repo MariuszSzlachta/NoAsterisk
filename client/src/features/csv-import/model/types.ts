@@ -61,7 +61,7 @@ export interface ReassemblyStrategy {
 
 // ─── Column Mapping ──────────────────────────────────────────────
 
-export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'debit' | 'credit';
+export type DomainField = 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'debit' | 'credit' | 'category';
 
 export type ColumnMapping = Partial<Record<string, DomainField>>;
 

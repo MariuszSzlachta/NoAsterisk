@@ -92,6 +92,7 @@ export const transformRows = (
   const creditCol = fieldToColumn.credit;
   const currencyCol = fieldToColumn.currency;
   const balanceCol = fieldToColumn.balance;
+  const categoryCol = fieldToColumn.category;
 
   // Auto-detect formats from sample data
   const dateSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[dateCol] ?? '');
@@ -148,6 +149,7 @@ export const transformRows = (
       balance: balanceCol
         ? (parseAmount(row[balanceCol] ?? '', amountLocale) ?? undefined)
         : undefined,
+      category: categoryCol ? (row[categoryCol]?.trim() || undefined) : undefined,
       status,
       statusReason: reasons.length > 0 ? reasons.join('; ') : undefined,
     };

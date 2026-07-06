@@ -1,7 +1,7 @@
 import type { ColumnMapping, DomainField } from './types';
 
 const VALID_DOMAIN_FIELDS: ReadonlySet<string> = new Set<DomainField>([
-  'date', 'title', 'amount', 'currency', 'balance', 'debit', 'credit',
+  'date', 'title', 'amount', 'currency', 'balance', 'debit', 'credit', 'category',
 ]);
 
 /**
@@ -61,6 +61,9 @@ const HEADER_HEURISTICS: Record<string, DomainField> = {
   wpływy: 'credit',
   wplywy: 'credit',
   credit: 'credit',
+  // Category
+  kategoria: 'category',
+  category: 'category',
 };
 
 /**
