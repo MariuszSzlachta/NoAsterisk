@@ -1,17 +1,5 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../../types';
-
-/**
- * Amount pattern: matches Polish/international numeric amounts.
- * Examples: "8 500,00", "-14,80", "-2 100,00", "+9 200,00", "3 840,67", "-180,62 PLN"
- * Does NOT match: empty strings, account numbers, dates, text
- */
-const AMOUNT_PATTERN = /^[+-]?\d[\d\s]*[.,]\d{2}(\s*[A-Z]{3})?$/;
-
-/**
- * Date pattern: matches common date formats in first position.
- * DD.MM.YYYY, DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD, DD-MMM-YYYY
- */
-const DATE_PATTERN = /^\d{2}[./-]\d{2}[./-]\d{2,4}$|^\d{4}-\d{2}-\d{2}$|^\d{2}-[A-ZĘÓĄŚŁŻŹĆŃa-ząćęłńóśźż]{3}-\d{4}$/;
+import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/types';
+import { AMOUNT_PATTERN, DATE_PATTERN } from '#features/csv-import/model/parser/strategies/patterns';
 
 /**
  * AnchorStrategy — for CSVs where middle columns have unpredictable overflow

@@ -4,7 +4,6 @@ import { immer } from 'zustand/middleware/immer';
 import type {
   AnonymizationEntry,
   ColumnMapping,
-  CsvRow,
   DomainField,
   ParsedCsvData,
   TransactionRow,

@@ -1,4 +1,4 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../../types';
+import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/types';
 
 /**
  * OverflowMergeStrategy — for CSVs where a known column (e.g. description)
@@ -34,7 +34,6 @@ export const overflowMergeStrategy: ReassemblyStrategy = {
     }
 
     const overflow = overflowColumnIndex ?? 1;
-    const tailCount = fixedTailColumns ?? (expectedColumnCount - overflow - 1);
     const headCount = overflow; // columns before the overflow column
 
     const overflowTokenCount = rawTokens.length - expectedColumnCount + 1;

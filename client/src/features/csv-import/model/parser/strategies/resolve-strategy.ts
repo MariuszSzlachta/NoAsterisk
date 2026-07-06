@@ -1,7 +1,8 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../../types';
-import { anchorStrategy } from './anchor-strategy';
-import { directStrategy } from './direct-strategy';
-import { overflowMergeStrategy } from './overflow-merge-strategy';
+import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/types';
+import { anchorStrategy } from '#features/csv-import/model/parser/strategies/anchor-strategy';
+import { directStrategy } from '#features/csv-import/model/parser/strategies/direct-strategy';
+import { overflowMergeStrategy } from '#features/csv-import/model/parser/strategies/overflow-merge-strategy';
+import { AMOUNT_PATTERN, DATE_PATTERN } from '#features/csv-import/model/parser/strategies/patterns';
 
 /**
  * Known header keywords that indicate a description/overflow column.
@@ -44,17 +45,6 @@ const hasOverflowRows = (
   const sample = dataRows.slice(0, sampleSize);
   return sample.some((row) => row.length > expectedColumnCount);
 };
-
-/**
- * Date pattern for anchor detection in data rows.
- */
-const DATE_PATTERN = /^\d{2}[./-]\d{2}[./-]\d{2,4}$|^\d{4}-\d{2}-\d{2}$|^\d{2}-[A-ZĘÓĄŚŁŻŹĆŃa-ząćęłńóśźż]{3}-\d{4}$/;
-
-/**
- * Amount pattern for anchor detection in data rows.
- * Matches: -180,62 PLN | 8 500,00 | -14.80 | +9 200,00 EUR
- */
-const AMOUNT_PATTERN = /^[+-]?\d[\d\s]*[.,]\d{2}(\s*[A-Z]{3})?$/;
 
 /**
  * Detect if data rows have consistent date anchors at start and amount anchors at end.

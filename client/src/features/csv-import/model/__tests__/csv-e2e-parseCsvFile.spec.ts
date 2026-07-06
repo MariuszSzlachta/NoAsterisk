@@ -20,7 +20,7 @@ import { describe, expect, it } from 'vitest';
 
 import { parseCsvFile } from '../parser/csv-parser';
 
-const STUBS_DIR = resolve(__dirname, '../../../../../../stubs/csv');
+const STUBS_DIR = resolve(process.cwd(), '../stubs/csv');
 
 /**
  * Load a CSV stub from disk and wrap in a File object (JSDOM-compatible).

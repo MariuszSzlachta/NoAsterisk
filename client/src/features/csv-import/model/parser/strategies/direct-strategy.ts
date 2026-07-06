@@ -1,4 +1,4 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../../types';
+import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/types';
 
 /**
  * DirectStrategy — for clean CSVs where field count matches expected.
