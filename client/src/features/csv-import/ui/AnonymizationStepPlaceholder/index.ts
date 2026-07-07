@@ -1,1 +1,0 @@
-export { AnonymizationStepPlaceholder } from './AnonymizationStepPlaceholder';

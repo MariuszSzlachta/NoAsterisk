@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Stepper } from '#shared/ui/Stepper';
 
 import {
-  AnonymizationStepPlaceholder,
+  AnonymizationStep,
   ColumnMappingStep,
   ImportConfirmStep,
   ImportPreviewGrid,
@@ -33,7 +33,7 @@ export const ImportPage = (): React.JSX.Element => {
 
       {step === 1 && <ColumnMappingStep />}
 
-      {step === 2 && <AnonymizationStepPlaceholder />}
+      {step === 2 && <AnonymizationStep />}
 
       {step === 3 && <ImportPreviewGrid />}
 

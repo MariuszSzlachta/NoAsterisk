@@ -229,3 +229,16 @@ body {
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--fg-subtle);
 }
+
+/* ============ Anonymization Grid Row Styling ============ */
+.anonymization-row-safe {
+  border-left: 2px solid var(--income);
+}
+
+.anonymization-row-needs-review {
+  border-left: 2px solid var(--warning);
+}
+
+.anonymization-row-anonymized {
+  border-left: 2px solid var(--expense);
+}

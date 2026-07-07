@@ -72,6 +72,7 @@ export const AgGridAdapter = <TRow,>({
   columns,
   getRowId,
   onCellEdit,
+  onCellClick,
   sorting,
   onSortChange,
   pageSize,
@@ -80,6 +81,7 @@ export const AgGridAdapter = <TRow,>({
   loading,
   rowHeight,
   rowActions,
+  getRowClass,
 }: DataGridProps<TRow>): React.JSX.Element => {
   const {
     columnDefs,
@@ -116,6 +118,18 @@ export const AgGridAdapter = <TRow,>({
       ]
     : columnDefs;
 
+  const handleGetRowClass = getRowClass
+    ? (params: { data: TRow }): string | undefined => getRowClass(params.data)
+    : undefined;
+
+  const handleCellClicked = onCellClick
+    ? (params: { data: TRow; colDef: { field?: string } }): void => {
+        if (params.data && params.colDef.field) {
+          onCellClick(params.data, params.colDef.field);
+        }
+      }
+    : undefined;
+
   return (
     <div className="h-full w-full">
       <AgGridReact<TRow>
@@ -138,6 +152,8 @@ export const AgGridAdapter = <TRow,>({
         pagination={pageSize !== undefined}
         paginationPageSize={pageSize}
         rowHeight={rowHeight}
+        getRowClass={handleGetRowClass}
+        onCellClicked={handleCellClicked}
       />
     </div>
   );

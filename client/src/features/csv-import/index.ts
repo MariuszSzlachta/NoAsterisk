@@ -38,10 +38,11 @@ export { ImportPreviewGrid } from './ui/ImportPreviewGrid';
 export { BatchEditPanel } from './ui/BatchEditPanel';
 export { ImportConfirmStep } from './ui/ImportConfirmStep';
 export { UploadStepCard } from './ui/UploadStepCard';
-export { AnonymizationStepPlaceholder } from './ui/AnonymizationStepPlaceholder';
+export { AnonymizationStep } from './ui/AnonymizationStep';
 
 // UI — Hooks
 export { useImportWizard } from './ui/hooks/useImportWizard';
+export { useAnonymizationStep } from './ui/hooks/useAnonymizationStep';
 export { useBatchEditPanel } from './ui/hooks/useBatchEditPanel';
 export { useImportSubmit } from './ui/hooks/useImportSubmit';
 

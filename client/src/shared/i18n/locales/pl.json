@@ -1,4 +1,7 @@
 {
+  "common": {
+    "close": "Zamknij"
+  },
   "app": {
     "name": "BudgetFlow"
   },
@@ -106,7 +109,28 @@
     "anonymization": {
       "heading": "Anonimizacja danych",
       "description": "Dane osobowe są wykrywane i maskowane lokalnie. Sprawdź sugestie przed importem.",
-      "placeholder": "Widok anonimizacji — w budowie"
+      "acceptAll": "Zaakceptuj wszystkie sugestie",
+      "hint": "Kliknij komórkę, aby zobaczyć oryginał",
+      "legend": {
+        "safe": "Bezpieczne",
+        "needsReview": "Do weryfikacji",
+        "anonymized": "Zanonimizowane"
+      },
+      "stats": {
+        "scanned": "Przeskanowano {{count}} komórek",
+        "anonymized": "{{count}} zanonimizowano",
+        "needsReview": "{{count}} do weryfikacji"
+      },
+      "popover": {
+        "original": "Oryginał",
+        "anonymized": "Po anonimizacji",
+        "restore": "Przywróć",
+        "edit": "Edytuj",
+        "save": "Zapisz"
+      },
+      "filter": {
+        "all": "Wszystkie"
+      }
     },
     "mapping": {
       "title": "Mapowanie kolumn",
@@ -143,7 +167,10 @@
       "title": "Tytuł",
       "amount": "Kwota",
       "currency": "Waluta",
+      "balance": "Saldo",
       "category": "Kategoria",
+      "debit": "Obciążenia",
+      "credit": "Uznania",
       "info": "Info"
     },
     "confirm": {

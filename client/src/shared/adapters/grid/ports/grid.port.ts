@@ -34,6 +34,7 @@ export interface DataGridProps<TRow> {
   columns: GridColumn<TRow>[];
   getRowId: (row: TRow) => string;
   onCellEdit?: (rowId: string, field: string, value: unknown) => void;
+  onCellClick?: (row: TRow, field: string) => void;
   sorting?: GridSortConfig;
   onSortChange?: (sort: GridSortConfig | undefined) => void;
   pageSize?: number;
@@ -42,6 +43,7 @@ export interface DataGridProps<TRow> {
   loading?: boolean;
   rowHeight?: number;
   rowActions?: RowAction<TRow>[];
+  getRowClass?: (row: TRow) => string | undefined;
 }
 
 // TODO: post-MVP — server-side pagination (requires controlled page state)
