@@ -24,7 +24,7 @@ export const ImportPage = (): React.JSX.Element => {
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-6">
       <div className="rounded-xl border border-border bg-surface px-6 py-4">
         <Stepper steps={wizardSteps} currentStep={step} />
       </div>

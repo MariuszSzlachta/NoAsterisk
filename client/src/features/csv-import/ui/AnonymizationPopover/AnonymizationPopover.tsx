@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -45,25 +45,35 @@ export const AnonymizationPopover = ({
   onEditSave,
 }: AnonymizationPopoverProps): React.JSX.Element => {
   const { t } = useTranslation();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Escape key to dismiss
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, []);
 
   return (
-    <div
-      className="absolute inset-0 z-50 flex items-center justify-center bg-background/60"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="w-full max-w-lg rounded-xl border border-border bg-surface p-5 shadow-card">
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-40 bg-background/60"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal panel */}
+      <div
+        className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-surface p-5 shadow-card"
+        role="dialog"
+        aria-modal="true"
+      >
         {/* Header: status badge + close */}
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-[13px] font-medium text-foreground">
@@ -123,9 +133,11 @@ export const AnonymizationPopover = ({
             </Button>
           ) : (
             <>
-              <Button variant="secondary" onClick={onRestore}>
-                {t('import.anonymization.popover.restore')}
-              </Button>
+              {entry.status !== 'safe' && (
+                <Button variant="secondary" onClick={onRestore}>
+                  {t('import.anonymization.popover.restore')}
+                </Button>
+              )}
               <Button onClick={onStartEdit}>
                 {t('import.anonymization.popover.edit')}
               </Button>
@@ -133,6 +145,6 @@ export const AnonymizationPopover = ({
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };

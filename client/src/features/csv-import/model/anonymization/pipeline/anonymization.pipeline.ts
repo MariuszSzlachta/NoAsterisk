@@ -135,10 +135,13 @@ export const anonymizeTitle = (
   // 5. Apply masking
   const masked = applyMasking(text, resolved);
 
+  // 5.5. Normalize whitespace (replace tabs, collapse multi-spaces after masking)
+  const normalized = masked.replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
+
   // 6. Determine status
   const status = determineStatus(resolved);
 
-  return { spans: resolved, masked, status };
+  return { spans: resolved, masked: normalized, status };
 };
 
 /**

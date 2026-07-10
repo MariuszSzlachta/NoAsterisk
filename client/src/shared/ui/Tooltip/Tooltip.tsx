@@ -14,6 +14,8 @@ interface TooltipProps {
   readonly content: string;
   readonly children: ReactNode;
   readonly placement?: Placement;
+  readonly maxWidth?: number;
+  readonly className?: string;
   readonly noFlip?: boolean;
   readonly flipThreshold?: number;
   readonly clampTo?: string;
@@ -21,16 +23,20 @@ interface TooltipProps {
 }
 
 const TOOLTIP_CLASSES =
-  'pointer-events-none fixed z-[9999] max-w-48 rounded-md bg-surface-3 px-2.5 py-1.5 text-xs text-foreground shadow-card';
+  'pointer-events-none fixed z-[9999] rounded-md bg-surface-3 px-2.5 py-1.5 text-foreground shadow-card';
 
 const DEFAULT_FLIP_THRESHOLD = 60;
 const DEFAULT_EDGE_GAP = 8;
+const DEFAULT_MAX_WIDTH = 192;
+const DEFAULT_TEXT_CLASS = 'text-xs';
 const GAP = 8;
 
 export const Tooltip = ({
   content,
   children,
   placement = 'top',
+  maxWidth = DEFAULT_MAX_WIDTH,
+  className,
   noFlip = false,
   flipThreshold = DEFAULT_FLIP_THRESHOLD,
   clampTo: _clampTo,
@@ -126,7 +132,7 @@ export const Tooltip = ({
     <>
       <span
         ref={triggerRef}
-        className="inline-flex"
+        className="inline-flex max-w-full"
         tabIndex={0}
         aria-describedby={id}
         onMouseEnter={show}
@@ -142,8 +148,8 @@ export const Tooltip = ({
             ref={tooltipRef}
             id={id}
             role="tooltip"
-            className={TOOLTIP_CLASSES}
-            style={style}
+            className={`${TOOLTIP_CLASSES} ${className ?? DEFAULT_TEXT_CLASS}`}
+            style={{ ...style, maxWidth: `${maxWidth}px` }}
           >
             {content}
           </span>,

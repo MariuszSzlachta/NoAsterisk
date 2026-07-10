@@ -57,6 +57,11 @@ const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {
   amount: 120,
   currency: 80,
   balance: 120,
+  category: 140,
+};
+
+const COLUMN_MIN_WIDTHS: Partial<Record<DomainField, number>> = {
+  title: 400,
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -87,6 +92,7 @@ const buildColumnsFromMapping = (
       headerName: t(DOMAIN_FIELD_HEADER_I18N[domainField]),
       sortable: true,
       ...(COLUMN_WIDTHS[domainField] ? { width: COLUMN_WIDTHS[domainField] } : { flex: 1 }),
+      ...(COLUMN_MIN_WIDTHS[domainField] ? { minWidth: COLUMN_MIN_WIDTHS[domainField] } : {}),
       ...(cellRenderers?.[domainField] ? { cellRenderer: cellRenderers[domainField] } : {}),
     };
 

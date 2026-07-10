@@ -20,6 +20,7 @@ const mapColumns = <TRow>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
       editable: col.editable ?? false,
       sortable: col.sortable ?? true,
       width: col.width,
+      minWidth: col.minWidth,
       flex: col.flex,
     };
 

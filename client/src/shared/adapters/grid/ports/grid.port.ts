@@ -6,6 +6,7 @@ export interface GridColumn<TRow> {
   editable?: boolean;
   sortable?: boolean;
   width?: number;
+  minWidth?: number;
   flex?: number;
   cellRenderer?: (params: CellRendererParams<TRow>) => ReactNode;
 }
@@ -42,7 +43,7 @@ export interface DataGridProps<TRow> {
   onSelectionChange?: (selectedIds: string[]) => void;
   loading?: boolean;
   rowHeight?: number;
-  rowActions?: RowAction<TRow>[];
+  rowActions?: RowAction<TRow>[] | ((row: TRow) => RowAction<TRow>[]);
   getRowClass?: (row: TRow) => string | undefined;
 }
 

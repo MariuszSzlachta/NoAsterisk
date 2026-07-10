@@ -25,12 +25,11 @@ export interface AnonymizationStepResult {
   readonly isEditing: boolean;
   readonly editValue: string;
   readonly handleFilterChange: (filter: string) => void;
-  readonly handleCellClick: (rowIndex: number) => void; // Internal — exposed for unit testing
-  readonly handleGridCellClick: (row: { readonly rowIndex: number }, _field: string) => void;
+  readonly handleSelectRow: (rowIndex: number) => void;
   readonly handleClosePopover: () => void;
   readonly handleBulkAccept: () => void;
-  readonly handleRestore: (rowIndex: number) => void; // Internal — exposed for unit testing
-  readonly handleEdit: (rowIndex: number, newTitle: string) => void; // Internal — exposed for unit testing
+  readonly handleRestore: (rowIndex: number) => void;
+  readonly handleEdit: (rowIndex: number, newTitle: string) => void;
   readonly handleRestoreSelected: () => void;
   readonly handleStartEdit: () => void;
   readonly handleEditValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -98,15 +97,8 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     }
   };
 
-  const handleCellClick = (rowIndex: number): void => {
-    const entry = entries.find((e) => e.rowIndex === rowIndex);
-    if (entry && entry.status !== 'safe') {
-      setSelectedRowIndex(rowIndex);
-    }
-  };
-
-  const handleGridCellClick = (row: { readonly rowIndex: number }, _field: string): void => {
-    handleCellClick(row.rowIndex);
+  const handleSelectRow = (rowIndex: number): void => {
+    setSelectedRowIndex(rowIndex);
   };
 
   const handleClosePopover = (): void => {
@@ -212,8 +204,7 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     isEditing,
     editValue,
     handleFilterChange,
-    handleCellClick,
-    handleGridCellClick,
+    handleSelectRow,
     handleClosePopover,
     handleBulkAccept,
     handleRestore,

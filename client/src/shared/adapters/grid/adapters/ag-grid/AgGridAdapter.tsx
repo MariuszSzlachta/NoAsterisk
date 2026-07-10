@@ -51,9 +51,10 @@ const RowActionsCell = <TRow,>({
   actions,
 }: {
   data: TRow;
-  actions: RowAction<TRow>[];
+  actions: RowAction<TRow>[] | ((row: TRow) => RowAction<TRow>[]);
 }): React.JSX.Element => {
-  const items: DropdownMenuEntry[] = actions.map((a) => ({
+  const resolvedActions = typeof actions === 'function' ? actions(data) : actions;
+  const items: DropdownMenuEntry[] = resolvedActions.map((a) => ({
     label: a.label,
     icon: a.icon,
     variant: a.variant,

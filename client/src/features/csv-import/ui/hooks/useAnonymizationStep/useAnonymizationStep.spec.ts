@@ -109,32 +109,33 @@ describe('useAnonymizationStep', () => {
     });
   });
 
-  describe('cell click / popover', () => {
-    it('sets selectedRowIndex when clicking non-safe row', () => {
+  describe('row selection / popover', () => {
+    it('sets selectedRowIndex when selecting any row', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 
       act(() => {
-        result.current.handleCellClick(0);
+        result.current.handleSelectRow(0);
       });
 
       expect(result.current.selectedRowIndex).toBe(0);
     });
 
-    it('does not set selectedRowIndex when clicking safe row', () => {
+    it('allows selecting safe rows for editing', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 
       act(() => {
-        result.current.handleCellClick(1);
+        result.current.handleSelectRow(1);
       });
 
-      expect(result.current.selectedRowIndex).toBeUndefined();
+      expect(result.current.selectedRowIndex).toBe(1);
+      expect(result.current.selectedEntry?.status).toBe('safe');
     });
 
     it('clears selectedRowIndex on close', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 
       act(() => {
-        result.current.handleCellClick(0);
+        result.current.handleSelectRow(0);
       });
       act(() => {
         result.current.handleClosePopover();
@@ -188,7 +189,7 @@ describe('useAnonymizationStep', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 
       act(() => {
-        result.current.handleCellClick(0);
+        result.current.handleSelectRow(0);
       });
       act(() => {
         result.current.handleRestore(0);
@@ -227,7 +228,7 @@ describe('useAnonymizationStep', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 
       act(() => {
-        result.current.handleCellClick(2);
+        result.current.handleSelectRow(2);
       });
       act(() => {
         result.current.handleEdit(2, 'PRZELEW J. N.');
@@ -246,6 +247,21 @@ describe('useAnonymizationStep', () => {
       const storeEntries = useImportWizardStore.getState().anonymizationEntries;
       const edited = storeEntries.find((e) => e.rowIndex === 2);
       expect(edited?.status).toBe('needs_review');
+    });
+
+    it('allows editing safe rows', () => {
+      const { result } = renderHook(() => useAnonymizationStep());
+
+      act(() => {
+        result.current.handleEdit(1, 'BIEDRONKA EDITED');
+      });
+
+      const storeEntries = useImportWizardStore.getState().anonymizationEntries;
+      const edited = storeEntries.find((e) => e.rowIndex === 1);
+      expect(edited?.anonymizedTitle).toBe('BIEDRONKA EDITED');
+
+      const storeRows = useImportWizardStore.getState().rows;
+      expect(storeRows[1]?.title).toBe('BIEDRONKA EDITED');
     });
   });
 });

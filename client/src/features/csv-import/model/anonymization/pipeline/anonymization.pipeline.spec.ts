@@ -124,3 +124,44 @@ describe('processRows', () => {
     expect(entries[2].status).toBe('safe');
   });
 });
+
+describe('whitespace normalization', () => {
+  it('collapses multiple spaces after masking', () => {
+    const { masked } = anonymizeTitle(
+      'PRZELEW Jan Kowalski    za mieszkanie',
+      DICTS,
+    );
+
+    expect(masked).not.toMatch(/ {2}/);
+  });
+
+  it('replaces tabs with single space', () => {
+    const { masked } = anonymizeTitle(
+      'PRZELEW\tJan Kowalski\tza mieszkanie',
+      DICTS,
+    );
+
+    expect(masked).not.toContain('\t');
+    expect(masked).not.toMatch(/ {2}/);
+  });
+
+  it('trims leading and trailing whitespace', () => {
+    const { masked } = anonymizeTitle(
+      '  PRZELEW Jan Kowalski za mieszkanie  ',
+      DICTS,
+    );
+
+    expect(masked).not.toMatch(/^\s/);
+    expect(masked).not.toMatch(/\s$/);
+  });
+
+  it('normalizes whitespace left after masking removes mid-text PII', () => {
+    // When a name in the middle gets masked, surrounding spaces collapse
+    const { masked } = anonymizeTitle(
+      'LEASING SP. Z O.O.  FAKTURA  Anna Nowak  PRZELEW WEWNĘTRZNY',
+      DICTS,
+    );
+
+    expect(masked).not.toMatch(/ {2}/);
+  });
+});

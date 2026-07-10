@@ -7,6 +7,7 @@ import { FilterTabs } from '#shared/ui/FilterTabs';
 
 import { AnonymizationPopover } from '../AnonymizationPopover';
 import { useAnonymizationGrid } from '../hooks/useAnonymizationGrid';
+import { useAnonymizationRowActions } from '../hooks/useAnonymizationRowActions';
 import { useAnonymizationStep } from '../hooks/useAnonymizationStep';
 import { useImportWizard } from '../hooks/useImportWizard';
 
@@ -24,8 +25,9 @@ export const AnonymizationStep = (): React.JSX.Element => {
     isEditing,
     editValue,
     handleBulkAccept,
-    handleGridCellClick,
+    handleSelectRow,
     handleClosePopover,
+    handleRestore,
     handleRestoreSelected,
     handleStartEdit,
     handleEditValueChange,
@@ -34,8 +36,13 @@ export const AnonymizationStep = (): React.JSX.Element => {
   } = useAnonymizationStep();
   const { columns, rows, getRowId, getRowClass } = useAnonymizationGrid(CELL_RENDERERS, activeFilter);
 
+  const getRowActions = useAnonymizationRowActions({
+    onEdit: handleSelectRow,
+    onRestore: handleRestore,
+  });
+
   return (
-    <div className="relative flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
         {/* Header row */}
         <div className="flex items-start justify-between">
@@ -83,13 +90,13 @@ export const AnonymizationStep = (): React.JSX.Element => {
         </div>
 
         {/* Grid */}
-        <div className="mt-4">
+        <div className="mt-4 overflow-x-auto">
           <DataGrid
             rows={rows}
             columns={columns}
             getRowId={getRowId}
             getRowClass={getRowClass}
-            onCellClick={handleGridCellClick}
+            rowActions={getRowActions}
             rowHeight={40}
           />
         </div>
@@ -121,7 +128,7 @@ export const AnonymizationStep = (): React.JSX.Element => {
         </Button>
       </div>
 
-      {/* Popover */}
+      {/* Edit Popover — triggered from dropdown action */}
       {selectedEntry && (
         <AnonymizationPopover
           entry={selectedEntry}
