@@ -20,6 +20,50 @@ describe('HeaderHeuristicRegistry', () => {
       expect(defaultHeaderHeuristicRegistry.match('kwota wn')).toBe('debit');
       expect(defaultHeaderHeuristicRegistry.match('kwota ma')).toBe('credit');
     });
+
+    it('matches source columns (PL)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('nadawca')).toBe('source');
+      expect(defaultHeaderHeuristicRegistry.match('zleceniodawca')).toBe('source');
+      expect(defaultHeaderHeuristicRegistry.match('nazwa nadawcy')).toBe('source');
+      expect(defaultHeaderHeuristicRegistry.match('źródło')).toBe('source');
+    });
+
+    it('matches source columns (EN)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('sender')).toBe('source');
+      expect(defaultHeaderHeuristicRegistry.match('from')).toBe('source');
+      expect(defaultHeaderHeuristicRegistry.match('remitter')).toBe('source');
+    });
+
+    it('matches recipient columns (PL)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('adresat')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('odbiorca')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('nazwa odbiorcy')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('beneficjent')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('dane kontrahenta')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('kontrahent')).toBe('recipient');
+    });
+
+    it('matches recipient columns (EN)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('beneficiary')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('recipient')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('payee')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('counterparty')).toBe('recipient');
+      expect(defaultHeaderHeuristicRegistry.match('to')).toBe('recipient');
+    });
+
+    it('matches reference columns (PL)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('referencja')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('nr referencyjny')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('nr ref')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('numer operacji')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('identyfikator operacji')).toBe('reference');
+    });
+
+    it('matches reference columns (EN)', () => {
+      expect(defaultHeaderHeuristicRegistry.match('reference')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('ref number')).toBe('reference');
+      expect(defaultHeaderHeuristicRegistry.match('transaction id')).toBe('reference');
+    });
   });
 
   describe('register', () => {

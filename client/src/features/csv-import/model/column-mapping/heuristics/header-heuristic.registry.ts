@@ -64,6 +64,38 @@ const BUILTIN_HEURISTICS: readonly HeaderHeuristic[] = [
   // Category
   { normalized: 'kategoria', field: 'category', source: 'builtin' },
   { normalized: 'category', field: 'category', source: 'builtin' },
+
+  // Source (sender/originator)
+  { normalized: 'nadawca', field: 'source', source: 'builtin' },
+  { normalized: 'nazwa nadawcy', field: 'source', source: 'builtin' },
+  { normalized: 'zleceniodawca', field: 'source', source: 'builtin' },
+  { normalized: 'źródło', field: 'source', source: 'builtin' },
+  { normalized: 'sender', field: 'source', source: 'builtin' },
+  { normalized: 'from', field: 'source', source: 'builtin' },
+  { normalized: 'remitter', field: 'source', source: 'builtin' },
+
+  // Recipient (beneficiary/payee)
+  { normalized: 'adresat', field: 'recipient', source: 'builtin' },
+  { normalized: 'odbiorca', field: 'recipient', source: 'builtin' },
+  { normalized: 'nazwa odbiorcy', field: 'recipient', source: 'builtin' },
+  { normalized: 'beneficjent', field: 'recipient', source: 'builtin' },
+  { normalized: 'dane kontrahenta', field: 'recipient', source: 'builtin' },
+  { normalized: 'kontrahent', field: 'recipient', source: 'builtin' },
+  { normalized: 'counterparty', field: 'recipient', source: 'builtin' },
+  { normalized: 'beneficiary', field: 'recipient', source: 'builtin' },
+  { normalized: 'recipient', field: 'recipient', source: 'builtin' },
+  { normalized: 'to', field: 'recipient', source: 'builtin' },
+  { normalized: 'payee', field: 'recipient', source: 'builtin' },
+
+  // Reference (transaction identifier)
+  { normalized: 'referencja', field: 'reference', source: 'builtin' },
+  { normalized: 'nr referencyjny', field: 'reference', source: 'builtin' },
+  { normalized: 'nr ref', field: 'reference', source: 'builtin' },
+  { normalized: 'numer operacji', field: 'reference', source: 'builtin' },
+  { normalized: 'identyfikator operacji', field: 'reference', source: 'builtin' },
+  { normalized: 'reference', field: 'reference', source: 'builtin' },
+  { normalized: 'ref number', field: 'reference', source: 'builtin' },
+  { normalized: 'transaction id', field: 'reference', source: 'builtin' },
 ];
 
 /**

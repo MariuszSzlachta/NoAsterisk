@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { Badge } from '#shared/ui/Badge';
 import { Select } from '#shared/ui/Select';
 import type { SelectOption } from '#shared/ui/Select';
 
@@ -10,6 +11,8 @@ interface FieldAssignmentRowProps {
   readonly exampleValue: string;
   readonly value: string;
   readonly options: readonly SelectOption[];
+  readonly isMerged: boolean;
+  readonly mergePartners: readonly string[];
   readonly onFieldChange: (column: string, value: string) => void;
 }
 
@@ -18,6 +21,8 @@ export const FieldAssignmentRow = ({
   exampleValue,
   value,
   options,
+  isMerged,
+  mergePartners,
   onFieldChange,
 }: FieldAssignmentRowProps): React.JSX.Element => {
   const { t } = useTranslation();
@@ -28,9 +33,11 @@ export const FieldAssignmentRow = ({
   return (
     <div
       className={`flex items-center gap-4 rounded-lg border border-border px-4 py-4 ${
-        isMapped
-          ? 'border-l-2 border-l-income bg-surface-2'
-          : 'bg-surface-2'
+        isMerged
+          ? 'border-l-2 border-l-primary bg-surface-2'
+          : isMapped
+            ? 'border-l-2 border-l-income bg-surface-2'
+            : 'bg-surface-2'
       }`}
     >
       {/* Column name */}
@@ -52,6 +59,13 @@ export const FieldAssignmentRow = ({
           {t('import.mapping.example')}
         </p>
       </div>
+
+      {/* Merge badge */}
+      {isMerged && (
+        <Badge variant="soft" color="primary" dot={false}>
+          {t('import.mapping.merge.badge', { count: mergePartners.length + 1 })}
+        </Badge>
+      )}
 
       {/* Field select */}
       <div className="w-48 shrink-0">

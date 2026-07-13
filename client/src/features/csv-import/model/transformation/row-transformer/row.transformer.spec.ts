@@ -211,4 +211,222 @@ describe('transformRows', () => {
       expect(result[0].amount).toBe(3000);
     });
   });
+
+  describe('multi-column merge', () => {
+    it('merges two title columns with space separator', () => {
+      const rows = [
+        { D: '2026-06-26', T1: 'PRZELEW', T2: 'WYNAGRODZENIE', K: '8500' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T1: 'title' as const,
+        T2: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.title).toBe('PRZELEW WYNAGRODZENIE');
+      expect(result[0]?.status).toBe('ok');
+    });
+
+    it('merges three title columns preserving CSV column order', () => {
+      const rows = [
+        { D: '2026-06-26', A: 'Część 1', B: 'Część 2', C: 'Część 3', K: '100' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        A: 'title' as const,
+        B: 'title' as const,
+        C: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.title).toBe('Część 1 Część 2 Część 3');
+    });
+
+    it('filters blank values during merge', () => {
+      const rows = [
+        { D: '2026-06-26', T1: 'BIEDRONKA', T2: '', K: '-50' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T1: 'title' as const,
+        T2: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.title).toBe('BIEDRONKA');
+    });
+
+    it('trims whitespace from each column before merge', () => {
+      const rows = [
+        { D: '2026-06-26', T1: '  PRZELEW  ', T2: '  NA KONTO  ', K: '100' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T1: 'title' as const,
+        T2: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.title).toBe('PRZELEW NA KONTO');
+    });
+
+    it('reports error when all merged title columns are blank', () => {
+      const rows = [
+        { D: '2026-06-26', T1: '', T2: '   ', K: '100' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T1: 'title' as const,
+        T2: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.status).toBe('error');
+      expect(result[0]?.statusReason).toContain('Empty title');
+    });
+
+    it('works with single column for mergeable field (backward compat)', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'SINGLE TITLE', K: '100' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.title).toBe('SINGLE TITLE');
+    });
+  });
+
+  describe('new domain fields', () => {
+    it('populates source from mapped column', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW', K: '100', S: 'Jan Kowalski' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        S: 'source' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.source).toBe('Jan Kowalski');
+    });
+
+    it('populates recipient from mapped column', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW', K: '-500', R: 'BIEDRONKA SP ZOO' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        R: 'recipient' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.recipient).toBe('BIEDRONKA SP ZOO');
+    });
+
+    it('populates reference from mapped column', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW', K: '100', REF: 'OP-2026-001234' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        REF: 'reference' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.reference).toBe('OP-2026-001234');
+    });
+
+    it('returns undefined for unmapped optional fields', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'TEST', K: '100' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.source).toBeUndefined();
+      expect(result[0]?.recipient).toBeUndefined();
+      expect(result[0]?.reference).toBeUndefined();
+    });
+
+    it('returns undefined when source column is empty', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'TEST', K: '100', S: '' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        S: 'source' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.source).toBeUndefined();
+    });
+
+    it('merges multiple source columns', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'PRZELEW', K: '100', S1: 'Jan', S2: 'Kowalski' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        S1: 'source' as const,
+        S2: 'source' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      expect(result[0]?.source).toBe('Jan Kowalski');
+    });
+
+    it('does not merge reference (non-mergeable field)', () => {
+      const rows = [
+        { D: '2026-06-26', T: 'TEST', K: '100', R1: 'REF-001', R2: 'REF-002' },
+      ];
+      const mapping = {
+        D: 'date' as const,
+        T: 'title' as const,
+        K: 'amount' as const,
+        R1: 'reference' as const,
+        R2: 'reference' as const,
+      };
+
+      const result = transformRows(rows, mapping);
+
+      // Non-mergeable: only first column is used
+      expect(result[0]?.reference).toBe('REF-001');
+    });
+  });
 });

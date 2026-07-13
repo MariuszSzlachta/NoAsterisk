@@ -50,6 +50,9 @@ const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
   category: 'import.grid.category',
   debit: 'import.grid.debit',
   credit: 'import.grid.credit',
+  source: 'import.grid.source',
+  recipient: 'import.grid.recipient',
+  reference: 'import.grid.reference',
 };
 
 const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {

@@ -14,6 +14,9 @@ export interface TransactionRow {
   readonly currency: string;
   readonly balance?: number;
   readonly category?: string;
+  readonly source?: string;
+  readonly recipient?: string;
+  readonly reference?: string;
   readonly status: RowStatus;
   readonly statusReason?: string;
   readonly duplicateHash?: string;

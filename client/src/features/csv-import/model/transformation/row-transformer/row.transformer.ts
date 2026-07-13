@@ -2,16 +2,58 @@ import { detectAmountLocale, parseAmount } from '../../parsing/amount-parser';
 import { detectDateFormat, parseDate, parseDateFlexible } from '../../parsing/date-parser';
 import type { CsvRow } from '../../parsing/types';
 import type { ColumnMapping, DomainField } from '../../column-mapping/types';
+import { MERGEABLE_FIELDS } from '../../column-mapping/types';
 import type { RowStatus, TransactionRow } from '../types';
 
 const MIN_DATE_YEAR = 2000;
 const MAX_DATE_YEAR = 2030;
 const SAMPLE_SIZE = 10;
+const MERGE_SEPARATOR = ' ';
 const ZERO_AMOUNT_VALUES: ReadonlySet<string> = new Set(['0', '0,00', '0.00']);
 
 const isDateInRange = (isoDate: string): boolean => {
   const year = parseInt(isoDate.slice(0, 4), 10);
   return year >= MIN_DATE_YEAR && year <= MAX_DATE_YEAR;
+};
+
+/**
+ * Merge multiple column values into a single string.
+ * Trims each value, filters blanks, joins with separator.
+ */
+const mergeColumns = (row: CsvRow, columns: readonly string[]): string =>
+  columns
+    .map((col) => (row[col] ?? '').trim())
+    .filter(Boolean)
+    .join(MERGE_SEPARATOR);
+
+/**
+ * Build a mapping from DomainField → array of CSV column names.
+ * For MERGEABLE_FIELDS, multiple columns accumulate in order.
+ * For non-mergeable fields, only the first mapped column is kept.
+ */
+const buildFieldToColumns = (
+  mapping: ColumnMapping,
+): Partial<Record<DomainField, readonly string[]>> => {
+  const result: Partial<Record<DomainField, string[]>> = {};
+
+  for (const [col, field] of Object.entries(mapping)) {
+    if (!field) {
+      continue;
+    }
+
+    if (!result[field]) {
+      result[field] = [];
+    }
+
+    if (MERGEABLE_FIELDS.has(field)) {
+      result[field].push(col);
+    } else if (result[field].length === 0) {
+      result[field].push(col);
+    }
+    // Non-mergeable with >1 mapping: silently keep first
+  }
+
+  return result;
 };
 
 /**
@@ -58,37 +100,39 @@ const resolveAmount = (
 
 /**
  * Transform raw CSV rows into typed TransactionRows using confirmed column mapping.
+ * Supports multi-column merge for MERGEABLE_FIELDS (title, source, recipient).
  * Accumulates errors/warnings per row instead of silently passing bad data.
  */
 export const transformRows = (
   rows: readonly CsvRow[],
   mapping: ColumnMapping,
 ): TransactionRow[] => {
-  const fieldToColumn = Object.entries(mapping).reduce<
-    Partial<Record<DomainField, string>>
-  >((acc, [col, field]) => {
-    if (field) {
-      acc[field] = col;
-    }
-    return acc;
-  }, {});
+  const fieldToColumns = buildFieldToColumns(mapping);
 
+  const firstCol = (field: DomainField): string | undefined =>
+    fieldToColumns[field]?.[0];
+
+  const dateCols = fieldToColumns.date;
+  const titleCols = fieldToColumns.title;
   const hasAmountSource =
-    fieldToColumn.amount || fieldToColumn.debit || fieldToColumn.credit;
-  if (!fieldToColumn.date || !fieldToColumn.title || !hasAmountSource) {
+    firstCol('amount') || firstCol('debit') || firstCol('credit');
+
+  if (!dateCols?.length || !titleCols?.length || !hasAmountSource) {
     throw new Error(
       'Required fields (date, title, amount or debit/credit) must be mapped',
     );
   }
 
-  const dateCol = fieldToColumn.date;
-  const titleCol = fieldToColumn.title;
-  const amountCol = fieldToColumn.amount;
-  const debitCol = fieldToColumn.debit;
-  const creditCol = fieldToColumn.credit;
-  const currencyCol = fieldToColumn.currency;
-  const balanceCol = fieldToColumn.balance;
-  const categoryCol = fieldToColumn.category;
+  const dateCol = dateCols[0];
+  const amountCol = firstCol('amount');
+  const debitCol = firstCol('debit');
+  const creditCol = firstCol('credit');
+  const currencyCol = firstCol('currency');
+  const balanceCol = firstCol('balance');
+  const categoryCol = firstCol('category');
+  const sourceCols = fieldToColumns.source;
+  const recipientCols = fieldToColumns.recipient;
+  const referenceCol = firstCol('reference');
 
   // Auto-detect formats from sample data
   const dateSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[dateCol] ?? '');
@@ -129,12 +173,17 @@ export const transformRows = (
       reasons.push('Date out of range');
     }
 
-    // Validate title
-    const title = row[titleCol]?.trim() ?? '';
+    // Merge title columns
+    const title = mergeColumns(row, titleCols);
     if (!title) {
       status = 'error';
       reasons.push('Empty title');
     }
+
+    // Merge optional fields
+    const source = sourceCols ? mergeColumns(row, sourceCols) || undefined : undefined;
+    const recipient = recipientCols ? mergeColumns(row, recipientCols) || undefined : undefined;
+    const reference = referenceCol ? (row[referenceCol]?.trim() || undefined) : undefined;
 
     return {
       id: crypto.randomUUID(),
@@ -146,6 +195,9 @@ export const transformRows = (
         ? (parseAmount(row[balanceCol] ?? '', amountLocale) ?? undefined)
         : undefined,
       category: categoryCol ? (row[categoryCol]?.trim() || undefined) : undefined,
+      source,
+      recipient,
+      reference,
       status,
       statusReason: reasons.length > 0 ? reasons.join('; ') : undefined,
     };

@@ -17,6 +17,7 @@ export { detectDataBoundaries } from './parsing/data-boundary-detector';
 
 // Column Mapping
 export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './column-mapping/column-mapper';
+export { MERGEABLE_FIELDS } from './column-mapping';
 export { HeaderHeuristicRegistry, defaultHeaderHeuristicRegistry } from './column-mapping/heuristics';
 export type { HeaderHeuristic } from './column-mapping/heuristics';
 export { BankProfileRegistry, defaultBankProfileRegistry, detectBankFromHeaders } from './column-mapping/bank-profiles';

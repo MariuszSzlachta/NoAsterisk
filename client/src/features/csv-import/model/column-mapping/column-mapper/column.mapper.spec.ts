@@ -187,6 +187,44 @@ describe('autoDetectMapping', () => {
     expect(dateColumns).toHaveLength(1);
   });
 
+  it('allows mergeable fields to be assigned to multiple columns', () => {
+    const headers = ['Opis operacji', 'Tytuł', 'Kwota', 'Data'];
+    const mapping = autoDetectMapping(headers);
+
+    const titleColumns = Object.entries(mapping).filter(([, f]) => f === 'title');
+    expect(titleColumns.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('allows multiple recipient columns to merge', () => {
+    const headers = ['Data', 'Opis', 'Kwota', 'Adresat', 'Nazwa odbiorcy'];
+    const mapping = autoDetectMapping(headers);
+
+    const recipientColumns = Object.entries(mapping).filter(([, f]) => f === 'recipient');
+    expect(recipientColumns.length).toBe(2);
+  });
+
+  it('does not allow non-mergeable fields to be assigned multiple times', () => {
+    const headers = ['Kwota', 'Wartość', 'Data'];
+    const mapping = autoDetectMapping(headers);
+
+    const amountColumns = Object.entries(mapping).filter(([, f]) => f === 'amount');
+    expect(amountColumns.length).toBe(1);
+  });
+
+  it('detects source and recipient from ING format', () => {
+    const headers = ['Data operacji', 'Opis', 'Kwota', 'Dane kontrahenta', 'Waluta'];
+    const mapping = autoDetectMapping(headers);
+
+    expect(mapping['Dane kontrahenta']).toBe('recipient');
+  });
+
+  it('detects reference column', () => {
+    const headers = ['Data', 'Opis', 'Kwota', 'Nr referencyjny'];
+    const mapping = autoDetectMapping(headers);
+
+    expect(mapping['Nr referencyjny']).toBe('reference');
+  });
+
   it('prefers amount over debit when both match', () => {
     const headers = ['Kwota', 'Kwota Wn', 'Kwota Ma'];
     const mapping = autoDetectMapping(headers);

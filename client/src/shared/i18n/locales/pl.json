@@ -150,7 +150,14 @@
         "balance": "Saldo",
         "debit": "Obciążenia (Wn)",
         "credit": "Uznania (Ma)",
-        "category": "Kategoria"
+        "category": "Kategoria",
+        "source": "Źródło / Nadawca",
+        "recipient": "Adresat / Odbiorca",
+        "reference": "Nr referencyjny"
+      },
+      "merge": {
+        "badge": "merge ×{{count}}",
+        "hint": "Połączone z: {{columns}}"
       }
     },
     "preview": {
@@ -171,6 +178,9 @@
       "category": "Kategoria",
       "debit": "Obciążenia",
       "credit": "Uznania",
+      "source": "Źródło",
+      "recipient": "Adresat",
+      "reference": "Nr referencyjny",
       "info": "Info"
     },
     "confirm": {

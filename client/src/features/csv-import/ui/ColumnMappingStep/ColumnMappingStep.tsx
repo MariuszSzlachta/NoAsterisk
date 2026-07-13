@@ -24,6 +24,8 @@ export const ColumnMappingStep = (): React.JSX.Element => {
     handleSaveProfile,
     handlePreviewRowSelect,
     getExampleValue,
+    isMergedColumn,
+    getMergePartners,
   } = useColumnMappingStep();
 
   return (
@@ -59,6 +61,8 @@ export const ColumnMappingStep = (): React.JSX.Element => {
               exampleValue={getExampleValue(header)}
               value={columnMapping[header] ?? ''}
               options={fieldOptions}
+              isMerged={isMergedColumn(header)}
+              mergePartners={getMergePartners(header)}
               onFieldChange={handleFieldChange}
             />
           ))}

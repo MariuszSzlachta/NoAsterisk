@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import { isDomainField } from '#features/csv-import/model/column-mapping/column-mapper';
+import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping';
 import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import type { SelectOption } from '#shared/ui/Select';
 
@@ -23,6 +24,8 @@ interface ColumnMappingStepResult {
   readonly handleSaveProfile: () => void;
   readonly handlePreviewRowSelect: (index: number) => void;
   readonly getExampleValue: (header: string) => string;
+  readonly isMergedColumn: (header: string) => boolean;
+  readonly getMergePartners: (header: string) => readonly string[];
 }
 
 export const useColumnMappingStep = (): ColumnMappingStepResult => {
@@ -70,6 +73,9 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     { value: 'debit', label: t('import.mapping.fields.debit') },
     { value: 'credit', label: t('import.mapping.fields.credit') },
     { value: 'category', label: t('import.mapping.fields.category') },
+    { value: 'source', label: t('import.mapping.fields.source') },
+    { value: 'recipient', label: t('import.mapping.fields.recipient') },
+    { value: 'reference', label: t('import.mapping.fields.reference') },
   ];
 
   const handleFieldChange = (column: string, value: string): void => {
@@ -78,6 +84,27 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     } else {
       updateColumnMapping(column, value);
     }
+  };
+
+  const isMergedColumn = (header: string): boolean => {
+    const field = columnMapping[header];
+    if (!field || !MERGEABLE_FIELDS.has(field)) {
+      return false;
+    }
+    const columnsWithSameField = Object.entries(columnMapping).filter(
+      ([, f]) => f === field,
+    );
+    return columnsWithSameField.length > 1;
+  };
+
+  const getMergePartners = (header: string): readonly string[] => {
+    const field = columnMapping[header];
+    if (!field || !MERGEABLE_FIELDS.has(field)) {
+      return [];
+    }
+    return Object.entries(columnMapping)
+      .filter(([col, f]) => f === field && col !== header)
+      .map(([col]) => col);
   };
 
   const getExampleValue = (header: string): string => {
@@ -111,5 +138,7 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     handleSaveProfile,
     handlePreviewRowSelect,
     getExampleValue,
+    isMergedColumn,
+    getMergePartners,
   };
 };

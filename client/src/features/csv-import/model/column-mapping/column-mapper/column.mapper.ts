@@ -1,8 +1,10 @@
 import type { ColumnMapping, DomainField } from '../types';
+import { MERGEABLE_FIELDS } from '../types';
 import { defaultHeaderHeuristicRegistry, type HeaderHeuristicRegistry } from '../heuristics';
 
 const VALID_DOMAIN_FIELDS: ReadonlySet<string> = new Set<DomainField>([
   'date', 'title', 'amount', 'currency', 'balance', 'debit', 'credit', 'category',
+  'source', 'recipient', 'reference',
 ]);
 
 /**
@@ -64,6 +66,7 @@ export const normalizeHeader = (header: string): string => {
 /**
  * Auto-detect column mapping from CSV headers using heuristic registry.
  * Accepts an optional registry for extensibility (user-defined heuristics).
+ * MERGEABLE_FIELDS can be assigned to multiple columns.
  */
 export const autoDetectMapping = (
   headers: readonly string[],
@@ -75,7 +78,7 @@ export const autoDetectMapping = (
   for (const header of headers) {
     const normalized = normalizeHeader(header);
     const field = registry.match(normalized);
-    if (field && !usedFields.has(field)) {
+    if (field && (!usedFields.has(field) || MERGEABLE_FIELDS.has(field))) {
       mapping[header] = field;
       usedFields.add(field);
     }
