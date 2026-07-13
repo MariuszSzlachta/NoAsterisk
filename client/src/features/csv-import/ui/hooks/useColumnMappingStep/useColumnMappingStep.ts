@@ -75,6 +75,7 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     { value: 'category', label: t('import.mapping.fields.category') },
     { value: 'source', label: t('import.mapping.fields.source') },
     { value: 'recipient', label: t('import.mapping.fields.recipient') },
+    { value: 'counterpart', label: t('import.mapping.fields.counterpart') },
     { value: 'reference', label: t('import.mapping.fields.reference') },
   ];
 

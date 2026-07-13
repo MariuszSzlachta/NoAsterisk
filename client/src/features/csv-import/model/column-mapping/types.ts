@@ -17,6 +17,7 @@ export type DomainField =
   | 'category'
   | 'source'
   | 'recipient'
+  | 'counterpart'
   | 'reference';
 
 /** Fields that accept multiple CSV columns — values are concatenated in CSV column order. */
@@ -24,6 +25,7 @@ export const MERGEABLE_FIELDS: ReadonlySet<DomainField> = new Set([
   'title',
   'source',
   'recipient',
+  'counterpart',
 ]);
 
 export type ColumnMapping = Partial<Record<string, DomainField>>;

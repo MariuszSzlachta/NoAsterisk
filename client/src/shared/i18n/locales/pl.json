@@ -153,6 +153,7 @@
         "category": "Kategoria",
         "source": "Źródło / Nadawca",
         "recipient": "Adresat / Odbiorca",
+        "counterpart": "Nadawca / Odbiorca",
         "reference": "Nr referencyjny"
       },
       "merge": {
@@ -180,6 +181,7 @@
       "credit": "Uznania",
       "source": "Źródło",
       "recipient": "Adresat",
+      "counterpart": "Kontrahent",
       "reference": "Nr referencyjny",
       "info": "Info"
     },

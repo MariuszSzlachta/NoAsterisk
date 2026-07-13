@@ -87,6 +87,12 @@ const BUILTIN_HEURISTICS: readonly HeaderHeuristic[] = [
   { normalized: 'to', field: 'recipient', source: 'builtin' },
   { normalized: 'payee', field: 'recipient', source: 'builtin' },
 
+  // Counterpart (combined sender/recipient — when bank doesn't separate)
+  { normalized: 'nadawca/odbiorca', field: 'counterpart', source: 'builtin' },
+  { normalized: 'nadawca / odbiorca', field: 'counterpart', source: 'builtin' },
+  { normalized: 'nazwa nadawcy / odbiorcy', field: 'counterpart', source: 'builtin' },
+  { normalized: 'strona transakcji', field: 'counterpart', source: 'builtin' },
+
   // Reference (transaction identifier)
   { normalized: 'referencja', field: 'reference', source: 'builtin' },
   { normalized: 'nr referencyjny', field: 'reference', source: 'builtin' },

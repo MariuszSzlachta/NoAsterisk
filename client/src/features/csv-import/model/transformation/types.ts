@@ -16,6 +16,7 @@ export interface TransactionRow {
   readonly category?: string;
   readonly source?: string;
   readonly recipient?: string;
+  readonly counterpart?: string;
   readonly reference?: string;
   readonly status: RowStatus;
   readonly statusReason?: string;

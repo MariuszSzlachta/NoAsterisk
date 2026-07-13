@@ -132,6 +132,7 @@ export const transformRows = (
   const categoryCol = firstCol('category');
   const sourceCols = fieldToColumns.source;
   const recipientCols = fieldToColumns.recipient;
+  const counterpartCols = fieldToColumns.counterpart;
   const referenceCol = firstCol('reference');
 
   // Auto-detect formats from sample data
@@ -183,6 +184,7 @@ export const transformRows = (
     // Merge optional fields
     const source = sourceCols ? mergeColumns(row, sourceCols) || undefined : undefined;
     const recipient = recipientCols ? mergeColumns(row, recipientCols) || undefined : undefined;
+    const counterpart = counterpartCols ? mergeColumns(row, counterpartCols) || undefined : undefined;
     const reference = referenceCol ? (row[referenceCol]?.trim() || undefined) : undefined;
 
     return {
@@ -197,6 +199,7 @@ export const transformRows = (
       category: categoryCol ? (row[categoryCol]?.trim() || undefined) : undefined,
       source,
       recipient,
+      counterpart,
       reference,
       status,
       statusReason: reasons.length > 0 ? reasons.join('; ') : undefined,

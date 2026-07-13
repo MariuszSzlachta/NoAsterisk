@@ -4,7 +4,7 @@ import { defaultHeaderHeuristicRegistry, type HeaderHeuristicRegistry } from '..
 
 const VALID_DOMAIN_FIELDS: ReadonlySet<string> = new Set<DomainField>([
   'date', 'title', 'amount', 'currency', 'balance', 'debit', 'credit', 'category',
-  'source', 'recipient', 'reference',
+  'source', 'recipient', 'counterpart', 'reference',
 ]);
 
 /**
