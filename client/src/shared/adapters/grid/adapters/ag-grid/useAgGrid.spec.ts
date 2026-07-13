@@ -58,6 +58,43 @@ describe('useAgGrid', () => {
         flex: 1,
       });
     });
+
+    it('maps custom comparator to AG Grid comparator function', () => {
+      const comparator = (a: unknown, b: unknown): number =>
+        (a as number) - (b as number);
+
+      const columns: GridColumn<TestRow>[] = [
+        { field: 'amount', headerName: 'Amount', comparator },
+      ];
+
+      const { result } = renderHook(() =>
+        useAgGrid({ columns, getRowId, sorting: undefined }),
+      );
+
+      const colDef = result.current.columnDefs[0];
+      expect(colDef.comparator).toBeDefined();
+
+      const nodeA = { data: { id: '1', name: 'A', amount: 10 } };
+      const nodeB = { data: { id: '2', name: 'B', amount: 5 } };
+      const agResult = (colDef.comparator as Function)(10, 5, nodeA, nodeB, false);
+      expect(agResult).toBe(5);
+    });
+
+    it('returns 0 from comparator when row data is undefined', () => {
+      const comparator = vi.fn().mockReturnValue(1);
+      const columns: GridColumn<TestRow>[] = [
+        { field: 'amount', headerName: 'Amount', comparator },
+      ];
+
+      const { result } = renderHook(() =>
+        useAgGrid({ columns, getRowId, sorting: undefined }),
+      );
+
+      const colDef = result.current.columnDefs[0];
+      const agResult = (colDef.comparator as Function)(10, 5, { data: undefined }, { data: undefined }, false);
+      expect(agResult).toBe(0);
+      expect(comparator).not.toHaveBeenCalled();
+    });
   });
 
   describe('cell edit handler', () => {

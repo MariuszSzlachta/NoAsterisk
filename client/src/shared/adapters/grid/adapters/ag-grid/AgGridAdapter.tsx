@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   AllCommunityModule,
   createTheme,
@@ -13,6 +14,7 @@ import type {
   RowAction,
 } from '#shared/adapters/grid/ports/grid.port';
 import { DropdownMenu, type DropdownMenuEntry } from '#shared/ui/DropdownMenu';
+import { PaginationBar } from '#shared/ui/PaginationBar';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -77,6 +79,7 @@ export const AgGridAdapter = <TRow,>({
   sorting,
   onSortChange,
   pageSize,
+  paginationMode = 'builtin',
   rowSelection,
   onSelectionChange,
   loading,
@@ -84,6 +87,25 @@ export const AgGridAdapter = <TRow,>({
   rowActions,
   getRowClass,
 }: DataGridProps<TRow>): React.JSX.Element => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [customPageSize, setCustomPageSize] = useState(pageSize ?? 50);
+
+  const isCustomPagination = paginationMode === 'custom' && pageSize !== undefined;
+  const totalRows = rows.length;
+  const totalPages = isCustomPagination ? Math.max(1, Math.ceil(totalRows / customPageSize)) : 1;
+  const displayRows = isCustomPagination
+    ? rows.slice((currentPage - 1) * customPageSize, currentPage * customPageSize)
+    : rows;
+
+  const handlePageChange = (page: number): void => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number): void => {
+    setCustomPageSize(size);
+    setCurrentPage(1);
+  };
+
   const {
     columnDefs,
     handleGridReady,
@@ -135,7 +157,7 @@ export const AgGridAdapter = <TRow,>({
     <div className="h-full w-full">
       <AgGridReact<TRow>
         theme={budgetTheme}
-        rowData={rows}
+        rowData={displayRows}
         columnDefs={allColumnDefs}
         getRowId={(params) => getRowId(params.data)}
         onGridReady={handleGridReady}
@@ -150,12 +172,22 @@ export const AgGridAdapter = <TRow,>({
         selectionColumnDef={rowSelection ? SELECTION_COL_DEF : undefined}
         loading={loading}
         domLayout="autoHeight"
-        pagination={pageSize !== undefined}
-        paginationPageSize={pageSize}
+        pagination={!isCustomPagination && pageSize !== undefined}
+        paginationPageSize={!isCustomPagination ? pageSize : undefined}
         rowHeight={rowHeight}
         getRowClass={handleGetRowClass}
         onCellClicked={handleCellClicked}
       />
+      {isCustomPagination && totalRows > 0 && (
+        <PaginationBar
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRows={totalRows}
+          pageSize={customPageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
     </div>
   );
 };

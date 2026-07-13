@@ -9,6 +9,7 @@ export interface GridColumn<TRow> {
   minWidth?: number;
   flex?: number;
   cellRenderer?: (params: CellRendererParams<TRow>) => ReactNode;
+  comparator?: (valueA: unknown, valueB: unknown, rowA: TRow, rowB: TRow) => number;
 }
 
 export interface CellRendererParams<TRow> {
@@ -39,6 +40,7 @@ export interface DataGridProps<TRow> {
   sorting?: GridSortConfig;
   onSortChange?: (sort: GridSortConfig | undefined) => void;
   pageSize?: number;
+  paginationMode?: 'builtin' | 'custom';
   rowSelection?: 'single' | 'multiple';
   onSelectionChange?: (selectedIds: string[]) => void;
   loading?: boolean;

@@ -28,6 +28,21 @@ const mapColumns = <TRow>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
     // incompatible with port's Extract<keyof TRow, string>. Accepted permanently.
     (colDef as Record<string, unknown>)['field'] = col.field;
 
+    if (col.comparator) {
+      const portComparator = col.comparator;
+      colDef.comparator = (
+        valueA: unknown,
+        valueB: unknown,
+        nodeA: { data: TRow | undefined },
+        nodeB: { data: TRow | undefined },
+      ) => {
+        if (!nodeA.data || !nodeB.data) {
+          return 0;
+        }
+        return portComparator(valueA, valueB, nodeA.data, nodeB.data);
+      };
+    }
+
     if (col.cellRenderer) {
       const renderer = col.cellRenderer;
       colDef.cellRenderer = (params: {

@@ -45,6 +45,11 @@ export const createImportGridColumns = (
     headerName: t('import.grid.amount'),
     width: 120,
     sortable: true,
+    comparator: (valueA: unknown, valueB: unknown) => {
+      const numA = typeof valueA === 'number' && !Number.isNaN(valueA) ? valueA : Number.NEGATIVE_INFINITY;
+      const numB = typeof valueB === 'number' && !Number.isNaN(valueB) ? valueB : Number.NEGATIVE_INFINITY;
+      return numA - numB;
+    },
     cellRenderer: ({ value }) => {
       const amount = value as number;
       const isNegative = amount < 0;

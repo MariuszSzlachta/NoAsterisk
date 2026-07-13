@@ -2,6 +2,12 @@
   "common": {
     "close": "Zamknij"
   },
+  "pagination": {
+    "range": "{{start}}–{{end}} z {{total}}",
+    "rowsPerPage": "Wierszy:",
+    "prevPage": "Poprzednia strona",
+    "nextPage": "Następna strona"
+  },
   "app": {
     "name": "BudgetFlow"
   },
@@ -168,6 +174,13 @@
       "duplicates": "{{count}} duplikatów",
       "errors": "{{count}} błędów",
       "noCategory": "Brak"
+    },
+    "filter": {
+      "all": "Wszystkie",
+      "income": "Przychody",
+      "expense": "Wydatki",
+      "dateFrom": "Od daty",
+      "dateTo": "Do daty"
     },
     "grid": {
       "status": "",
