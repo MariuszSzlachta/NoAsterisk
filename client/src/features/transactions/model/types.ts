@@ -2,6 +2,29 @@
 // Transactions Feature — Model Types
 // ═══════════════════════════════════════════════════════════════════
 
+// ─── Stored Transaction (persistence shape) ──────────────────────
+
+export interface StoredTransaction {
+  readonly id: string;
+  readonly date: string;
+  readonly description: string;
+  readonly amount: number;
+  readonly currency: string;
+  readonly categoryId?: string;
+  readonly accountName?: string;
+  readonly contentHash: string;
+  readonly batchId: string;
+  readonly importedAt: string;
+}
+
+// ─── Category Lookup ─────────────────────────────────────────────
+
+export interface CategoryInfo {
+  readonly id: string;
+  readonly label: string;
+  readonly color: string;
+}
+
 // ─── Transaction ViewModel (UI-ready) ────────────────────────────
 
 export type TransactionType = 'income' | 'expense';

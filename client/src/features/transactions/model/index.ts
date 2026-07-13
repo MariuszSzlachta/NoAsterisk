@@ -1,4 +1,6 @@
 export type {
+  CategoryInfo,
+  StoredTransaction,
   TransactionFilters,
   TransactionPage,
   TransactionSort,
@@ -14,3 +16,5 @@ export {
   paginateTransactions,
   sortTransactions,
 } from './filter-engine';
+
+export { mapStoredToViewModel } from './transformers';
