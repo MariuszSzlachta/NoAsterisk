@@ -1,0 +1,99 @@
+/* ─── Design Token Overrides for react-day-picker ─── */
+
+@import 'react-day-picker/style.css';
+
+.budget-calendar.rdp-root {
+  /* Map RDP CSS vars to our design tokens */
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: var(--primary-soft);
+
+  /* Compact sizing for inline calendar */
+  --rdp-day-height: 36px;
+  --rdp-day-width: 36px;
+  --rdp-day_button-height: 34px;
+  --rdp-day_button-width: 34px;
+  --rdp-day_button-border-radius: var(--radius-md);
+
+  --rdp-nav_button-height: 2rem;
+  --rdp-nav_button-width: 2rem;
+  --rdp-nav-height: 2.5rem;
+
+  --rdp-today-color: var(--primary);
+  --rdp-selected-border: 2px solid var(--primary);
+  --rdp-outside-opacity: 0.4;
+  --rdp-disabled-opacity: 0.3;
+
+  /* Range colors */
+  --rdp-range_start-color: var(--primary-fg);
+  --rdp-range_start-date-background-color: var(--primary);
+  --rdp-range_end-color: var(--primary-fg);
+  --rdp-range_end-date-background-color: var(--primary);
+  --rdp-range_middle-background-color: var(--primary-soft);
+  --rdp-range_middle-color: var(--fg);
+
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+}
+
+/* ─── Navigation buttons ─── */
+
+.budget-calendar .rdp-button_previous,
+.budget-calendar .rdp-button_next {
+  color: var(--fg-muted);
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.budget-calendar .rdp-button_previous:hover,
+.budget-calendar .rdp-button_next:hover {
+  color: var(--fg);
+  background-color: var(--surface-3);
+}
+
+/* ─── Weekday headers ─── */
+
+.budget-calendar .rdp-weekday {
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ─── Day cells ─── */
+
+.budget-calendar .rdp-day_button {
+  color: var(--fg);
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.budget-calendar .rdp-day_button:hover {
+  background-color: var(--surface-3);
+}
+
+/* ─── Selected day ─── */
+
+.budget-calendar .rdp-selected .rdp-day_button {
+  background-color: var(--primary);
+  color: var(--primary-fg);
+}
+
+.budget-calendar .rdp-selected .rdp-day_button:hover {
+  background-color: var(--primary);
+  opacity: 0.9;
+}
+
+/* ─── Today ─── */
+
+.budget-calendar .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ─── Caption / Month header ─── */
+
+.budget-calendar .rdp-month_caption {
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
