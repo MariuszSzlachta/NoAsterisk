@@ -21,8 +21,8 @@ describe('DateRangePicker', () => {
   it('displays formatted date range when selected', () => {
     const handleSelect = vi.fn();
     const selected = {
-      from: new Date(2026, 6, 1), // 1 Jul 2026
-      to: new Date(2026, 6, 10), // 10 Jul 2026
+      from: new Date(2026, 6, 1),
+      to: new Date(2026, 6, 10),
     };
     render(<DateRangePicker selected={selected} onSelect={handleSelect} />);
     const button = screen.getByRole('button');
@@ -44,7 +44,6 @@ describe('DateRangePicker', () => {
 
     await user.click(screen.getByRole('button'));
 
-    // Calendar renders weekdays (pon = Monday in Polish)
     expect(screen.getByText('pon')).toBeInTheDocument();
   });
 
@@ -74,6 +73,36 @@ describe('DateRangePicker', () => {
     expect(range.to).toBeInstanceOf(Date);
   });
 
+  it('shows confirm button disabled until range is complete', async () => {
+    const user = userEvent.setup();
+    const handleSelect = vi.fn();
+    render(<DateRangePicker onSelect={handleSelect} />);
+
+    await user.click(screen.getByRole('button'));
+
+    const confirmBtn = screen.getByRole('button', { name: /zastosuj/i });
+    expect(confirmBtn).toBeDisabled();
+  });
+
+  it('does not call onSelect on calendar click (only on confirm)', async () => {
+    const user = userEvent.setup();
+    const handleSelect = vi.fn();
+    render(<DateRangePicker onSelect={handleSelect} />);
+
+    await user.click(screen.getByRole('button'));
+
+    // Click a day — should NOT call onSelect yet
+    const dayButtons = screen.getAllByRole('gridcell')
+      .map((cell) => cell.querySelector('button'))
+      .filter(Boolean);
+
+    if (dayButtons[0]) {
+      await user.click(dayButtons[0]);
+    }
+
+    expect(handleSelect).not.toHaveBeenCalled();
+  });
+
   it('renders disabled state', () => {
     const handleSelect = vi.fn();
     render(<DateRangePicker onSelect={handleSelect} disabled />);
@@ -94,6 +123,16 @@ describe('DateRangePicker', () => {
     await user.click(screen.getByRole('button'));
 
     expect(screen.queryByText('Ostatni tydzień')).not.toBeInTheDocument();
+  });
+
+  it('shows helper text when no draft selected', async () => {
+    const user = userEvent.setup();
+    const handleSelect = vi.fn();
+    render(<DateRangePicker onSelect={handleSelect} />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(screen.getByText('Kliknij datę początkową')).toBeInTheDocument();
   });
 });
 

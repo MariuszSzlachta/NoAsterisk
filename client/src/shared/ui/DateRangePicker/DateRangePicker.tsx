@@ -1,4 +1,4 @@
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Check, X } from 'lucide-react';
 import {
   PopoverContent,
   PopoverPortal,
@@ -8,6 +8,7 @@ import {
 import { useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 
+import { Button } from '#shared/ui/Button';
 import { Calendar } from '#shared/ui/Calendar';
 
 import { formatRange } from './formatRange';
@@ -39,8 +40,18 @@ export const DateRangePicker = ({
   className,
 }: DateRangePickerProps): React.JSX.Element => {
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<DateRange | undefined>(selected);
 
   const displayValue = formatRange(selected);
+  const hasDraft = draft?.from !== undefined;
+  const isRangeComplete = draft?.from !== undefined && draft.to !== undefined;
+
+  const handleOpenChange = (nextOpen: boolean): void => {
+    if (nextOpen) {
+      setDraft(selected);
+    }
+    setOpen(nextOpen);
+  };
 
   const handlePresetClick = (preset: DateRangePreset): void => {
     onSelect(preset.range());
@@ -48,14 +59,22 @@ export const DateRangePicker = ({
   };
 
   const handleCalendarSelect = (range: DateRange | undefined): void => {
-    onSelect(range);
-    if (range?.from && range.to) {
-      setOpen(false);
-    }
+    setDraft(range);
+  };
+
+  const handleConfirm = (): void => {
+    onSelect(draft);
+    setOpen(false);
+  };
+
+  const handleClear = (): void => {
+    onSelect(undefined);
+    setDraft(undefined);
+    setOpen(false);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild disabled={disabled}>
         <button
           type="button"
@@ -97,13 +116,33 @@ export const DateRangePicker = ({
               </div>
             )}
 
-            {/* Calendar */}
-            <div className="p-3">
-              <Calendar
-                mode="range"
-                selected={selected}
-                onSelect={handleCalendarSelect}
-              />
+            {/* Calendar + footer */}
+            <div className="flex flex-col">
+              <div className="p-3">
+                <Calendar
+                  mode="range"
+                  selected={draft}
+                  onSelect={handleCalendarSelect}
+                />
+              </div>
+
+              {/* Footer with confirm/clear */}
+              <div className="flex items-center justify-between border-t border-border px-3 py-2">
+                <span className="text-xs text-muted-foreground">
+                  {formatRange(draft) ?? 'Kliknij datę początkową'}
+                </span>
+                <div className="flex items-center gap-1">
+                  {hasDraft && (
+                    <Button variant="ghost" size="sm" onClick={handleClear}>
+                      <X size={14} />
+                    </Button>
+                  )}
+                  <Button size="sm" onClick={handleConfirm} disabled={!isRangeComplete}>
+                    <Check size={14} />
+                    Zastosuj
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </PopoverContent>
