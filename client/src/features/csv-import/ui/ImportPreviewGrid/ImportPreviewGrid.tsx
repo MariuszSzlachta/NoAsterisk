@@ -50,8 +50,23 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
     (r) => r.status === 'ok' || r.status === 'warning',
   ).length;
 
+  // Total error count across ALL rows (not filtered)
+  const totalErrors = rows.filter((r) => r.status === 'error').length;
+  const hasErrors = totalErrors > 0;
+
   return (
     <div className="flex flex-col gap-4">
+      {hasErrors && (
+        <div className="flex items-center gap-3 rounded-lg border border-expense/30 bg-expense/5 px-4 py-3">
+          <span className="text-sm text-expense">
+            {t('import.preview.errorBanner', { count: totalErrors, total: rows.length })}
+          </span>
+          <Button variant="secondary" size="sm" onClick={handlePrevStep}>
+            {t('import.preview.backToMapping')}
+          </Button>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <Badge variant="default">
           {t('import.preview.rows', { count: stats.total })}
@@ -110,7 +125,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
         <Button variant="secondary" onClick={handlePrevStep}>
           {t('import.nav.back')}
         </Button>
-        <Button onClick={handleNextStep} disabled={importableCount === 0}>
+        <Button onClick={handleNextStep} disabled={importableCount === 0 || hasErrors}>
           {t('import.nav.continue', { count: importableCount })}
         </Button>
       </div>

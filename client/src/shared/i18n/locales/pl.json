@@ -173,7 +173,9 @@
       "warnings": "{{count}} ostrzeżeń",
       "duplicates": "{{count}} duplikatów",
       "errors": "{{count}} błędów",
-      "noCategory": "Brak"
+      "noCategory": "Brak",
+      "errorBanner": "{{count}} z {{total}} wierszy zawiera błędy — popraw mapowanie kolumn, aby kontynuować.",
+      "backToMapping": "Wróć do mapowania"
     },
     "filter": {
       "all": "Wszystkie",

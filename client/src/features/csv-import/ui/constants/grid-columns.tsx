@@ -46,12 +46,26 @@ export const createImportGridColumns = (
     width: 120,
     sortable: true,
     comparator: (valueA: unknown, valueB: unknown) => {
-      const numA = typeof valueA === 'number' && !Number.isNaN(valueA) ? valueA : Number.NEGATIVE_INFINITY;
-      const numB = typeof valueB === 'number' && !Number.isNaN(valueB) ? valueB : Number.NEGATIVE_INFINITY;
-      return numA - numB;
+      const isValidA = typeof valueA === 'number' && !Number.isNaN(valueA);
+      const isValidB = typeof valueB === 'number' && !Number.isNaN(valueB);
+      if (!isValidA && !isValidB) {
+        return 0;
+      }
+      if (!isValidA) {
+        return -1;
+      }
+      if (!isValidB) {
+        return 1;
+      }
+      return valueA - valueB;
     },
     cellRenderer: ({ value }) => {
       const amount = value as number;
+      if (typeof amount !== 'number' || Number.isNaN(amount) || !Number.isFinite(amount)) {
+        return (
+          <span className="text-xs text-expense">—</span>
+        );
+      }
       const isNegative = amount < 0;
       const formatted = new Intl.NumberFormat('pl-PL', {
         minimumFractionDigits: 2,
