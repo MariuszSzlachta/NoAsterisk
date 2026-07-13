@@ -11,9 +11,17 @@ const ROW_HEIGHT = 46;
 
 const getRowId = (row: TransactionViewModel): string => row.id;
 
+// ─── Types ───────────────────────────────────────────────────────
+
+interface TransactionGridProps {
+  readonly onSelectionChange?: (ids: string[]) => void;
+}
+
 // ─── Component ───────────────────────────────────────────────────
 
-export const TransactionGrid = (): React.JSX.Element => {
+export const TransactionGrid = ({
+  onSelectionChange,
+}: TransactionGridProps): React.JSX.Element => {
   const { page, handlePageChange, handlePageSizeChange } = useTransactionGrid();
 
   return (
@@ -24,6 +32,7 @@ export const TransactionGrid = (): React.JSX.Element => {
         getRowId={getRowId}
         rowHeight={ROW_HEIGHT}
         rowSelection="multiple"
+        onSelectionChange={onSelectionChange}
         paginationMode="custom"
         pageSize={page.pageSize}
       />

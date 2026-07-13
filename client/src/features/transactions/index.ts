@@ -3,6 +3,7 @@ export { TransactionStatusBar } from './ui/TransactionStatusBar';
 export { TransactionToolbar } from './ui/TransactionToolbar';
 export { useTransactionFilters } from './ui/hooks/useTransactionFilters';
 export { useTransactionsEmpty } from './ui/hooks/useTransactionsEmpty';
+export { useTransactionsPageWiring } from './ui/hooks/useTransactionsPageWiring';
 export type {
   TransactionFilters,
   TransactionSort,

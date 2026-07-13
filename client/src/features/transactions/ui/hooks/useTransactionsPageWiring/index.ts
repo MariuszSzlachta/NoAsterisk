@@ -1,0 +1,1 @@
+export { useTransactionsPageWiring } from './useTransactionsPageWiring';

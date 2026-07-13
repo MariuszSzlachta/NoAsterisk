@@ -6,12 +6,19 @@ import {
   TransactionStatusBar,
   TransactionToolbar,
   useTransactionsEmpty,
+  useTransactionsPageWiring,
 } from '#features/transactions';
 
 // ─── Component ───────────────────────────────────────────────────
 
 export const TransactionsPage = (): React.JSX.Element => {
   const { isEmpty } = useTransactionsEmpty();
+  const {
+    selectionCount,
+    categories,
+    handleSelectionChange,
+    handleBulkCategoryChange,
+  } = useTransactionsPageWiring();
 
   if (isEmpty) {
     return (
@@ -26,9 +33,13 @@ export const TransactionsPage = (): React.JSX.Element => {
 
   return (
     <div className="flex max-w-[1280px] flex-col gap-4">
-      <TransactionToolbar />
+      <TransactionToolbar
+        selectionCount={selectionCount}
+        onBulkCategoryChange={handleBulkCategoryChange}
+        categories={categories}
+      />
       <Card className="overflow-hidden p-0">
-        <TransactionGrid />
+        <TransactionGrid onSelectionChange={handleSelectionChange} />
         <TransactionStatusBar />
       </Card>
     </div>

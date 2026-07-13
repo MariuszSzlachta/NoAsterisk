@@ -3,7 +3,9 @@ import { Search } from 'lucide-react';
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import { Input } from '#shared/ui/Input';
+import type { CategoryInfo } from '#features/transactions/model/types';
 
+import { CategoryPicker } from '../CategoryPicker';
 import { useTransactionToolbar } from '../hooks/useTransactionToolbar';
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -14,9 +16,21 @@ const TYPE_TABS = [
   { id: 'expense', label: 'Wydatki' },
 ] as const;
 
+// ─── Types ───────────────────────────────────────────────────────
+
+interface TransactionToolbarProps {
+  readonly selectionCount?: number;
+  readonly onBulkCategoryChange?: (categoryId: string) => void;
+  readonly categories?: ReadonlyArray<CategoryInfo>;
+}
+
 // ─── Component ───────────────────────────────────────────────────
 
-export const TransactionToolbar = (): React.JSX.Element => {
+export const TransactionToolbar = ({
+  selectionCount = 0,
+  onBulkCategoryChange,
+  categories = [],
+}: TransactionToolbarProps): React.JSX.Element => {
   const {
     searchValue,
     activeTypeTab,
@@ -25,6 +39,8 @@ export const TransactionToolbar = (): React.JSX.Element => {
     handleTypeTabChange,
     handleDateRangeChange,
   } = useTransactionToolbar();
+
+  const hasSelection = selectionCount > 0;
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
@@ -47,6 +63,16 @@ export const TransactionToolbar = (): React.JSX.Element => {
         selected={dateRange}
         onSelect={handleDateRangeChange}
       />
+
+      {hasSelection && onBulkCategoryChange && (
+        <div className="ml-auto">
+          <CategoryPicker
+            categories={categories}
+            onSelect={onBulkCategoryChange}
+            selectionCount={selectionCount}
+          />
+        </div>
+      )}
     </div>
   );
 };
