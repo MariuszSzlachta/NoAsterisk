@@ -42,7 +42,7 @@ export const AnonymizationStep = (): React.JSX.Element => {
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
         {/* Header row */}
         <div className="flex items-start justify-between">
@@ -90,7 +90,7 @@ export const AnonymizationStep = (): React.JSX.Element => {
         </div>
 
         {/* Grid */}
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 max-h-[60vh] overflow-auto">
           <DataGrid
             rows={rows}
             columns={columns}

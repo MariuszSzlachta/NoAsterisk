@@ -182,7 +182,8 @@
       "income": "Przychody",
       "expense": "Wydatki",
       "dateFrom": "Od daty",
-      "dateTo": "Do daty"
+      "dateTo": "Do daty",
+      "dateRange": "Zakres dat"
     },
     "grid": {
       "status": "",

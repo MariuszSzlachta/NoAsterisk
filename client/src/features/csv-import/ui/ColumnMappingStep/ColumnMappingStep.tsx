@@ -29,7 +29,7 @@ export const ColumnMappingStep = (): React.JSX.Element => {
   } = useColumnMappingStep();
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
         {/* Heading */}
         <h2 className="text-base font-semibold tracking-tight text-foreground">
@@ -53,7 +53,7 @@ export const ColumnMappingStep = (): React.JSX.Element => {
         <p className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wide text-subtle">
           {t('import.mapping.fieldAssignment')}
         </p>
-        <div className="flex flex-col gap-2">
+        <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
           {headers.map((header) => (
             <FieldAssignmentRow
               key={header}

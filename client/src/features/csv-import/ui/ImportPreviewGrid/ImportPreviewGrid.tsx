@@ -14,7 +14,6 @@ import { usePreviewFilters } from '#features/csv-import/ui/hooks/usePreviewFilte
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import {
   createImportGridColumns,
-  IMPORT_GRID_PAGE_SIZE,
   IMPORT_GRID_ROW_HEIGHT,
 } from '#features/csv-import/ui/constants/grid-columns';
 
@@ -55,7 +54,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
   const hasErrors = totalErrors > 0;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       {hasErrors && (
         <div className="flex items-center gap-3 rounded-lg border border-expense/30 bg-expense/5 px-4 py-3">
           <span className="text-sm text-expense">
@@ -107,14 +106,12 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
 
       <BatchEditPanel />
 
-      <Card className="overflow-hidden p-0">
+      <Card className="max-h-[60vh] overflow-auto p-0">
         <DataGrid
           rows={filteredRows as TransactionRow[]}
           columns={columns}
           getRowId={getRowId}
           onCellEdit={handleCellEdit}
-          pageSize={IMPORT_GRID_PAGE_SIZE}
-          paginationMode="custom"
           rowHeight={IMPORT_GRID_ROW_HEIGHT}
           rowSelection="multiple"
           onSelectionChange={handleSelectionChange}

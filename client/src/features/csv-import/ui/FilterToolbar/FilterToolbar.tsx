@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import type { DateRange } from 'react-day-picker';
 
+import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs, type FilterTab } from '#shared/ui/FilterTabs';
-import { Input } from '#shared/ui/Input';
 
 import type { TransactionTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters';
 
@@ -16,6 +17,13 @@ interface FilterToolbarProps {
   readonly expenseCount: number;
   readonly totalCount: number;
 }
+
+const formatDateToString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 export const FilterToolbar = ({
   typeFilter,
@@ -40,35 +48,28 @@ export const FilterToolbar = ({
     onTypeChange(id as TransactionTypeFilter);
   };
 
-  const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    onDateFromChange(e.target.value);
-  };
+  const selectedRange: DateRange | undefined =
+    dateFrom || dateTo
+      ? {
+          from: dateFrom ? new Date(dateFrom) : undefined,
+          to: dateTo ? new Date(dateTo) : undefined,
+        }
+      : undefined;
 
-  const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    onDateToChange(e.target.value);
+  const handleDateRangeChange = (range: DateRange | undefined): void => {
+    onDateFromChange(range?.from ? formatDateToString(range.from) : '');
+    onDateToChange(range?.to ? formatDateToString(range.to) : '');
   };
 
   return (
     <div className="flex items-center gap-4">
       <FilterTabs tabs={tabs} activeTab={typeFilter} onTabChange={handleTabChange} />
 
-      <div className="flex items-center gap-2">
-        <Input
-          type="date"
-          value={dateFrom}
-          onChange={handleDateFromChange}
-          className="h-8 w-32 text-xs"
-          aria-label={t('import.filter.dateFrom')}
-        />
-        <span className="text-xs text-muted-foreground">–</span>
-        <Input
-          type="date"
-          value={dateTo}
-          onChange={handleDateToChange}
-          className="h-8 w-32 text-xs"
-          aria-label={t('import.filter.dateTo')}
-        />
-      </div>
+      <DateRangePicker
+        selected={selectedRange}
+        onSelect={handleDateRangeChange}
+        placeholder={t('import.filter.dateRange')}
+      />
     </div>
   );
 };

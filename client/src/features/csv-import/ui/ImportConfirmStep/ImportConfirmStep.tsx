@@ -6,18 +6,22 @@ import { Card } from '#shared/ui/Card';
 import { Progress } from '#shared/ui/Progress';
 
 import { useImportSubmit } from '#features/csv-import/ui/hooks/useImportSubmit';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 
 export const ImportConfirmStep = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { progress, handleSubmit, canSubmit, importableCount } = useImportSubmit();
+  const { handlePrevStep } = useImportWizard();
 
   const percentComplete =
     progress.totalChunks > 0
       ? Math.round((progress.completedChunks / progress.totalChunks) * 100)
       : 0;
 
+  const isInProgress = progress.status === 'submitting' || progress.status === 'completed';
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       <Card className="p-6">
         <h3 className="mb-4 text-sm font-medium text-foreground">
           {t('import.confirm.title')}
@@ -28,9 +32,6 @@ export const ImportConfirmStep = (): React.JSX.Element => {
             <p className="text-xs text-muted-foreground">
               {t('import.confirm.readyDescription', { count: importableCount })}
             </p>
-            <Button onClick={handleSubmit} disabled={!canSubmit}>
-              {t('import.confirm.submit')}
-            </Button>
           </div>
         )}
 
@@ -95,12 +96,21 @@ export const ImportConfirmStep = (): React.JSX.Element => {
                 </li>
               ))}
             </ul>
-            <Button onClick={handleSubmit} disabled={!canSubmit} variant="secondary">
-              {t('import.confirm.retry')}
-            </Button>
           </div>
         )}
       </Card>
+
+      {/* Navigation */}
+      <div className="flex justify-between">
+        <Button variant="secondary" onClick={handlePrevStep} disabled={isInProgress}>
+          {t('import.nav.back')}
+        </Button>
+        {(progress.status === 'idle' || progress.status === 'failed') && (
+          <Button onClick={handleSubmit} disabled={!canSubmit}>
+            {t('import.confirm.submit')}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
