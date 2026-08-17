@@ -16,7 +16,8 @@ const buildBudgetVM = (overrides?: Partial<BudgetViewModel>): BudgetViewModel =>
   remaining: 1500,
   currency: 'PLN',
   progressPercent: 25,
-  progressSubtitle: '25% wydane przy 50% czasu',
+  spentPercent: 25,
+  timePercent: 50,
   transactions: [],
   ...overrides,
 });

@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
 
-import { mapBudgetRecordToViewModel } from './transformers';
+import { mapBudgetRecordToViewModel, mapSavingsBudgetToViewModel, computeNextPeriod } from './transformers';
+import type { PeriodHistoryRecord } from './period-history';
 import type { BudgetRecord, BudgetTransactionInput } from './types';
 
 const buildBudgetRecord = (overrides?: Partial<BudgetRecord>): BudgetRecord => ({
   id: 'budget-1',
   workspaceId: 'ws-1',
+  budgetType: 'standard',
   name: 'Zakupy spożywcze',
   color: '#34d399',
   limitAmount: 2000,
@@ -175,5 +177,174 @@ describe('mapBudgetRecordToViewModel', () => {
 
     // -(-150 + 50) = -(-100) = 100
     expect(vm.spent).toBe(100);
+  });
+});
+
+describe('mapBudgetRecordToViewModel — awaitingClosure', () => {
+  it('returns awaitingClosure when now > period end', () => {
+    const budget = buildBudgetRecord({
+      period: { type: 'custom', dateFrom: '2026-06-01', dateTo: '2026-06-30' },
+    });
+    // now is July 15 — past the period end
+    const now = new Date('2026-07-15T12:00:00.000Z');
+    const transactions = [buildTransaction({ date: '2026-06-10', amount: -500 })];
+
+    const vm = mapBudgetRecordToViewModel(budget, transactions, now);
+
+    expect(vm.status).toBe('awaitingClosure');
+  });
+
+  it('does not return awaitingClosure when now is within period', () => {
+    const budget = buildBudgetRecord({
+      period: { type: 'custom', dateFrom: '2026-06-01', dateTo: '2026-06-30' },
+    });
+    const now = new Date('2026-06-15T12:00:00.000Z');
+    const transactions = [buildTransaction({ date: '2026-06-10', amount: -500 })];
+
+    const vm = mapBudgetRecordToViewModel(budget, transactions, now);
+
+    expect(vm.status).not.toBe('awaitingClosure');
+  });
+
+  it('does not return awaitingClosure when period is already closed in history', () => {
+    const budget = buildBudgetRecord({
+      period: { type: 'custom', dateFrom: '2026-06-01', dateTo: '2026-06-30' },
+    });
+    const now = new Date('2026-07-15T12:00:00.000Z');
+    const transactions = [buildTransaction({ date: '2026-06-10', amount: -500 })];
+    const history: readonly PeriodHistoryRecord[] = [{
+      id: 'ph-1',
+      budgetId: 'budget-1',
+      periodFrom: '2026-06-01',
+      periodTo: '2026-06-30',
+      limitAmount: 2000,
+      spentAmount: 500,
+      remainingAmount: 1500,
+      closedAt: '2026-07-01T10:00:00.000Z',
+      rollover: null,
+    }];
+
+    const vm = mapBudgetRecordToViewModel(budget, transactions, now, history);
+
+    expect(vm.status).not.toBe('awaitingClosure');
+  });
+
+  it('throws when called on savings budget (period: null)', () => {
+    const budget = buildBudgetRecord({ period: null, budgetType: 'savings' });
+    const now = new Date('2026-06-15T12:00:00.000Z');
+
+    expect(() => mapBudgetRecordToViewModel(budget, [], now)).toThrow(/savings budget/);
+  });
+});
+
+describe('mapSavingsBudgetToViewModel', () => {
+  const savingsBudget = buildBudgetRecord({
+    id: 'savings-1',
+    budgetType: 'savings',
+    name: 'Fundusz awaryjny',
+    color: '#10b981',
+    limitAmount: 10000,
+    period: null,
+  });
+
+  const allBudgets = [
+    buildBudgetRecord({ id: 'budget-groceries', name: 'Zakupy spożywcze' }),
+    savingsBudget,
+  ];
+
+  it('computes accumulated balance from period history rollovers', () => {
+    const history: readonly PeriodHistoryRecord[] = [
+      {
+        id: 'ph-1',
+        budgetId: 'budget-groceries',
+        periodFrom: '2026-06-01',
+        periodTo: '2026-06-30',
+        limitAmount: 2500,
+        spentAmount: 1800,
+        remainingAmount: 700,
+        closedAt: '2026-07-01T10:00:00.000Z',
+        rollover: { amount: 700, targetType: 'savings_budget', targetBudgetId: 'savings-1' },
+      },
+    ];
+
+    const vm = mapSavingsBudgetToViewModel(savingsBudget, history, allBudgets);
+
+    expect(vm.accumulated).toBe(700);
+    expect(vm.goalAmount).toBe(10000);
+    expect(vm.progressPercent).toBe(7);
+    expect(vm.lastInflow).toEqual({
+      id: 'ph-1',
+      amount: 700,
+      sourceBudgetName: 'Zakupy spożywcze',
+      date: '2026-07-01T10:00:00.000Z',
+    });
+  });
+
+  it('returns 0 accumulated and null lastInflow when no history', () => {
+    const vm = mapSavingsBudgetToViewModel(savingsBudget, [], allBudgets);
+
+    expect(vm.accumulated).toBe(0);
+    expect(vm.progressPercent).toBe(0);
+    expect(vm.lastInflow).toBeNull();
+  });
+
+  it('returns 0 progressPercent when goalAmount is 0 (no goal)', () => {
+    const noGoalBudget = { ...savingsBudget, limitAmount: 0 };
+
+    const vm = mapSavingsBudgetToViewModel(noGoalBudget, [], allBudgets);
+
+    expect(vm.progressPercent).toBe(0);
+  });
+
+  it('caps progressPercent at 100 when accumulated exceeds goal', () => {
+    const history: readonly PeriodHistoryRecord[] = [
+      {
+        id: 'ph-1',
+        budgetId: 'budget-groceries',
+        periodFrom: '2026-06-01',
+        periodTo: '2026-06-30',
+        limitAmount: 2500,
+        spentAmount: 0,
+        remainingAmount: 2500,
+        closedAt: '2026-07-01T10:00:00.000Z',
+        rollover: { amount: 15000, targetType: 'savings_budget', targetBudgetId: 'savings-1' },
+      },
+    ];
+
+    const vm = mapSavingsBudgetToViewModel(savingsBudget, history, allBudgets);
+
+    expect(vm.accumulated).toBe(15000);
+    expect(vm.progressPercent).toBe(100);
+  });
+
+  it('maps basic fields from budget record', () => {
+    const vm = mapSavingsBudgetToViewModel(savingsBudget, [], allBudgets);
+
+    expect(vm.id).toBe('savings-1');
+    expect(vm.name).toBe('Fundusz awaryjny');
+    expect(vm.color).toBe('#10b981');
+    expect(vm.currency).toBe('PLN');
+  });
+});
+
+describe('computeNextPeriod', () => {
+  it('returns monthly unchanged', () => {
+    expect(computeNextPeriod({ type: 'monthly' })).toEqual({ type: 'monthly' });
+  });
+
+  it('returns yearly unchanged', () => {
+    expect(computeNextPeriod({ type: 'yearly' })).toEqual({ type: 'yearly' });
+  });
+
+  it('computes next custom period starting day after current end with same duration', () => {
+    const result = computeNextPeriod({ type: 'custom', dateFrom: '2026-07-01', dateTo: '2026-07-31' });
+
+    expect(result).toEqual({ type: 'custom', dateFrom: '2026-08-01', dateTo: '2026-08-31' });
+  });
+
+  it('handles custom period spanning month boundary', () => {
+    const result = computeNextPeriod({ type: 'custom', dateFrom: '2026-06-15', dateTo: '2026-07-14' });
+
+    expect(result).toEqual({ type: 'custom', dateFrom: '2026-07-15', dateTo: '2026-08-13' });
   });
 });

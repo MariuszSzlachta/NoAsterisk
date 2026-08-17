@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, AlertTriangle } from 'lucide-react';
 
 import { formatAmount } from '#shared/lib';
 import { Badge } from '#shared/ui/Badge';
@@ -12,6 +12,7 @@ import { BudgetTransactionList } from './BudgetTransactionList';
 // ─── Constants ───────────────────────────────────────────────────
 
 const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' | 'blue' | 'neutral'> = {
+  awaitingClosure: 'warning',
   overBudget: 'expense',
   warning: 'warning',
   onTrack: 'income',
@@ -20,6 +21,7 @@ const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' 
 };
 
 const STATUS_PROGRESS_COLOR: Record<BudgetStatus, 'primary' | 'income' | 'expense' | 'warning'> = {
+  awaitingClosure: 'warning',
   overBudget: 'expense',
   warning: 'warning',
   onTrack: 'primary',
@@ -32,15 +34,26 @@ const STATUS_PROGRESS_COLOR: Record<BudgetStatus, 'primary' | 'income' | 'expens
 interface BudgetCardProps {
   readonly vm: BudgetViewModel;
   readonly onAssignTransaction?: (budgetId: string) => void;
+  readonly onClosePeriod?: (budgetId: string) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetCard = ({ vm, onAssignTransaction }: BudgetCardProps): React.JSX.Element => {
+export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCardProps): React.JSX.Element => {
   const { t } = useTranslation();
-  const { isExpanded, handleToggleExpand, handleAssignTransaction } = useBudgetCard({
+  const {
+    isExpanded,
+    isAwaitingClosure,
+    closePeriodLabel,
+    handleToggleExpand,
+    handleAssignTransaction,
+    handleClosePeriod,
+  } = useBudgetCard({
     budgetId: vm.id,
+    status: vm.status,
+    remaining: vm.remaining,
     onAssignTransaction,
+    onClosePeriod,
   });
 
   return (
@@ -63,7 +76,11 @@ export const BudgetCard = ({ vm, onAssignTransaction }: BudgetCardProps): React.
       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
         <span>{vm.periodLabel}</span>
         <span>·</span>
-        <span>{t('budgets.card.daysRemaining', { count: vm.daysRemaining })}</span>
+        <span>
+          {isAwaitingClosure
+            ? t('budgets.card.periodEnded')
+            : t('budgets.card.daysRemaining', { count: vm.daysRemaining })}
+        </span>
       </div>
 
       {/* Amounts row */}
@@ -99,9 +116,28 @@ export const BudgetCard = ({ vm, onAssignTransaction }: BudgetCardProps): React.
         {t('budgets.card.progressSubtitle', { spentPercent: vm.spentPercent, timePercent: vm.timePercent })}
       </span>
 
+      {/* Closure banner */}
+      {isAwaitingClosure && (
+        <div className="mt-3 flex items-center justify-between rounded-md border border-warning/30 bg-warning/5 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={14} className="text-warning" />
+            <span className="text-xs font-medium text-warning">
+              {t('budgets.card.periodEnded')}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="text-xs font-semibold text-primary transition-colors duration-150 hover:text-primary/80"
+            onClick={handleClosePeriod}
+          >
+            {t(closePeriodLabel)}
+          </button>
+        </div>
+      )}
+
       {/* Footer: assign + expand */}
       <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-        {onAssignTransaction && (
+        {onAssignTransaction && !isAwaitingClosure && (
           <button
             type="button"
             className="flex items-center gap-1 text-xs font-medium text-primary transition-colors duration-150 hover:text-primary/80"

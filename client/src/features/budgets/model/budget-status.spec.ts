@@ -2,6 +2,28 @@ import { describe, it, expect } from 'vitest';
 import { computeBudgetStatus, getStatusLabelKey } from './budget-status';
 
 describe('computeBudgetStatus', () => {
+  describe('awaitingClosure', () => {
+    it('returns awaitingClosure when periodEnded is true', () => {
+      expect(computeBudgetStatus(500, 2000, 30, 30, 5, true)).toBe('awaitingClosure');
+    });
+
+    it('returns awaitingClosure regardless of spending when periodEnded', () => {
+      expect(computeBudgetStatus(0, 2000, 30, 30, 0, true)).toBe('awaitingClosure');
+    });
+
+    it('returns awaitingClosure even when over budget and periodEnded', () => {
+      expect(computeBudgetStatus(3000, 2000, 30, 30, 10, true)).toBe('awaitingClosure');
+    });
+
+    it('does not return awaitingClosure when periodEnded is false', () => {
+      expect(computeBudgetStatus(500, 2000, 15, 30, 5, false)).not.toBe('awaitingClosure');
+    });
+
+    it('does not return awaitingClosure when periodEnded is undefined', () => {
+      expect(computeBudgetStatus(500, 2000, 15, 30, 5)).not.toBe('awaitingClosure');
+    });
+  });
+
   describe('newPeriod', () => {
     it('returns newPeriod when totalTransactions is 0', () => {
       expect(computeBudgetStatus(0, 2000, 5, 30, 0)).toBe('newPeriod');
@@ -85,6 +107,7 @@ describe('computeBudgetStatus', () => {
 
 describe('getStatusLabelKey', () => {
   it('returns correct i18n keys', () => {
+    expect(getStatusLabelKey('awaitingClosure')).toBe('budgets.status.awaitingClosure');
     expect(getStatusLabelKey('overBudget')).toBe('budgets.status.overBudget');
     expect(getStatusLabelKey('warning')).toBe('budgets.status.warning');
     expect(getStatusLabelKey('onTrack')).toBe('budgets.status.onTrack');

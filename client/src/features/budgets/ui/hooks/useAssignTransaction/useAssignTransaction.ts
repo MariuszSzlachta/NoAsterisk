@@ -44,7 +44,7 @@ export const useAssignTransaction = ({ budgetId, onClose }: UseAssignTransaction
 
   // Get unassigned transactions within budget's period
   const unassignedTransactions: readonly BudgetTransactionInput[] = (() => {
-    if (!budget) {
+    if (!budget || budget.period === null) {
       return [];
     }
     const { from, to } = getPeriodRange(budget.period, now);

@@ -4,28 +4,26 @@ import { X } from 'lucide-react';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 
-import type { BudgetRecord } from '#features/budgets/model/types';
+import type { BudgetRecord, BudgetType } from '#features/budgets/model/types';
 import { useBudgetForm, COLOR_PALETTE } from '../hooks/useBudgetForm';
 
 // ─── Props ───────────────────────────────────────────────────────
 
 interface BudgetFormModalProps {
-  /**
-   * Parent MUST use `key={editBudget?.id ?? 'create'}` to ensure
-   * form state resets when switching between create/edit modes.
-   */
   readonly isOpen: boolean;
   readonly editBudget?: BudgetRecord;
+  readonly initialBudgetType?: BudgetType;
   readonly onClose: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetFormModal = ({ isOpen, editBudget, onClose }: BudgetFormModalProps): React.JSX.Element | null => {
+export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose }: BudgetFormModalProps): React.JSX.Element | null => {
   const { t } = useTranslation();
-  const { values, errors, handleChange, handleSubmit, isEditing } = useBudgetForm({
+  const { values, errors, isSavings, handleChange, handleBudgetTypeChange, handleSubmit, isEditing } = useBudgetForm({
     editBudget,
     onClose,
+    initialBudgetType,
   });
 
   if (!isOpen) {
@@ -39,7 +37,7 @@ export const BudgetFormModal = ({ isOpen, editBudget, onClose }: BudgetFormModal
       aria-modal="true"
       aria-labelledby="budget-form-title"
     >
-      {/* Backdrop — click to close */}
+      {/* Backdrop */}
       <button
         type="button"
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
@@ -73,6 +71,29 @@ export const BudgetFormModal = ({ isOpen, editBudget, onClose }: BudgetFormModal
           }}
           className="flex flex-col gap-4"
         >
+          {/* Budget type toggle (only when creating) */}
+          {!isEditing && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.typeLabel')}</span>
+              <div className="flex gap-2">
+                {(['standard', 'savings'] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                      values.budgetType === type
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
+                    }`}
+                    onClick={() => handleBudgetTypeChange(type)}
+                  >
+                    {type === 'standard' ? t('budgets.form.typeStandard') : t('budgets.form.typeSavings')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Name */}
           <Input
             label={t('budgets.form.nameLabel')}
@@ -103,59 +124,63 @@ export const BudgetFormModal = ({ isOpen, editBudget, onClose }: BudgetFormModal
             </div>
           </div>
 
-          {/* Limit amount */}
+          {/* Limit / Goal amount */}
           <Input
-            label={t('budgets.form.limitLabel', { currency: values.limitCurrency })}
+            label={isSavings ? t('budgets.form.goalLabel') : t('budgets.form.limitLabel', { currency: values.limitCurrency })}
             value={values.limitAmount}
             onChange={(e) => handleChange('limitAmount', e.target.value)}
-            placeholder={t('budgets.form.limitPlaceholder')}
+            placeholder={isSavings ? t('budgets.form.goalPlaceholder') : t('budgets.form.limitPlaceholder')}
             type="number"
             error={errors.limitAmount}
           />
 
-          {/* Period selector */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.periodLabel')}</span>
-            <div className="flex gap-2">
-              {(['monthly', 'yearly', 'custom'] as const).map((period) => (
-                <button
-                  key={period}
-                  type="button"
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    values.periodType === period
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
-                  }`}
-                  onClick={() => handleChange('periodType', period)}
-                >
-                  {period === 'monthly' ? t('budgets.form.periodMonthly') : period === 'yearly' ? t('budgets.form.periodYearly') : t('budgets.form.periodCustom')}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Period selector (standard only) */}
+          {!isSavings && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.periodLabel')}</span>
+                <div className="flex gap-2">
+                  {(['monthly', 'yearly', 'custom'] as const).map((period) => (
+                    <button
+                      key={period}
+                      type="button"
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                        values.periodType === period
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
+                      }`}
+                      onClick={() => handleChange('periodType', period)}
+                    >
+                      {period === 'monthly' ? t('budgets.form.periodMonthly') : period === 'yearly' ? t('budgets.form.periodYearly') : t('budgets.form.periodCustom')}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Custom date range */}
-          {values.periodType === 'custom' && (
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <Input
-                  label={t('budgets.form.dateFrom')}
-                  value={values.dateFrom}
-                  onChange={(e) => handleChange('dateFrom', e.target.value)}
-                  type="date"
-                  error={errors.dateFrom}
-                />
-              </div>
-              <div className="flex-1">
-                <Input
-                  label={t('budgets.form.dateTo')}
-                  value={values.dateTo}
-                  onChange={(e) => handleChange('dateTo', e.target.value)}
-                  type="date"
-                  error={errors.dateTo}
-                />
-              </div>
-            </div>
+              {/* Custom date range */}
+              {values.periodType === 'custom' && (
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Input
+                      label={t('budgets.form.dateFrom')}
+                      value={values.dateFrom}
+                      onChange={(e) => handleChange('dateFrom', e.target.value)}
+                      type="date"
+                      error={errors.dateFrom}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      label={t('budgets.form.dateTo')}
+                      value={values.dateTo}
+                      onChange={(e) => handleChange('dateTo', e.target.value)}
+                      type="date"
+                      error={errors.dateTo}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {/* Footer */}

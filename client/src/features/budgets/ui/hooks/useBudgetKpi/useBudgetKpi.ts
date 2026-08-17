@@ -12,7 +12,7 @@ export const useBudgetKpi = (): BudgetKpiVM => {
   const transactions = useTransactionsStore((s) => s.transactions);
 
   const now = new Date();
-  const activeBudgets = budgets.filter((b) => !b.isArchived);
+  const activeBudgets = budgets.filter((b) => !b.isArchived && b.budgetType !== 'savings');
   const viewModels = activeBudgets.map((b) => mapBudgetRecordToViewModel(b, transactions, now));
 
   return computeBudgetKpis(viewModels);

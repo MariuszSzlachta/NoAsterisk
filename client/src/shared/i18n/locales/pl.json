@@ -102,7 +102,10 @@
       "assignTransaction": "Przypisz transakcję",
       "hide": "Ukryj",
       "details": "Szczegóły",
-      "progressSubtitle": "{{spentPercent}}% wydane przy {{timePercent}}% czasu"
+      "progressSubtitle": "{{spentPercent}}% wydane przy {{timePercent}}% czasu",
+      "periodEnded": "Okres zakończony · Wymagane zamknięcie",
+      "closePeriod": "Zamknij okres",
+      "closeAndReopen": "Zamknij i otwórz nowy okres"
     },
     "grid": {
       "empty": "Brak budżetów. Utwórz pierwszy budżet."
@@ -112,12 +115,17 @@
       "titleEdit": "Edytuj budżet",
       "closeModal": "Zamknij okno",
       "close": "Zamknij",
+      "typeLabel": "Typ budżetu",
+      "typeStandard": "Standardowy",
+      "typeSavings": "Oszczędnościowy",
       "nameLabel": "Nazwa budżetu",
       "namePlaceholder": "np. Zakupy spożywcze",
       "colorLabel": "Kolor",
       "colorSelect": "Wybierz kolor {{color}}",
       "limitLabel": "Limit ({{currency}})",
       "limitPlaceholder": "np. 2000",
+      "goalLabel": "Cel oszczędności (opcjonalnie)",
+      "goalPlaceholder": "np. 10000",
       "periodLabel": "Okres",
       "periodMonthly": "Miesiąc",
       "periodYearly": "Rok",
@@ -159,7 +167,36 @@
       "warning": "Uwaga",
       "onTrack": "W normie",
       "surplus": "Nadwyżka",
-      "newPeriod": "Nowy okres"
+      "newPeriod": "Nowy okres",
+      "awaitingClosure": "Wymaga zamknięcia"
+    },
+    "closure": {
+      "title": "Zamknij okres: {{name}}",
+      "limit": "Limit",
+      "spent": "Wydano",
+      "surplus": "Nadwyżka",
+      "overspent": "Przekroczenie",
+      "noSurplus": "Budżet został wykorzystany. Brak nadwyżki do przeniesienia.",
+      "optionCarryForward": "Przenieś na następny okres",
+      "optionCarryForwardHint": "Limit: {{currentLimit}} + {{surplus}} = {{newLimit}}",
+      "optionSavings": "Przenieś do oszczędności",
+      "optionSavingsSelect": "Wybierz budżet oszczędnościowy",
+      "optionSavingsEmpty": "Utwórz najpierw budżet oszczędnościowy",
+      "optionDiscard": "Odrzuć nadwyżkę",
+      "cancel": "Anuluj",
+      "submit": "Zamknij okres"
+    },
+    "savings": {
+      "title": "Budżety oszczędnościowe",
+      "subtitle": "Budżet oszczędnościowy",
+      "accumulated": "ZGROMADZONO",
+      "goal": "CEL",
+      "noGoal": "Bez celu",
+      "lastInflow": "Ostatni wpływ: +{{amount}} ({{source}})",
+      "inflowHistory": "Historia wpłat",
+      "empty": "Nie masz jeszcze budżetu oszczędnościowego.",
+      "create": "Utwórz budżet oszczędnościowy",
+      "progressLabel": "{{percent}}% celu"
     }
   },
   "import": {

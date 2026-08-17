@@ -4,7 +4,7 @@ import type { BudgetStatus } from './types';
  * Computes the budget status from spending and time metrics.
  * ADR-009 Decision D4: Status is always derived, never stored.
  *
- * Priority order: newPeriod > overBudget > warning > surplus > onTrack
+ * Priority order: awaitingClosure > newPeriod > overBudget > warning > surplus > onTrack
  */
 export const computeBudgetStatus = (
   spent: number,
@@ -12,7 +12,12 @@ export const computeBudgetStatus = (
   daysElapsed: number,
   totalDays: number,
   totalTransactions: number,
+  periodEnded?: boolean,
 ): BudgetStatus => {
+  if (periodEnded === true) {
+    return 'awaitingClosure';
+  }
+
   if (totalTransactions === 0) {
     return 'newPeriod';
   }
@@ -36,6 +41,7 @@ export const computeBudgetStatus = (
 };
 
 const STATUS_LABEL_KEYS: Record<BudgetStatus, string> = {
+  awaitingClosure: 'budgets.status.awaitingClosure',
   overBudget: 'budgets.status.overBudget',
   warning: 'budgets.status.warning',
   onTrack: 'budgets.status.onTrack',

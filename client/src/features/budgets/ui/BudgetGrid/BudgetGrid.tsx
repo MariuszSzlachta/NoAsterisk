@@ -13,11 +13,12 @@ interface BudgetGridProps {
   readonly selectedPeriod: BudgetPeriodFilter;
   readonly customRange?: DateRange;
   readonly onAssignTransaction?: (budgetId: string) => void;
+  readonly onClosePeriod?: (budgetId: string) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetGrid = ({ activeTab, selectedPeriod, customRange, onAssignTransaction }: BudgetGridProps): React.JSX.Element => {
+export const BudgetGrid = ({ activeTab, selectedPeriod, customRange, onAssignTransaction, onClosePeriod }: BudgetGridProps): React.JSX.Element => {
   const { t } = useTranslation();
   const { budgets, isEmpty } = useBudgetGrid(activeTab, selectedPeriod, customRange);
 
@@ -38,6 +39,7 @@ export const BudgetGrid = ({ activeTab, selectedPeriod, customRange, onAssignTra
           key={vm.id}
           vm={vm}
           onAssignTransaction={onAssignTransaction}
+          onClosePeriod={onClosePeriod}
         />
       ))}
     </div>
