@@ -10,6 +10,8 @@ interface TransactionsState {
   readonly addTransactions: (rows: ReadonlyArray<StoredTransaction>) => void;
   readonly updateCategory: (id: string, categoryId: string | undefined) => void;
   readonly bulkUpdateCategory: (ids: ReadonlyArray<string>, categoryId: string) => void;
+  readonly assignBudget: (transactionIds: ReadonlyArray<string>, budgetId: string) => void;
+  readonly removeBudget: (transactionIds: ReadonlyArray<string>) => void;
   readonly deleteTransactions: (ids: ReadonlyArray<string>) => void;
   readonly clear: () => void;
 }
@@ -39,6 +41,26 @@ export const useTransactionsStore = create<TransactionsState>()(
           return {
             transactions: state.transactions.map((tx) =>
               idSet.has(tx.id) ? { ...tx, categoryId } : tx,
+            ),
+          };
+        }),
+
+      assignBudget: (transactionIds, budgetId) =>
+        set((state) => {
+          const idSet = new Set(transactionIds);
+          return {
+            transactions: state.transactions.map((tx) =>
+              idSet.has(tx.id) ? { ...tx, budgetId } : tx,
+            ),
+          };
+        }),
+
+      removeBudget: (transactionIds) =>
+        set((state) => {
+          const idSet = new Set(transactionIds);
+          return {
+            transactions: state.transactions.map((tx) =>
+              idSet.has(tx.id) ? { ...tx, budgetId: undefined } : tx,
             ),
           };
         }),

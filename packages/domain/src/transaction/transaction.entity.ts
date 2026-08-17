@@ -16,13 +16,14 @@ export class Transaction {
     public readonly accountId: string,
     public readonly money: Money,
     public readonly type: TransactionType,
-    public readonly categoryIds: string[],
+    public readonly categoryIds: readonly string[],
     public readonly description: string,
     public readonly date: Date,
     public readonly createdAt: Date,
     public readonly contentHash?: string | undefined,
     public readonly importBatchId?: string | undefined,
     public readonly balance?: number | undefined,
+    public readonly budgetId?: string | undefined,
   ) {
     if (!id) {
       throw new DomainError('Transaction ID cannot be empty');
@@ -39,6 +40,9 @@ export class Transaction {
     if (type === TransactionType.Adjustment && categoryIds.length > 0) {
       throw new DomainError('Adjustment transactions cannot have categories');
     }
+    if (budgetId !== undefined && !budgetId) {
+      throw new DomainError('Budget ID cannot be empty');
+    }
   }
 
   static create(props: {
@@ -47,12 +51,13 @@ export class Transaction {
     amount: number;
     currency: string;
     type: TransactionType;
-    categoryIds: string[];
+    categoryIds: readonly string[];
     description: string;
     date: Date;
     contentHash?: string;
     importBatchId?: string;
     balance?: number;
+    budgetId?: string;
   }): Transaction {
     return new Transaction(
       generateId(),
@@ -67,6 +72,7 @@ export class Transaction {
       props.contentHash,
       props.importBatchId,
       props.balance,
+      props.budgetId,
     );
   }
 
@@ -74,7 +80,7 @@ export class Transaction {
     amount?: number;
     currency?: string;
     type?: TransactionType;
-    categoryIds?: string[];
+    categoryIds?: readonly string[];
     description?: string;
     date?: Date;
   }): Transaction {
@@ -96,6 +102,7 @@ export class Transaction {
       this.contentHash,
       this.importBatchId,
       this.balance,
+      this.budgetId,
     );
   }
 
@@ -116,10 +123,14 @@ export class Transaction {
       this.contentHash,
       this.importBatchId,
       this.balance,
+      this.budgetId,
     );
   }
 
   removeCategory(categoryId: string): Transaction {
+    if (!this.categoryIds.includes(categoryId)) {
+      return this;
+    }
     return new Transaction(
       this.id,
       this.workspaceId,
@@ -133,11 +144,61 @@ export class Transaction {
       this.contentHash,
       this.importBatchId,
       this.balance,
+      this.budgetId,
+    );
+  }
+
+  assignBudget(budgetId: string): Transaction {
+    if (!budgetId) {
+      throw new DomainError('Budget ID cannot be empty');
+    }
+    if (this.budgetId === budgetId) {
+      return this;
+    }
+    return new Transaction(
+      this.id,
+      this.workspaceId,
+      this.accountId,
+      this.money,
+      this.type,
+      this.categoryIds,
+      this.description,
+      this.date,
+      this.createdAt,
+      this.contentHash,
+      this.importBatchId,
+      this.balance,
+      budgetId,
+    );
+  }
+
+  removeBudget(): Transaction {
+    if (this.budgetId === undefined) {
+      return this;
+    }
+    return new Transaction(
+      this.id,
+      this.workspaceId,
+      this.accountId,
+      this.money,
+      this.type,
+      this.categoryIds,
+      this.description,
+      this.date,
+      this.createdAt,
+      this.contentHash,
+      this.importBatchId,
+      this.balance,
+      undefined,
     );
   }
 
   hasCategory(categoryId: string): boolean {
     return this.categoryIds.includes(categoryId);
+  }
+
+  hasBudget(): boolean {
+    return this.budgetId !== undefined;
   }
 
   isExpense(): boolean {

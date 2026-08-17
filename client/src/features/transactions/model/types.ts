@@ -15,6 +15,7 @@ export interface StoredTransaction {
   readonly contentHash: string;
   readonly batchId: string;
   readonly importedAt: string;
+  readonly budgetId?: string;
 }
 
 // ─── Category Lookup ─────────────────────────────────────────────

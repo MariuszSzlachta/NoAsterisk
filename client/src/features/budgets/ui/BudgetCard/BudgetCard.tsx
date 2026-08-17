@@ -1,0 +1,131 @@
+import { useTranslation } from 'react-i18next';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
+
+import { formatAmount } from '#shared/lib';
+import { Badge } from '#shared/ui/Badge';
+import { Progress } from '#shared/ui/Progress';
+
+import type { BudgetStatus, BudgetViewModel } from '#features/budgets/model/types';
+import { useBudgetCard } from '../hooks/useBudgetCard';
+import { BudgetTransactionList } from './BudgetTransactionList';
+
+// ─── Constants ───────────────────────────────────────────────────
+
+const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' | 'blue' | 'neutral'> = {
+  overBudget: 'expense',
+  warning: 'warning',
+  onTrack: 'income',
+  surplus: 'income',
+  newPeriod: 'blue',
+};
+
+const STATUS_PROGRESS_COLOR: Record<BudgetStatus, 'primary' | 'income' | 'expense' | 'warning'> = {
+  overBudget: 'expense',
+  warning: 'warning',
+  onTrack: 'primary',
+  surplus: 'income',
+  newPeriod: 'primary',
+};
+
+// ─── Props ───────────────────────────────────────────────────────
+
+interface BudgetCardProps {
+  readonly vm: BudgetViewModel;
+  readonly onAssignTransaction?: (budgetId: string) => void;
+}
+
+// ─── Component ───────────────────────────────────────────────────
+
+export const BudgetCard = ({ vm, onAssignTransaction }: BudgetCardProps): React.JSX.Element => {
+  const { t } = useTranslation();
+  const { isExpanded, handleToggleExpand, handleAssignTransaction } = useBudgetCard({
+    budgetId: vm.id,
+    onAssignTransaction,
+  });
+
+  return (
+    <div className="flex flex-col rounded-lg border border-border bg-surface p-5 shadow-card">
+      {/* Header: color dot + name + status badge */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span
+            className="h-2.5 w-2.5 rounded-full"
+            style={{ backgroundColor: vm.color }}
+          />
+          <span className="text-sm font-semibold text-foreground">{vm.name}</span>
+        </div>
+        <Badge variant="soft" color={STATUS_BADGE_COLOR[vm.status]} dot={false}>
+          {t(vm.statusLabel)}
+        </Badge>
+      </div>
+
+      {/* Period info */}
+      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+        <span>{vm.periodLabel}</span>
+        <span>·</span>
+        <span>{t('budgets.card.daysRemaining', { count: vm.daysRemaining })}</span>
+      </div>
+
+      {/* Amounts row */}
+      <div className="mt-4 flex items-baseline justify-between">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">{t('budgets.card.spent')}</span>
+          <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+            {formatAmount(vm.spent)} {vm.currency}
+          </span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-muted-foreground">{t('budgets.card.remaining')}</span>
+          <span
+            className={`font-mono text-sm font-semibold tabular-nums ${
+              vm.remaining < 0 ? 'text-expense' : 'text-foreground'
+            }`}
+          >
+            {formatAmount(vm.remaining)} {vm.currency}
+          </span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mt-3">
+        <Progress
+          value={vm.progressPercent}
+          color={STATUS_PROGRESS_COLOR[vm.status]}
+        />
+      </div>
+
+      {/* Subtitle */}
+      <span className="mt-1.5 text-xs text-muted-foreground">
+        {t('budgets.card.progressSubtitle', { spentPercent: vm.spentPercent, timePercent: vm.timePercent })}
+      </span>
+
+      {/* Footer: assign + expand */}
+      <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+        {onAssignTransaction && (
+          <button
+            type="button"
+            className="flex items-center gap-1 text-xs font-medium text-primary transition-colors duration-150 hover:text-primary/80"
+            onClick={handleAssignTransaction}
+          >
+            <Plus size={14} />
+            {t('budgets.card.assignTransaction')}
+          </button>
+        )}
+        <button
+          type="button"
+          className="ml-auto flex items-center gap-1 text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground"
+          onClick={handleToggleExpand}
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? t('budgets.card.hide') : t('budgets.card.details')}
+          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+
+      {/* Expandable transactions list */}
+      {isExpanded && (
+        <BudgetTransactionList transactions={vm.transactions} currency={vm.currency} />
+      )}
+    </div>
+  );
+};

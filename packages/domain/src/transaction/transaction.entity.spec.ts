@@ -14,6 +14,10 @@ describe('Transaction', () => {
     description: 'Zakupy BIEDRONKA',
     date: new Date('2026-01-15'),
     createdAt: new Date('2026-01-15T10:00:00Z'),
+    contentHash: undefined as string | undefined,
+    importBatchId: undefined as string | undefined,
+    balance: undefined as number | undefined,
+    budgetId: undefined as string | undefined,
   };
 
   const buildTransaction = (overrides?: Partial<typeof validProps>): Transaction =>
@@ -27,6 +31,10 @@ describe('Transaction', () => {
       overrides?.description ?? validProps.description,
       overrides?.date ?? validProps.date,
       overrides?.createdAt ?? validProps.createdAt,
+      'contentHash' in (overrides ?? {}) ? overrides?.contentHash : validProps.contentHash,
+      'importBatchId' in (overrides ?? {}) ? overrides?.importBatchId : validProps.importBatchId,
+      'balance' in (overrides ?? {}) ? overrides?.balance : validProps.balance,
+      'budgetId' in (overrides ?? {}) ? overrides?.budgetId : validProps.budgetId,
     );
 
   describe('constructor invariants', () => {
@@ -60,6 +68,15 @@ describe('Transaction', () => {
       });
       expect(tx.type).toBe(TransactionType.Adjustment);
       expect(tx.categoryIds).toEqual([]);
+    });
+
+    it('throws when budgetId is empty string', () => {
+      expect(() => buildTransaction({ budgetId: '' })).toThrow(DomainError);
+    });
+
+    it('accepts undefined budgetId', () => {
+      const tx = buildTransaction({ budgetId: undefined });
+      expect(tx.budgetId).toBeUndefined();
     });
 
     it('creates valid instance with all fields', () => {
@@ -229,11 +246,10 @@ describe('Transaction', () => {
       expect(updated.categoryIds).toEqual(['cat-2']);
     });
 
-    it('returns new instance even when category not present', () => {
+    it('returns same instance when category not present (idempotent)', () => {
       const tx = buildTransaction({ categoryIds: ['cat-1'] });
       const updated = tx.removeCategory('cat-nonexistent');
-      expect(updated.categoryIds).toEqual(['cat-1']);
-      expect(updated).not.toBe(tx);
+      expect(updated).toBe(tx);
     });
   });
 
@@ -272,6 +288,151 @@ describe('Transaction', () => {
       expect(tx.isAdjustment()).toBe(true);
       expect(tx.isExpense()).toBe(false);
       expect(tx.isIncome()).toBe(false);
+    });
+  });
+
+  describe('assignBudget', () => {
+    it('assigns budgetId to transaction', () => {
+      const tx = buildTransaction();
+      const updated = tx.assignBudget('budget-1');
+
+      expect(updated.budgetId).toBe('budget-1');
+    });
+
+    it('returns same instance when same budgetId already assigned (idempotent)', () => {
+      const tx = buildTransaction({ budgetId: 'budget-1' });
+      const updated = tx.assignBudget('budget-1');
+
+      expect(updated).toBe(tx);
+    });
+
+    it('replaces existing budgetId with new one', () => {
+      const tx = buildTransaction({ budgetId: 'budget-1' });
+      const updated = tx.assignBudget('budget-2');
+
+      expect(updated.budgetId).toBe('budget-2');
+      expect(updated).not.toBe(tx);
+    });
+
+    it('throws when budgetId is empty', () => {
+      const tx = buildTransaction();
+      expect(() => tx.assignBudget('')).toThrow('Budget ID cannot be empty');
+    });
+
+    it('preserves all other fields', () => {
+      const tx = buildTransaction({ contentHash: 'hash-1', importBatchId: 'batch-1', balance: 500 });
+      const updated = tx.assignBudget('budget-1');
+
+      expect(updated.id).toBe(tx.id);
+      expect(updated.workspaceId).toBe(tx.workspaceId);
+      expect(updated.accountId).toBe(tx.accountId);
+      expect(updated.money).toBe(tx.money);
+      expect(updated.type).toBe(tx.type);
+      expect(updated.categoryIds).toBe(tx.categoryIds);
+      expect(updated.description).toBe(tx.description);
+      expect(updated.date).toBe(tx.date);
+      expect(updated.createdAt).toBe(tx.createdAt);
+      expect(updated.contentHash).toBe('hash-1');
+      expect(updated.importBatchId).toBe('batch-1');
+      expect(updated.balance).toBe(500);
+    });
+  });
+
+  describe('removeBudget', () => {
+    it('removes budgetId from transaction', () => {
+      const tx = buildTransaction({ budgetId: 'budget-1' });
+      const updated = tx.removeBudget();
+
+      expect(updated.budgetId).toBeUndefined();
+    });
+
+    it('returns same instance when no budgetId assigned (idempotent)', () => {
+      const tx = buildTransaction();
+      const updated = tx.removeBudget();
+
+      expect(updated).toBe(tx);
+    });
+
+    it('preserves all other fields', () => {
+      const tx = buildTransaction({ contentHash: 'hash-1', importBatchId: 'batch-1', balance: 500, budgetId: 'budget-1' });
+      const updated = tx.removeBudget();
+
+      expect(updated.id).toBe(tx.id);
+      expect(updated.workspaceId).toBe(tx.workspaceId);
+      expect(updated.accountId).toBe(tx.accountId);
+      expect(updated.money).toBe(tx.money);
+      expect(updated.contentHash).toBe('hash-1');
+      expect(updated.importBatchId).toBe('batch-1');
+      expect(updated.balance).toBe(500);
+    });
+  });
+
+  describe('hasBudget', () => {
+    it('returns true when budgetId is set', () => {
+      const tx = buildTransaction({ budgetId: 'budget-1' });
+      expect(tx.hasBudget()).toBe(true);
+    });
+
+    it('returns false when budgetId is undefined', () => {
+      const tx = buildTransaction();
+      expect(tx.hasBudget()).toBe(false);
+    });
+  });
+
+  describe('budgetId propagation in existing methods', () => {
+    const txWithBudget = buildTransaction({
+      contentHash: 'hash-1',
+      importBatchId: 'batch-1',
+      balance: 500,
+      budgetId: 'budget-1',
+    });
+
+    it('update() preserves budgetId', () => {
+      const updated = txWithBudget.update({ description: 'New desc' });
+      expect(updated.budgetId).toBe('budget-1');
+    });
+
+    it('assignCategory() preserves budgetId', () => {
+      const updated = txWithBudget.assignCategory('cat-2');
+      expect(updated.budgetId).toBe('budget-1');
+    });
+
+    it('removeCategory() preserves budgetId', () => {
+      const updated = txWithBudget.removeCategory('cat-1');
+      expect(updated.budgetId).toBe('budget-1');
+    });
+  });
+
+  describe('create with budgetId', () => {
+    it('creates transaction with budgetId', () => {
+      const tx = Transaction.create({
+        workspaceId: 'ws-1',
+        accountId: 'acc-1',
+        amount: 100,
+        currency: 'PLN',
+        type: TransactionType.Expense,
+        categoryIds: [],
+        description: 'Test',
+        date: new Date(),
+        budgetId: 'budget-1',
+      });
+
+      expect(tx.budgetId).toBe('budget-1');
+    });
+
+    it('creates transaction without budgetId (undefined)', () => {
+      const tx = Transaction.create({
+        workspaceId: 'ws-1',
+        accountId: 'acc-1',
+        amount: 100,
+        currency: 'PLN',
+        type: TransactionType.Expense,
+        categoryIds: [],
+        description: 'Test',
+        date: new Date(),
+      });
+
+      expect(tx.budgetId).toBeUndefined();
     });
   });
 });

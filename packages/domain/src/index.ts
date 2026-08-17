@@ -16,3 +16,12 @@ export { ContainsMatcher, ExactMatcher, MATCHERS } from '#domain/categorization-
 export type { CategorizationMatcher } from '#domain/categorization-rule/matchers';
 export { Category } from '#domain/category/category.entity';
 export { Account } from '#domain/account/account.entity';
+export { Budget } from '#domain/budget/budget.entity';
+export type { BudgetPeriod } from '#domain/budget/budget-period.vo';
+export {
+  validateBudgetPeriod,
+  getCurrentRange,
+  getDaysRemaining,
+  getTotalDays,
+  getDaysElapsed,
+} from '#domain/budget/budget-period.vo';

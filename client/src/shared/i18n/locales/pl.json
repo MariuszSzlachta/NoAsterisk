@@ -86,6 +86,82 @@
       "transactionsTitle": "Ostatnie transakcje"
     }
   },
+  "budgets": {
+    "kpi": {
+      "totalPlanned": "Zaplanowano",
+      "totalSpent": "Wydano",
+      "totalRemaining": "Pozostało",
+      "needsAttention": "Potrzebują uwagi"
+    },
+    "card": {
+      "daysRemaining_one": "{{count}} dzień pozostał",
+      "daysRemaining_few": "{{count}} dni pozostało",
+      "daysRemaining_many": "{{count}} dni pozostało",
+      "spent": "WYDANO",
+      "remaining": "POZOSTAŁO",
+      "assignTransaction": "Przypisz transakcję",
+      "hide": "Ukryj",
+      "details": "Szczegóły",
+      "progressSubtitle": "{{spentPercent}}% wydane przy {{timePercent}}% czasu"
+    },
+    "grid": {
+      "empty": "Brak budżetów. Utwórz pierwszy budżet."
+    },
+    "form": {
+      "titleCreate": "Nowy budżet",
+      "titleEdit": "Edytuj budżet",
+      "closeModal": "Zamknij okno",
+      "close": "Zamknij",
+      "nameLabel": "Nazwa budżetu",
+      "namePlaceholder": "np. Zakupy spożywcze",
+      "colorLabel": "Kolor",
+      "colorSelect": "Wybierz kolor {{color}}",
+      "limitLabel": "Limit ({{currency}})",
+      "limitPlaceholder": "np. 2000",
+      "periodLabel": "Okres",
+      "periodMonthly": "Miesiąc",
+      "periodYearly": "Rok",
+      "periodCustom": "Własny",
+      "dateFrom": "Od",
+      "dateTo": "Do",
+      "cancel": "Anuluj",
+      "save": "Zapisz",
+      "create": "Utwórz"
+    },
+    "assign": {
+      "title": "Przypisz transakcje",
+      "closeModal": "Zamknij okno",
+      "close": "Zamknij",
+      "searchPlaceholder": "Szukaj transakcji...",
+      "countUnassigned": "{{count}} transakcji bez budżetu",
+      "selectAll": "Zaznacz wszystkie",
+      "deselectAll": "Odznacz",
+      "empty": "Brak transakcji do przypisania.",
+      "selectTransaction": "Zaznacz transakcję {{description}}",
+      "selectedCount": "{{count}} zaznaczonych",
+      "cancel": "Anuluj",
+      "submit": "Przypisz ({{count}})"
+    },
+    "transactions": {
+      "empty": "Brak przypisanych transakcji w tym okresie.",
+      "heading": "PRZYPISANE TRANSAKCJE"
+    },
+    "filters": {
+      "all": "Wszystkie",
+      "needsAttention": "Potrzebują uwagi",
+      "monthly": "Miesiąc",
+      "yearly": "Rok",
+      "custom": "Własny",
+      "customPlaceholder": "Wybierz zakres dat"
+    },
+    "status": {
+      "overBudget": "Przekroczono budżet",
+      "warning": "Uwaga",
+      "onTrack": "W normie",
+      "surplus": "Nadwyżka",
+      "newPeriod": "Nowy okres"
+    }
+  },
   "import": {
     "steps": {
       "file": "Upload",

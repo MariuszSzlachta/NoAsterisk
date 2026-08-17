@@ -10,6 +10,7 @@ export default defineConfig({
       '#domain/import-batch': resolve(__dirname, 'src/import-batch'),
       '#domain/categorization-rule': resolve(__dirname, 'src/categorization-rule'),
       '#domain/category': resolve(__dirname, 'src/category'),
+      '#domain/budget': resolve(__dirname, 'src/budget'),
     },
   },
   test: {
