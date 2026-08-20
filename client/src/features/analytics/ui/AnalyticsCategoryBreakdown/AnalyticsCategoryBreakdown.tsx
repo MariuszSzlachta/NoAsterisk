@@ -44,6 +44,16 @@ export const AnalyticsCategoryBreakdown = ({
       />
       <QueryRenderer state={state}>
         {(items) => {
+          if (items.length === 0) {
+            return (
+              <p className="px-4 pb-4 text-sm text-muted-foreground">
+                {filters.metric === 'expenses'
+                  ? 'Brak wydatków w wybranym okresie'
+                  : 'Brak przychodów w wybranym okresie'}
+              </p>
+            );
+          }
+
           const maxAmount = Math.max(...items.map((i) => i.amount), 0);
 
           return (

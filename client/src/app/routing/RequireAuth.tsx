@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
+import { authTokens } from '#shared/api/auth-tokens';
+
 const subscribe = (callback: () => void): (() => void) => {
   window.addEventListener('auth:session-expired', callback);
   window.addEventListener('auth:login', callback);
@@ -10,9 +12,7 @@ const subscribe = (callback: () => void): (() => void) => {
   };
 };
 
-// todo: handle better
-// const getIsAuthenticated = (): boolean => authTokens.getAccessToken() !== undefined;
-const getIsAuthenticated = (): boolean => true;
+const getIsAuthenticated = (): boolean => authTokens.getAccessToken() !== undefined;
 
 export const RequireAuth = (): React.JSX.Element => {
   const isAuthenticated = useSyncExternalStore(subscribe, getIsAuthenticated);

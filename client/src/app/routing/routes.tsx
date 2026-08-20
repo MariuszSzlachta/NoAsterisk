@@ -7,6 +7,8 @@ import { AnalyticsPage } from '#pages/AnalyticsPage';
 import { BudgetsPage } from '#pages/BudgetsPage';
 import { DashboardPage } from '#pages/DashboardPage';
 import { ImportPage } from '#pages/ImportPage';
+import { LoginPage } from '#pages/LoginPage';
+import { RegisterPage } from '#pages/RegisterPage';
 import { TransactionsPage } from '#pages/TransactionsPage';
 
 export const router = createBrowserRouter([
@@ -29,7 +31,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    // TODO: LoginPage component
-    element: <div>Login</div>,
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
   },
 ]);

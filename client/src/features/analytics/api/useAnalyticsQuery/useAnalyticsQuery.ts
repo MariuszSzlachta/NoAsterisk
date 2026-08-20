@@ -1,96 +1,101 @@
+import {
+  METRIC_LABELS,
+  SERIES_LABELS,
+  computeDelta,
+  computeMetricForBucket,
+  computeMetricForPeriod,
+  computeTrend,
+  formatAnalyticsAmount,
+  getBuckets,
+  getDateRangeAsDate,
+} from '#features/analytics/model/compute-analytics';
 import type {
   AnalyticsFilters,
   AnalyticsKpi,
   AnalyticsSeries,
   MetricType,
 } from '#features/analytics/model/types';
+import { useTransactionsStore } from '#features/transactions';
+import type { StoredTransaction } from '#features/transactions';
 import type { QueryState } from '#shared/api';
+
+// ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
+// Analytics needs transaction data for chart computation. Planned resolution: migrate to TanStack Query
+// with real API when backend provides aggregation endpoints.
 
 interface AnalyticsData {
   readonly series: AnalyticsSeries[];
   readonly kpis: AnalyticsKpi[];
 }
 
-const MOCK_SERIES: Record<MetricType, AnalyticsSeries> = {
-  balance: {
-    id: 'Saldo',
-    data: [
-      { x: 'Sty', y: 10200 },
-      { x: 'Lut', y: 11400 },
-      { x: 'Mar', y: 10800 },
-      { x: 'Kwi', y: 12100 },
-      { x: 'Maj', y: 11900 },
-      { x: 'Cze', y: 12450 },
-    ],
-  },
-  income: {
-    id: 'Przychody',
-    data: [
-      { x: 'Sty', y: 8500 },
-      { x: 'Lut', y: 8500 },
-      { x: 'Mar', y: 9200 },
-      { x: 'Kwi', y: 8500 },
-      { x: 'Maj', y: 8800 },
-      { x: 'Cze', y: 8500 },
-    ],
-  },
-  expenses: {
-    id: 'Wydatki',
-    data: [
-      { x: 'Sty', y: 6800 },
-      { x: 'Lut', y: 7200 },
-      { x: 'Mar', y: 7100 },
-      { x: 'Kwi', y: 6900 },
-      { x: 'Maj', y: 7400 },
-      { x: 'Cze', y: 7150 },
-    ],
-  },
-  savings: {
-    id: 'Oszczędności',
-    data: [
-      { x: 'Sty', y: 1700 },
-      { x: 'Lut', y: 1300 },
-      { x: 'Mar', y: 2100 },
-      { x: 'Kwi', y: 1600 },
-      { x: 'Maj', y: 1400 },
-      { x: 'Cze', y: 1350 },
-    ],
-  },
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const toLocalDateStr = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-const MOCK_KPIS: Record<MetricType, AnalyticsKpi> = {
-  balance: {
-    label: 'Aktualne saldo',
-    value: '12 450,00 zł',
-    delta: '+4,6%',
-    trend: 'up',
-  },
-  income: {
-    label: 'Przychód (bieżący)',
-    value: '8 500,00 zł',
-    delta: '−3,4%',
-    trend: 'down',
-  },
-  expenses: {
-    label: 'Wydatki (bieżący)',
-    value: '7 150,00 zł',
-    delta: '−3,4%',
-    trend: 'down',
-    invertColor: true,
-  },
-  savings: {
-    label: 'Oszczędności',
-    value: '1 350,00 zł',
-    delta: '−3,6%',
-    trend: 'down',
-  },
+const computeKpi = (
+  transactions: readonly StoredTransaction[],
+  currentRange: { from: Date; to: Date },
+  metric: MetricType,
+): AnalyticsKpi => {
+  const rangeLengthMs = currentRange.to.getTime() - currentRange.from.getTime();
+  const prevFrom = new Date(currentRange.from.getTime() - rangeLengthMs);
+  const prevTo = new Date(currentRange.from.getTime() - 86_400_000);
+
+  const currentStr = { from: toLocalDateStr(currentRange.from), to: toLocalDateStr(currentRange.to) };
+  const prevStr = { from: toLocalDateStr(prevFrom), to: toLocalDateStr(prevTo) };
+
+  const currentTx = transactions.filter(
+    (tx) => tx.date >= currentStr.from && tx.date <= currentStr.to,
+  );
+  const prevTx = transactions.filter(
+    (tx) => tx.date >= prevStr.from && tx.date <= prevStr.to,
+  );
+
+  const currentValue = computeMetricForPeriod(currentTx, transactions, currentStr.to, metric);
+  const prevValue = computeMetricForPeriod(prevTx, transactions, prevStr.to, metric);
+
+  return {
+    label: METRIC_LABELS[metric],
+    value: formatAnalyticsAmount(currentValue),
+    delta: computeDelta(currentValue, prevValue),
+    trend: computeTrend(currentValue, prevValue),
+    invertColor: metric === 'expenses',
+  };
 };
+
+// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnalyticsQuery = (
   filters: AnalyticsFilters,
 ): QueryState<AnalyticsData> => {
-  const series = filters.metrics.map((metric) => MOCK_SERIES[metric]);
-  const kpis = filters.metrics.map((metric) => MOCK_KPIS[metric]);
+  const transactions = useTransactionsStore((s) => s.transactions);
+
+  const range = getDateRangeAsDate(filters.period);
+  const rangeFrom = toLocalDateStr(range.from);
+  const rangeTo = toLocalDateStr(range.to);
+
+  const filteredTransactions = transactions.filter(
+    (tx) => tx.date >= rangeFrom && tx.date <= rangeTo,
+  );
+
+  const buckets = getBuckets(range.from, range.to, filters.granularity);
+
+  const series: AnalyticsSeries[] = filters.metrics.map((metric) => ({
+    id: SERIES_LABELS[metric],
+    data: buckets.map((bucket) => ({
+      x: bucket.label,
+      y: computeMetricForBucket(filteredTransactions, bucket, metric, transactions),
+    })),
+  }));
+
+  const kpis: AnalyticsKpi[] = filters.metrics.map((metric) =>
+    computeKpi(transactions, range, metric),
+  );
 
   return { status: 'loaded', data: { series, kpis } };
 };
