@@ -15,7 +15,15 @@ import { BcryptPasswordHasher } from '@auth/infrastructure/bcrypt-password-hashe
 import { JwtTokenAdapter } from '@auth/infrastructure/jwt-token.adapter';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '@auth/presentation/guards/roles.guard';
+import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
 
+// ARCH-EXCEPTION: ABAC enforcement deferred — single-user workspace in MVP.
+// Permission entity is created at registration (full workspace access).
+// When multi-user workspace feature lands (member invite), activate PermissionGuard
+// on resource-specific endpoints. Currently, workspace isolation is enforced via
+// workspaceId from JWT claims (see Tier 1 security fix 2026-08-20).
+// Planned resolution: Phase 5 — Admin/Maintenance (multi-user + granular permissions)
+// Accepted without ticket — tracked in docs/plans/deferred/phase-5-admin-maintenance.md
 @Module({
   imports: [
     WorkspacesModule,
@@ -39,6 +47,7 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
     RefreshHandler,
     JwtAuthGuard,
     RolesGuard,
+    PermissionGuard,
     { provide: USER_REPOSITORY, useClass: InMemoryUserRepository },
     { provide: PERMISSION_REPOSITORY, useClass: InMemoryPermissionRepository },
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
@@ -50,6 +59,7 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
     PERMISSION_REPOSITORY,
     JwtAuthGuard,
     RolesGuard,
+    PermissionGuard,
   ],
 })
 export class AuthModule {}
