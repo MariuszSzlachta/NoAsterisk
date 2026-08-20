@@ -4,9 +4,9 @@ import type { BudgetItemVM } from '#features/dashboard-widgets/model/types';
 import type { QueryState } from '#shared/api';
 
 export const useBudgetProgressWidget = (): QueryState<BudgetItemVM[]> => {
-  const { data, isLoading } = useBudgetQuery();
-  if (isLoading) {
-    return { status: 'loading' };
+  const state = useBudgetQuery();
+  if (state.status !== 'loaded') {
+    return state;
   }
-  return { status: 'loaded', data: data.map(mapBudgetDtoToVm) };
+  return { status: 'loaded', data: state.data.map(mapBudgetDtoToVm) };
 };

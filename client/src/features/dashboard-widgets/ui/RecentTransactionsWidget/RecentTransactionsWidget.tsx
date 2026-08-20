@@ -23,31 +23,37 @@ export const RecentTransactionsWidget = ({
 }: RecentTransactionsWidgetProps): React.JSX.Element => (
   <Card className="overflow-hidden">
     <CardHeader title={title} action={action} />
-    <ul className="flex min-h-0 flex-1 flex-col divide-y divide-border overflow-y-auto">
-      {transactions.map((tx) => (
-        <li
-          key={tx.id}
-          className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-        >
-          <span
-            className="h-2 w-2 shrink-0 rounded-full"
-            style={{ backgroundColor: tx.categoryColor }}
-          />
-          <div className="flex flex-1 flex-col">
-            <span className="text-sm font-medium text-foreground">
-              {tx.merchant}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {tx.category} · {tx.date}
-            </span>
-          </div>
-          <span
-            className={`font-mono text-sm tabular-nums ${DIRECTION_AMOUNT_CLASS[tx.direction]}`}
+    {transactions.length === 0 ? (
+      <p className="py-8 text-center text-sm text-muted-foreground">
+        Brak transakcji
+      </p>
+    ) : (
+      <ul className="flex min-h-0 flex-1 flex-col divide-y divide-border overflow-y-auto">
+        {transactions.map((tx) => (
+          <li
+            key={tx.id}
+            className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
           >
-            {tx.amount}
-          </span>
-        </li>
-      ))}
-    </ul>
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: tx.categoryColor }}
+            />
+            <div className="flex flex-1 flex-col">
+              <span className="text-sm font-medium text-foreground">
+                {tx.merchant}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {tx.category} · {tx.date}
+              </span>
+            </div>
+            <span
+              className={`font-mono text-sm tabular-nums ${DIRECTION_AMOUNT_CLASS[tx.direction]}`}
+            >
+              {tx.amount}
+            </span>
+          </li>
+        ))}
+      </ul>
+    )}
   </Card>
 );

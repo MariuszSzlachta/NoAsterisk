@@ -6,9 +6,9 @@ import type { QueryState } from '#shared/api';
 export const useRecentTransactionsWidget = (): QueryState<
   RecentTransactionVM[]
 > => {
-  const { data, isLoading } = useRecentTransactionsQuery();
-  if (isLoading) {
-    return { status: 'loading' };
+  const state = useRecentTransactionsQuery();
+  if (state.status !== 'loaded') {
+    return state;
   }
-  return { status: 'loaded', data: data.map(mapRecentTransactionDtoToVm) };
+  return { status: 'loaded', data: state.data.map(mapRecentTransactionDtoToVm) };
 };

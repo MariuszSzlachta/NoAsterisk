@@ -1,30 +1,35 @@
+import { useTransactionsStore } from '#features/transactions';
 import type { ChartDataPoint } from '#shared/adapters/charts';
+import type { QueryState } from '#shared/api';
 
-interface CategoryQueryResult {
-  readonly data: ChartDataPoint[];
-  readonly isLoading: boolean;
-}
+// ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
+// Planned resolution: migrate to TanStack Query when backend provides aggregation endpoints.
 
-const MOCK_DATA: ChartDataPoint[] = [
-  { label: 'Zakupy', value: 1850 },
-  { label: 'Transport', value: 620 },
-  { label: 'Subskrypcje', value: 340 },
-  { label: 'Jedzenie', value: 890 },
-  { label: 'Rachunki', value: 1450 },
-  { label: 'Rozrywka', value: 900 },
-  { label: 'Zdrowie', value: 430 },
-  { label: 'Edukacja', value: 350 },
-  { label: 'Odzież', value: 520 },
-  { label: 'Elektronika', value: 780 },
-  { label: 'Prezenty', value: 290 },
-  { label: 'Sport', value: 410 },
-  { label: 'Podróże', value: 650 },
-  { label: 'Zwierzęta', value: 180 },
-  { label: 'Dom i ogród', value: 370 },
-  { label: 'Kosmetyki', value: 260 },
-];
+export const useCategoryBreakdownQuery = (): QueryState<ChartDataPoint[]> => {
+  const transactions = useTransactionsStore((s) => s.transactions);
 
-export const useCategoryBreakdownQuery = (): CategoryQueryResult => ({
-  data: MOCK_DATA,
-  isLoading: false,
-});
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .slice(0, 10);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    .toISOString()
+    .slice(0, 10);
+
+  const expenses = transactions.filter(
+    (tx) => tx.date >= monthStart && tx.date <= monthEnd && tx.amount < 0,
+  );
+
+  const categoryMap = new Map<string, number>();
+  for (const tx of expenses) {
+    const label = tx.categoryId ?? 'Bez kategorii';
+    const current = categoryMap.get(label) ?? 0;
+    categoryMap.set(label, current + Math.abs(tx.amount));
+  }
+
+  const data: ChartDataPoint[] = [...categoryMap.entries()].map(
+    ([label, value]) => ({ label, value }),
+  );
+
+  return { status: 'loaded', data };
+};

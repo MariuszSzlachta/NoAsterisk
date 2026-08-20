@@ -11,7 +11,7 @@ const mockQuery = vi.mocked(useBudgetQuery);
 
 describe('useBudgetProgressWidget', () => {
   it('returns loading state when query is loading', () => {
-    mockQuery.mockReturnValue({ data: [], isLoading: true });
+    mockQuery.mockReturnValue({ status: 'loading' });
 
     const result = useBudgetProgressWidget();
 
@@ -20,6 +20,7 @@ describe('useBudgetProgressWidget', () => {
 
   it('returns loaded state with mapped budget items', () => {
     mockQuery.mockReturnValue({
+      status: 'loaded',
       data: [
         {
           label: 'Transport',
@@ -28,7 +29,6 @@ describe('useBudgetProgressWidget', () => {
           color: 'var(--cat-transport)',
         },
       ],
-      isLoading: false,
     });
 
     const result = useBudgetProgressWidget();

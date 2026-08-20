@@ -116,13 +116,18 @@ const SavingsRateEntry = (): React.JSX.Element => {
 
 const BudgetProgressEntry = (): React.JSX.Element => {
   const state = useBudgetProgressWidget();
+  const currentMonthLabel = new Date().toLocaleString('pl-PL', {
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
     <QueryRenderer state={state}>
       {(data) => (
         <BudgetProgressWidget
           items={data}
           title="Budżety"
-          subtitle="Czerwiec 2025"
+          subtitle={currentMonthLabel}
           currency="PLN"
           action={<WidgetLink to="/budgets">Wszystkie →</WidgetLink>}
         />

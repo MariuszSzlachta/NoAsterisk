@@ -3,9 +3,9 @@ import type { ChartSeries } from '#shared/adapters/charts';
 import type { QueryState } from '#shared/api';
 
 export const useTrendChartWidget = (): QueryState<ChartSeries[]> => {
-  const { data, isLoading } = useTrendQuery();
-  if (isLoading) {
-    return { status: 'loading' };
+  const state = useTrendQuery();
+  if (state.status !== 'loaded') {
+    return state;
   }
-  return { status: 'loaded', data };
+  return { status: 'loaded', data: state.data };
 };

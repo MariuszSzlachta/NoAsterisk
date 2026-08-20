@@ -11,7 +11,7 @@ const mockQuery = vi.mocked(useRecentTransactionsQuery);
 
 describe('useRecentTransactionsWidget', () => {
   it('returns loading state when query is loading', () => {
-    mockQuery.mockReturnValue({ data: [], isLoading: true });
+    mockQuery.mockReturnValue({ status: 'loading' });
 
     const result = useRecentTransactionsWidget();
 
@@ -20,6 +20,7 @@ describe('useRecentTransactionsWidget', () => {
 
   it('returns loaded state with mapped transactions', () => {
     mockQuery.mockReturnValue({
+      status: 'loaded',
       data: [
         {
           id: '1',
@@ -30,7 +31,6 @@ describe('useRecentTransactionsWidget', () => {
           direction: 'expense' as const,
         },
       ],
-      isLoading: false,
     });
 
     const result = useRecentTransactionsWidget();

@@ -11,7 +11,7 @@ const mockUseKpiQuery = vi.mocked(useKpiQuery);
 
 describe('useKpiWidget', () => {
   it('returns loading state when query is loading', () => {
-    mockUseKpiQuery.mockReturnValue({ data: [], isLoading: true });
+    mockUseKpiQuery.mockReturnValue({ status: 'loading' });
 
     const result = useKpiWidget();
 
@@ -20,6 +20,7 @@ describe('useKpiWidget', () => {
 
   it('returns loaded state with mapped VMs when query succeeds', () => {
     mockUseKpiQuery.mockReturnValue({
+      status: 'loaded',
       data: [
         {
           id: 'balance' as const,
@@ -29,7 +30,6 @@ describe('useKpiWidget', () => {
           trend: 'up' as const,
         },
       ],
-      isLoading: false,
     });
 
     const result = useKpiWidget();
@@ -46,8 +46,8 @@ describe('useKpiWidget', () => {
 
   it('returns loaded with fallback icon for unknown id', () => {
     mockUseKpiQuery.mockReturnValue({
+      status: 'loaded',
       data: [{ id: 'balance' as const, label: 'Unknown', value: '0 zł' }],
-      isLoading: false,
     });
 
     const result = useKpiWidget();

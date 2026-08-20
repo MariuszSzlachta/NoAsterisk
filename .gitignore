@@ -5,6 +5,7 @@ dist/
 *.tsbuildinfo
 .idea/
 temp/
+.DS_Store
 
 # Graphify — local-only files
 graphify-out/cost.json

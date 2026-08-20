@@ -11,13 +11,13 @@ import {
 import type { QueryState } from '#shared/api';
 
 export const useKpiWidget = (): QueryState<KpiItemVM[]> => {
-  const { data, isLoading } = useKpiQuery();
-  if (isLoading) {
-    return { status: 'loading' };
+  const state = useKpiQuery();
+  if (state.status !== 'loaded') {
+    return state;
   }
   return {
     status: 'loaded',
-    data: data.map((dto) =>
+    data: state.data.map((dto) =>
       mapKpiDtoToVm(dto, {
         icon: KPI_ICONS[dto.id] ?? FALLBACK_ICON,
         iconHref: KPI_REPORT_HREFS[dto.id],

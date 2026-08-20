@@ -1,47 +1,33 @@
+import { useBudgetsStore } from '#features/budgets';
 import type { BudgetDto } from '#features/dashboard-widgets/model/types';
+import { useTransactionsStore } from '#features/transactions';
+import type { QueryState } from '#shared/api';
 
 export type { BudgetDto };
 
-interface BudgetQueryResult {
-  readonly data: BudgetDto[];
-  readonly isLoading: boolean;
-}
+// ARCH-EXCEPTION: cross-feature import — read-only access to useBudgetsStore + useTransactionsStore
+// public APIs. Planned resolution: migrate to TanStack Query when backend provides aggregation endpoints.
 
-const MOCK_DATA: BudgetDto[] = [
-  {
-    label: 'Zakupy spożywcze',
-    spent: 1850,
-    limit: 2000,
-    color: 'var(--cat-groceries)',
-  },
-  { label: 'Transport', spent: 980, limit: 800, color: 'var(--cat-transport)' },
-  {
-    label: 'Subskrypcje',
-    spent: 340,
-    limit: 350,
-    color: 'var(--cat-subscriptions)',
-  },
-  {
-    label: 'Jedzenie na mieście',
-    spent: 1320,
-    limit: 1000,
-    color: 'var(--cat-dining)',
-  },
-  {
-    label: 'Rozrywka',
-    spent: 890,
-    limit: 500,
-    color: 'var(--cat-entertainment)',
-  },
-  {
-    label: 'Rachunki',
-    spent: 450,
-    limit: 600,
-    color: 'var(--cat-bills)',
-  },
-];
+export const useBudgetQuery = (): QueryState<BudgetDto[]> => {
+  const budgets = useBudgetsStore((s) => s.budgets);
+  const transactions = useTransactionsStore((s) => s.transactions);
 
-export const useBudgetQuery = (): BudgetQueryResult => ({
-  data: MOCK_DATA,
-  isLoading: false,
-});
+  const data: BudgetDto[] = budgets
+    .filter((b) => !b.isArchived && b.budgetType === 'standard')
+    .map((budget) => {
+      const assigned = transactions.filter((tx) => tx.budgetId === budget.id);
+      const spent = Math.abs(
+        assigned
+          .filter((tx) => tx.amount < 0)
+          .reduce((sum, tx) => sum + tx.amount, 0),
+      );
+      return {
+        label: budget.name,
+        spent,
+        limit: budget.limitAmount,
+        color: budget.color,
+      };
+    });
+
+  return { status: 'loaded', data };
+};

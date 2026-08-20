@@ -7,6 +7,8 @@ export interface RecurringExpenseDto {
   readonly cycle: 'monthly' | 'yearly';
 }
 
+// TODO: Detect recurring expenses from transaction patterns (requires 3+ months of data).
+// Recurring detection is a separate feature — keeping mock data until implemented.
 export const useRecurringExpensesQuery = (): QueryState<
   RecurringExpenseDto[]
 > => ({

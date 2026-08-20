@@ -1,57 +1,38 @@
+import { formatAmount } from '#features/dashboard-widgets/model/transformers';
 import type { RecentTransactionDto } from '#features/dashboard-widgets/model/types';
+import { useTransactionsStore } from '#features/transactions';
+import type { QueryState } from '#shared/api';
 
 export type { RecentTransactionDto };
 
-interface RecentTransactionsQueryResult {
-  readonly data: RecentTransactionDto[];
-  readonly isLoading: boolean;
-}
+// ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
+// Planned resolution: migrate to TanStack Query when backend provides aggregation endpoints.
 
-const MOCK_DATA: RecentTransactionDto[] = [
-  {
-    id: '1',
-    merchant: 'BIEDRONKA',
-    category: 'Zakupy',
-    date: '27 cze',
-    amount: '−87,43 zł',
-    direction: 'expense',
-  },
-  {
-    id: '2',
-    merchant: 'SPOTIFY',
-    category: 'Subskrypcje',
-    date: '26 cze',
-    amount: '−29,99 zł',
-    direction: 'expense',
-  },
-  {
-    id: '3',
-    merchant: 'Przelew przychodzący',
-    category: 'Wynagrodzenie',
-    date: '25 cze',
-    amount: '+8 500,00 zł',
-    direction: 'income',
-  },
-  {
-    id: '4',
-    merchant: 'UBER',
-    category: 'Transport',
-    date: '24 cze',
-    amount: '−34,50 zł',
-    direction: 'expense',
-  },
-  {
-    id: '5',
-    merchant: 'ALLEGRO',
-    category: 'Zakupy',
-    date: '23 cze',
-    amount: '−249,00 zł',
-    direction: 'expense',
-  },
-];
+const RECENT_LIMIT = 5;
 
-export const useRecentTransactionsQuery =
-  (): RecentTransactionsQueryResult => ({
-    data: MOCK_DATA,
-    isLoading: false,
+export const useRecentTransactionsQuery = (): QueryState<RecentTransactionDto[]> => {
+  const transactions = useTransactionsStore((s) => s.transactions);
+
+  const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
+
+  const data: RecentTransactionDto[] = sorted.slice(0, RECENT_LIMIT).map((tx) => {
+    const lines = tx.description.split('\n');
+    const merchant = lines[0] ?? tx.description;
+    const direction: 'income' | 'expense' = tx.amount >= 0 ? 'income' : 'expense';
+    const dateFormatted = new Date(tx.date).toLocaleDateString('pl-PL', {
+      day: 'numeric',
+      month: 'short',
+    });
+
+    return {
+      id: tx.id,
+      merchant,
+      category: tx.categoryId ?? 'Bez kategorii',
+      date: dateFormatted,
+      amount: formatAmount(tx.amount),
+      direction,
+    };
   });
+
+  return { status: 'loaded', data };
+};
