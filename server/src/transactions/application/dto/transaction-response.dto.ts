@@ -4,7 +4,7 @@ export interface TransactionResponseDto {
   amount: number;
   currency: string;
   type: 'income' | 'expense' | 'adjustment';
-  categoryIds: string[];
+  categoryIds: readonly string[];
   description: string;
   date: string;
   createdAt: string;

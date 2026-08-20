@@ -7,7 +7,7 @@ export const CreateTransactionDto = z
     currency: z.string().min(3).max(3),
     type: z.enum(['income', 'expense', 'adjustment']),
     categoryIds: z.array(z.uuid()).max(10).default([]),
-    description: z.string().max(1000),
+    description: z.string().min(1).max(1000),
     date: z.coerce.date(),
   })
   .strict();

@@ -48,6 +48,12 @@ export class CreateTransactionHandler {
       if (found.length !== command.categoryIds.length) {
         throw new BadRequestException('One or more category IDs are invalid');
       }
+      const allOwnedByWorkspace = found.every(
+        (c) => c.workspaceId === command.workspaceId,
+      );
+      if (!allOwnedByWorkspace) {
+        throw new BadRequestException('One or more category IDs are invalid');
+      }
     }
 
     const transaction = Transaction.create({

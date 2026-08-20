@@ -6,6 +6,11 @@ import {
 import { TransactionResponseDto } from '@transactions/application/dto/transaction-response.dto';
 import { TransactionResponseMapper } from '@transactions/application/mappers/transaction-response.mapper';
 
+export interface GetTransactionByIdQuery {
+  id: string;
+  workspaceId: string;
+}
+
 @Injectable()
 export class GetTransactionByIdHandler {
   constructor(
@@ -13,10 +18,12 @@ export class GetTransactionByIdHandler {
     private readonly repo: TransactionRepository,
   ) {}
 
-  async execute(id: string): Promise<TransactionResponseDto> {
-    const transaction = await this.repo.findById(id);
-    if (!transaction) {
-      throw new NotFoundException(`Transaction ${id} not found`);
+  async execute(
+    query: GetTransactionByIdQuery,
+  ): Promise<TransactionResponseDto> {
+    const transaction = await this.repo.findById(query.id);
+    if (!transaction || transaction.workspaceId !== query.workspaceId) {
+      throw new NotFoundException(`Transaction ${query.id} not found`);
     }
     return TransactionResponseMapper.toDto(transaction);
   }

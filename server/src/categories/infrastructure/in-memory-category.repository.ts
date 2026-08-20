@@ -11,8 +11,10 @@ export class InMemoryCategoryRepository implements CategoryRepository {
     return category;
   }
 
-  async findAll(): Promise<Category[]> {
-    return [...this.store.values()];
+  async findByWorkspaceId(workspaceId: string): Promise<Category[]> {
+    return [...this.store.values()].filter(
+      (c) => c.workspaceId === workspaceId,
+    );
   }
 
   async findById(id: string): Promise<Category | undefined> {

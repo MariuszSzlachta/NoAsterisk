@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import {
   IMPORT_BATCH_REPOSITORY,
   ImportBatchRepository,
@@ -17,6 +17,10 @@ import {
   IMPORT_PROFILE_REPOSITORY,
   ImportProfileRepository,
 } from '@import-profiles/application/ports/import-profile.repository';
+import {
+  CATEGORY_REPOSITORY,
+  CategoryRepository,
+} from '@categories/application/ports/category.repository';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
@@ -68,6 +72,8 @@ export class ImportTransactionsHandler {
     private readonly transactionRepo: TransactionRepository,
     @Inject(IMPORT_PROFILE_REPOSITORY)
     private readonly profileRepo: ImportProfileRepository,
+    @Inject(CATEGORY_REPOSITORY)
+    private readonly categoryRepo: CategoryRepository,
     private readonly piiService: PiiValidationService,
     private readonly autoCategorize: AutoCategorizeHandler,
   ) {}
@@ -75,6 +81,11 @@ export class ImportTransactionsHandler {
   async execute(
     command: ImportTransactionsCommand,
   ): Promise<ImportTransactionsResult> {
+    await this.assertCategoriesOwnedByWorkspace(
+      command.rows,
+      command.workspaceId,
+    );
+
     if (command.profileId) {
       const profile = await this.profileRepo.findById(
         command.workspaceId,
@@ -226,6 +237,24 @@ export class ImportTransactionsHandler {
     });
     await this.transactionRepo.save(transaction);
     return 'saved';
+  }
+
+  private async assertCategoriesOwnedByWorkspace(
+    rows: ImportTransactionRow[],
+    workspaceId: string,
+  ): Promise<void> {
+    const allCategoryIds = [...new Set(rows.flatMap((r) => r.categoryIds))];
+    if (allCategoryIds.length === 0) {
+      return;
+    }
+    const found = await this.categoryRepo.findByIds(allCategoryIds);
+    if (found.length !== allCategoryIds.length) {
+      throw new BadRequestException('One or more category IDs are invalid');
+    }
+    const allOwned = found.every((c) => c.workspaceId === workspaceId);
+    if (!allOwned) {
+      throw new BadRequestException('One or more category IDs are invalid');
+    }
   }
 }
 

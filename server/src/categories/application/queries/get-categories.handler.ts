@@ -13,8 +13,8 @@ export class GetCategoriesHandler {
     private readonly repo: CategoryRepository,
   ) {}
 
-  async execute(): Promise<CategoryResponseDto[]> {
-    const categories = await this.repo.findAll();
+  async execute(workspaceId: string): Promise<CategoryResponseDto[]> {
+    const categories = await this.repo.findByWorkspaceId(workspaceId);
     return categories.map(CategoryResponseMapper.toDto);
   }
 }

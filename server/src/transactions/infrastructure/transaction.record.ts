@@ -5,7 +5,7 @@ export interface TransactionRecord {
   amount: number;
   currency: string;
   type: string;
-  category_ids: string[];
+  category_ids: readonly string[];
   description: string;
   date: string;
   created_at: string;

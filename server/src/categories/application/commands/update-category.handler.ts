@@ -8,6 +8,7 @@ import { CategoryResponseMapper } from '@categories/application/mappers/category
 
 export interface UpdateCategoryCommand {
   id: string;
+  workspaceId: string;
   name: string;
 }
 
@@ -20,7 +21,7 @@ export class UpdateCategoryHandler {
 
   async execute(command: UpdateCategoryCommand): Promise<CategoryResponseDto> {
     const existing = await this.repo.findById(command.id);
-    if (!existing) {
+    if (!existing || existing.workspaceId !== command.workspaceId) {
       throw new NotFoundException(`Category ${command.id} not found`);
     }
     const updated = existing.rename(command.name);

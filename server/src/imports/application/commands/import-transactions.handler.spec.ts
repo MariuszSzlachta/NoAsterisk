@@ -10,12 +10,14 @@ import { ImportBatch, ImportBatchStatus, DomainError } from '@budget/domain';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { ImportProfileRepository } from '@import-profiles/application/ports/import-profile.repository';
+import { CategoryRepository } from '@categories/application/ports/category.repository';
 
 describe('ImportTransactionsHandler', () => {
   let handler: ImportTransactionsHandler;
   let batchRepo: jest.Mocked<ImportBatchRepository>;
   let transactionRepo: jest.Mocked<TransactionRepository>;
   let profileRepo: jest.Mocked<ImportProfileRepository>;
+  let categoryRepo: jest.Mocked<CategoryRepository>;
   let piiService: jest.Mocked<PiiValidationService>;
   let autoCategorize: { execute: jest.Mock };
 
@@ -62,7 +64,6 @@ describe('ImportTransactionsHandler', () => {
     transactionRepo = {
       save: jest.fn().mockImplementation((t) => Promise.resolve(t)),
       saveMany: jest.fn().mockResolvedValue(undefined),
-      findAll: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockResolvedValue(undefined),
       findPaged: jest.fn().mockResolvedValue({
         data: [],
@@ -87,10 +88,18 @@ describe('ImportTransactionsHandler', () => {
       findByName: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn(),
     };
+    categoryRepo = {
+      save: jest.fn(),
+      findByWorkspaceId: jest.fn().mockResolvedValue([]),
+      findById: jest.fn().mockResolvedValue(undefined),
+      findByIds: jest.fn().mockResolvedValue([]),
+      delete: jest.fn(),
+    };
     handler = new ImportTransactionsHandler(
       batchRepo,
       transactionRepo,
       profileRepo,
+      categoryRepo,
       piiService,
       autoCategorize as unknown as AutoCategorizeHandler,
     );
@@ -260,6 +269,41 @@ describe('ImportTransactionsHandler', () => {
 
       await expect(handler.execute(command)).rejects.toThrow(
         "Import profile 'non-existent-profile' not found",
+      );
+      expect(transactionRepo.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('category workspace validation', () => {
+    it('rejects when rows reference categories from a different workspace', async () => {
+      const { Category } = await import('@budget/domain');
+      const foreignCategory = new Category(
+        'cat-foreign',
+        'other-workspace',
+        'Foreign',
+        new Date('2025-01-01'),
+      );
+      categoryRepo.findByIds.mockResolvedValue([foreignCategory]);
+
+      const command = buildCommand({
+        rows: [buildRow({ categoryIds: ['cat-foreign'] })],
+      });
+
+      await expect(handler.execute(command)).rejects.toThrow(
+        'One or more category IDs are invalid',
+      );
+      expect(transactionRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('rejects when rows reference non-existent categories', async () => {
+      categoryRepo.findByIds.mockResolvedValue([]);
+
+      const command = buildCommand({
+        rows: [buildRow({ categoryIds: ['non-existent'] })],
+      });
+
+      await expect(handler.execute(command)).rejects.toThrow(
+        'One or more category IDs are invalid',
       );
       expect(transactionRepo.save).not.toHaveBeenCalled();
     });

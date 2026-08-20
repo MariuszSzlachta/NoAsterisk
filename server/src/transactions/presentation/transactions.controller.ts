@@ -85,25 +85,32 @@ export class TransactionsController {
 
   @Get(':id')
   async findById(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
   ): Promise<TransactionResponseDto> {
-    return this.getByIdHandler.execute(id);
+    return this.getByIdHandler.execute({ id, workspaceId: user.workspaceId });
   }
 
   @Put(':id')
   async update(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
     @Body(new ZodValidationPipe(UpdateTransactionDto))
     dto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return this.updateHandler.execute({ id, ...dto });
+    return this.updateHandler.execute({
+      id,
+      workspaceId: user.workspaceId,
+      ...dto,
+    });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
   ): Promise<void> {
-    return this.deleteHandler.execute({ id });
+    return this.deleteHandler.execute({ id, workspaceId: user.workspaceId });
   }
 }

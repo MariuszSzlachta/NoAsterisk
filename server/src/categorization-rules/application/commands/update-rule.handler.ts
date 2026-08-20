@@ -42,7 +42,7 @@ export class UpdateRuleHandler {
 
     if (command.categoryId) {
       const category = await this.categoryRepo.findById(command.categoryId);
-      if (!category) {
+      if (!category || category.workspaceId !== command.workspaceId) {
         throw new BadRequestException(
           `Category '${command.categoryId}' not found`,
         );

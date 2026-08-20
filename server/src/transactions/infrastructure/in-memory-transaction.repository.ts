@@ -26,10 +26,6 @@ export class InMemoryTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findAll(): Promise<Transaction[]> {
-    return [...this.store.values()];
-  }
-
   async findById(id: string): Promise<Transaction | undefined> {
     return this.store.get(id);
   }

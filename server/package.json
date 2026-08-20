@@ -77,6 +77,7 @@
       "^#domain/import-batch/(.*)$": "<rootDir>/../../packages/domain/src/import-batch/$1",
       "^#domain/categorization-rule/(.*)$": "<rootDir>/../../packages/domain/src/categorization-rule/$1",
       "^#domain/category/(.*)$": "<rootDir>/../../packages/domain/src/category/$1",
+      "^#domain/budget/(.*)$": "<rootDir>/../../packages/domain/src/budget/$1",
       "^@shared/(.*)$": "<rootDir>/shared/$1",
       "^@transactions/(.*)$": "<rootDir>/transactions/$1",
       "^@categories/(.*)$": "<rootDir>/categories/$1",

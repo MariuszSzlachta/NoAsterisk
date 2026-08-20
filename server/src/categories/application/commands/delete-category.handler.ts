@@ -15,6 +15,7 @@ import {
 
 export interface DeleteCategoryCommand {
   id: string;
+  workspaceId: string;
 }
 
 @Injectable()
@@ -28,7 +29,7 @@ export class DeleteCategoryHandler {
 
   async execute(command: DeleteCategoryCommand): Promise<void> {
     const existing = await this.repo.findById(command.id);
-    if (!existing) {
+    if (!existing || existing.workspaceId !== command.workspaceId) {
       throw new NotFoundException(`Category ${command.id} not found`);
     }
 

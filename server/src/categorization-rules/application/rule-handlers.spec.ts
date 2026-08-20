@@ -81,6 +81,28 @@ describe('CreateRuleHandler', () => {
       }),
     ).rejects.toThrow(BadRequestException);
   });
+
+  it('throws BadRequestException when category belongs to different workspace', async () => {
+    const repo = buildRepo();
+    const categoryRepo = buildCategoryRepo();
+    categoryRepo.findById.mockResolvedValue(
+      new Category('cat-1', 'ws-other', 'Foreign', new Date()),
+    );
+    const handler = new CreateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
+
+    await expect(
+      handler.execute({
+        workspaceId: 'ws-1',
+        keyword: 'X',
+        categoryId: 'cat-1',
+        matcherType: 'Contains',
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(repo.save).not.toHaveBeenCalled();
+  });
 });
 
 describe('UpdateRuleHandler', () => {
@@ -119,6 +141,28 @@ describe('UpdateRuleHandler', () => {
         categoryId: 'bad-cat',
       }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('throws BadRequestException when categoryId belongs to different workspace', async () => {
+    const repo = buildRepo();
+    const categoryRepo = buildCategoryRepo();
+    repo.findById.mockResolvedValue(buildRule());
+    categoryRepo.findById.mockResolvedValue(
+      new Category('cat-1', 'ws-other', 'Foreign', new Date()),
+    );
+    const handler = new UpdateRuleHandler(
+      repo,
+      categoryRepo as unknown as CategoryRepository,
+    );
+
+    await expect(
+      handler.execute({
+        workspaceId: 'ws-1',
+        id: 'rule-1',
+        categoryId: 'cat-1',
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(repo.save).not.toHaveBeenCalled();
   });
 
   it('returns undefined when not found', async () => {

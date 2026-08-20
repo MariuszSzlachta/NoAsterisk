@@ -22,6 +22,7 @@
       "#domain/import-batch/*": ["../../packages/domain/src/import-batch/*"],
       "#domain/categorization-rule/*": ["../../packages/domain/src/categorization-rule/*"],
       "#domain/category/*": ["../../packages/domain/src/category/*"],
+      "#domain/budget/*": ["../../packages/domain/src/budget/*"],
       "@shared/*": ["shared/*"],
       "@transactions/*": ["transactions/*"],
       "@categories/*": ["categories/*"],

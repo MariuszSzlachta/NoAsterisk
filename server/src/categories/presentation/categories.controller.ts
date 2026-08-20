@@ -46,23 +46,31 @@ export class CategoriesController {
   }
 
   @Get()
-  async findAll(): Promise<CategoryResponseDto[]> {
-    return this.getHandler.execute();
+  async findAll(
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<CategoryResponseDto[]> {
+    return this.getHandler.execute(user.workspaceId);
   }
 
   @Put(':id')
   async update(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
     @Body(new ZodValidationPipe(UpdateCategoryDto)) dto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return this.updateHandler.execute({ id, ...dto });
+    return this.updateHandler.execute({
+      id,
+      workspaceId: user.workspaceId,
+      ...dto,
+    });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
+    @CurrentUser() user: CurrentUserPayload,
     @Param('id', new ZodValidationPipe(UuidParam)) id: string,
   ): Promise<void> {
-    return this.deleteHandler.execute({ id });
+    return this.deleteHandler.execute({ id, workspaceId: user.workspaceId });
   }
 }
