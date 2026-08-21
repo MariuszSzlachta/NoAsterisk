@@ -1,14 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronsUpDown } from 'lucide-react';
 
+import { UserMenu, useUserMenu } from '#features/user-settings';
+
 export const UserSection = (): React.JSX.Element => {
   const { t } = useTranslation();
+  const { isOpen, handleToggle } = useUserMenu();
 
   return (
-    <div className="mt-auto border-t border-border p-3">
+    <div className="relative mt-auto border-t border-border p-3">
       <button
         type="button"
         aria-label={t('user.workspace')}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        onClick={handleToggle}
         className="flex w-full items-center gap-2.5 rounded-md p-2 transition-colors hover:bg-surface-2"
       >
         <div
@@ -25,6 +31,8 @@ export const UserSection = (): React.JSX.Element => {
         </div>
         <ChevronsUpDown size={15} className="text-subtle" aria-hidden="true" />
       </button>
+
+      <UserMenu />
     </div>
   );
 };

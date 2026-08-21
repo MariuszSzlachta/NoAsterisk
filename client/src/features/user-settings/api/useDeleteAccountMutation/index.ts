@@ -1,0 +1,1 @@
+export { useDeleteAccountMutation } from './useDeleteAccountMutation';

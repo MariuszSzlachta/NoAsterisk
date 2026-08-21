@@ -6,6 +6,7 @@ import { MobileSidebarOverlay } from '#app/layouts/AppShell/MobileSidebarOverlay
 import { Sidebar } from '#app/layouts/Sidebar';
 import { TopBar } from '#app/layouts/TopBar';
 import { FALLBACK_META, ROUTE_META } from '#app/routing/route-meta';
+import { ToastContainer } from '#shared/ui/Toast';
 
 export const AppShell = (): React.JSX.Element => {
   const { pathname } = useLocation();
@@ -40,6 +41,8 @@ export const AppShell = (): React.JSX.Element => {
           <Outlet />
         </div>
       </main>
+
+      <ToastContainer />
     </div>
   );
 };

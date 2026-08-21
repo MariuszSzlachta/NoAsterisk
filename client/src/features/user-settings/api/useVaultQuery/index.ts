@@ -1,0 +1,1 @@
+export { useVaultQuery } from './useVaultQuery';

@@ -10,6 +10,7 @@ import { ImportPage } from '#pages/ImportPage';
 import { LoginPage } from '#pages/LoginPage';
 import { RegisterPage } from '#pages/RegisterPage';
 import { TransactionsPage } from '#pages/TransactionsPage';
+import { UserSettingsPage } from '#pages/UserSettingsPage';
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
           { path: '/budgets', element: <BudgetsPage /> },
           { path: '/analytics', element: <AnalyticsPage /> },
           { path: '/admin/rules', element: <AdminRulesPage /> },
+          { path: '/settings', element: <UserSettingsPage /> },
         ],
       },
     ],

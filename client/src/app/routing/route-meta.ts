@@ -26,6 +26,10 @@ export const ROUTE_META: Record<string, RouteMeta> = {
     breadcrumbKey: 'breadcrumb.rules',
     titleKey: 'titles.rules',
   },
+  '/settings': {
+    breadcrumbKey: 'breadcrumb.settings',
+    titleKey: 'titles.settings',
+  },
 };
 
 export const FALLBACK_META: RouteMeta = {
