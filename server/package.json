@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npm run build && node dist/server/src/main",
     "start:dev": "nest start --watch --exec 'node -r ./register-paths.js'",
+    "start:pg": "PERSISTENCE_MODE=postgres nest start --watch --exec 'node -r ./register-paths.js'",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/shared/infrastructure/database/migrate.ts",
     "db:seed": "tsx src/shared/infrastructure/database/seed.ts",

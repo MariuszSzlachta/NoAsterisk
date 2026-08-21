@@ -9,6 +9,9 @@ import { JsonContentTypeMiddleware } from '@shared/presentation/json-content-typ
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global API prefix — frontend expects /api/*
+  app.setGlobalPrefix('api');
+
   // Security headers (OWASP recommended)
   app.use(helmet());
 
