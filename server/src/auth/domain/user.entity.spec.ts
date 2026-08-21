@@ -82,4 +82,58 @@ describe('User', () => {
       expect(user.isSuperuser()).toBe(false);
     });
   });
+
+  describe('updateDisplayName', () => {
+    it('returns new user with updated display name', () => {
+      const user = User.create(validProps);
+      const updated = user.updateDisplayName('John Doe');
+
+      expect(updated.displayName).toBe('John Doe');
+      expect(updated.id).toBe(user.id);
+      expect(updated.email).toBe(user.email);
+    });
+
+    it('trims whitespace from display name', () => {
+      const user = User.create(validProps);
+      const updated = user.updateDisplayName('  Trimmed  ');
+
+      expect(updated.displayName).toBe('Trimmed');
+    });
+
+    it('sets displayName to undefined for empty string', () => {
+      const user = User.create(validProps);
+      const updated = user.updateDisplayName('');
+
+      expect(updated.displayName).toBeUndefined();
+    });
+
+    it('throws when name exceeds 50 characters', () => {
+      const user = User.create(validProps);
+      const longName = 'a'.repeat(51);
+
+      expect(() => user.updateDisplayName(longName)).toThrow(
+        'Display name cannot exceed 50 characters',
+      );
+    });
+  });
+
+  describe('changePassword', () => {
+    it('returns new user with updated password hash', () => {
+      const user = User.create(validProps);
+      const updated = user.changePassword('$2b$10$newHash');
+
+      expect(updated.passwordHash).toBe('$2b$10$newHash');
+      expect(updated.id).toBe(user.id);
+      expect(updated.email).toBe(user.email);
+      expect(updated.displayName).toBe(user.displayName);
+    });
+
+    it('throws for empty password hash', () => {
+      const user = User.create(validProps);
+
+      expect(() => user.changePassword('')).toThrow(
+        'Password hash cannot be empty',
+      );
+    });
+  });
 });

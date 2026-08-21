@@ -19,4 +19,5 @@ export interface PermissionRepository {
     resourceId: string,
     action: Action,
   ): Promise<boolean>;
+  deleteByUserId(userId: string): Promise<void>;
 }

@@ -41,4 +41,10 @@ export class InMemoryPermissionRepository implements PermissionRepository {
     );
     return permission ? permission.hasAction(action) : false;
   }
+
+  async deleteByUserId(userId: string): Promise<void> {
+    for (const [key, perm] of this.store.entries()) {
+      if (perm.userId === userId) this.store.delete(key);
+    }
+  }
 }

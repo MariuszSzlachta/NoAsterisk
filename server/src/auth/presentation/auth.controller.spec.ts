@@ -26,7 +26,7 @@ describe('AuthController', () => {
     it('returns 201 with access and refresh tokens', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'new@example.com', password: 'securepass' });
+        .send({ email: 'new@example.com', password: 'Secure1!pass' });
 
       expect(res.status).toBe(201);
       expect(res.body.accessToken).toBeDefined();
@@ -39,11 +39,11 @@ describe('AuthController', () => {
     it('returns 400 for duplicate email', async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'dup@example.com', password: 'securepass' });
+        .send({ email: 'dup@example.com', password: 'Secure1!pass' });
 
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'dup@example.com', password: 'securepass' });
+        .send({ email: 'dup@example.com', password: 'Secure1!pass' });
 
       expect(res.status).toBe(400);
     });
@@ -67,7 +67,11 @@ describe('AuthController', () => {
     it('returns 400 for extra fields (strict)', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'x@example.com', password: 'securepass', admin: true });
+        .send({
+          email: 'x@example.com',
+          password: 'Secure1!pass',
+          admin: true,
+        });
 
       expect(res.status).toBe(400);
     });
@@ -77,13 +81,13 @@ describe('AuthController', () => {
     beforeAll(async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'login@example.com', password: 'mypassword' });
+        .send({ email: 'login@example.com', password: 'MyPass1!word' });
     });
 
     it('returns 200 with access token for valid credentials', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'login@example.com', password: 'mypassword' });
+        .send({ email: 'login@example.com', password: 'MyPass1!word' });
 
       expect(res.status).toBe(200);
       expect(res.body.accessToken).toBeDefined();
@@ -113,7 +117,7 @@ describe('AuthController', () => {
     beforeAll(async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'refresh@example.com', password: 'securepass' });
+        .send({ email: 'refresh@example.com', password: 'Secure1!pass' });
       refreshToken = res.body.refreshToken;
     });
 

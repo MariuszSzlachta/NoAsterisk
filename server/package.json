@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "11.1.27",
     "@nestjs/throttler": "6.5.0",
     "bcrypt": "6.0.0",
+    "helmet": "^8.0.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "zod": "4.4.3"
@@ -67,7 +68,12 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "tsconfig.json" }]
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.json"
+        }
+      ]
     },
     "moduleNameMapper": {
       "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",
@@ -85,7 +91,8 @@
       "^@categorization-rules/(.*)$": "<rootDir>/categorization-rules/$1",
       "^@auth/(.*)$": "<rootDir>/auth/$1",
       "^@workspaces/(.*)$": "<rootDir>/workspaces/$1",
-      "^@import-profiles/(.*)$": "<rootDir>/import-profiles/$1"
+      "^@import-profiles/(.*)$": "<rootDir>/import-profiles/$1",
+      "^@user-settings/(.*)$": "<rootDir>/user-settings/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

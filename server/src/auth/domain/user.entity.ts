@@ -14,6 +14,7 @@ export class User {
     public readonly role: UserRole,
     public readonly workspaceId: string,
     public readonly createdAt: Date,
+    public readonly displayName?: string,
   ) {
     if (!id) throw new DomainError('User ID cannot be empty');
     if (!email) throw new DomainError('User email cannot be empty');
@@ -42,6 +43,35 @@ export class User {
 
   isSuperuser(): boolean {
     return this.role === UserRole.Superuser;
+  }
+
+  updateDisplayName(name: string): User {
+    const trimmed = name.trim();
+    if (trimmed.length > 50)
+      throw new DomainError('Display name cannot exceed 50 characters');
+    return new User(
+      this.id,
+      this.email,
+      this.passwordHash,
+      this.role,
+      this.workspaceId,
+      this.createdAt,
+      trimmed || undefined,
+    );
+  }
+
+  changePassword(newPasswordHash: string): User {
+    if (!newPasswordHash)
+      throw new DomainError('Password hash cannot be empty');
+    return new User(
+      this.id,
+      this.email,
+      newPasswordHash,
+      this.role,
+      this.workspaceId,
+      this.createdAt,
+      this.displayName,
+    );
   }
 
   private isValidEmail(email: string): boolean {

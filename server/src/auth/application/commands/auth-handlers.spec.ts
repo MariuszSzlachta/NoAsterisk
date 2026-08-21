@@ -23,6 +23,7 @@ describe('RegisterHandler', () => {
       findById: jest.fn(),
       findByEmail: jest.fn(),
       existsByEmail: jest.fn().mockResolvedValue(false),
+      delete: jest.fn(),
     };
     workspaceRepo = {
       save: jest.fn().mockImplementation((w) => Promise.resolve(w)),
@@ -32,6 +33,7 @@ describe('RegisterHandler', () => {
       save: jest.fn().mockImplementation((p) => Promise.resolve(p)),
       findByUserAndResource: jest.fn(),
       hasPermission: jest.fn(),
+      deleteByUserId: jest.fn(),
     };
     hasher = {
       hash: jest.fn().mockResolvedValue('$hashed$'),
@@ -113,6 +115,7 @@ describe('LoginHandler', () => {
       findById: jest.fn(),
       findByEmail: jest.fn().mockResolvedValue(existingUser),
       existsByEmail: jest.fn(),
+      delete: jest.fn(),
     };
     hasher = {
       hash: jest.fn(),

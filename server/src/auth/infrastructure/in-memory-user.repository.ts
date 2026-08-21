@@ -22,4 +22,8 @@ export class InMemoryUserRepository implements UserRepository {
   async existsByEmail(email: string): Promise<boolean> {
     return [...this.store.values()].some((u) => u.email === email);
   }
+
+  async delete(id: string): Promise<void> {
+    this.store.delete(id);
+  }
 }

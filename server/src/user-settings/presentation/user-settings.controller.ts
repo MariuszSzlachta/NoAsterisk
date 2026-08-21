@@ -1,0 +1,142 @@
+import {
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Put,
+  Delete,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '@auth/presentation/decorators/current-user.decorator';
+import { ZodValidationPipe } from '@shared/presentation/zod-validation.pipe';
+import { THROTTLE_SENSITIVE } from '@shared/presentation/throttle.constants';
+import {
+  ChangePasswordHandler,
+  ChangePasswordResult,
+} from '@user-settings/application/commands/change-password.handler';
+import {
+  UpdateProfileHandler,
+  UpdateProfileResult,
+} from '@user-settings/application/commands/update-profile.handler';
+import {
+  UploadVaultHandler,
+  UploadVaultResult,
+} from '@user-settings/application/commands/upload-vault.handler';
+import { DeleteAccountHandler } from '@user-settings/application/commands/delete-account.handler';
+import {
+  LogoutHandler,
+  LogoutResult,
+} from '@user-settings/application/commands/logout.handler';
+import { GetProfileHandler } from '@user-settings/application/queries/get-profile.handler';
+import { ProfileResponseDto } from '@user-settings/application/mappers/profile-response.mapper';
+import {
+  GetVaultHandler,
+  VaultResult,
+} from '@user-settings/application/queries/get-vault.handler';
+import {
+  changePasswordSchema,
+  ChangePasswordDto,
+} from '@user-settings/presentation/dto/change-password.dto';
+import {
+  updateProfileSchema,
+  UpdateProfileDto,
+} from '@user-settings/presentation/dto/update-profile.dto';
+import {
+  uploadVaultSchema,
+  UploadVaultDto,
+} from '@user-settings/presentation/dto/upload-vault.dto';
+import {
+  deleteAccountSchema,
+  DeleteAccountDto,
+} from '@user-settings/presentation/dto/delete-account.dto';
+
+@Controller('users/me')
+export class UserSettingsController {
+  constructor(
+    private readonly changePasswordHandler: ChangePasswordHandler,
+    private readonly updateProfileHandler: UpdateProfileHandler,
+    private readonly uploadVaultHandler: UploadVaultHandler,
+    private readonly deleteAccountHandler: DeleteAccountHandler,
+    private readonly logoutHandler: LogoutHandler,
+    private readonly getProfileHandler: GetProfileHandler,
+    private readonly getVaultHandler: GetVaultHandler,
+  ) {}
+
+  @Get()
+  async getProfile(
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProfileResponseDto> {
+    return this.getProfileHandler.execute({ userId: user.userId });
+  }
+
+  @Patch()
+  async updateProfile(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(updateProfileSchema)) dto: UpdateProfileDto,
+  ): Promise<UpdateProfileResult> {
+    return this.updateProfileHandler.execute({
+      userId: user.userId,
+      displayName: dto.displayName,
+    });
+  }
+
+  @Post('change-password')
+  @Throttle(THROTTLE_SENSITIVE)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(changePasswordSchema)) dto: ChangePasswordDto,
+  ): Promise<ChangePasswordResult> {
+    return this.changePasswordHandler.execute({
+      userId: user.userId,
+      currentPassword: dto.currentPassword,
+      newPassword: dto.newPassword,
+    });
+  }
+
+  @Put('vault')
+  async uploadVault(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(uploadVaultSchema)) dto: UploadVaultDto,
+  ): Promise<UploadVaultResult> {
+    return this.uploadVaultHandler.execute({
+      workspaceId: user.workspaceId,
+      encryptedBlob: dto.encryptedBlob,
+    });
+  }
+
+  @Get('vault')
+  async getVault(
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<VaultResult> {
+    return this.getVaultHandler.execute({
+      workspaceId: user.workspaceId,
+    });
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@CurrentUser() user: CurrentUserPayload): Promise<LogoutResult> {
+    return this.logoutHandler.execute({ userId: user.userId });
+  }
+
+  @Delete()
+  @Throttle(THROTTLE_SENSITIVE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAccount(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(deleteAccountSchema)) dto: DeleteAccountDto,
+  ): Promise<void> {
+    await this.deleteAccountHandler.execute({
+      userId: user.userId,
+      workspaceId: user.workspaceId,
+      password: dto.password,
+    });
+  }
+}

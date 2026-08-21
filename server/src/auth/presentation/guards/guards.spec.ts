@@ -126,6 +126,7 @@ describe('PermissionGuard', () => {
       save: jest.fn(),
       findByUserAndResource: jest.fn(),
       hasPermission: jest.fn(),
+      deleteByUserId: jest.fn(),
     };
     guard = new PermissionGuard(reflector, permissionRepo);
   });

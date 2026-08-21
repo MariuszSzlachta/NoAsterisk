@@ -30,7 +30,8 @@
       "@budgets/*": ["budgets/*"],
       "@import-profiles/*": ["import-profiles/*"],
       "@auth/*": ["auth/*"],
-      "@workspaces/*": ["workspaces/*"]
+      "@workspaces/*": ["workspaces/*"],
+      "@user-settings/*": ["user-settings/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

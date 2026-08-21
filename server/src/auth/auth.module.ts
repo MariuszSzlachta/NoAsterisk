@@ -55,6 +55,7 @@ import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
   ],
   exports: [
     USER_REPOSITORY,
+    PASSWORD_HASHER,
     TOKEN_PORT,
     PERMISSION_REPOSITORY,
     JwtAuthGuard,

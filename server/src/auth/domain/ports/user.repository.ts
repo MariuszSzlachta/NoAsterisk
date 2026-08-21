@@ -12,4 +12,5 @@ export interface UserRepository {
   findById(id: string): Promise<User | undefined>;
   findByEmail(email: string): Promise<User | undefined>;
   existsByEmail(email: string): Promise<boolean>;
+  delete(id: string): Promise<void>;
 }
