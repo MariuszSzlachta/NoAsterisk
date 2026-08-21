@@ -2,6 +2,7 @@ import { GetProfileHandler } from './get-profile.handler';
 import { UserRepository } from '@auth/domain/ports/user.repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
+import { DEFAULT_PREFERENCES } from '@auth/domain/user-preferences.vo';
 
 describe('GetProfileHandler', () => {
   let handler: GetProfileHandler;
@@ -40,6 +41,7 @@ describe('GetProfileHandler', () => {
       role: 'Member',
       workspaceId: 'ws-1',
       createdAt: '2026-01-15T10:00:00.000Z',
+      preferences: DEFAULT_PREFERENCES,
     });
   });
 

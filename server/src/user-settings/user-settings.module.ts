@@ -3,6 +3,7 @@ import { AuthModule } from '@auth/auth.module';
 import { UserSettingsController } from '@user-settings/presentation/user-settings.controller';
 import { ChangePasswordHandler } from '@user-settings/application/commands/change-password.handler';
 import { UpdateProfileHandler } from '@user-settings/application/commands/update-profile.handler';
+import { UpdatePreferencesHandler } from '@user-settings/application/commands/update-preferences.handler';
 import { UploadVaultHandler } from '@user-settings/application/commands/upload-vault.handler';
 import { DeleteAccountHandler } from '@user-settings/application/commands/delete-account.handler';
 import { LogoutHandler } from '@user-settings/application/commands/logout.handler';
@@ -17,6 +18,7 @@ import { InMemoryVaultRepository } from '@user-settings/infrastructure/in-memory
   providers: [
     ChangePasswordHandler,
     UpdateProfileHandler,
+    UpdatePreferencesHandler,
     UploadVaultHandler,
     DeleteAccountHandler,
     LogoutHandler,

@@ -5,6 +5,7 @@
  */
 import { DomainError } from '@budget/domain';
 import { UserRole } from './user-role.enum';
+import { DEFAULT_PREFERENCES, UserPreferences } from './user-preferences.vo';
 
 export class User {
   constructor(
@@ -15,6 +16,7 @@ export class User {
     public readonly workspaceId: string,
     public readonly createdAt: Date,
     public readonly displayName?: string,
+    public readonly preferences: UserPreferences = DEFAULT_PREFERENCES,
   ) {
     if (!id) throw new DomainError('User ID cannot be empty');
     if (!email) throw new DomainError('User email cannot be empty');
@@ -57,6 +59,7 @@ export class User {
       this.workspaceId,
       this.createdAt,
       trimmed || undefined,
+      this.preferences,
     );
   }
 
@@ -71,6 +74,21 @@ export class User {
       this.workspaceId,
       this.createdAt,
       this.displayName,
+      this.preferences,
+    );
+  }
+
+  updatePreferences(partial: Partial<UserPreferences>): User {
+    const merged: UserPreferences = { ...this.preferences, ...partial };
+    return new User(
+      this.id,
+      this.email,
+      this.passwordHash,
+      this.role,
+      this.workspaceId,
+      this.createdAt,
+      this.displayName,
+      merged,
     );
   }
 

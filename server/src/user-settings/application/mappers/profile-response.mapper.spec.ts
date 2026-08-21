@@ -1,6 +1,7 @@
 import { ProfileResponseMapper } from './profile-response.mapper';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
+import { DEFAULT_PREFERENCES } from '@auth/domain/user-preferences.vo';
 
 describe('ProfileResponseMapper', () => {
   it('maps Member user to ProfileResponseDto', () => {
@@ -23,6 +24,7 @@ describe('ProfileResponseMapper', () => {
       role: 'Member',
       workspaceId: 'ws-1',
       createdAt: '2026-01-15T10:00:00.000Z',
+      preferences: DEFAULT_PREFERENCES,
     });
   });
 
@@ -40,5 +42,30 @@ describe('ProfileResponseMapper', () => {
 
     expect(dto.role).toBe('Superuser');
     expect(dto.displayName).toBeUndefined();
+    expect(dto.preferences).toEqual(DEFAULT_PREFERENCES);
+  });
+
+  it('maps custom preferences correctly', () => {
+    const customPrefs = {
+      currency: 'EUR' as const,
+      dateFormat: 'YYYY-MM-DD' as const,
+      language: 'en' as const,
+      theme: 'light' as const,
+      homePage: 'transactions' as const,
+    };
+    const user = new User(
+      'user-3',
+      'custom@example.com',
+      '$2b$hash',
+      UserRole.Member,
+      'ws-3',
+      new Date('2026-03-01T08:00:00Z'),
+      undefined,
+      customPrefs,
+    );
+
+    const dto = ProfileResponseMapper.toDto(user);
+
+    expect(dto.preferences).toEqual(customPrefs);
   });
 });

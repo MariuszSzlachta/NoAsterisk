@@ -1,5 +1,6 @@
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
+import { UserPreferences } from '@auth/domain/user-preferences.vo';
 
 export interface ProfileResponseDto {
   id: string;
@@ -8,6 +9,7 @@ export interface ProfileResponseDto {
   role: 'Superuser' | 'Member';
   workspaceId: string;
   createdAt: string;
+  preferences: UserPreferences;
 }
 
 const ROLE_MAP: Record<UserRole, ProfileResponseDto['role']> = {
@@ -24,6 +26,7 @@ export class ProfileResponseMapper {
       role: ROLE_MAP[user.role],
       workspaceId: user.workspaceId,
       createdAt: user.createdAt.toISOString(),
+      preferences: user.preferences,
     };
   }
 }

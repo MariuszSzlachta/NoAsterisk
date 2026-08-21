@@ -25,6 +25,10 @@ import {
   UpdateProfileResult,
 } from '@user-settings/application/commands/update-profile.handler';
 import {
+  UpdatePreferencesHandler,
+  UpdatePreferencesResult,
+} from '@user-settings/application/commands/update-preferences.handler';
+import {
   UploadVaultHandler,
   UploadVaultResult,
 } from '@user-settings/application/commands/upload-vault.handler';
@@ -55,12 +59,17 @@ import {
   deleteAccountSchema,
   DeleteAccountDto,
 } from '@user-settings/presentation/dto/delete-account.dto';
+import {
+  updatePreferencesSchema,
+  UpdatePreferencesDto,
+} from '@user-settings/presentation/dto/update-preferences.dto';
 
 @Controller('users/me')
 export class UserSettingsController {
   constructor(
     private readonly changePasswordHandler: ChangePasswordHandler,
     private readonly updateProfileHandler: UpdateProfileHandler,
+    private readonly updatePreferencesHandler: UpdatePreferencesHandler,
     private readonly uploadVaultHandler: UploadVaultHandler,
     private readonly deleteAccountHandler: DeleteAccountHandler,
     private readonly logoutHandler: LogoutHandler,
@@ -83,6 +92,18 @@ export class UserSettingsController {
     return this.updateProfileHandler.execute({
       userId: user.userId,
       displayName: dto.displayName,
+    });
+  }
+
+  @Patch('preferences')
+  async updatePreferences(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body(new ZodValidationPipe(updatePreferencesSchema))
+    dto: UpdatePreferencesDto,
+  ): Promise<UpdatePreferencesResult> {
+    return this.updatePreferencesHandler.execute({
+      userId: user.userId,
+      preferences: dto,
     });
   }
 
