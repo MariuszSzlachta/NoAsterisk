@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '#features/user-settings/ui/ConfirmDialog';
 import { useDangerSection } from '#features/user-settings/ui/hooks/useDangerSection';
@@ -12,6 +13,7 @@ import { Card } from '#shared/ui/Card';
 // ─── Component ───────────────────────────────────────────────────
 
 export const DangerSection = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     showClearDialog,
     showDeleteDialog,
@@ -29,19 +31,17 @@ export const DangerSection = (): React.JSX.Element => {
 
   return (
     <>
-      <Card className="mb-6 border-expense/30">
+      <Card className="border-expense/30">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-expense">Strefa niebezpieczna</h2>
-          <p className="text-xs text-muted-foreground">Te akcje są nieodwracalne. Zachowaj ostrożność.</p>
+          <h2 className="text-sm font-semibold text-expense">{t('settings.danger.title')}</h2>
+          <p className="text-xs text-muted-foreground">{t('settings.danger.subtitle')}</p>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between rounded-lg border border-expense/20 bg-expense-soft/30 p-3">
             <div className="mr-4">
-              <div className="text-sm font-medium text-foreground">Wyczyść dane lokalne</div>
-              <div className="text-xs text-muted-foreground">
-                Usuwa wszystkie transakcje, reguły i preferencje z przeglądarki.
-              </div>
+              <div className="text-sm font-medium text-foreground">{t('settings.danger.clearData')}</div>
+              <div className="text-xs text-muted-foreground">{t('settings.danger.clearDataDescription')}</div>
             </div>
             <Button
               variant="ghost"
@@ -50,16 +50,14 @@ export const DangerSection = (): React.JSX.Element => {
               icon={<Trash2 size={14} />}
               className="shrink-0 text-expense hover:text-expense"
             >
-              Wyczyść dane
+              {t('settings.danger.clearDataButton')}
             </Button>
           </div>
 
           <div className="flex items-center justify-between rounded-lg border border-expense/20 bg-expense-soft/30 p-3">
             <div className="mr-4">
-              <div className="text-sm font-medium text-foreground">Usuń konto</div>
-              <div className="text-xs text-muted-foreground">
-                Trwale usuwa Twoje konto i wszystkie dane z serwera.
-              </div>
+              <div className="text-sm font-medium text-foreground">{t('settings.danger.deleteAccount')}</div>
+              <div className="text-xs text-muted-foreground">{t('settings.danger.deleteAccountDescription')}</div>
             </div>
             <Button
               variant="destructive"
@@ -68,7 +66,7 @@ export const DangerSection = (): React.JSX.Element => {
               icon={<Trash2 size={14} />}
               className="shrink-0"
             >
-              Usuń konto
+              {t('settings.danger.deleteAccountButton')}
             </Button>
           </div>
         </div>
@@ -80,10 +78,10 @@ export const DangerSection = (): React.JSX.Element => {
 
       {showClearDialog && (
         <ConfirmDialog
-          title="Wyczyść dane lokalne"
-          description="Ta akcja jest nieodwracalna. Wszystkie dane lokalne (transakcje, reguły, preferencje) zostaną usunięte."
-          confirmText="USUŃ"
-          confirmButtonLabel="Wyczyść dane"
+          title={t('settings.danger.clearDialog.title')}
+          description={t('settings.danger.clearDialog.description')}
+          confirmText={t('settings.danger.clearDialog.confirmText')}
+          confirmButtonLabel={t('settings.danger.clearDialog.confirmButton')}
           onConfirm={handleConfirmClear}
           onCancel={handleCloseClearDialog}
         />
@@ -91,17 +89,17 @@ export const DangerSection = (): React.JSX.Element => {
 
       {showDeleteDialog && (
         <ConfirmDialog
-          title="Usuń konto"
-          description="Twoje konto zostanie trwale usunięte wraz ze wszystkimi danymi na serwerze. Tej akcji nie można cofnąć."
-          confirmText="USUŃ KONTO"
-          confirmButtonLabel={isDeleting ? 'Usuwam...' : 'Usuń konto'}
+          title={t('settings.danger.deleteDialog.title')}
+          description={t('settings.danger.deleteDialog.description')}
+          confirmText={t('settings.danger.deleteDialog.confirmText')}
+          confirmButtonLabel={isDeleting ? t('settings.danger.deleteDialog.deleting') : t('settings.danger.deleteDialog.confirmButton')}
           onConfirm={handleConfirmDelete}
           onCancel={handleCloseDeleteDialog}
           extraFields={[
             {
-              label: 'Hasło',
+              label: t('settings.danger.deleteDialog.passwordLabel'),
               type: 'password',
-              placeholder: 'Wpisz hasło aby potwierdzić',
+              placeholder: t('settings.danger.deleteDialog.passwordPlaceholder'),
               value: deletePassword,
               onChange: handleDeletePasswordChange,
             },

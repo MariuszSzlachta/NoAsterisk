@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { CheckCircle, Info, X, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useToast } from '#shared/hooks/useToast';
 import type { ToastKind } from '#shared/hooks/useToast';
@@ -27,6 +28,7 @@ const KIND_CONFIG: Record<ToastKind, { icon: React.ReactNode; containerClass: st
 // ─── Component ───────────────────────────────────────────────────
 
 export const ToastContainer = (): React.JSX.Element | null => {
+  const { t } = useTranslation();
   const toasts = useToast((s) => s.toasts);
   const removeToast = useToast((s) => s.removeToast);
 
@@ -54,7 +56,7 @@ export const ToastContainer = (): React.JSX.Element | null => {
               type="button"
               onClick={() => removeToast(toast.id)}
               className="ml-2 text-subtle transition-colors hover:text-foreground"
-              aria-label="Zamknij powiadomienie"
+              aria-label={t('settings.confirmDialog.closeLabel')}
             >
               <X size={14} />
             </button>

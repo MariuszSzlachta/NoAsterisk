@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
@@ -23,6 +24,7 @@ export const RestoreDialog = ({
   onRestore,
   onCancel,
 }: RestoreDialogProps): React.JSX.Element => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -59,34 +61,34 @@ export const RestoreDialog = ({
         </div>
 
         <h2 id="restore-dialog-title" className="mb-1 text-base font-semibold text-foreground">
-          Znaleziono backup
+          {t('settings.restoreDialog.title')}
         </h2>
         <p className="mb-1 text-sm text-muted-foreground">
-          Backup z dnia: <span className="font-medium text-foreground">{backupDate}</span>
+          {t('settings.restoreDialog.backupDate', { date: backupDate })}
         </p>
         <p className="mb-4 text-sm text-muted-foreground">
-          Przywrócenie nadpisze Twoje obecne dane lokalne. Upewnij się, że masz aktualne dane wyeksportowane.
+          {t('settings.restoreDialog.description')}
         </p>
 
         <div className="mb-4">
           <Input
-            label="Hasło do odszyfrowania"
+            label={t('settings.restoreDialog.passwordLabel')}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Wpisz hasło konta"
+            placeholder={t('settings.restoreDialog.passwordPlaceholder')}
           />
         </div>
 
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" onClick={onCancel}>
-            Zacznij od nowa
+            {t('settings.restoreDialog.cancel')}
           </Button>
           <Button
             onClick={() => onRestore(password)}
             disabled={!isValid}
           >
-            Przywróć dane
+            {t('settings.restoreDialog.confirm')}
           </Button>
         </div>
       </div>

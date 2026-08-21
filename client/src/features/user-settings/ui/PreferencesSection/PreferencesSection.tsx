@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { PreferencesValues } from '#features/user-settings/model/types';
 import { usePreferencesSection } from '#features/user-settings/ui/hooks/usePreferencesSection';
@@ -52,10 +53,11 @@ interface PrefRowProps {
   readonly value: string;
   readonly storeValue: string;
   readonly field: keyof PreferencesValues;
+  readonly unsavedLabel: string;
   readonly onChange: (field: keyof PreferencesValues, value: string) => void;
 }
 
-const PrefRow = ({ label, description, options, value, storeValue, field, onChange }: PrefRowProps): React.JSX.Element => (
+const PrefRow = ({ label, description, options, value, storeValue, field, unsavedLabel, onChange }: PrefRowProps): React.JSX.Element => (
   <div className="flex items-center justify-between border-b border-border px-4 py-3 last:border-b-0">
     <div className="mr-4 min-w-0">
       <div className="text-sm font-medium text-foreground">{label}</div>
@@ -63,7 +65,7 @@ const PrefRow = ({ label, description, options, value, storeValue, field, onChan
     </div>
     <div className="flex items-center gap-2">
       {value !== storeValue && (
-        <div className="h-2 w-2 rounded-full bg-warning" aria-label="Niezapisana zmiana" />
+        <div className="h-2 w-2 rounded-full bg-warning" aria-label={unsavedLabel} />
       )}
       <div className="w-40">
         <Select
@@ -80,6 +82,7 @@ const PrefRow = ({ label, description, options, value, storeValue, field, onChan
 // ─── Component ───────────────────────────────────────────────────
 
 export const PreferencesSection = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     preferences,
     draft,
@@ -90,56 +93,61 @@ export const PreferencesSection = (): React.JSX.Element => {
   } = usePreferencesSection();
 
   return (
-    <Card className="mb-6">
+    <Card className="">
       <div className="mb-4">
-        <h2 className="text-sm font-semibold text-foreground">Preferencje</h2>
-        <p className="text-xs text-muted-foreground">Zmień ustawienia, a następnie zapisz zmiany.</p>
+        <h2 className="text-sm font-semibold text-foreground">{t('settings.preferences.title')}</h2>
+        <p className="text-xs text-muted-foreground">{t('settings.preferences.subtitle')}</p>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <PrefRow
-          label="Waluta domyślna"
-          description="Waluta do wyświetlania kwot"
+          label={t('settings.preferences.currency')}
+          description={t('settings.preferences.currencyDescription')}
           options={CURRENCY_OPTIONS}
           value={draft.currency}
           storeValue={preferences.currency}
           field="currency"
+          unsavedLabel={t('settings.preferences.unsavedLabel')}
           onChange={handleDraftChange}
         />
         <PrefRow
-          label="Format daty"
-          description="Format wyświetlania dat"
+          label={t('settings.preferences.dateFormat')}
+          description={t('settings.preferences.dateFormatDescription')}
           options={DATE_FORMAT_OPTIONS}
           value={draft.dateFormat}
           storeValue={preferences.dateFormat}
           field="dateFormat"
+          unsavedLabel={t('settings.preferences.unsavedLabel')}
           onChange={handleDraftChange}
         />
         <PrefRow
-          label="Język"
-          description="Język interfejsu"
+          label={t('settings.preferences.language')}
+          description={t('settings.preferences.languageDescription')}
           options={LANGUAGE_OPTIONS}
           value={draft.language}
           storeValue={preferences.language}
           field="language"
+          unsavedLabel={t('settings.preferences.unsavedLabel')}
           onChange={handleDraftChange}
         />
         <PrefRow
-          label="Motyw"
-          description="Wygląd aplikacji"
+          label={t('settings.preferences.theme')}
+          description={t('settings.preferences.themeDescription')}
           options={THEME_OPTIONS}
           value={draft.theme}
           storeValue={preferences.theme}
           field="theme"
+          unsavedLabel={t('settings.preferences.unsavedLabel')}
           onChange={handleDraftChange}
         />
         <PrefRow
-          label="Strona startowa"
-          description="Domyślna strona po zalogowaniu"
+          label={t('settings.preferences.homePage')}
+          description={t('settings.preferences.homePageDescription')}
           options={HOME_PAGE_OPTIONS}
           value={draft.homePage}
           storeValue={preferences.homePage}
           field="homePage"
+          unsavedLabel={t('settings.preferences.unsavedLabel')}
           onChange={handleDraftChange}
         />
       </div>
@@ -148,14 +156,14 @@ export const PreferencesSection = (): React.JSX.Element => {
         <div className="mt-4 flex items-center justify-between rounded-lg border border-warning/30 bg-warning/5 px-4 py-2.5">
           <div className="flex items-center gap-2">
             <AlertTriangle size={14} className="text-warning" aria-hidden="true" />
-            <span className="text-xs font-medium text-warning">Masz niezapisane zmiany</span>
+            <span className="text-xs font-medium text-warning">{t('settings.preferences.unsavedChanges')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleCancel}>
-              Anuluj
+              {t('settings.preferences.cancel')}
             </Button>
             <Button size="sm" onClick={handleSave}>
-              Zapisz
+              {t('settings.preferences.save')}
             </Button>
           </div>
         </div>

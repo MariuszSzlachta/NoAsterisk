@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
@@ -39,6 +40,7 @@ export const ConfirmDialog = ({
   onCancel,
   extraFields,
 }: ConfirmDialogProps): React.JSX.Element => {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +97,7 @@ export const ConfirmDialog = ({
 
         <div className="mb-4">
           <Input
-            label={`Wpisz "${confirmText}" aby potwierdzić`}
+            label={t('settings.confirmDialog.inputLabel', { text: confirmText })}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={confirmText}
@@ -105,7 +107,7 @@ export const ConfirmDialog = ({
 
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" onClick={onCancel}>
-            Anuluj
+            {t('settings.confirmDialog.cancel')}
           </Button>
           <Button
             variant="destructive"

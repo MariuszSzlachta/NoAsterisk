@@ -12,6 +12,9 @@ export const useBudgetQuery = (): QueryState<BudgetDto[]> => {
   const budgets = useBudgetsStore((s) => s.budgets);
   const transactions = useTransactionsStore((s) => s.transactions);
 
+  // DEBUG: remove after fixing budget widget issue
+  console.log('[BudgetWidget] store budgets:', budgets.length, budgets.map(b => ({ id: b.id?.slice(0, 8), name: b.name, type: b.budgetType, archived: b.isArchived })));
+
   const data: BudgetDto[] = budgets
     .filter((b) => !b.isArchived && b.budgetType === 'standard')
     .map((budget) => {

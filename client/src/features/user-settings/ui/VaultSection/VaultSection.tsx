@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { CheckCircle, Download, Lock, RefreshCw, RotateCcw, Upload, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { VaultSyncStatus } from '#features/user-settings/model/types';
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
@@ -11,27 +12,28 @@ import { Card } from '#shared/ui/Card';
 
 // ─── Status Config ───────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<VaultSyncStatus, { icon: React.ReactNode; label: string; colorClass: string }> = {
-  synced: {
-    icon: <CheckCircle size={20} className="text-income" />,
-    label: 'Zsynchronizowane',
-    colorClass: 'border-income/30 bg-income/5',
-  },
-  unsynced: {
-    icon: <RefreshCw size={20} className="text-warning" />,
-    label: 'Niezapisane zmiany',
-    colorClass: 'border-warning/30 bg-warning/5',
-  },
-  'no-backup': {
-    icon: <XCircle size={20} className="text-expense" />,
-    label: 'Brak backupu',
-    colorClass: 'border-expense/30 bg-expense/5',
-  },
+const STATUS_ICONS: Record<VaultSyncStatus, React.ReactNode> = {
+  synced: <CheckCircle size={20} className="text-income" />,
+  unsynced: <RefreshCw size={20} className="text-warning" />,
+  'no-backup': <XCircle size={20} className="text-expense" />,
+};
+
+const STATUS_COLORS: Record<VaultSyncStatus, string> = {
+  synced: 'border-income/30 bg-income/5',
+  unsynced: 'border-warning/30 bg-warning/5',
+  'no-backup': 'border-expense/30 bg-expense/5',
+};
+
+const STATUS_I18N: Record<VaultSyncStatus, string> = {
+  synced: 'settings.vault.statusSynced',
+  unsynced: 'settings.vault.statusUnsynced',
+  'no-backup': 'settings.vault.statusNoBackup',
 };
 
 // ─── Component ───────────────────────────────────────────────────
 
 export const VaultSection = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     vaultInfo,
     dataStats,
@@ -44,22 +46,20 @@ export const VaultSection = (): React.JSX.Element => {
     handleFileInputChange,
   } = useVaultSection();
 
-  const statusConfig = STATUS_CONFIG[vaultInfo.status];
-
   return (
-    <Card className="mb-6">
+    <Card className="">
       <div className="mb-4">
-        <h2 className="text-sm font-semibold text-foreground">Dane i synchronizacja</h2>
-        <p className="text-xs text-muted-foreground">Zaszyfrowana kopia zapasowa Twoich danych lokalnych.</p>
+        <h2 className="text-sm font-semibold text-foreground">{t('settings.vault.title')}</h2>
+        <p className="text-xs text-muted-foreground">{t('settings.vault.subtitle')}</p>
       </div>
 
       {/* Status Card */}
-      <div className={`mb-4 flex items-center gap-3 rounded-lg border p-3 ${statusConfig.colorClass}`}>
-        <div aria-hidden="true">{statusConfig.icon}</div>
+      <div className={`mb-4 flex items-center gap-3 rounded-lg border p-3 ${STATUS_COLORS[vaultInfo.status]}`}>
+        <div aria-hidden="true">{STATUS_ICONS[vaultInfo.status]}</div>
         <div>
-          <div className="text-sm font-medium text-foreground">{statusConfig.label}</div>
+          <div className="text-sm font-medium text-foreground">{t(STATUS_I18N[vaultInfo.status])}</div>
           <div className="text-xs text-muted-foreground">
-            {vaultInfo.lastSync ? `Ostatnia synchronizacja: ${vaultInfo.lastSync}` : 'Brak backupu'}
+            {vaultInfo.lastSync ? t('settings.vault.lastSync', { date: vaultInfo.lastSync }) : t('settings.vault.noBackup')}
           </div>
         </div>
       </div>
@@ -71,28 +71,28 @@ export const VaultSection = (): React.JSX.Element => {
           disabled={isSyncing}
           icon={<RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />}
         >
-          {isSyncing ? 'Synchronizuję...' : 'Synchronizuj teraz'}
+          {isSyncing ? t('settings.vault.syncing') : t('settings.vault.sync')}
         </Button>
         <Button
           variant="secondary"
           icon={<RotateCcw size={14} />}
           disabled={vaultInfo.status === 'no-backup'}
         >
-          Przywróć z backupu
+          {t('settings.vault.restore')}
         </Button>
         <Button
           variant="secondary"
           onClick={handleExport}
           icon={<Download size={14} />}
         >
-          Eksportuj dane (JSON)
+          {t('settings.vault.export')}
         </Button>
         <Button
           variant="secondary"
           onClick={handleTriggerImport}
           icon={<Upload size={14} />}
         >
-          Importuj dane (JSON)
+          {t('settings.vault.import')}
         </Button>
       </div>
 
@@ -102,7 +102,7 @@ export const VaultSection = (): React.JSX.Element => {
         accept=".json"
         className="hidden"
         onChange={handleFileInputChange}
-        aria-label="Wybierz plik JSON do importu"
+        aria-label={t('settings.vault.importLabel')}
       />
 
       {importError && (
@@ -112,18 +112,16 @@ export const VaultSection = (): React.JSX.Element => {
       {/* Info Box */}
       <div className="mb-4 flex items-start gap-2 rounded-lg bg-surface-3 p-3">
         <Lock size={14} className="mt-0.5 shrink-0 text-subtle" aria-hidden="true" />
-        <p className="text-xs text-muted-foreground">
-          Twoje dane są szyfrowane w przeglądarce kluczem wyprowadzonym z Twojego hasła. Serwer przechowuje jedynie zaszyfrowany blob — nie ma dostępu do Twoich danych finansowych.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('settings.vault.encryptionInfo')}</p>
       </div>
 
       {/* Data Stats */}
       <div className="flex flex-wrap gap-2">
-        <StatCard label="Transakcje" value={dataStats.transactions} />
-        <StatCard label="Budżety" value={dataStats.budgets} />
-        <StatCard label="Reguły" value={dataStats.rules} />
-        <StatCard label="Profile importu" value={dataStats.importProfiles} />
-        <StatCard label="Rozmiar" value={`~${dataStats.sizeKb} KB`} />
+        <StatCard label={t('settings.vault.stats.transactions')} value={dataStats.transactions} />
+        <StatCard label={t('settings.vault.stats.budgets')} value={dataStats.budgets} />
+        <StatCard label={t('settings.vault.stats.rules')} value={dataStats.rules} />
+        <StatCard label={t('settings.vault.stats.importProfiles')} value={dataStats.importProfiles} />
+        <StatCard label={t('settings.vault.stats.size')} value={`~${dataStats.sizeKb} KB`} />
       </div>
     </Card>
   );

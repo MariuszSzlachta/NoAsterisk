@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { CheckCircle, Circle, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type { PasswordValidationRules } from '#features/user-settings/model/types';
 import { useSecuritySection } from '#features/user-settings/ui/hooks/useSecuritySection';
@@ -30,21 +31,22 @@ const RuleItem = ({ label, passed }: RuleItemProps): React.JSX.Element => (
   </div>
 );
 
-// ─── Rule Labels ─────────────────────────────────────────────────
+// ─── Rule Keys ───────────────────────────────────────────────────
 
-const RULE_LABELS: ReadonlyArray<{ key: keyof PasswordValidationRules; label: string }> = [
-  { key: 'minLength', label: 'Minimum 8 znaków' },
-  { key: 'hasUppercase', label: 'Zawiera wielką literę' },
-  { key: 'hasLowercase', label: 'Zawiera małą literę' },
-  { key: 'hasDigit', label: 'Zawiera cyfrę' },
-  { key: 'hasSpecialChar', label: 'Zawiera znak specjalny' },
-  { key: 'differentFromCurrent', label: 'Różne od obecnego hasła' },
-  { key: 'confirmationMatch', label: 'Potwierdzenie zgodne' },
+const RULE_KEYS: ReadonlyArray<{ key: keyof PasswordValidationRules; i18nKey: string }> = [
+  { key: 'minLength', i18nKey: 'settings.security.rules.minLength' },
+  { key: 'hasUppercase', i18nKey: 'settings.security.rules.hasUppercase' },
+  { key: 'hasLowercase', i18nKey: 'settings.security.rules.hasLowercase' },
+  { key: 'hasDigit', i18nKey: 'settings.security.rules.hasDigit' },
+  { key: 'hasSpecialChar', i18nKey: 'settings.security.rules.hasSpecialChar' },
+  { key: 'differentFromCurrent', i18nKey: 'settings.security.rules.differentFromCurrent' },
+  { key: 'confirmationMatch', i18nKey: 'settings.security.rules.confirmationMatch' },
 ];
 
 // ─── Component ───────────────────────────────────────────────────
 
 export const SecuritySection = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     formValues,
     showPasswords,
@@ -60,17 +62,17 @@ export const SecuritySection = (): React.JSX.Element => {
   const inputType = showPasswords ? 'text' : 'password';
 
   return (
-    <Card className="mb-6">
+    <Card className="">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Bezpieczeństwo</h2>
-          <p className="text-xs text-muted-foreground">Zmień hasło do swojego konta.</p>
+          <h2 className="text-sm font-semibold text-foreground">{t('settings.security.title')}</h2>
+          <p className="text-xs text-muted-foreground">{t('settings.security.subtitle')}</p>
         </div>
         <Button
           size="icon"
           variant="ghost"
           onClick={handleToggleShowPasswords}
-          aria-label={showPasswords ? 'Ukryj hasła' : 'Pokaż hasła'}
+          aria-label={showPasswords ? t('settings.security.hidePasswords') : t('settings.security.showPasswords')}
         >
           {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
         </Button>
@@ -78,31 +80,31 @@ export const SecuritySection = (): React.JSX.Element => {
 
       <div className="space-y-3">
         <Input
-          label="Obecne hasło"
+          label={t('settings.security.currentPassword')}
           type={inputType}
           value={formValues.currentPassword}
           onChange={(e) => handleFieldChange('currentPassword', e.target.value)}
-          placeholder="Wpisz obecne hasło"
+          placeholder={t('settings.security.currentPasswordPlaceholder')}
         />
         <Input
-          label="Nowe hasło"
+          label={t('settings.security.newPassword')}
           type={inputType}
           value={formValues.newPassword}
           onChange={(e) => handleFieldChange('newPassword', e.target.value)}
-          placeholder="Minimum 8 znaków"
+          placeholder={t('settings.security.newPasswordPlaceholder')}
         />
         <Input
-          label="Potwierdź nowe hasło"
+          label={t('settings.security.confirmPassword')}
           type={inputType}
           value={formValues.confirmPassword}
           onChange={(e) => handleFieldChange('confirmPassword', e.target.value)}
-          placeholder="Powtórz nowe hasło"
+          placeholder={t('settings.security.confirmPasswordPlaceholder')}
         />
       </div>
 
       <div className="mt-3 space-y-1.5">
-        {RULE_LABELS.map(({ key, label }) => (
-          <RuleItem key={key} label={label} passed={validationRules[key]} />
+        {RULE_KEYS.map(({ key, i18nKey }) => (
+          <RuleItem key={key} label={t(i18nKey)} passed={validationRules[key]} />
         ))}
       </div>
 
@@ -115,7 +117,7 @@ export const SecuritySection = (): React.JSX.Element => {
           onClick={() => void handleSubmit()}
           disabled={!isValid || isLoading}
         >
-          {isLoading ? 'Zmieniam...' : 'Zmień hasło'}
+          {isLoading ? t('settings.security.submitting') : t('settings.security.submit')}
         </Button>
       </div>
     </Card>

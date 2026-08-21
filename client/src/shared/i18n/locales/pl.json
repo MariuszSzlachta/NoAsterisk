@@ -37,6 +37,7 @@
     "budgets": "Budżety",
     "analytics": "Analiza",
     "rules": "Reguły",
+    "settings": "Ustawienia",
     "fallback": "Strona"
   },
   "titles": {
@@ -46,6 +47,7 @@
     "budgets": "Budżety",
     "analytics": "Analiza",
     "rules": "Reguły",
+    "settings": "Ustawienia",
     "fallback": "Strona"
   },
   "user": {
@@ -339,6 +341,131 @@
         "title": "tytuł",
         "category": "kategoria"
       }
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "profile": {
+      "displayName": "Nazwa wyświetlana",
+      "displayNamePlaceholder": "Twoja nazwa",
+      "email": "Email",
+      "workspaceId": "Workspace ID",
+      "copyWorkspaceId": "Kopiuj Workspace ID",
+      "role": "Rola",
+      "roleAdmin": "Administrator",
+      "roleMember": "Członek",
+      "memberSince": "Członek od {{date}}",
+      "save": "Zapisz",
+      "saving": "Zapisywanie...",
+      "cancel": "Anuluj"
+    },
+    "security": {
+      "title": "Bezpieczeństwo",
+      "subtitle": "Zmień hasło do swojego konta.",
+      "currentPassword": "Obecne hasło",
+      "currentPasswordPlaceholder": "Wpisz obecne hasło",
+      "newPassword": "Nowe hasło",
+      "newPasswordPlaceholder": "Minimum 8 znaków",
+      "confirmPassword": "Potwierdź nowe hasło",
+      "confirmPasswordPlaceholder": "Powtórz nowe hasło",
+      "showPasswords": "Pokaż hasła",
+      "hidePasswords": "Ukryj hasła",
+      "submit": "Zmień hasło",
+      "submitting": "Zmieniam...",
+      "rules": {
+        "minLength": "Minimum 8 znaków",
+        "hasUppercase": "Zawiera wielką literę",
+        "hasLowercase": "Zawiera małą literę",
+        "hasDigit": "Zawiera cyfrę",
+        "hasSpecialChar": "Zawiera znak specjalny",
+        "differentFromCurrent": "Różne od obecnego hasła",
+        "confirmationMatch": "Potwierdzenie zgodne"
+      }
+    },
+    "preferences": {
+      "title": "Preferencje",
+      "subtitle": "Zmień ustawienia, a następnie zapisz zmiany.",
+      "unsavedChanges": "Masz niezapisane zmiany",
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "currency": "Waluta domyślna",
+      "currencyDescription": "Waluta do wyświetlania kwot",
+      "dateFormat": "Format daty",
+      "dateFormatDescription": "Format wyświetlania dat",
+      "language": "Język",
+      "languageDescription": "Język interfejsu",
+      "theme": "Motyw",
+      "themeDescription": "Wygląd aplikacji",
+      "homePage": "Strona startowa",
+      "homePageDescription": "Domyślna strona po zalogowaniu",
+      "unsavedLabel": "Niezapisana zmiana"
+    },
+    "vault": {
+      "title": "Dane i synchronizacja",
+      "subtitle": "Zaszyfrowana kopia zapasowa Twoich danych lokalnych.",
+      "statusSynced": "Zsynchronizowane",
+      "statusUnsynced": "Niezapisane zmiany",
+      "statusNoBackup": "Brak backupu",
+      "lastSync": "Ostatnia synchronizacja: {{date}}",
+      "noBackup": "Brak backupu",
+      "sync": "Synchronizuj teraz",
+      "syncing": "Synchronizuję...",
+      "restore": "Przywróć z backupu",
+      "export": "Eksportuj dane (JSON)",
+      "import": "Importuj dane (JSON)",
+      "importLabel": "Wybierz plik JSON do importu",
+      "encryptionInfo": "Twoje dane są szyfrowane w przeglądarce kluczem wyprowadzonym z Twojego hasła. Serwer przechowuje jedynie zaszyfrowany blob — nie ma dostępu do Twoich danych finansowych.",
+      "stats": {
+        "transactions": "Transakcje",
+        "budgets": "Budżety",
+        "rules": "Reguły",
+        "importProfiles": "Profile importu",
+        "size": "Rozmiar"
+      }
+    },
+    "danger": {
+      "title": "Strefa niebezpieczna",
+      "subtitle": "Te akcje są nieodwracalne. Zachowaj ostrożność.",
+      "clearData": "Wyczyść dane lokalne",
+      "clearDataDescription": "Usuwa wszystkie transakcje, reguły i preferencje z przeglądarki.",
+      "clearDataButton": "Wyczyść dane",
+      "deleteAccount": "Usuń konto",
+      "deleteAccountDescription": "Trwale usuwa Twoje konto i wszystkie dane z serwera.",
+      "deleteAccountButton": "Usuń konto",
+      "clearDialog": {
+        "title": "Wyczyść dane lokalne",
+        "description": "Ta akcja jest nieodwracalna. Wszystkie dane lokalne (transakcje, reguły, preferencje) zostaną usunięte.",
+        "confirmText": "USUŃ",
+        "confirmButton": "Wyczyść dane"
+      },
+      "deleteDialog": {
+        "title": "Usuń konto",
+        "description": "Twoje konto zostanie trwale usunięte wraz ze wszystkimi danymi na serwerze. Tej akcji nie można cofnąć.",
+        "confirmText": "USUŃ KONTO",
+        "confirmButton": "Usuń konto",
+        "deleting": "Usuwam...",
+        "passwordLabel": "Hasło",
+        "passwordPlaceholder": "Wpisz hasło aby potwierdzić"
+      }
+    },
+    "userMenu": {
+      "settings": "Ustawienia",
+      "logout": "Wyloguj",
+      "menuLabel": "Menu użytkownika"
+    },
+    "confirmDialog": {
+      "cancel": "Anuluj",
+      "inputLabel": "Wpisz \"{{text}}\" aby potwierdzić",
+      "closeLabel": "Zamknij powiadomienie"
+    },
+    "restoreDialog": {
+      "title": "Znaleziono backup",
+      "backupDate": "Backup z dnia: {{date}}",
+      "description": "Przywrócenie nadpisze Twoje obecne dane lokalne. Upewnij się, że masz aktualne dane wyeksportowane.",
+      "passwordLabel": "Hasło do odszyfrowania",
+      "passwordPlaceholder": "Wpisz hasło konta",
+      "cancel": "Zacznij od nowa",
+      "confirm": "Przywróć dane"
     }
   }
 }

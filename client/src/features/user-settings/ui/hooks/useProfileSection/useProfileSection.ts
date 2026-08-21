@@ -21,6 +21,7 @@ interface UseProfileSectionResult {
   readonly isSaving: boolean;
   readonly handleNameChange: (value: string) => void;
   readonly handleSave: () => Promise<boolean>;
+  readonly handleCancel: () => void;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
@@ -56,6 +57,11 @@ export const useProfileSection = (): UseProfileSectionResult => {
     return success;
   };
 
+  const handleCancel = (): void => {
+    setEditedName(data?.displayName ?? '');
+    setNameError(undefined);
+  };
+
   return {
     profile: data,
     isLoading,
@@ -65,5 +71,6 @@ export const useProfileSection = (): UseProfileSectionResult => {
     isSaving: saveState.isLoading,
     handleNameChange,
     handleSave,
+    handleCancel,
   };
 };
