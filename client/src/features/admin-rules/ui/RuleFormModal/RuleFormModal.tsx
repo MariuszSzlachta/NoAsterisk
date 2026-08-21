@@ -2,6 +2,8 @@
 // Admin Rules — RuleFormModal Component (inline card form)
 // ═══════════════════════════════════════════════════════════════════
 
+import { useTranslation } from 'react-i18next';
+
 import { CATEGORY_SELECT_OPTIONS } from '#entities/category';
 import { isMatcherType } from '#features/admin-rules/model';
 import type { RuleRecord } from '#features/admin-rules/model/types';
@@ -10,6 +12,7 @@ import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
 import { Select } from '#shared/ui/Select';
+import type { SelectOption } from '#shared/ui/Select';
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -18,46 +21,45 @@ interface RuleFormModalProps {
   readonly onClose: () => void;
 }
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const MATCHER_OPTIONS: readonly SelectOption[] = [
-  { value: 'Contains', label: 'Zawiera' },
-  { value: 'Exact', label: 'Dokładnie' },
-];
-
 // ─── Component ───────────────────────────────────────────────────
 
 export const RuleFormModal = ({
   editingRule,
   onClose,
 }: RuleFormModalProps): React.JSX.Element => {
+  const { t } = useTranslation();
   const { formValues, errors, isEditing, handleFieldChange, handleSubmit, handleCancel } =
     useRuleForm(editingRule, onClose);
+
+  const matcherOptions: readonly SelectOption[] = [
+    { value: 'Contains', label: t('rules.form.matcherContains') },
+    { value: 'Exact', label: t('rules.form.matcherExact') },
+  ];
 
   return (
     <Card className="mb-4">
       <h2 className="mb-4 text-sm font-semibold text-foreground">
-        {isEditing ? 'Edytuj regułę' : 'Dodaj regułę'}
+        {isEditing ? t('rules.form.titleEdit') : t('rules.form.titleAdd')}
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Input
-          label="Słowo kluczowe"
+          label={t('rules.form.keyword')}
           value={formValues.keyword}
           onChange={(e) => handleFieldChange('keyword', e.target.value)}
           error={errors.keyword}
-          placeholder="np. BIEDRONKA"
+          placeholder={t('rules.form.keywordPlaceholder')}
         />
         <div
           className="flex w-full flex-col gap-1.5"
           role="group"
-          aria-label="Dopasowanie"
+          aria-label={t('rules.form.matcher')}
         >
           <label htmlFor="rule-matcher-type" className="text-xs font-medium text-muted-foreground">
-            Dopasowanie
+            {t('rules.form.matcher')}
           </label>
           <Select
             id="rule-matcher-type"
-            options={MATCHER_OPTIONS}
+            options={matcherOptions}
             value={formValues.matcherType}
             onChange={(value) => {
               if (isMatcherType(value)) {
@@ -69,17 +71,17 @@ export const RuleFormModal = ({
         <div
           className="flex w-full flex-col gap-1.5"
           role="group"
-          aria-label="Kategoria"
+          aria-label={t('rules.form.category')}
         >
           <label htmlFor="rule-category" className="text-xs font-medium text-muted-foreground">
-            Kategoria
+            {t('rules.form.category')}
           </label>
           <Select
             id="rule-category"
             options={CATEGORY_SELECT_OPTIONS}
             value={formValues.categoryId}
             onChange={(value) => handleFieldChange('categoryId', value)}
-            placeholder="Wybierz kategorię..."
+            placeholder={t('rules.form.categoryPlaceholder')}
           />
           {errors.categoryId && (
             <p className="text-xs text-expense" role="alert">
@@ -88,7 +90,7 @@ export const RuleFormModal = ({
           )}
         </div>
         <Input
-          label="Priorytet"
+          label={t('rules.form.priority')}
           type="number"
           value={String(formValues.priority)}
           onChange={(e) =>
@@ -99,10 +101,10 @@ export const RuleFormModal = ({
       </div>
       <div className="mt-4 flex items-center gap-2">
         <Button onClick={handleSubmit}>
-          {isEditing ? 'Zapisz' : 'Dodaj'}
+          {isEditing ? t('rules.form.save') : t('rules.form.add')}
         </Button>
         <Button variant="ghost" onClick={handleCancel}>
-          Anuluj
+          {t('rules.form.cancel')}
         </Button>
       </div>
     </Card>

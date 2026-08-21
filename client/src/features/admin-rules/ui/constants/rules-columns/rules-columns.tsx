@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { Pencil, Trash2 } from 'lucide-react';
+import type { TFunction } from 'i18next';
 
 import type { RuleViewModel } from '#features/admin-rules/model/types';
 import { Button } from '#shared/ui/Button';
@@ -13,24 +14,25 @@ import type { DataTableColumn } from '#shared/ui/DataTable';
 export const buildRulesColumns = (
   handleDelete: (id: string) => void,
   handleEdit: (id: string) => void,
+  t: TFunction,
 ): readonly DataTableColumn<RuleViewModel>[] => [
   {
     key: 'keyword',
-    header: 'Słowo kluczowe',
+    header: t('rules.columns.keyword'),
     render: (row) => (
       <span className="font-medium text-foreground">{row.keyword}</span>
     ),
   },
   {
     key: 'matcherLabel',
-    header: 'Dopasowanie',
+    header: t('rules.columns.matcher'),
     render: (row) => (
       <span className="text-muted-foreground">{row.matcherLabel}</span>
     ),
   },
   {
     key: 'categoryLabel',
-    header: 'Kategoria',
+    header: t('rules.columns.category'),
     render: (row) => (
       <span className="flex items-center gap-2">
         <span
@@ -43,7 +45,7 @@ export const buildRulesColumns = (
   },
   {
     key: 'priority',
-    header: 'Priorytet',
+    header: t('rules.columns.priority'),
     render: (row) => (
       <span className="font-mono text-sm tabular-nums text-muted-foreground">
         {row.priority}
@@ -53,7 +55,7 @@ export const buildRulesColumns = (
   },
   {
     key: 'actions',
-    header: 'Akcje',
+    header: t('rules.columns.actions'),
     render: (row) => (
       <span className="flex items-center gap-1">
         <Button
@@ -61,14 +63,14 @@ export const buildRulesColumns = (
           size="icon"
           icon={<Pencil size={14} />}
           onClick={() => handleEdit(row.id)}
-          aria-label={`Edytuj regułę ${row.keyword}`}
+          aria-label={t('rules.actions.edit', { keyword: row.keyword })}
         />
         <Button
           variant="ghost"
           size="icon"
           icon={<Trash2 size={14} />}
           onClick={() => handleDelete(row.id)}
-          aria-label={`Usuń regułę ${row.keyword}`}
+          aria-label={t('rules.actions.delete', { keyword: row.keyword })}
         />
       </span>
     ),

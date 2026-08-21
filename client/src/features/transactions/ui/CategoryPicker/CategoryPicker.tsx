@@ -1,4 +1,5 @@
 import { Search, Tag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Popover,
   PopoverContent,
@@ -29,6 +30,7 @@ export const CategoryPicker = ({
   selectionCount,
   disabled = false,
 }: CategoryPickerProps): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     open,
     filtered,
@@ -55,7 +57,7 @@ export const CategoryPicker = ({
         >
           <div className="mb-2">
             <Input
-              placeholder="Szukaj kategorii…"
+              placeholder={t('transactions.categorySearch')}
               icon={<Search size={12} />}
               value={search}
               onChange={handleSearchChange}
@@ -80,7 +82,7 @@ export const CategoryPicker = ({
             ))}
             {filtered.length === 0 && (
               <span className="px-2 py-1.5 text-xs text-muted-foreground">
-                Brak wyników
+                {t('transactions.categoryNoResults')}
               </span>
             )}
           </div>

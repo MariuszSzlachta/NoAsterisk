@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
@@ -31,6 +32,7 @@ export const TransactionToolbar = ({
   onBulkCategoryChange,
   categories = [],
 }: TransactionToolbarProps): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     searchValue,
     activeTypeTab,
@@ -46,7 +48,7 @@ export const TransactionToolbar = ({
     <div className="flex flex-wrap items-center gap-2.5">
       <div className="w-64">
         <Input
-          placeholder="Filtruj transakcje…"
+          placeholder={t('transactions.filterPlaceholder')}
           icon={<Search size={14} />}
           value={searchValue}
           onChange={handleSearchInputChange}

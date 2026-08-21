@@ -343,6 +343,47 @@
       }
     }
   },
+  "rules": {
+    "pageTitle": "Reguły kategoryzacji",
+    "pageDescription": "Automatycznie przypisuj kategorie do transakcji na podstawie słów kluczowych.",
+    "addRule": "Dodaj regułę",
+    "applyRules": "Zastosuj reguły",
+    "result": "Skategoryzowano <strong>{{categorized}}</strong> z <strong>{{total}}</strong> niekategoryzowanych transakcji.",
+    "resultText": "Skategoryzowano {{categorized}} z {{total}} niekategoryzowanych transakcji.",
+    "emptyState": "Brak reguł. Dodaj pierwszą regułę.",
+    "form": {
+      "titleAdd": "Dodaj regułę",
+      "titleEdit": "Edytuj regułę",
+      "keyword": "Słowo kluczowe",
+      "keywordPlaceholder": "np. BIEDRONKA",
+      "matcher": "Dopasowanie",
+      "matcherContains": "Zawiera",
+      "matcherExact": "Dokładnie",
+      "category": "Kategoria",
+      "categoryPlaceholder": "Wybierz kategorię...",
+      "priority": "Priorytet",
+      "save": "Zapisz",
+      "add": "Dodaj",
+      "cancel": "Anuluj"
+    },
+    "columns": {
+      "keyword": "Słowo kluczowe",
+      "matcher": "Dopasowanie",
+      "category": "Kategoria",
+      "priority": "Priorytet",
+      "actions": "Akcje"
+    },
+    "actions": {
+      "edit": "Edytuj regułę {{keyword}}",
+      "delete": "Usuń regułę {{keyword}}"
+    },
+    "fallbackCategory": "Nieznana"
+  },
+  "transactions": {
+    "filterPlaceholder": "Filtruj transakcje…",
+    "categorySearch": "Szukaj kategorii…",
+    "categoryNoResults": "Brak wyników"
+  },
   "settings": {
     "title": "Ustawienia",
     "profile": {

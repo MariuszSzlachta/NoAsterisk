@@ -1,4 +1,5 @@
 import { ListChecks, Play, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   RuleFormModal,
@@ -10,6 +11,7 @@ import { Button } from '#shared/ui/Button';
 // ─── Component ───────────────────────────────────────────────────
 
 export const AdminRulesPage = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const {
     showForm,
     editingRule,
@@ -25,38 +27,29 @@ export const AdminRulesPage = (): React.JSX.Element => {
       <div>
         <h1 className="text-lg font-semibold text-foreground">
           <ListChecks size={20} className="mr-2 inline-block text-primary" />
-          Reguły kategoryzacji
+          {t('rules.pageTitle')}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Automatycznie przypisuj kategorie do transakcji na podstawie słów
-          kluczowych.
+          {t('rules.pageDescription')}
         </p>
       </div>
 
       <div className="flex items-center gap-2">
         <Button icon={<Plus size={14} />} onClick={handleAddRule}>
-          Dodaj regułę
+          {t('rules.addRule')}
         </Button>
         <Button
           variant="secondary"
           icon={<Play size={14} />}
           onClick={handleApplyRules}
         >
-          Zastosuj reguły
+          {t('rules.applyRules')}
         </Button>
       </div>
 
       {lastResult && (
         <p className="text-sm text-muted-foreground">
-          Skategoryzowano{' '}
-          <span className="font-medium text-foreground">
-            {lastResult.categorized}
-          </span>{' '}
-          z{' '}
-          <span className="font-medium text-foreground">
-            {lastResult.total}
-          </span>{' '}
-          niekategoryzowanych transakcji.
+          {t('rules.resultText', { categorized: lastResult.categorized, total: lastResult.total })}
         </p>
       )}
 
