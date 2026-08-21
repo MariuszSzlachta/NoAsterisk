@@ -8,7 +8,6 @@ import { ImportBatchRepository } from '@imports/application/ports/import-batch.r
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
 import { ImportBatch, ImportBatchStatus, DomainError } from '@budget/domain';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
-import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 import { ImportProfileRepository } from '@import-profiles/application/ports/import-profile.repository';
 import { CategoryRepository } from '@categories/application/ports/category.repository';
 
@@ -19,7 +18,6 @@ describe('ImportTransactionsHandler', () => {
   let profileRepo: jest.Mocked<ImportProfileRepository>;
   let categoryRepo: jest.Mocked<CategoryRepository>;
   let piiService: jest.Mocked<PiiValidationService>;
-  let autoCategorize: { execute: jest.Mock };
 
   const buildRow = (
     overrides?: Partial<ImportTransactionRow>,
@@ -78,9 +76,6 @@ describe('ImportTransactionsHandler', () => {
     piiService = {
       validate: jest.fn().mockReturnValue([]),
     } as unknown as jest.Mocked<PiiValidationService>;
-    autoCategorize = {
-      execute: jest.fn().mockResolvedValue({ categorized: 0, total: 0 }),
-    };
     profileRepo = {
       save: jest.fn(),
       findById: jest.fn().mockResolvedValue(undefined),
@@ -101,7 +96,6 @@ describe('ImportTransactionsHandler', () => {
       profileRepo,
       categoryRepo,
       piiService,
-      autoCategorize as unknown as AutoCategorizeHandler,
     );
   });
 

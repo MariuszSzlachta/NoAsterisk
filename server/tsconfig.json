@@ -27,7 +27,6 @@
       "@transactions/*": ["transactions/*"],
       "@categories/*": ["categories/*"],
       "@imports/*": ["imports/*"],
-      "@categorization-rules/*": ["categorization-rules/*"],
       "@budgets/*": ["budgets/*"],
       "@import-profiles/*": ["import-profiles/*"],
       "@auth/*": ["auth/*"],

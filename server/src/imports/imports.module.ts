@@ -16,17 +16,11 @@ import {
   PhoneRule,
 } from '@imports/infrastructure/pii-rules';
 import { TransactionsModule } from '@transactions/transactions.module';
-import { CategorizationRulesModule } from '@categorization-rules/categorization-rules.module';
 import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 import { CategoriesModule } from '@categories/categories.module';
 
 @Module({
-  imports: [
-    TransactionsModule,
-    CategorizationRulesModule,
-    ImportProfilesModule,
-    CategoriesModule,
-  ],
+  imports: [TransactionsModule, ImportProfilesModule, CategoriesModule],
   controllers: [ImportsController],
   providers: [
     ImportTransactionsHandler,

@@ -23,7 +23,6 @@ import {
 } from '@categories/application/ports/category.repository';
 import { PiiValidationService } from '@imports/application/services/pii-validation.service';
 import { FieldToValidate } from '@imports/application/ports/pii-rule.port';
-import { AutoCategorizeHandler } from '@categorization-rules/application/commands/auto-categorize.handler';
 
 export interface ImportTransactionRow {
   amount: number;
@@ -75,7 +74,6 @@ export class ImportTransactionsHandler {
     @Inject(CATEGORY_REPOSITORY)
     private readonly categoryRepo: CategoryRepository,
     private readonly piiService: PiiValidationService,
-    private readonly autoCategorize: AutoCategorizeHandler,
   ) {}
 
   async execute(
@@ -114,10 +112,6 @@ export class ImportTransactionsHandler {
 
     if (saved > 0) {
       await this.batchRepo.save(batch.recordSavedRows(saved));
-      await this.autoCategorize.execute({
-        workspaceId: command.workspaceId,
-        batchId: command.batchId,
-      });
     }
 
     return { saved, duplicatesSkipped, rejected };
