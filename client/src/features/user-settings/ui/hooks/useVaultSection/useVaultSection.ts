@@ -22,7 +22,9 @@ import type { VaultPasswordMode } from '#features/user-settings/ui/VaultPassword
 // ARCH-EXCEPTION: cross-feature import — vault needs to read all stores for data stats.
 // Planned resolution: centralized data layer (post-MVP)
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
+import type { RuleRecord } from '#features/admin-rules/model/types';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import type { StoredTransaction } from '#features/transactions/model/types';
 import { useToast } from '#shared/hooks/useToast';
 
 // ─── Result Interface ────────────────────────────────────────────
@@ -134,11 +136,16 @@ export const useVaultSection = (): UseVaultSectionResult => {
 
       const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
 
+      // Boundary cast: items validated at runtime (have 'id' field), cast to store types
       if (payload.transactions.length > 0) {
-        useTransactionsStore.setState({ transactions: payload.transactions });
+        useTransactionsStore.setState({
+          transactions: payload.transactions as unknown as ReadonlyArray<StoredTransaction>,
+        });
       }
       if (payload.rules.length > 0) {
-        useRulesStore.setState({ rules: payload.rules });
+        useRulesStore.setState({
+          rules: payload.rules as unknown as ReadonlyArray<RuleRecord>,
+        });
       }
 
       setShowPasswordDialog(false);
@@ -188,13 +195,18 @@ export const useVaultSection = (): UseVaultSectionResult => {
         const isValidItem = (item: unknown): item is Record<string, unknown> =>
           typeof item === 'object' && item !== null && 'id' in item;
 
+        // Boundary cast: items validated at runtime (have 'id' field), cast to store types
         if (Array.isArray(parsed.transactions)) {
           const validTransactions = (parsed.transactions as unknown[]).filter(isValidItem);
-          useTransactionsStore.setState({ transactions: validTransactions });
+          useTransactionsStore.setState({
+            transactions: validTransactions as unknown as ReadonlyArray<StoredTransaction>,
+          });
         }
         if (Array.isArray(parsed.rules)) {
           const validRules = (parsed.rules as unknown[]).filter(isValidItem);
-          useRulesStore.setState({ rules: validRules });
+          useRulesStore.setState({
+            rules: validRules as unknown as ReadonlyArray<RuleRecord>,
+          });
         }
 
         addToast(t('settings.vault.importSuccess'), 'success');

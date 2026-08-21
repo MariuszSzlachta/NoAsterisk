@@ -214,12 +214,9 @@ describe('vault crypto', () => {
       const data = '[1, 2, 3]';
       const encrypted = await encryptVault(data, 'pass');
 
-      // Array is typeof 'object' but we need to handle it - actually it passes the object check
-      // but transactions/rules won't be arrays so it returns empty arrays
-      const payload = await decryptVaultPayload(encrypted, 'pass');
-
-      expect(payload.transactions).toHaveLength(0);
-      expect(payload.rules).toHaveLength(0);
+      await expect(decryptVaultPayload(encrypted, 'pass')).rejects.toThrow(
+        'Decrypted payload is not an object',
+      );
     });
   });
 });

@@ -11,7 +11,9 @@ import { formatSyncDate } from '#features/user-settings/model/vault-helpers';
 // ARCH-EXCEPTION: cross-feature import — vault restore needs to write all stores.
 // Planned resolution: centralized data layer (post-MVP)
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
+import type { RuleRecord } from '#features/admin-rules/model/types';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import type { StoredTransaction } from '#features/transactions/model/types';
 import { useToast } from '#shared/hooks/useToast';
 
 // ─── Result Interface ────────────────────────────────────────────
@@ -64,11 +66,16 @@ export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
     try {
       const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
 
+      // Boundary cast: items validated at runtime (have 'id' field), cast to store types
       if (payload.transactions.length > 0) {
-        useTransactionsStore.setState({ transactions: payload.transactions });
+        useTransactionsStore.setState({
+          transactions: payload.transactions as unknown as ReadonlyArray<StoredTransaction>,
+        });
       }
       if (payload.rules.length > 0) {
-        useRulesStore.setState({ rules: payload.rules });
+        useRulesStore.setState({
+          rules: payload.rules as unknown as ReadonlyArray<RuleRecord>,
+        });
       }
 
       setShowDialog(false);

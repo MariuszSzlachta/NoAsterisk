@@ -141,12 +141,18 @@ export class VaultDecryptionError extends Error {
 
 /**
  * Validated vault payload structure.
- * Extracted after decryption — ensures data integrity before hydrating stores.
+ * Contains raw validated items — consumers cast to concrete store types at hydration boundary.
  */
 export interface VaultPayload {
   readonly transactions: ReadonlyArray<Record<string, unknown>>;
   readonly rules: ReadonlyArray<Record<string, unknown>>;
 }
+
+/**
+ * Validates that an item is a non-null object with a string 'id' field.
+ */
+const isValidVaultItem = (item: unknown): item is Record<string, unknown> =>
+  typeof item === 'object' && item !== null && 'id' in item && typeof (item as Record<string, unknown>).id === 'string';
 
 /**
  * Decrypts vault blob and validates payload structure.
@@ -167,20 +173,16 @@ export const decryptVaultPayload = async (
     throw new VaultDecryptionError('Decrypted data is not valid JSON');
   }
 
-  if (typeof parsed !== 'object' || parsed === null) {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
     throw new VaultDecryptionError('Decrypted payload is not an object');
   }
 
   const obj = parsed as Record<string, unknown>;
-  const transactions = Array.isArray(obj.transactions) ? obj.transactions : [];
-  const rules = Array.isArray(obj.rules) ? obj.rules : [];
+  const rawTransactions = Array.isArray(obj.transactions) ? obj.transactions : [];
+  const rawRules = Array.isArray(obj.rules) ? obj.rules : [];
 
-  // Validate minimum shape: each item must have an 'id' field
-  const isValidItem = (item: unknown): item is Record<string, unknown> =>
-    typeof item === 'object' && item !== null && 'id' in item;
+  const transactions = (rawTransactions as unknown[]).filter(isValidVaultItem);
+  const rules = (rawRules as unknown[]).filter(isValidVaultItem);
 
-  const validTransactions = transactions.filter(isValidItem);
-  const validRules = rules.filter(isValidItem);
-
-  return { transactions: validTransactions, rules: validRules };
+  return { transactions, rules };
 };
