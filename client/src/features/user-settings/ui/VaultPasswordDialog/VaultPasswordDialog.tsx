@@ -1,33 +1,35 @@
 // ═══════════════════════════════════════════════════════════════════
-// User Settings — RestoreDialog Component
+// User Settings — VaultPasswordDialog Component
 // ═══════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 
-// ─── Props ───────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────
 
-interface RestoreDialogProps {
-  readonly backupDate: string;
-  readonly isLoading?: boolean;
-  readonly error?: string;
-  readonly onRestore: (password: string) => void;
+export type VaultPasswordMode = 'encrypt' | 'decrypt';
+
+interface VaultPasswordDialogProps {
+  readonly mode: VaultPasswordMode;
+  readonly error: string | undefined;
+  readonly isLoading: boolean;
+  readonly onSubmit: (password: string) => void;
   readonly onCancel: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const RestoreDialog = ({
-  backupDate,
-  isLoading = false,
+export const VaultPasswordDialog = ({
+  mode,
   error,
-  onRestore,
+  isLoading,
+  onSubmit,
   onCancel,
-}: RestoreDialogProps): React.JSX.Element => {
+}: VaultPasswordDialogProps): React.JSX.Element => {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -43,14 +45,26 @@ export const RestoreDialog = ({
     return () => { document.removeEventListener('keydown', handleKeyDown); };
   }, [onCancel, isLoading]);
 
-  const isValid = password.length >= 1;
-
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleFormSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    if (isValid) {
-      onRestore(password);
+    if (password.length > 0) {
+      onSubmit(password);
     }
   };
+
+  const title = mode === 'encrypt'
+    ? t('settings.vault.passwordDialog.encryptTitle')
+    : t('settings.vault.passwordDialog.decryptTitle');
+
+  const description = mode === 'encrypt'
+    ? t('settings.vault.passwordDialog.encryptDescription')
+    : t('settings.vault.passwordDialog.decryptDescription');
+
+  const submitLabel = isLoading
+    ? t('settings.vault.passwordDialog.processing')
+    : mode === 'encrypt'
+      ? t('settings.vault.passwordDialog.encryptButton')
+      : t('settings.vault.passwordDialog.decryptButton');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -62,33 +76,31 @@ export const RestoreDialog = ({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative mx-4 w-full max-w-[440px] rounded-xl border border-border bg-surface p-6 shadow-card"
+        className="relative mx-4 w-full max-w-[400px] rounded-xl border border-border bg-surface p-6 shadow-card"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="restore-dialog-title"
+        aria-labelledby="vault-password-dialog-title"
       >
         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft">
-          <RotateCcw size={20} className="text-primary" aria-hidden="true" />
+          <Lock size={20} className="text-primary" aria-hidden="true" />
         </div>
 
-        <h2 id="restore-dialog-title" className="mb-1 text-base font-semibold text-foreground">
-          {t('settings.restoreDialog.title')}
+        <h2 id="vault-password-dialog-title" className="mb-1 text-base font-semibold text-foreground">
+          {title}
         </h2>
-        <p className="mb-1 text-sm text-muted-foreground">
-          {t('settings.restoreDialog.backupDate', { date: backupDate })}
-        </p>
         <p className="mb-4 text-sm text-muted-foreground">
-          {t('settings.restoreDialog.description')}
+          {description}
         </p>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
           <div className="mb-4">
             <Input
-              label={t('settings.restoreDialog.passwordLabel')}
+              label={t('settings.vault.passwordDialog.passwordLabel')}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('settings.restoreDialog.passwordPlaceholder')}
+              placeholder={t('settings.vault.passwordDialog.passwordPlaceholder')}
+              autoFocus
             />
           </div>
 
@@ -98,13 +110,10 @@ export const RestoreDialog = ({
 
           <div className="flex items-center justify-end gap-2">
             <Button variant="ghost" type="button" onClick={onCancel} disabled={isLoading}>
-              {t('settings.restoreDialog.cancel')}
+              {t('settings.vault.passwordDialog.cancel')}
             </Button>
-            <Button
-              type="submit"
-              disabled={!isValid || isLoading}
-            >
-              {isLoading ? t('settings.vault.passwordDialog.processing') : t('settings.restoreDialog.confirm')}
+            <Button type="submit" disabled={password.length === 0 || isLoading}>
+              {submitLabel}
             </Button>
           </div>
         </form>

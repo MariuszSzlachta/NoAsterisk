@@ -6,6 +6,7 @@ import { MobileSidebarOverlay } from '#app/layouts/AppShell/MobileSidebarOverlay
 import { Sidebar } from '#app/layouts/Sidebar';
 import { TopBar } from '#app/layouts/TopBar';
 import { FALLBACK_META, ROUTE_META } from '#app/routing/route-meta';
+import { RestoreOnLoginGuard } from '#features/user-settings';
 import { ToastContainer } from '#shared/ui/Toast';
 
 export const AppShell = (): React.JSX.Element => {
@@ -43,6 +44,7 @@ export const AppShell = (): React.JSX.Element => {
       </main>
 
       <ToastContainer />
+      <RestoreOnLoginGuard />
     </div>
   );
 };

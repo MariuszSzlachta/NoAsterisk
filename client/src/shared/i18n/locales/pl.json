@@ -462,6 +462,26 @@
         "rules": "Reguły",
         "importProfiles": "Profile importu",
         "size": "Rozmiar"
+      },
+      "syncSuccess": "Dane zaszyfrowane i przesłane pomyślnie.",
+      "syncError": "Nie udało się zaszyfrować lub przesłać danych.",
+      "restoreSuccess": "Dane przywrócone pomyślnie.",
+      "restoreError": "Nie udało się przywrócić danych.",
+      "wrongPassword": "Nieprawidłowe hasło — nie udało się odszyfrować danych.",
+      "importInvalidFormat": "Nieprawidłowy format pliku — brak danych transakcji lub reguł.",
+      "importInvalidJson": "Nieprawidłowy plik JSON.",
+      "importSuccess": "Dane zaimportowane pomyślnie.",
+      "passwordDialog": {
+        "encryptTitle": "Zaszyfruj dane",
+        "encryptDescription": "Podaj hasło, którym zostaną zaszyfrowane Twoje dane. Zapamiętaj je — bez hasła przywrócenie danych nie będzie możliwe.",
+        "decryptTitle": "Odszyfruj backup",
+        "decryptDescription": "Podaj hasło użyte podczas szyfrowania aby przywrócić dane z backupu.",
+        "passwordLabel": "Hasło szyfrowania",
+        "passwordPlaceholder": "Podaj hasło…",
+        "encryptButton": "Zaszyfruj i prześlij",
+        "decryptButton": "Odszyfruj i przywróć",
+        "processing": "Przetwarzanie…",
+        "cancel": "Anuluj"
       }
     },
     "danger": {
