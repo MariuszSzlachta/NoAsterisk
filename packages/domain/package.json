@@ -2,17 +2,16 @@
   "name": "@budget/domain",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "imports": {
-    "#domain/shared/*": "./src/shared/*",
-    "#domain/transaction/*": "./src/transaction/*",
-    "#domain/account/*": "./src/account/*",
-    "#domain/import-batch/*": "./src/import-batch/*",
-    "#domain/categorization-rule/*": "./src/categorization-rule/*",
-    "#domain/category/*": "./src/category/*",
-    "#domain/budget/*": "./src/budget/*"
+    "#domain/shared/*": "./src/shared/*.ts",
+    "#domain/transaction/*": "./src/transaction/*.ts",
+    "#domain/account/*": "./src/account/*.ts",
+    "#domain/import-batch/*": "./src/import-batch/*.ts",
+    "#domain/categorization-rule/*": "./src/categorization-rule/*.ts",
+    "#domain/category/*": "./src/category/*.ts",
+    "#domain/budget/*": "./src/budget/*.ts"
   },
   "scripts": {
     "test": "vitest run",
