@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
-import type { CategoryInfo } from '#features/transactions/model/types';
+import type { CategoryInfo } from '#entities/category';
 
 // ─── Types ───────────────────────────────────────────────────────
 

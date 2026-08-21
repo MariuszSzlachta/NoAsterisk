@@ -1,1 +1,5 @@
-// Cross-feature shared types — populated in Faza 4.3
+export {
+  CATEGORY_SELECT_OPTIONS,
+  STUB_CATEGORIES,
+  type CategoryInfo,
+} from './category';

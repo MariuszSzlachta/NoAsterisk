@@ -1,0 +1,1 @@
+export { useRulesTable } from './useRulesTable';

@@ -8,7 +8,7 @@ import {
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
-import type { CategoryInfo } from '#features/transactions/model/types';
+import type { CategoryInfo } from '#entities/category';
 
 import { useCategoryPicker } from '../hooks/useCategoryPicker';
 

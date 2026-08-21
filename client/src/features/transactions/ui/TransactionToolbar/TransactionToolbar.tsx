@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import { Input } from '#shared/ui/Input';
-import type { CategoryInfo } from '#features/transactions/model/types';
+import type { CategoryInfo } from '#entities/category';
 
 import { CategoryPicker } from '../CategoryPicker';
 import { useTransactionToolbar } from '../hooks/useTransactionToolbar';

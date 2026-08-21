@@ -19,12 +19,7 @@ export interface StoredTransaction {
 }
 
 // ─── Category Lookup ─────────────────────────────────────────────
-
-export interface CategoryInfo {
-  readonly id: string;
-  readonly label: string;
-  readonly color: string;
-}
+// CategoryInfo now lives in #entities/category
 
 // ─── Transaction ViewModel (UI-ready) ────────────────────────────
 

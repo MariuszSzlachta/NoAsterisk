@@ -15,6 +15,8 @@ interface SelectProps {
   readonly showDot?: boolean;
   readonly disabled?: boolean;
   readonly className?: string;
+  readonly id?: string;
+  readonly 'aria-labelledby'?: string;
 }
 
 export const Select = ({
@@ -25,6 +27,8 @@ export const Select = ({
   showDot = false,
   disabled = false,
   className = '',
+  id,
+  'aria-labelledby': ariaLabelledBy,
 }: SelectProps): React.JSX.Element => {
   const [open, setOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
@@ -118,6 +122,8 @@ export const Select = ({
         role="combobox"
         aria-expanded={open}
         aria-haspopup="listbox"
+        id={id}
+        aria-labelledby={ariaLabelledBy}
         disabled={disabled}
         className={`inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm transition-colors hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
         onClick={open ? close : openList}
