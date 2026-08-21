@@ -11,11 +11,14 @@ import { PERMISSION_REPOSITORY } from '@auth/domain/ports/permission.repository'
 import { WorkspacesModule } from '@workspaces/workspaces.module';
 import { InMemoryUserRepository } from '@auth/infrastructure/in-memory-user.repository';
 import { InMemoryPermissionRepository } from '@auth/infrastructure/in-memory-permission.repository';
+import { PostgresUserRepository } from '@auth/infrastructure/postgres-user.repository';
+import { PostgresPermissionRepository } from '@auth/infrastructure/postgres-permission.repository';
 import { BcryptPasswordHasher } from '@auth/infrastructure/bcrypt-password-hasher.adapter';
 import { JwtTokenAdapter } from '@auth/infrastructure/jwt-token.adapter';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
+import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';
 
 // ARCH-EXCEPTION: ABAC enforcement deferred — single-user workspace in MVP.
 // Permission entity is created at registration (full workspace access).
@@ -48,8 +51,16 @@ import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
     JwtAuthGuard,
     RolesGuard,
     PermissionGuard,
-    { provide: USER_REPOSITORY, useClass: InMemoryUserRepository },
-    { provide: PERMISSION_REPOSITORY, useClass: InMemoryPermissionRepository },
+    createRepositoryProvider(
+      USER_REPOSITORY,
+      PostgresUserRepository,
+      InMemoryUserRepository,
+    ),
+    createRepositoryProvider(
+      PERMISSION_REPOSITORY,
+      PostgresPermissionRepository,
+      InMemoryPermissionRepository,
+    ),
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],

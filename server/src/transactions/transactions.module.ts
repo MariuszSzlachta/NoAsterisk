@@ -6,19 +6,22 @@ import { DeleteTransactionHandler } from '@transactions/application/commands/del
 import { GetTransactionByIdHandler } from '@transactions/application/queries/get-transaction-by-id.handler';
 import { GetTransactionsPagedHandler } from '@transactions/application/queries/get-transactions-paged.handler';
 import { InMemoryTransactionRepository } from '@transactions/infrastructure/in-memory-transaction.repository';
+import { PostgresTransactionRepository } from '@transactions/infrastructure/postgres-transaction.repository';
 import { CategoryUsageAdapter } from '@transactions/infrastructure/category-usage.adapter';
 import { TransactionsController } from '@transactions/presentation/transactions.controller';
 import { CategoriesModule } from '@categories/categories.module';
 import { CATEGORY_USAGE_PORT } from '@categories/application/ports/category-usage.port';
+import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';
 
 @Module({
   imports: [forwardRef(() => CategoriesModule)],
   controllers: [TransactionsController],
   providers: [
-    {
-      provide: TRANSACTION_REPOSITORY,
-      useClass: InMemoryTransactionRepository,
-    },
+    createRepositoryProvider(
+      TRANSACTION_REPOSITORY,
+      PostgresTransactionRepository,
+      InMemoryTransactionRepository,
+    ),
     {
       provide: CATEGORY_USAGE_PORT,
       useClass: CategoryUsageAdapter,

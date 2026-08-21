@@ -5,17 +5,20 @@ import { UpdateCategoryHandler } from '@categories/application/commands/update-c
 import { DeleteCategoryHandler } from '@categories/application/commands/delete-category.handler';
 import { GetCategoriesHandler } from '@categories/application/queries/get-categories.handler';
 import { InMemoryCategoryRepository } from '@categories/infrastructure/in-memory-category.repository';
+import { PostgresCategoryRepository } from '@categories/infrastructure/postgres-category.repository';
 import { CategoriesController } from '@categories/presentation/categories.controller';
 import { TransactionsModule } from '@transactions/transactions.module';
+import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';
 
 @Module({
   imports: [forwardRef(() => TransactionsModule)],
   controllers: [CategoriesController],
   providers: [
-    {
-      provide: CATEGORY_REPOSITORY,
-      useClass: InMemoryCategoryRepository,
-    },
+    createRepositoryProvider(
+      CATEGORY_REPOSITORY,
+      PostgresCategoryRepository,
+      InMemoryCategoryRepository,
+    ),
     CreateCategoryHandler,
     UpdateCategoryHandler,
     DeleteCategoryHandler,

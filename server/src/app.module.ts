@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, Type, DynamicModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { DatabaseModule } from '@shared/infrastructure/database/database.module';
 import { TransactionsModule } from '@transactions/transactions.module';
 import { CategoriesModule } from '@categories/categories.module';
 import { ImportsModule } from '@imports/imports.module';
@@ -11,16 +12,22 @@ import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { THROTTLE_DEFAULT } from '@shared/presentation/throttle.constants';
 
+const imports: Array<Type | DynamicModule> = [
+  ThrottlerModule.forRoot([THROTTLE_DEFAULT]),
+  AuthModule,
+  TransactionsModule,
+  CategoriesModule,
+  ImportsModule,
+  ImportProfilesModule,
+  UserSettingsModule,
+];
+
+if (process.env.PERSISTENCE_MODE === 'postgres') {
+  imports.unshift(DatabaseModule);
+}
+
 @Module({
-  imports: [
-    ThrottlerModule.forRoot([THROTTLE_DEFAULT]),
-    AuthModule,
-    TransactionsModule,
-    CategoriesModule,
-    ImportsModule,
-    ImportProfilesModule,
-    UserSettingsModule,
-  ],
+  imports,
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

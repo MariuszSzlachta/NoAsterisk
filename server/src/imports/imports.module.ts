@@ -8,6 +8,7 @@ import { PiiValidationService } from '@imports/application/services/pii-validati
 import { IMPORT_BATCH_REPOSITORY } from '@imports/application/ports/import-batch.repository';
 import { PII_RULES, PiiRule } from '@imports/application/ports/pii-rule.port';
 import { InMemoryImportBatchRepository } from '@imports/infrastructure/in-memory-import-batch.repository';
+import { PostgresImportBatchRepository } from '@imports/infrastructure/postgres-import-batch.repository';
 import {
   IbanRule,
   CardNumberRule,
@@ -18,6 +19,7 @@ import {
 import { TransactionsModule } from '@transactions/transactions.module';
 import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 import { CategoriesModule } from '@categories/categories.module';
+import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';
 
 @Module({
   imports: [TransactionsModule, ImportProfilesModule, CategoriesModule],
@@ -28,10 +30,11 @@ import { CategoriesModule } from '@categories/categories.module';
     GetImportBatchesHandler,
     GetImportBatchByIdHandler,
     PiiValidationService,
-    {
-      provide: IMPORT_BATCH_REPOSITORY,
-      useClass: InMemoryImportBatchRepository,
-    },
+    createRepositoryProvider(
+      IMPORT_BATCH_REPOSITORY,
+      PostgresImportBatchRepository,
+      InMemoryImportBatchRepository,
+    ),
     {
       provide: PII_RULES,
       useFactory: (): PiiRule[] => [

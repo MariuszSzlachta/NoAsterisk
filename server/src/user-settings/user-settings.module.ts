@@ -11,6 +11,8 @@ import { GetProfileHandler } from '@user-settings/application/queries/get-profil
 import { GetVaultHandler } from '@user-settings/application/queries/get-vault.handler';
 import { VAULT_REPOSITORY } from '@user-settings/domain/ports/vault.repository';
 import { InMemoryVaultRepository } from '@user-settings/infrastructure/in-memory-vault.repository';
+import { PostgresVaultRepository } from '@user-settings/infrastructure/postgres-vault.repository';
+import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';
 
 @Module({
   imports: [AuthModule],
@@ -24,7 +26,11 @@ import { InMemoryVaultRepository } from '@user-settings/infrastructure/in-memory
     LogoutHandler,
     GetProfileHandler,
     GetVaultHandler,
-    { provide: VAULT_REPOSITORY, useClass: InMemoryVaultRepository },
+    createRepositoryProvider(
+      VAULT_REPOSITORY,
+      PostgresVaultRepository,
+      InMemoryVaultRepository,
+    ),
   ],
 })
 export class UserSettingsModule {}
