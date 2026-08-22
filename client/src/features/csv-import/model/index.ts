@@ -32,7 +32,7 @@ export { createImportChunks, computeContentHash, computeBatchHash } from './subm
 
 // Anonymization
 export { anonymizeTitle, processRows } from './anonymization/pipeline';
-export { createDictionaryProvider, devDictionaryProvider } from './anonymization/dictionaries/dictionary.provider';
+export { buildFromStubs, createDictionaryProvider, devDictionaryProvider } from './anonymization/dictionaries/dictionary.provider';
 
 // Types (re-export from barrel)
 export type {

@@ -5,7 +5,7 @@ import { detectDuplicatesInBatch } from '#features/csv-import/model/transformati
 import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser';
 import { autoDetectMapping } from '#features/csv-import/model/column-mapping/column-mapper';
 import { processRows } from '#features/csv-import/model/anonymization/pipeline';
-import { devDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary.provider';
+import { dictionaryProvider } from '#features/csv-import/api/dictionaryProvider';
 import { transformRows } from '#features/csv-import/model/transformation/row-transformer';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { WizardStep } from '#features/csv-import/model/types';
@@ -99,7 +99,7 @@ export const useImportWizard = (): ImportWizardResult => {
       const transformed = transformRows(parsedData.rows, columnMapping);
 
       // Anonymize titles — raw data NEVER leaves the browser
-      const dictionaries = await devDictionaryProvider.loadAll();
+      const dictionaries = await dictionaryProvider.loadAll();
       const titles = transformed.map((r) => r.title);
       const anonymizationEntries = processRows(titles, dictionaries);
       setAnonymizationEntries(anonymizationEntries);

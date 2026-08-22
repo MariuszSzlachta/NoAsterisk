@@ -21,6 +21,7 @@ export {
 } from './model/transformation/duplicate-detector';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
 export {
+  buildFromStubs,
   createDictionaryProvider,
   devDictionaryProvider,
 } from './model/anonymization/dictionaries/dictionary.provider';
@@ -31,6 +32,7 @@ export { useImportWizardStore } from './store/useImportWizardStore';
 
 // API
 export { useImportMutation } from './api/useImportMutation';
+export { dictionaryProvider } from './api/dictionaryProvider';
 
 // UI — Components
 export { ColumnMappingStep } from './ui/ColumnMappingStep';

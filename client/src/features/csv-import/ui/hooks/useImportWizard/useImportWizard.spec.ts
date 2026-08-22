@@ -32,8 +32,8 @@ vi.mock('#features/csv-import/model/anonymization/pipeline', () => ({
   processRows: (...args: unknown[]) => mockProcessRows(...args),
 }));
 
-vi.mock('#features/csv-import/model/anonymization/dictionaries/dictionary.provider', () => ({
-  devDictionaryProvider: { loadAll: (...args: unknown[]) => mockLoadAll(...args) },
+vi.mock('#features/csv-import/api/dictionaryProvider', () => ({
+  dictionaryProvider: { loadAll: (...args: unknown[]) => mockLoadAll(...args) },
 }));
 
 vi.mock('#features/csv-import/model/transformation/duplicate-detector', () => ({

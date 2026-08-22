@@ -11,7 +11,7 @@ const toSet = (
   transform: (s: string) => string,
 ): ReadonlySet<string> => new Set(items.map(transform));
 
-const buildFromStubs = (): DictionarySet => ({
+export const buildFromStubs = (): DictionarySet => ({
   firstNames: toSet([...namesPl, ...namesEn], (s) => s.toLowerCase()),
   surnames: toSet(surnamesPl, (s) => s.toLowerCase()),
   merchants: toSet(merchants, (s) => s.toUpperCase()),
@@ -21,8 +21,7 @@ const buildFromStubs = (): DictionarySet => ({
 
 /**
  * Factory: creates a DictionaryProvider with its own cache instance.
- * In production, pass a loader that fetches from API.
- * In dev/test, uses bundled JSON stubs.
+ * Pass a custom loader to override the default (bundled stubs).
  */
 export const createDictionaryProvider = (
   loader: () => Promise<DictionarySet> = async () => buildFromStubs(),
@@ -43,10 +42,10 @@ export const createDictionaryProvider = (
   };
 };
 
-/** Default dev provider — uses bundled JSON stubs. */
+/** Dev/test provider — uses bundled JSON stubs only (no HTTP). */
 export const devDictionaryProvider = createDictionaryProvider();
 
-/** @deprecated Use createDictionaryProvider() for new code. */
+/** @deprecated Use dictionaryProvider from api/ for production, devDictionaryProvider for tests. */
 export const resetDictionaryCache = (): void => {
   devDictionaryProvider.resetCache();
 };
