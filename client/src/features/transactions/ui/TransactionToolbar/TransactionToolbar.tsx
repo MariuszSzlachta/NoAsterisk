@@ -1,10 +1,11 @@
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import type { CategoryInfo } from '#entities/category';
+import { Button } from '#shared/ui/Button';
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import { Input } from '#shared/ui/Input';
-import type { CategoryInfo } from '#entities/category';
 
 import { CategoryPicker } from '../CategoryPicker';
 import { useTransactionToolbar } from '../hooks/useTransactionToolbar';
@@ -23,6 +24,7 @@ interface TransactionToolbarProps {
   readonly selectionCount?: number;
   readonly onBulkCategoryChange?: (categoryId: string) => void;
   readonly categories?: ReadonlyArray<CategoryInfo>;
+  readonly onAddTransaction?: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
@@ -31,6 +33,7 @@ export const TransactionToolbar = ({
   selectionCount = 0,
   onBulkCategoryChange,
   categories = [],
+  onAddTransaction,
 }: TransactionToolbarProps): React.JSX.Element => {
   const { t } = useTranslation();
   const {
@@ -65,6 +68,17 @@ export const TransactionToolbar = ({
         selected={dateRange}
         onSelect={handleDateRangeChange}
       />
+
+      {onAddTransaction && (
+        <Button
+          variant="primary"
+          size="sm"
+          icon={<Plus size={14} />}
+          onClick={onAddTransaction}
+        >
+          {t('transactions.addButton')}
+        </Button>
+      )}
 
       {hasSelection && onBulkCategoryChange && (
         <div className="ml-auto">

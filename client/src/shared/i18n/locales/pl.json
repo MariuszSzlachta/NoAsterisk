@@ -382,7 +382,25 @@
   "transactions": {
     "filterPlaceholder": "Filtruj transakcje…",
     "categorySearch": "Szukaj kategorii…",
-    "categoryNoResults": "Brak wyników"
+    "categoryNoResults": "Brak wyników",
+    "form": {
+      "title": "Dodaj transakcję",
+      "titleLabel": "Tytuł",
+      "titlePlaceholder": "np. Zakupy w Biedronce",
+      "amountLabel": "Kwota",
+      "amountPlaceholder": "0.00",
+      "dateLabel": "Data",
+      "typeLabel": "Typ",
+      "typeExpense": "Wydatek",
+      "typeIncome": "Przychód",
+      "categoryLabel": "Kategoria (opcjonalnie)",
+      "categoryPlaceholder": "Bez kategorii",
+      "cancel": "Anuluj",
+      "submit": "Dodaj",
+      "successToast": "Transakcja dodana"
+    },
+    "addButton": "Dodaj transakcję",
+    "emptyDescription": "Brak transakcji. Zaimportuj CSV aby rozpocząć."
   },
   "settings": {
     "title": "Ustawienia",

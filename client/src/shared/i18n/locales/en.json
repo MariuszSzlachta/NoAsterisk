@@ -381,7 +381,25 @@
   "transactions": {
     "filterPlaceholder": "Filter transactions…",
     "categorySearch": "Search category…",
-    "categoryNoResults": "No results"
+    "categoryNoResults": "No results",
+    "form": {
+      "title": "Add transaction",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Grocery shopping",
+      "amountLabel": "Amount",
+      "amountPlaceholder": "0.00",
+      "dateLabel": "Date",
+      "typeLabel": "Type",
+      "typeExpense": "Expense",
+      "typeIncome": "Income",
+      "categoryLabel": "Category (optional)",
+      "categoryPlaceholder": "No category",
+      "cancel": "Cancel",
+      "submit": "Add",
+      "successToast": "Transaction added"
+    },
+    "addButton": "Add transaction",
+    "emptyDescription": "No transactions. Import a CSV to get started."
   },
   "settings": {
     "title": "Settings",

@@ -18,3 +18,9 @@ export {
 } from './filter-engine';
 
 export { mapStoredToViewModel } from './transformers';
+
+export type {
+  CreateTransactionErrors,
+  CreateTransactionFormValues,
+} from './create-transaction';
+export { hasErrors, mapFormValuesToStored, validateCreateTransaction } from './create-transaction';
