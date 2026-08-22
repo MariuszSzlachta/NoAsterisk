@@ -8,10 +8,7 @@ import * as schema from '@shared/infrastructure/database/schema';
 import { DictionaryType } from '@dictionaries/domain/dictionary-type.enum';
 import { DictionaryEntry } from '@dictionaries/domain/dictionary-entry.entity';
 
-const STUBS_DIR = resolve(
-  __dirname,
-  '../../../../client/src/features/csv-import/model/anonymization/dictionaries/stubs',
-);
+const STUBS_DIR = resolve(__dirname, '../data/enriched');
 
 interface StubMapping {
   readonly file: string;
@@ -19,8 +16,8 @@ interface StubMapping {
 }
 
 const STUB_MAPPINGS: readonly StubMapping[] = [
-  { file: 'names-pl.json', type: DictionaryType.FirstName },
-  { file: 'names-en.json', type: DictionaryType.FirstName },
+  { file: 'first-names-pl.json', type: DictionaryType.FirstName },
+  { file: 'first-names-en.json', type: DictionaryType.FirstName },
   { file: 'surnames-pl.json', type: DictionaryType.Surname },
   { file: 'merchants.json', type: DictionaryType.Merchant },
   { file: 'cities-pl.json', type: DictionaryType.City },

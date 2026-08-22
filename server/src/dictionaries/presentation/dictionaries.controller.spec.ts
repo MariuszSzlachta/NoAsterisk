@@ -6,12 +6,14 @@ import { DictionariesModule } from '@dictionaries/dictionaries.module';
 import { DomainExceptionFilter } from '@shared/presentation/domain-exception.filter';
 import { DICTIONARY_REPOSITORY } from '@dictionaries/domain/ports/dictionary.repository';
 import { InMemoryDictionaryRepository } from '@dictionaries/infrastructure/in-memory-dictionary.repository';
+import { DictionariesController } from '@dictionaries/presentation/dictionaries.controller';
 import { DictionaryEntry } from '@dictionaries/domain/dictionary-entry.entity';
 import { DictionaryType } from '@dictionaries/domain/dictionary-type.enum';
 
 describe('DictionariesController', () => {
   let app: INestApplication<App>;
   let repo: InMemoryDictionaryRepository;
+  let controller: DictionariesController;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,10 +36,12 @@ describe('DictionariesController', () => {
     await app.init();
 
     repo = module.get<InMemoryDictionaryRepository>(DICTIONARY_REPOSITORY);
+    controller = module.get<DictionariesController>(DictionariesController);
   });
 
   beforeEach(() => {
     repo.clear();
+    controller['invalidateCache']();
   });
 
   afterAll(async () => {
@@ -65,6 +69,42 @@ describe('DictionariesController', () => {
       expect(res.body.merchants).toContain('BIEDRONKA');
       expect(res.body.surnames).toEqual([]);
     });
+
+    it('returns Cache-Control and ETag headers', async () => {
+      const res = await request(app.getHttpServer()).get('/dictionaries');
+
+      expect(res.status).toBe(200);
+      expect(res.headers['cache-control']).toBe('public, max-age=86400');
+      expect(res.headers['etag']).toMatch(/^"[a-f0-9]{32}"$/);
+    });
+
+    it('returns 304 when If-None-Match matches ETag', async () => {
+      const first = await request(app.getHttpServer()).get('/dictionaries');
+      const etag = first.headers['etag'] as string;
+
+      const second = await request(app.getHttpServer())
+        .get('/dictionaries')
+        .set('If-None-Match', etag);
+
+      expect(second.status).toBe(304);
+      expect(second.body).toEqual({});
+    });
+
+    it('returns 200 with new ETag after data changes', async () => {
+      const first = await request(app.getHttpServer()).get('/dictionaries');
+      const etagBefore = first.headers['etag'] as string;
+
+      await request(app.getHttpServer())
+        .post('/dictionaries')
+        .send({ type: 'City', value: 'Poznań' });
+
+      const second = await request(app.getHttpServer())
+        .get('/dictionaries')
+        .set('If-None-Match', etagBefore);
+
+      expect(second.status).toBe(200);
+      expect(second.headers['etag']).not.toBe(etagBefore);
+    });
   });
 
   describe('GET /dictionaries/:type', () => {
@@ -83,6 +123,29 @@ describe('DictionariesController', () => {
       );
 
       expect(res.status).toBe(400);
+    });
+
+    it('returns ETag and Cache-Control headers', async () => {
+      const res = await request(app.getHttpServer()).get(
+        '/dictionaries/FirstName',
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.headers['cache-control']).toBe('public, max-age=86400');
+      expect(res.headers['etag']).toMatch(/^"[a-f0-9]{32}"$/);
+    });
+
+    it('returns 304 when If-None-Match matches ETag', async () => {
+      const first = await request(app.getHttpServer()).get(
+        '/dictionaries/FirstName',
+      );
+      const etag = first.headers['etag'] as string;
+
+      const second = await request(app.getHttpServer())
+        .get('/dictionaries/FirstName')
+        .set('If-None-Match', etag);
+
+      expect(second.status).toBe(304);
     });
   });
 
