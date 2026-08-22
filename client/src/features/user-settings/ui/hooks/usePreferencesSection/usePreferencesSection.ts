@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { useState } from 'react';
+import i18n from 'i18next';
 
 import { useUpdatePreferencesMutation } from '#features/user-settings/api/useUpdatePreferencesMutation';
 import type { PreferencesValues } from '#features/user-settings/model/types';
@@ -57,6 +58,9 @@ export const usePreferencesSection = (): UsePreferencesSectionResult => {
     setLanguage(draft.language);
     setTheme(draft.theme);
     setHomePage(draft.homePage);
+
+    // Sync i18n language with the saved preference
+    void i18n.changeLanguage(draft.language);
 
     // Fire-and-forget background sync to backend
     void mutateAsync(draft);

@@ -1,0 +1,531 @@
+{
+  "common": {
+    "close": "Close"
+  },
+  "pagination": {
+    "range": "{{start}}–{{end}} of {{total}}",
+    "rowsPerPage": "Rows:",
+    "prevPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "app": {
+    "name": "BudgetFlow"
+  },
+  "nav": {
+    "overview": "Overview",
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "import": "CSV Import",
+    "budgets": "Budgets",
+    "analytics": "Analytics",
+    "rules": "Rules",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "topbar": {
+    "search": "Search transactions…",
+    "notifications": "Notifications (new)",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "importCsv": "Import CSV",
+    "searchLabel": "Search transactions (⌘K)"
+  },
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "import": "Import",
+    "budgets": "Budgets",
+    "analytics": "Analytics",
+    "rules": "Rules",
+    "settings": "Settings",
+    "fallback": "Page"
+  },
+  "titles": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "import": "CSV Import",
+    "budgets": "Budgets",
+    "analytics": "Analytics",
+    "rules": "Rules",
+    "settings": "Settings",
+    "fallback": "Page"
+  },
+  "user": {
+    "workspace": "Home account",
+    "email": "user@example.com"
+  },
+  "analytics": {
+    "metrics": {
+      "balance": "Balance",
+      "income": "Income",
+      "expenses": "Expenses",
+      "savings": "Savings"
+    },
+    "periods": {
+      "1m": "1M",
+      "3m": "3M",
+      "6m": "6M",
+      "1y": "1Y",
+      "ytd": "YTD"
+    },
+    "chartTypes": {
+      "line": "Line",
+      "bar": "Bar",
+      "area": "Area"
+    },
+    "granularity": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "breakdown": {
+      "expensesTitle": "Expenses by category",
+      "incomeTitle": "Income by category"
+    },
+    "drilldown": {
+      "close": "Close",
+      "trendTitle": "Trend in selected period",
+      "transactionsTitle": "Recent transactions"
+    }
+  },
+  "budgets": {
+    "kpi": {
+      "totalPlanned": "Planned",
+      "totalSpent": "Spent",
+      "totalRemaining": "Remaining",
+      "needsAttention": "Need attention"
+    },
+    "card": {
+      "daysRemaining_one": "{{count}} day remaining",
+      "daysRemaining_other": "{{count}} days remaining",
+      "spent": "SPENT",
+      "remaining": "REMAINING",
+      "assignTransaction": "Assign transaction",
+      "hide": "Hide",
+      "details": "Details",
+      "progressSubtitle": "{{spentPercent}}% spent at {{timePercent}}% of time",
+      "periodEnded": "Period ended · Closure required",
+      "closePeriod": "Close period",
+      "closeAndReopen": "Close and open new period"
+    },
+    "grid": {
+      "empty": "No budgets. Create your first budget."
+    },
+    "form": {
+      "titleCreate": "New budget",
+      "titleEdit": "Edit budget",
+      "closeModal": "Close window",
+      "close": "Close",
+      "typeLabel": "Budget type",
+      "typeStandard": "Standard",
+      "typeSavings": "Savings",
+      "nameLabel": "Budget name",
+      "namePlaceholder": "e.g. Groceries",
+      "colorLabel": "Color",
+      "colorSelect": "Select color {{color}}",
+      "limitLabel": "Limit ({{currency}})",
+      "limitPlaceholder": "e.g. 2000",
+      "goalLabel": "Savings goal (optional)",
+      "goalPlaceholder": "e.g. 10000",
+      "periodLabel": "Period",
+      "periodMonthly": "Month",
+      "periodYearly": "Year",
+      "periodCustom": "Custom",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "cancel": "Cancel",
+      "save": "Save",
+      "create": "Create"
+    },
+    "assign": {
+      "title": "Assign transactions",
+      "closeModal": "Close window",
+      "close": "Close",
+      "searchPlaceholder": "Search transactions...",
+      "countUnassigned": "{{count}} transactions without budget",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect",
+      "empty": "No transactions to assign.",
+      "selectTransaction": "Select transaction {{description}}",
+      "selectedCount": "{{count}} selected",
+      "cancel": "Cancel",
+      "submit": "Assign ({{count}})"
+    },
+    "transactions": {
+      "empty": "No assigned transactions in this period.",
+      "heading": "ASSIGNED TRANSACTIONS"
+    },
+    "filters": {
+      "all": "All",
+      "needsAttention": "Need attention",
+      "monthly": "Month",
+      "yearly": "Year",
+      "custom": "Custom",
+      "customPlaceholder": "Select date range"
+    },
+    "status": {
+      "overBudget": "Over budget",
+      "warning": "Warning",
+      "onTrack": "On track",
+      "surplus": "Surplus",
+      "newPeriod": "New period",
+      "awaitingClosure": "Awaiting closure"
+    },
+    "closure": {
+      "title": "Close period: {{name}}",
+      "limit": "Limit",
+      "spent": "Spent",
+      "surplus": "Surplus",
+      "overspent": "Overspent",
+      "noSurplus": "Budget fully used. No surplus to carry over.",
+      "optionCarryForward": "Carry forward to next period",
+      "optionCarryForwardHint": "Limit: {{currentLimit}} + {{surplus}} = {{newLimit}}",
+      "optionSavings": "Transfer to savings",
+      "optionSavingsSelect": "Select savings budget",
+      "optionSavingsEmpty": "Create a savings budget first",
+      "optionDiscard": "Discard surplus",
+      "cancel": "Cancel",
+      "submit": "Close period"
+    },
+    "savings": {
+      "title": "Savings budgets",
+      "subtitle": "Savings budget",
+      "accumulated": "ACCUMULATED",
+      "goal": "GOAL",
+      "noGoal": "No goal",
+      "lastInflow": "Last inflow: +{{amount}} ({{source}})",
+      "inflowHistory": "Inflow history",
+      "empty": "You don't have a savings budget yet.",
+      "create": "Create savings budget",
+      "progressLabel": "{{percent}}% of goal"
+    }
+  },
+  "import": {
+    "steps": {
+      "file": "Upload",
+      "columns": "Mapping",
+      "anonymization": "Anonymization",
+      "preview": "Preview",
+      "import": "Import"
+    },
+    "upload": {
+      "heading": "Import bank statement",
+      "description": "We support CSV files from any bank. The file is analyzed in your browser.",
+      "securityNote": "Data parsed locally — nothing is sent to the server.",
+      "next": "Next",
+      "remove": "Remove",
+      "detectedAuto": "Detected automatically",
+      "chipEncoding": "Encoding",
+      "chipSeparator": "Separator",
+      "chipHeaders": "Headers",
+      "chipHeadersValue": "Row 1",
+      "chipBank": "Bank",
+      "profileRecognized": "Recognized profile {{bank}}",
+      "profileDescription": "Saved column mapping is ready to use.",
+      "profileUse": "Use profile",
+      "profileCustomize": "Customize",
+      "rows": "{{count}} rows"
+    },
+    "anonymization": {
+      "heading": "Data anonymization",
+      "description": "Personal data is detected and masked locally. Review suggestions before import.",
+      "acceptAll": "Accept all suggestions",
+      "hint": "Click a cell to see the original",
+      "legend": {
+        "safe": "Safe",
+        "needsReview": "Needs review",
+        "anonymized": "Anonymized"
+      },
+      "stats": {
+        "scanned": "Scanned {{count}} cells",
+        "anonymized": "{{count}} anonymized",
+        "needsReview": "{{count}} need review"
+      },
+      "popover": {
+        "original": "Original",
+        "anonymized": "After anonymization",
+        "restore": "Restore",
+        "edit": "Edit",
+        "save": "Save"
+      },
+      "filter": {
+        "all": "All"
+      }
+    },
+    "mapping": {
+      "title": "Column mapping",
+      "description": "Review raw data preview and assign columns to system fields.",
+      "skip": "— skip —",
+      "confirm": "Next — data preview",
+      "csvColumn": "CSV column",
+      "example": "example",
+      "fieldAssignment": "Field assignment",
+      "saveProfilePrompt": "Save this mapping as an import profile for future use?",
+      "saveProfileButton": "Save as...",
+      "fields": {
+        "date": "Date",
+        "title": "Title / Description",
+        "amount": "Amount",
+        "currency": "Currency",
+        "balance": "Balance",
+        "debit": "Debit",
+        "credit": "Credit",
+        "category": "Category",
+        "source": "Source / Sender",
+        "recipient": "Recipient",
+        "counterpart": "Sender / Recipient",
+        "reference": "Reference number"
+      },
+      "merge": {
+        "badge": "merge ×{{count}}",
+        "hint": "Merged with: {{columns}}"
+      }
+    },
+    "preview": {
+      "rows": "{{count}} rows",
+      "ok": "{{count}} OK",
+      "warnings": "{{count}} warnings",
+      "duplicates": "{{count}} duplicates",
+      "errors": "{{count}} errors",
+      "noCategory": "None",
+      "errorBanner": "{{count}} of {{total}} rows contain errors — fix column mapping to continue.",
+      "backToMapping": "Back to mapping"
+    },
+    "filter": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expenses",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "dateRange": "Date range"
+    },
+    "grid": {
+      "status": "",
+      "date": "Date",
+      "title": "Title",
+      "amount": "Amount",
+      "currency": "Currency",
+      "balance": "Balance",
+      "category": "Category",
+      "debit": "Debit",
+      "credit": "Credit",
+      "source": "Source",
+      "recipient": "Recipient",
+      "counterpart": "Counterparty",
+      "reference": "Reference number",
+      "info": "Info"
+    },
+    "confirm": {
+      "title": "Import confirmation",
+      "readyDescription": "Ready to import: {{count}} transactions will be sent to the server.",
+      "submit": "Import transactions",
+      "progress": "Sending batch {{completed}} of {{total}}...",
+      "saved": "Saved {{count}} transactions",
+      "success": "Import completed successfully",
+      "successDetail": "Saved: {{saved}}, duplicates skipped: {{duplicates}}",
+      "failed": "Import completed with errors",
+      "partialSuccess": "Partially saved: {{saved}} transactions",
+      "retry": "Retry import"
+    },
+    "nav": {
+      "back": "Back",
+      "continue": "Next — import {{count}} transactions"
+    },
+    "batchEdit": {
+      "title": "Found {{count}} similar transactions",
+      "description": "Change the \"{{field}}\" field in these transactions too?",
+      "applyAll": "Change all ({{count}})",
+      "skip": "No, just this one",
+      "fields": {
+        "title": "title",
+        "category": "category"
+      }
+    }
+  },
+  "rules": {
+    "pageTitle": "Categorization rules",
+    "pageDescription": "Automatically assign categories to transactions based on keywords.",
+    "addRule": "Add rule",
+    "applyRules": "Apply rules",
+    "result": "Categorized <strong>{{categorized}}</strong> of <strong>{{total}}</strong> uncategorized transactions.",
+    "resultText": "Categorized {{categorized}} of {{total}} uncategorized transactions.",
+    "emptyState": "No rules. Add your first rule.",
+    "form": {
+      "titleAdd": "Add rule",
+      "titleEdit": "Edit rule",
+      "keyword": "Keyword",
+      "keywordPlaceholder": "e.g. BIEDRONKA",
+      "matcher": "Match type",
+      "matcherContains": "Contains",
+      "matcherExact": "Exact",
+      "category": "Category",
+      "categoryPlaceholder": "Select category...",
+      "priority": "Priority",
+      "save": "Save",
+      "add": "Add",
+      "cancel": "Cancel"
+    },
+    "columns": {
+      "keyword": "Keyword",
+      "matcher": "Match type",
+      "category": "Category",
+      "priority": "Priority",
+      "actions": "Actions"
+    },
+    "actions": {
+      "edit": "Edit rule {{keyword}}",
+      "delete": "Delete rule {{keyword}}"
+    },
+    "fallbackCategory": "Unknown"
+  },
+  "transactions": {
+    "filterPlaceholder": "Filter transactions…",
+    "categorySearch": "Search category…",
+    "categoryNoResults": "No results"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "email": "Email",
+      "workspaceId": "Workspace ID",
+      "copyWorkspaceId": "Copy Workspace ID",
+      "role": "Role",
+      "roleAdmin": "Administrator",
+      "roleMember": "Member",
+      "memberSince": "Member since {{date}}",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Change your account password.",
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Minimum 8 characters",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Repeat new password",
+      "showPasswords": "Show passwords",
+      "hidePasswords": "Hide passwords",
+      "submit": "Change password",
+      "submitting": "Changing...",
+      "rules": {
+        "minLength": "Minimum 8 characters",
+        "hasUppercase": "Contains uppercase letter",
+        "hasLowercase": "Contains lowercase letter",
+        "hasDigit": "Contains a digit",
+        "hasSpecialChar": "Contains special character",
+        "differentFromCurrent": "Different from current password",
+        "confirmationMatch": "Confirmation matches"
+      }
+    },
+    "preferences": {
+      "title": "Preferences",
+      "subtitle": "Change settings, then save your changes.",
+      "unsavedChanges": "You have unsaved changes",
+      "save": "Save",
+      "cancel": "Cancel",
+      "currency": "Default currency",
+      "currencyDescription": "Currency for displaying amounts",
+      "dateFormat": "Date format",
+      "dateFormatDescription": "Date display format",
+      "language": "Language",
+      "languageDescription": "Interface language",
+      "theme": "Theme",
+      "themeDescription": "Application appearance",
+      "homePage": "Home page",
+      "homePageDescription": "Default page after login",
+      "unsavedLabel": "Unsaved change"
+    },
+    "vault": {
+      "title": "Data and sync",
+      "subtitle": "Encrypted backup of your local data.",
+      "statusSynced": "Synced",
+      "statusUnsynced": "Unsaved changes",
+      "statusNoBackup": "No backup",
+      "lastSync": "Last sync: {{date}}",
+      "noBackup": "No backup",
+      "sync": "Sync now",
+      "syncing": "Syncing...",
+      "restore": "Restore from backup",
+      "export": "Export data (JSON)",
+      "import": "Import data (JSON)",
+      "importLabel": "Select JSON file to import",
+      "encryptionInfo": "Your data is encrypted in the browser with a key derived from your password. The server stores only an encrypted blob — it has no access to your financial data.",
+      "stats": {
+        "transactions": "Transactions",
+        "budgets": "Budgets",
+        "rules": "Rules",
+        "importProfiles": "Import profiles",
+        "size": "Size"
+      },
+      "syncSuccess": "Data encrypted and uploaded successfully.",
+      "syncError": "Failed to encrypt or upload data.",
+      "restoreSuccess": "Data restored successfully.",
+      "restoreError": "Failed to restore data.",
+      "wrongPassword": "Incorrect password — failed to decrypt data.",
+      "importInvalidFormat": "Invalid file format — missing transaction or rule data.",
+      "importInvalidJson": "Invalid JSON file.",
+      "importSuccess": "Data imported successfully.",
+      "passwordDialog": {
+        "encryptTitle": "Encrypt data",
+        "encryptDescription": "Enter a password to encrypt your data. Remember it — without the password, data recovery is impossible.",
+        "decryptTitle": "Decrypt backup",
+        "decryptDescription": "Enter the password used during encryption to restore data from backup.",
+        "passwordLabel": "Encryption password",
+        "passwordPlaceholder": "Enter password…",
+        "encryptButton": "Encrypt and upload",
+        "decryptButton": "Decrypt and restore",
+        "processing": "Processing…",
+        "cancel": "Cancel"
+      }
+    },
+    "danger": {
+      "title": "Danger zone",
+      "subtitle": "These actions are irreversible. Proceed with caution.",
+      "clearData": "Clear local data",
+      "clearDataDescription": "Removes all transactions, rules, and preferences from the browser.",
+      "clearDataButton": "Clear data",
+      "deleteAccount": "Delete account",
+      "deleteAccountDescription": "Permanently deletes your account and all data from the server.",
+      "deleteAccountButton": "Delete account",
+      "clearDialog": {
+        "title": "Clear local data",
+        "description": "This action is irreversible. All local data (transactions, rules, preferences) will be deleted.",
+        "confirmText": "DELETE",
+        "confirmButton": "Clear data"
+      },
+      "deleteDialog": {
+        "title": "Delete account",
+        "description": "Your account will be permanently deleted along with all server data. This action cannot be undone.",
+        "confirmText": "DELETE ACCOUNT",
+        "confirmButton": "Delete account",
+        "deleting": "Deleting...",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter password to confirm"
+      }
+    },
+    "userMenu": {
+      "settings": "Settings",
+      "logout": "Log out",
+      "menuLabel": "User menu"
+    },
+    "confirmDialog": {
+      "cancel": "Cancel",
+      "inputLabel": "Type \"{{text}}\" to confirm",
+      "closeLabel": "Close notification"
+    },
+    "restoreDialog": {
+      "title": "Backup found",
+      "backupDate": "Backup from: {{date}}",
+      "description": "Restoring will overwrite your current local data. Make sure you have your current data exported.",
+      "passwordLabel": "Decryption password",
+      "passwordPlaceholder": "Enter account password",
+      "cancel": "Start fresh",
+      "confirm": "Restore data"
+    }
+  }
+}
