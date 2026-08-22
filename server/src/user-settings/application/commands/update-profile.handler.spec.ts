@@ -21,6 +21,7 @@ describe('UpdateProfileHandler', () => {
       save: jest.fn().mockImplementation((u) => Promise.resolve(u)),
       findById: jest.fn().mockResolvedValue(existingUser),
       findByEmail: jest.fn(),
+      findAll: jest.fn(),
       existsByEmail: jest.fn(),
       delete: jest.fn(),
     };

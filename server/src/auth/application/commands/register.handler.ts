@@ -16,6 +16,10 @@ import {
   WORKSPACE_REPOSITORY,
   WorkspaceRepository,
 } from '@workspaces/domain/ports/workspace.repository';
+import {
+  INVITE_CODE_REPOSITORY,
+  InviteCodeRepository,
+} from '@invite-codes/domain/ports/invite-code.repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 import { Permission } from '@auth/domain/permission.entity';
@@ -23,9 +27,12 @@ import { Workspace } from '@workspaces/domain/workspace.entity';
 import { DomainError } from '@budget/domain';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
 
+export const REGISTRATION_MODE = Symbol('REGISTRATION_MODE');
+
 export interface RegisterCommand {
   email: string;
   password: string;
+  inviteCode?: string;
 }
 
 @Injectable()
@@ -38,12 +45,31 @@ export class RegisterHandler {
     private readonly workspaceRepo: WorkspaceRepository,
     @Inject(PERMISSION_REPOSITORY)
     private readonly permissionRepo: PermissionRepository,
+    @Inject(INVITE_CODE_REPOSITORY)
+    private readonly inviteCodeRepo: InviteCodeRepository,
+    @Inject(REGISTRATION_MODE)
+    private readonly registrationMode: string,
   ) {}
 
   async execute(command: RegisterCommand): Promise<AuthResult> {
+    if (this.registrationMode === 'invite-only') {
+      if (!command.inviteCode) {
+        throw new DomainError('Invite code is required');
+      }
+    }
+
+    // Claim invite code BEFORE user creation to prevent race conditions.
+    // If user creation fails after code is claimed, the code is consumed (acceptable).
+    // ARCH-EXCEPTION: Postgres impl should wrap the full flow in a transaction
+    // for consistency. In-memory mode is single-threaded, no race possible.
+    let claimedCodeId: string | undefined;
+    if (command.inviteCode) {
+      claimedCodeId = await this.claimInviteCode(command.inviteCode);
+    }
+
     const exists = await this.userRepo.existsByEmail(command.email);
     if (exists) {
-      throw new DomainError('Email already registered');
+      throw new DomainError('Registration failed');
     }
 
     const workspace = Workspace.create({
@@ -62,6 +88,11 @@ export class RegisterHandler {
 
     await this.userRepo.save(user);
 
+    // Update code with userId after user is created
+    if (claimedCodeId) {
+      await this.assignUserToCode(claimedCodeId, user.id);
+    }
+
     const permission = Permission.create({
       userId: user.id,
       resourceType: 'workspace',
@@ -74,6 +105,7 @@ export class RegisterHandler {
       sub: user.id,
       workspaceId: user.workspaceId,
       role: user.role,
+      tokenVersion: user.tokenVersion,
     };
     const accessToken = this.token.sign(tokenPayload);
     const refreshToken = this.token.signRefresh(tokenPayload);
@@ -88,5 +120,33 @@ export class RegisterHandler {
         workspaceId: user.workspaceId,
       },
     };
+  }
+
+  /**
+   * Claims the invite code atomically — marks as Used with a placeholder userId.
+   * This prevents race conditions where two registrations use the same code.
+   * Returns the code ID for later userId assignment.
+   */
+  private async claimInviteCode(code: string): Promise<string> {
+    const inviteCode = await this.inviteCodeRepo.findByCode(code);
+    if (!inviteCode || !inviteCode.isAvailable()) {
+      throw new DomainError('Invalid invite code');
+    }
+    const redeemed = inviteCode.redeem('pending');
+    await this.inviteCodeRepo.save(redeemed);
+    return inviteCode.id;
+  }
+
+  /**
+   * Updates the claimed code with the actual userId after successful user creation.
+   */
+  private async assignUserToCode(
+    codeId: string,
+    userId: string,
+  ): Promise<void> {
+    const code = await this.inviteCodeRepo.findById(codeId);
+    if (!code) return;
+    const updated = code.assignUser(userId);
+    await this.inviteCodeRepo.save(updated);
   }
 }

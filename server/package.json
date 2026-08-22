@@ -106,7 +106,8 @@
       "^@workspaces/(.*)$": "<rootDir>/workspaces/$1",
       "^@import-profiles/(.*)$": "<rootDir>/import-profiles/$1",
       "^@user-settings/(.*)$": "<rootDir>/user-settings/$1",
-      "^@dictionaries/(.*)$": "<rootDir>/dictionaries/$1"
+      "^@dictionaries/(.*)$": "<rootDir>/dictionaries/$1",
+      "^@invite-codes/(.*)$": "<rootDir>/invite-codes/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AuthModule } from '@auth/auth.module';
+import { REGISTRATION_MODE } from '@auth/application/commands/register.handler';
 import { DomainExceptionFilter } from '@shared/presentation/domain-exception.filter';
 
 describe('AuthController', () => {
@@ -11,7 +12,10 @@ describe('AuthController', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AuthModule],
-    }).compile();
+    })
+      .overrideProvider(REGISTRATION_MODE)
+      .useValue('open')
+      .compile();
 
     app = module.createNestApplication();
     app.useGlobalFilters(new DomainExceptionFilter());

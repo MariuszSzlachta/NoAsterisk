@@ -23,6 +23,7 @@ describe('GetProfileHandler', () => {
       save: jest.fn(),
       findById: jest.fn().mockResolvedValue(existingUser),
       findByEmail: jest.fn(),
+      findAll: jest.fn(),
       existsByEmail: jest.fn(),
       delete: jest.fn(),
     };

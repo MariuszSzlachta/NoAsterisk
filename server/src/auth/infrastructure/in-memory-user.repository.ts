@@ -19,11 +19,19 @@ export class InMemoryUserRepository implements UserRepository {
     return [...this.store.values()].find((u) => u.email === email);
   }
 
+  async findAll(): Promise<ReadonlyArray<User>> {
+    return [...this.store.values()];
+  }
+
   async existsByEmail(email: string): Promise<boolean> {
     return [...this.store.values()].some((u) => u.email === email);
   }
 
   async delete(id: string): Promise<void> {
     this.store.delete(id);
+  }
+
+  clear(): void {
+    this.store.clear();
   }
 }

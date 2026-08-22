@@ -43,6 +43,10 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
+    if (payload.role === 'Blocked') {
+      throw new UnauthorizedException('Account is blocked');
+    }
+
     request.user = {
       userId: payload.sub,
       workspaceId: payload.workspaceId,

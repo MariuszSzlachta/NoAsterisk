@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from '@auth/presentation/auth.controller';
-import { RegisterHandler } from '@auth/application/commands/register.handler';
+import {
+  RegisterHandler,
+  REGISTRATION_MODE,
+} from '@auth/application/commands/register.handler';
 import { LoginHandler } from '@auth/application/commands/login.handler';
 import { RefreshHandler } from '@auth/application/commands/refresh.handler';
 import { USER_REPOSITORY } from '@auth/domain/ports/user.repository';
@@ -9,6 +12,7 @@ import { PASSWORD_HASHER } from '@auth/domain/ports/password-hasher.port';
 import { TOKEN_PORT } from '@auth/domain/ports/token.port';
 import { PERMISSION_REPOSITORY } from '@auth/domain/ports/permission.repository';
 import { WorkspacesModule } from '@workspaces/workspaces.module';
+import { InviteCodesModule } from '@invite-codes/invite-codes.module';
 import { InMemoryUserRepository } from '@auth/infrastructure/in-memory-user.repository';
 import { InMemoryPermissionRepository } from '@auth/infrastructure/in-memory-permission.repository';
 import { PostgresUserRepository } from '@auth/infrastructure/postgres-user.repository';
@@ -30,15 +34,14 @@ import { createRepositoryProvider } from '@shared/infrastructure/database/persis
 @Module({
   imports: [
     WorkspacesModule,
+    InviteCodesModule,
     JwtModule.register({
       secret: (() => {
         const secret = process.env['JWT_SECRET'];
-        if (!secret && process.env['NODE_ENV'] === 'production') {
-          throw new Error(
-            'JWT_SECRET environment variable is required in production',
-          );
+        if (!secret) {
+          throw new Error('JWT_SECRET environment variable is required');
         }
-        return secret ?? 'dev-secret-unsafe';
+        return secret;
       })(),
       signOptions: { expiresIn: '15m' },
     }),
@@ -63,6 +66,10 @@ import { createRepositoryProvider } from '@shared/infrastructure/database/persis
     ),
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasher },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
+    {
+      provide: REGISTRATION_MODE,
+      useValue: process.env['REGISTRATION_MODE'] ?? 'invite-only',
+    },
   ],
   exports: [
     USER_REPOSITORY,

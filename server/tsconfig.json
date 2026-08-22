@@ -32,6 +32,8 @@
       "@auth/*": ["auth/*"],
       "@workspaces/*": ["workspaces/*"],
       "@user-settings/*": ["user-settings/*"],
+      "@invite-codes/*": ["invite-codes/*"],
+      "@dictionaries/*": ["dictionaries/*"],
       "@dictionaries/*": ["dictionaries/*"]
     },
     "incremental": true,

@@ -11,6 +11,11 @@ export interface UserRepository {
   save(user: User): Promise<User>;
   findById(id: string): Promise<User | undefined>;
   findByEmail(email: string): Promise<User | undefined>;
+  /**
+   * ARCH-EXCEPTION: global-scope — Superuser-only admin endpoint.
+   * Returns all users across workspaces for platform administration.
+   */
+  findAll(): Promise<ReadonlyArray<User>>;
   existsByEmail(email: string): Promise<boolean>;
   delete(id: string): Promise<void>;
 }

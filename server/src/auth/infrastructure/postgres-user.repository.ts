@@ -26,6 +26,7 @@ export class PostgresUserRepository implements UserRepository {
         createdAt: user.createdAt,
         displayName: user.displayName ?? null,
         preferences: user.preferences,
+        tokenVersion: user.tokenVersion,
       })
       .onConflictDoUpdate({
         target: users.id,
@@ -35,6 +36,7 @@ export class PostgresUserRepository implements UserRepository {
           role: user.role,
           displayName: user.displayName ?? null,
           preferences: user.preferences,
+          tokenVersion: user.tokenVersion,
         },
       });
     return user;
@@ -51,6 +53,13 @@ export class PostgresUserRepository implements UserRepository {
       .from(users)
       .where(eq(users.email, email));
     return this.toDomain(rows[0]);
+  }
+
+  async findAll(): Promise<ReadonlyArray<User>> {
+    const rows = await this.db.select().from(users);
+    return rows
+      .map((row) => this.toDomain(row))
+      .filter((user): user is User => user !== undefined);
   }
 
   async existsByEmail(email: string): Promise<boolean> {
@@ -82,6 +91,7 @@ export class PostgresUserRepository implements UserRepository {
       row.createdAt,
       row.displayName ?? undefined,
       row.preferences as UserPreferences,
+      row.tokenVersion,
     );
   }
 }

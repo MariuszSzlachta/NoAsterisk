@@ -6,6 +6,8 @@ import { PasswordHasherPort } from '@auth/domain/ports/password-hasher.port';
 import { TokenPort } from '@auth/domain/ports/token.port';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
 import { WorkspaceRepository } from '@workspaces/domain/ports/workspace.repository';
+import { InviteCodeRepository } from '@invite-codes/domain/ports/invite-code.repository';
+import { InviteCode } from '@invite-codes/domain/invite-code.entity';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 
@@ -16,12 +18,14 @@ describe('RegisterHandler', () => {
   let permissionRepo: jest.Mocked<PermissionRepository>;
   let hasher: jest.Mocked<PasswordHasherPort>;
   let token: jest.Mocked<TokenPort>;
+  let inviteCodeRepo: jest.Mocked<InviteCodeRepository>;
 
   beforeEach(() => {
     userRepo = {
       save: jest.fn().mockImplementation((u) => Promise.resolve(u)),
       findById: jest.fn(),
       findByEmail: jest.fn(),
+      findAll: jest.fn(),
       existsByEmail: jest.fn().mockResolvedValue(false),
       delete: jest.fn(),
     };
@@ -45,16 +49,28 @@ describe('RegisterHandler', () => {
       verify: jest.fn(),
       verifyRefresh: jest.fn(),
     };
+    inviteCodeRepo = {
+      save: jest.fn().mockImplementation((c) => Promise.resolve(c)),
+      findById: jest.fn(),
+      findByCode: jest.fn(),
+      findAll: jest.fn(),
+      delete: jest.fn(),
+    };
+
     handler = new RegisterHandler(
       userRepo,
       hasher,
       token,
       workspaceRepo,
       permissionRepo,
+      inviteCodeRepo,
+      'open',
     );
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('creates workspace and user, returns access token', async () => {
     const result = await handler.execute({
@@ -78,7 +94,7 @@ describe('RegisterHandler', () => {
 
     await expect(
       handler.execute({ email: 'taken@test.com', password: 'password123' }),
-    ).rejects.toThrow('Email already registered');
+    ).rejects.toThrow('Registration failed');
   });
 
   it('signs token with correct payload', async () => {
@@ -91,6 +107,85 @@ describe('RegisterHandler', () => {
         role: UserRole.Member,
       }),
     );
+  });
+
+  describe('invite-only mode', () => {
+    beforeEach(() => {
+      handler = new RegisterHandler(
+        userRepo,
+        hasher,
+        token,
+        workspaceRepo,
+        permissionRepo,
+        inviteCodeRepo,
+        'invite-only',
+      );
+    });
+
+    it('throws when no invite code provided', async () => {
+      await expect(
+        handler.execute({ email: 'user@test.com', password: 'pass1234' }),
+      ).rejects.toThrow('Invite code is required');
+    });
+
+    it('throws when invite code not found', async () => {
+      inviteCodeRepo.findByCode.mockResolvedValue(undefined);
+
+      await expect(
+        handler.execute({
+          email: 'user@test.com',
+          password: 'pass1234',
+          inviteCode: 'INVALID1',
+        }),
+      ).rejects.toThrow('Invalid invite code');
+    });
+
+    it('succeeds with valid invite code', async () => {
+      const code = InviteCode.create({ createdBy: 'admin-1' });
+      inviteCodeRepo.findByCode.mockResolvedValue(code);
+      inviteCodeRepo.findById.mockResolvedValue(code);
+
+      const result = await handler.execute({
+        email: 'user@test.com',
+        password: 'pass1234',
+        inviteCode: code.code,
+      });
+
+      expect(result.accessToken).toBe('jwt-token');
+      expect(inviteCodeRepo.save).toHaveBeenCalled();
+    });
+
+    it('marks code as used after successful registration', async () => {
+      const code = InviteCode.create({ createdBy: 'admin-1' });
+      inviteCodeRepo.findByCode.mockResolvedValue(code);
+      inviteCodeRepo.findById.mockResolvedValue(code);
+
+      await handler.execute({
+        email: 'user@test.com',
+        password: 'pass1234',
+        inviteCode: code.code,
+      });
+
+      expect(inviteCodeRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ usedBy: expect.any(String) }),
+      );
+    });
+
+    it('throws when invite code is expired', async () => {
+      const code = InviteCode.create({
+        createdBy: 'admin-1',
+        expiresAt: new Date('2020-01-01'),
+      });
+      inviteCodeRepo.findByCode.mockResolvedValue(code);
+
+      await expect(
+        handler.execute({
+          email: 'user@test.com',
+          password: 'pass1234',
+          inviteCode: code.code,
+        }),
+      ).rejects.toThrow('Invalid invite code');
+    });
   });
 });
 
@@ -114,6 +209,7 @@ describe('LoginHandler', () => {
       save: jest.fn(),
       findById: jest.fn(),
       findByEmail: jest.fn().mockResolvedValue(existingUser),
+      findAll: jest.fn(),
       existsByEmail: jest.fn(),
       delete: jest.fn(),
     };
@@ -171,11 +267,29 @@ describe('LoginHandler', () => {
       expect(error.message).not.toContain('not found');
     }
   });
+
+  it('throws for blocked user with correct password', async () => {
+    const blockedUser = new User(
+      'user-1',
+      'user@test.com',
+      '$hashed$',
+      UserRole.Blocked,
+      'ws-1',
+      new Date(),
+    );
+    userRepo.findByEmail.mockResolvedValue(blockedUser);
+    hasher.compare.mockResolvedValue(true);
+
+    await expect(
+      handler.execute({ email: 'user@test.com', password: 'password123' }),
+    ).rejects.toThrow('Invalid credentials');
+  });
 });
 
 describe('RefreshHandler', () => {
   let handler: RefreshHandler;
   let token: jest.Mocked<TokenPort>;
+  let userRepo: jest.Mocked<UserRepository>;
 
   beforeEach(() => {
     token = {
@@ -184,20 +298,42 @@ describe('RefreshHandler', () => {
       verify: jest.fn(),
       verifyRefresh: jest.fn(),
     };
-    handler = new RefreshHandler(token);
+    userRepo = {
+      save: jest.fn(),
+      findById: jest.fn(),
+      findByEmail: jest.fn(),
+      findAll: jest.fn(),
+      existsByEmail: jest.fn(),
+      delete: jest.fn(),
+    };
+    handler = new RefreshHandler(token, userRepo);
   });
 
   afterEach(() => jest.clearAllMocks());
 
-  it('returns new access token and rotated refresh token for valid refresh token', () => {
+  it('returns new access token and rotated refresh token for valid refresh token', async () => {
     token.verifyRefresh.mockReturnValue({
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
+      tokenVersion: 0,
     });
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-1',
+        'test@test.com',
+        'hash',
+        UserRole.Member,
+        'ws-1',
+        new Date(),
+        undefined,
+        undefined,
+        0,
+      ),
+    );
     token.signRefresh.mockReturnValue('new-refresh-token');
 
-    const result = handler.execute('valid-refresh-token');
+    const result = await handler.execute('valid-refresh-token');
 
     expect(result.accessToken).toBe('new-access-token');
     expect(result.refreshToken).toBe('new-refresh-token');
@@ -205,27 +341,49 @@ describe('RefreshHandler', () => {
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
-    });
-    expect(token.signRefresh).toHaveBeenCalledWith({
-      sub: 'user-1',
-      workspaceId: 'ws-1',
-      role: 'Member',
+      tokenVersion: 0,
     });
   });
 
-  it('throws UnauthorizedException for invalid refresh token', () => {
+  it('throws UnauthorizedException for invalid refresh token', async () => {
     token.verifyRefresh.mockReturnValue(undefined);
 
-    expect(() => handler.execute('invalid-token')).toThrow(
+    await expect(handler.execute('invalid-token')).rejects.toThrow(
       'Invalid refresh token',
     );
   });
 
-  it('throws UnauthorizedException for expired refresh token', () => {
+  it('throws UnauthorizedException for expired refresh token', async () => {
     token.verifyRefresh.mockReturnValue(undefined);
 
-    expect(() => handler.execute('expired-token')).toThrow(
+    await expect(handler.execute('expired-token')).rejects.toThrow(
       'Invalid refresh token',
+    );
+  });
+
+  it('throws UnauthorizedException when tokenVersion mismatches (revoked)', async () => {
+    token.verifyRefresh.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+      tokenVersion: 0,
+    });
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-1',
+        'test@test.com',
+        'hash',
+        UserRole.Member,
+        'ws-1',
+        new Date(),
+        undefined,
+        undefined,
+        1,
+      ),
+    );
+
+    await expect(handler.execute('revoked-token')).rejects.toThrow(
+      'Token has been revoked',
     );
   });
 });

@@ -8,6 +8,7 @@ describe('UpdatePreferencesHandler', () => {
   const mockUserRepo = {
     findById: jest.fn(),
     findByEmail: jest.fn(),
+    findAll: jest.fn(),
     existsByEmail: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),

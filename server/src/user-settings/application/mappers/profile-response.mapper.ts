@@ -6,7 +6,7 @@ export interface ProfileResponseDto {
   id: string;
   email: string;
   displayName: string | undefined;
-  role: 'Superuser' | 'Member';
+  role: 'Superuser' | 'Member' | 'Blocked';
   workspaceId: string;
   createdAt: string;
   preferences: UserPreferences;
@@ -15,6 +15,7 @@ export interface ProfileResponseDto {
 const ROLE_MAP: Record<UserRole, ProfileResponseDto['role']> = {
   [UserRole.Superuser]: 'Superuser',
   [UserRole.Member]: 'Member',
+  [UserRole.Blocked]: 'Blocked',
 };
 
 export class ProfileResponseMapper {

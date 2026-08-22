@@ -21,6 +21,10 @@ export const registerSchema = z
   .object({
     email: z.email(),
     password: strongPassword,
+    inviteCode: z
+      .string()
+      .regex(/^[A-Z0-9]{6,8}$/)
+      .optional(),
   })
   .strict();
 

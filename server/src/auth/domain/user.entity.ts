@@ -17,6 +17,7 @@ export class User {
     public readonly createdAt: Date,
     public readonly displayName?: string,
     public readonly preferences: UserPreferences = DEFAULT_PREFERENCES,
+    public readonly tokenVersion: number = 0,
   ) {
     if (!id) throw new DomainError('User ID cannot be empty');
     if (!email) throw new DomainError('User email cannot be empty');
@@ -60,6 +61,7 @@ export class User {
       this.createdAt,
       trimmed || undefined,
       this.preferences,
+      this.tokenVersion,
     );
   }
 
@@ -75,6 +77,58 @@ export class User {
       this.createdAt,
       this.displayName,
       this.preferences,
+      this.tokenVersion + 1,
+    );
+  }
+
+  incrementTokenVersion(): User {
+    return new User(
+      this.id,
+      this.email,
+      this.passwordHash,
+      this.role,
+      this.workspaceId,
+      this.createdAt,
+      this.displayName,
+      this.preferences,
+      this.tokenVersion + 1,
+    );
+  }
+
+  block(): User {
+    if (this.role === UserRole.Superuser) {
+      throw new DomainError('Cannot block a Superuser');
+    }
+    if (this.role === UserRole.Blocked) {
+      throw new DomainError('User is already blocked');
+    }
+    return new User(
+      this.id,
+      this.email,
+      this.passwordHash,
+      UserRole.Blocked,
+      this.workspaceId,
+      this.createdAt,
+      this.displayName,
+      this.preferences,
+      this.tokenVersion + 1,
+    );
+  }
+
+  unblock(): User {
+    if (this.role !== UserRole.Blocked) {
+      throw new DomainError('User is not blocked');
+    }
+    return new User(
+      this.id,
+      this.email,
+      this.passwordHash,
+      UserRole.Member,
+      this.workspaceId,
+      this.createdAt,
+      this.displayName,
+      this.preferences,
+      this.tokenVersion,
     );
   }
 
@@ -89,6 +143,7 @@ export class User {
       this.createdAt,
       this.displayName,
       merged,
+      this.tokenVersion,
     );
   }
 

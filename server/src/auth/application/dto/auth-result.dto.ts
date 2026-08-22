@@ -4,7 +4,7 @@ export interface AuthResult {
   user: {
     id: string;
     email: string;
-    role: 'Superuser' | 'Member';
+    role: 'Superuser' | 'Member' | 'Blocked';
     workspaceId: string;
   };
 }
