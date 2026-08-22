@@ -26,8 +26,9 @@ async function bootstrap() {
   const contentTypeGuard = new JsonContentTypeMiddleware();
   app.use(contentTypeGuard.use.bind(contentTypeGuard));
 
-  app.use(json({ limit: '1mb' }));
+  app.use(json({ limit: '10mb' }));
   app.useGlobalFilters(new DomainExceptionFilter());
+
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

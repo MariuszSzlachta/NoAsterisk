@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { DomainError } from '@budget/domain';
+import {
+  USER_REPOSITORY,
+  UserRepository,
+} from '@auth/domain/ports/user.repository';
 
 export interface LogoutCommand {
   userId: string;
@@ -9,17 +13,25 @@ export interface LogoutResult {
   success: true;
 }
 
-/**
- * V1: Stateless JWT — client discards token, backend is no-op.
- * V2 (planned): Token blacklist with Redis/DB, TTL = accessToken expiry.
- */
 @Injectable()
 export class LogoutHandler {
+  constructor(
+    @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
+  ) {}
+
   async execute(command: LogoutCommand): Promise<LogoutResult> {
     if (!command.userId) {
       throw new DomainError('User ID is required for logout');
     }
-    // TODO: Token blacklist in persistence phase (Redis/DB)
+
+    const user = await this.userRepo.findById(command.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = user.incrementTokenVersion();
+    await this.userRepo.save(updatedUser);
+
     return { success: true };
   }
 }

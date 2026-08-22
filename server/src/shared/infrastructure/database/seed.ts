@@ -6,9 +6,24 @@ import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import * as schema from './schema';
 
-const ADMIN_EMAIL = 'admin@budget.local';
-const ADMIN_PASSWORD = 'Admin1234!';
+const adminEmail = process.env.SEED_ADMIN_EMAIL;
+const adminPassword = process.env.SEED_ADMIN_PASSWORD;
 const BCRYPT_ROUNDS = 10;
+
+if (!adminEmail || !adminPassword) {
+  console.error(
+    'ERROR: SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD env vars are required.',
+  );
+  process.exit(1);
+}
+
+if (process.env.NODE_ENV === 'production') {
+  console.error('ERROR: Seeding is disabled in production environment.');
+  process.exit(1);
+}
+
+const ADMIN_EMAIL: string = adminEmail;
+const ADMIN_PASSWORD: string = adminPassword;
 
 async function main(): Promise<void> {
   const pool = new Pool({
@@ -77,9 +92,8 @@ async function main(): Promise<void> {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('  Admin user seeded successfully');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`  Email:    ${ADMIN_EMAIL}`);
-  console.log(`  Password: ${ADMIN_PASSWORD}`);
-  console.log(`  Role:     Superuser`);
+  console.log(`  Email:     ${ADMIN_EMAIL}`);
+  console.log(`  Role:      Superuser`);
   console.log(`  Workspace: ${workspaceId}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 

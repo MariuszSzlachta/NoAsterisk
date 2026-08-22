@@ -1,4 +1,11 @@
-import { pgTable, uuid, varchar, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  jsonb,
+  integer,
+} from 'drizzle-orm/pg-core';
 import { workspaces } from './workspaces.schema';
 
 export const users = pgTable('users', {
@@ -12,4 +19,5 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   displayName: varchar('display_name', { length: 50 }),
   preferences: jsonb('preferences').notNull().default('{}'),
+  tokenVersion: integer('token_version').notNull().default(0),
 });

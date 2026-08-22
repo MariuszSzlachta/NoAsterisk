@@ -4,6 +4,7 @@ export interface TokenPayload {
   sub: string;
   workspaceId: string;
   role: string;
+  tokenVersion?: number;
 }
 
 export interface TokenPort {

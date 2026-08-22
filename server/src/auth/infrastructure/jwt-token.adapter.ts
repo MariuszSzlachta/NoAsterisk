@@ -35,7 +35,10 @@ export class JwtTokenAdapter implements TokenPort {
   }
 
   private getRefreshSecret(): string {
-    const baseSecret = process.env['JWT_SECRET'] ?? 'dev-secret-unsafe';
+    const baseSecret = process.env['JWT_SECRET'];
+    if (!baseSecret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
     return baseSecret + JwtTokenAdapter.REFRESH_SECRET_SUFFIX;
   }
 }
