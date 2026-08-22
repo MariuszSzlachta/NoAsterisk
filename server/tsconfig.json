@@ -31,7 +31,8 @@
       "@import-profiles/*": ["import-profiles/*"],
       "@auth/*": ["auth/*"],
       "@workspaces/*": ["workspaces/*"],
-      "@user-settings/*": ["user-settings/*"]
+      "@user-settings/*": ["user-settings/*"],
+      "@dictionaries/*": ["dictionaries/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
