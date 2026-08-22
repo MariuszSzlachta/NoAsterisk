@@ -1,0 +1,1 @@
+export { DictionaryEntryCard } from './DictionaryEntryCard';

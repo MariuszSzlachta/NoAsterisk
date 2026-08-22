@@ -20,7 +20,8 @@
     "analytics": "Analiza",
     "rules": "Reguły",
     "openMenu": "Otwórz menu",
-    "closeMenu": "Zamknij menu"
+    "closeMenu": "Zamknij menu",
+    "admin": "Administracja"
   },
   "topbar": {
     "search": "Szukaj transakcji…",
@@ -38,7 +39,8 @@
     "analytics": "Analiza",
     "rules": "Reguły",
     "settings": "Ustawienia",
-    "fallback": "Strona"
+    "fallback": "Strona",
+    "admin": "Administracja"
   },
   "titles": {
     "dashboard": "Pulpit",
@@ -48,7 +50,8 @@
     "analytics": "Analiza",
     "rules": "Reguły",
     "settings": "Ustawienia",
-    "fallback": "Strona"
+    "fallback": "Strona",
+    "admin": "Panel administratora"
   },
   "user": {
     "workspace": "Konto domowe",
@@ -545,6 +548,86 @@
       "passwordPlaceholder": "Wpisz hasło konta",
       "cancel": "Zacznij od nowa",
       "confirm": "Przywróć dane"
+    }
+  },
+  "admin": {
+    "pageTitle": "Panel administratora",
+    "tabs": {
+      "overview": "Przegląd",
+      "users": "Użytkownicy",
+      "codes": "Kody zaproszeń",
+      "dictionaries": "Słowniki"
+    },
+    "dashboard": {
+      "users": "Użytkownicy",
+      "viewAll": "Zobacz wszystkich →",
+      "statAll": "WSZYSCY",
+      "statActive": "AKTYWNI DZIŚ",
+      "statBlocked": "ZABLOKOWANI",
+      "codes": "Kody zaproszeń",
+      "codesAvailable": "dostępne",
+      "codesUsed": "użyte",
+      "generateCode": "Wygeneruj kod",
+      "dictionaries": "Słowniki anonimizacji",
+      "entries": "wpisów",
+      "manage": "Zarządzaj"
+    },
+    "dictTypes": {
+      "firstNames": "Imiona",
+      "surnames": "Nazwiska",
+      "cities": "Miasta",
+      "merchants": "Sprzedawcy",
+      "phrases": "Frazy"
+    },
+    "codeStatus": {
+      "Available": "Dostępny",
+      "Used": "Użyty",
+      "Expired": "Wygasł"
+    },
+    "roles": {
+      "blocked": "Zablokowany"
+    },
+    "users": {
+      "searchPlaceholder": "Filtruj po emailu...",
+      "count": "użytkowników",
+      "colEmail": "EMAIL",
+      "colRole": "ROLA",
+      "colRegistered": "REJESTRACJA",
+      "colVault": "VAULT",
+      "colActions": "AKCJE",
+      "block": "Zablokuj",
+      "unblock": "Odblokuj",
+      "delete": "Usuń",
+      "page": "{{current}} / {{total}}"
+    },
+    "codes": {
+      "newCode": "Nowy kod",
+      "newCodeDesc": "Kod jednorazowy uprawniający do rejestracji konta.",
+      "generate": "Wygeneruj nowy kod",
+      "lastGenerated": "OSTATNIO WYGENEROWANY",
+      "copy": "Kopiuj",
+      "expiryLabel": "Data wygaśnięcia (opcjonalna)",
+      "colCode": "KOD",
+      "colStatus": "STATUS",
+      "colCreated": "UTWORZONO",
+      "colUsedBy": "UŻYTY PRZEZ",
+      "delete": "Usuń kod"
+    },
+    "dict": {
+      "entries": "wpisów",
+      "of": "z",
+      "searchPlaceholder": "Szukaj wpisu...",
+      "addEntry": "Dodaj wpis",
+      "bulkImport": "Import zbiorczy",
+      "deleteEntry": "Usuń wpis"
+    },
+    "modal": {
+      "cancel": "Anuluj",
+      "delete": "Usuń",
+      "deleteUserTitle": "Usunąć użytkownika?",
+      "deleteUserDesc": "Konto {{email}} i wszystkie dane zostaną trwale usunięte. Tej operacji nie można cofnąć.",
+      "deleteCodeTitle": "Usunąć kod?",
+      "deleteCodeDesc": "Kod zaproszenia zostanie unieważniony."
     }
   }
 }

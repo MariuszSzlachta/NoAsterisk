@@ -1,0 +1,1 @@
+export { DictionariesTab } from './DictionariesTab';

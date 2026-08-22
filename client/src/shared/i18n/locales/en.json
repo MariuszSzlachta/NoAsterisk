@@ -20,7 +20,8 @@
     "analytics": "Analytics",
     "rules": "Rules",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "admin": "Administration"
   },
   "topbar": {
     "search": "Search transactions…",
@@ -38,7 +39,8 @@
     "analytics": "Analytics",
     "rules": "Rules",
     "settings": "Settings",
-    "fallback": "Page"
+    "fallback": "Page",
+    "admin": "Administration"
   },
   "titles": {
     "dashboard": "Dashboard",
@@ -48,7 +50,8 @@
     "analytics": "Analytics",
     "rules": "Rules",
     "settings": "Settings",
-    "fallback": "Page"
+    "fallback": "Page",
+    "admin": "Admin Panel"
   },
   "user": {
     "workspace": "Home account",
@@ -544,6 +547,86 @@
       "passwordPlaceholder": "Enter account password",
       "cancel": "Start fresh",
       "confirm": "Restore data"
+    }
+  },
+  "admin": {
+    "pageTitle": "Admin Panel",
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users",
+      "codes": "Invite Codes",
+      "dictionaries": "Dictionaries"
+    },
+    "dashboard": {
+      "users": "Users",
+      "viewAll": "View all →",
+      "statAll": "ALL",
+      "statActive": "ACTIVE TODAY",
+      "statBlocked": "BLOCKED",
+      "codes": "Invite Codes",
+      "codesAvailable": "available",
+      "codesUsed": "used",
+      "generateCode": "Generate Code",
+      "dictionaries": "Anonymization Dictionaries",
+      "entries": "entries",
+      "manage": "Manage"
+    },
+    "dictTypes": {
+      "firstNames": "First Names",
+      "surnames": "Surnames",
+      "cities": "Cities",
+      "merchants": "Merchants",
+      "phrases": "Phrases"
+    },
+    "codeStatus": {
+      "Available": "Available",
+      "Used": "Used",
+      "Expired": "Expired"
+    },
+    "roles": {
+      "blocked": "Blocked"
+    },
+    "users": {
+      "searchPlaceholder": "Filter by email...",
+      "count": "users",
+      "colEmail": "EMAIL",
+      "colRole": "ROLE",
+      "colRegistered": "REGISTERED",
+      "colVault": "VAULT",
+      "colActions": "ACTIONS",
+      "block": "Block",
+      "unblock": "Unblock",
+      "delete": "Delete",
+      "page": "{{current}} / {{total}}"
+    },
+    "codes": {
+      "newCode": "New Code",
+      "newCodeDesc": "Single-use code for account registration.",
+      "generate": "Generate New Code",
+      "lastGenerated": "LAST GENERATED",
+      "copy": "Copy",
+      "expiryLabel": "Expiry date (optional)",
+      "colCode": "CODE",
+      "colStatus": "STATUS",
+      "colCreated": "CREATED",
+      "colUsedBy": "USED BY",
+      "delete": "Delete code"
+    },
+    "dict": {
+      "entries": "entries",
+      "of": "of",
+      "searchPlaceholder": "Search entry...",
+      "addEntry": "Add Entry",
+      "bulkImport": "Bulk Import",
+      "deleteEntry": "Delete entry"
+    },
+    "modal": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteUserTitle": "Delete user?",
+      "deleteUserDesc": "The account {{email}} and all data will be permanently deleted. This action cannot be undone.",
+      "deleteCodeTitle": "Delete code?",
+      "deleteCodeDesc": "The invite code will be revoked."
     }
   }
 }

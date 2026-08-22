@@ -26,6 +26,10 @@ export const ROUTE_META: Record<string, RouteMeta> = {
     breadcrumbKey: 'breadcrumb.rules',
     titleKey: 'titles.rules',
   },
+  '/admin': {
+    breadcrumbKey: 'breadcrumb.admin',
+    titleKey: 'titles.admin',
+  },
   '/settings': {
     breadcrumbKey: 'breadcrumb.settings',
     titleKey: 'titles.settings',

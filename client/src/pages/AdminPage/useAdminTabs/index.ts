@@ -1,0 +1,1 @@
+export { useAdminTabs } from './useAdminTabs';

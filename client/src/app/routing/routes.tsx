@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { AppShell } from '#app/layouts/AppShell';
 import { RequireAuth } from '#app/routing/RequireAuth';
+import { RequireRole } from '#app/routing/RequireRole';
+import { AdminPage } from '#pages/AdminPage';
 import { AdminRulesPage } from '#pages/AdminRulesPage';
 import { AnalyticsPage } from '#pages/AnalyticsPage';
 import { BudgetsPage } from '#pages/BudgetsPage';
@@ -27,6 +29,12 @@ export const router = createBrowserRouter([
           { path: '/analytics', element: <AnalyticsPage /> },
           { path: '/admin/rules', element: <AdminRulesPage /> },
           { path: '/settings', element: <UserSettingsPage /> },
+          {
+            element: <RequireRole role="Superuser" />,
+            children: [
+              { path: '/admin', element: <AdminPage /> },
+            ],
+          },
         ],
       },
     ],

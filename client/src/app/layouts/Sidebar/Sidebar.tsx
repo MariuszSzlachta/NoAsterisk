@@ -3,6 +3,7 @@ import {
   BarChart3,
   LayoutGrid,
   List,
+  Shield,
   SlidersHorizontal,
   Upload,
   Wallet,
@@ -12,6 +13,7 @@ import { SectionLabel } from '#app/layouts/Sidebar/SectionLabel/SectionLabel';
 import { SidebarLogo } from '#app/layouts/Sidebar/SidebarLogo/SidebarLogo';
 import { SidebarNavLink } from '#app/layouts/Sidebar/SidebarNavLink/SidebarNavLink';
 import { UserSection } from '#app/layouts/Sidebar/UserSection/UserSection';
+import { useProfileQuery } from '#features/user-settings';
 import { Badge } from '#shared/ui/Badge';
 
 interface SidebarProps {
@@ -20,6 +22,8 @@ interface SidebarProps {
 
 export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
   const { t } = useTranslation();
+  const { data: profile } = useProfileQuery();
+  const isSuperuser = profile?.role === 'Superuser';
 
   return (
     <aside className="sticky top-0 flex h-screen w-[236px] flex-shrink-0 flex-col border-r border-border bg-surface">
@@ -73,6 +77,12 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
         >
           {t('nav.rules')}
         </SidebarNavLink>
+
+        {isSuperuser && (
+          <SidebarNavLink icon={Shield} to="/admin" onClick={onNavigate}>
+            {t('nav.admin')}
+          </SidebarNavLink>
+        )}
       </nav>
 
       <UserSection />

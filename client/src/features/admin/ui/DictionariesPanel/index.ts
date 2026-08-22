@@ -1,0 +1,1 @@
+export { DictionariesPanel } from './DictionariesPanel';

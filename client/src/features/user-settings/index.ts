@@ -12,4 +12,5 @@ export { SecuritySection } from './ui/SecuritySection';
 export { UserMenu } from './ui/UserMenu';
 export { VaultSection } from './ui/VaultSection';
 export { useUserMenu } from './ui/hooks/useUserMenu';
-export type { PreferencesValues, ProfileData } from './model/types';
+export { useProfileQuery } from './api/useProfileQuery';
+export type { PreferencesValues, ProfileData, UserRole } from './model/types';
