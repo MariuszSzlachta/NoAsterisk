@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { getTrendClass } from '#features/analytics/model/getTrendClass';
 import type { AnalyticsKpi } from '#features/analytics/model/types';
 import { Card } from '#shared/ui/Card';
@@ -8,26 +10,30 @@ interface AnalyticsKpiRowProps {
 
 export const AnalyticsKpiRow = ({
   kpis,
-}: AnalyticsKpiRowProps): React.JSX.Element => (
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    {kpis.map((kpi) => (
-      <Card key={kpi.label}>
-        <div className="flex flex-col gap-1 p-4">
-          <span className="text-xs font-medium text-muted-foreground">
-            {kpi.label}
-          </span>
-          <span
-            className={`font-mono text-lg font-semibold tabular-nums ${getTrendClass(kpi.trend, kpi.invertColor)}`}
-          >
-            {kpi.value}
-          </span>
-          <span
-            className={`text-xs font-medium ${getTrendClass(kpi.trend, kpi.invertColor)}`}
-          >
-            {kpi.delta} vs poprzedni okres
-          </span>
-        </div>
-      </Card>
-    ))}
-  </div>
-);
+}: AnalyticsKpiRowProps): React.JSX.Element => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {kpis.map((kpi) => (
+        <Card key={kpi.label}>
+          <div className="flex flex-col gap-1 p-4">
+            <span className="text-xs font-medium text-muted-foreground">
+              {kpi.label}
+            </span>
+            <span
+              className={`font-mono text-lg font-semibold tabular-nums ${getTrendClass(kpi.trend, kpi.invertColor)}`}
+            >
+              {kpi.value}
+            </span>
+            <span
+              className={`text-xs font-medium ${getTrendClass(kpi.trend, kpi.invertColor)}`}
+            >
+              {kpi.delta} {t('analytics.kpi.vsPreviousPeriod')}
+            </span>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};

@@ -81,9 +81,18 @@
       "weekly": "Weekly",
       "monthly": "Monthly"
     },
+    "kpi": {
+      "balance": "Current balance",
+      "income": "Income (current)",
+      "expenses": "Expenses (current)",
+      "savings": "Savings",
+      "vsPreviousPeriod": "vs previous period"
+    },
     "breakdown": {
       "expensesTitle": "Expenses by category",
-      "incomeTitle": "Income by category"
+      "incomeTitle": "Income by category",
+      "noExpenses": "No expenses in selected period",
+      "noIncome": "No income in selected period"
     },
     "drilldown": {
       "close": "Close",

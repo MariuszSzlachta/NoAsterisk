@@ -17,6 +17,7 @@ export const useAnalyticsFilters = (): {
     if (initialized.current) {
       return;
     }
+
     initialized.current = true;
     const current = useAnalyticsFiltersStore.getState().filters;
     const metrics = parseMetricsParam(searchParams.get('metric'));

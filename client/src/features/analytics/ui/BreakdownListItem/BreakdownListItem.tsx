@@ -18,6 +18,7 @@ export const BreakdownListItem = ({
   drilldownId,
   onClick,
 }: BreakdownListItemProps): React.JSX.Element => {
+  // Progress bar width is relative to the largest category — the top category fills 100%.
   const barWidth = maxAmount > 0 ? (item.amount / maxAmount) * 100 : 0;
 
   return (

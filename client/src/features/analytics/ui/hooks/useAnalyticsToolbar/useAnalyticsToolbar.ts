@@ -15,6 +15,7 @@ interface UseAnalyticsToolbarResult {
   ) => () => void;
 }
 
+// duzo sie dzieje kod jest nieczytelny
 export const useAnalyticsToolbar = (
   filters: AnalyticsFilters,
   onFiltersChange: (filters: AnalyticsFilters) => void,

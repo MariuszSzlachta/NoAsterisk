@@ -81,9 +81,18 @@
       "weekly": "Tygodniowo",
       "monthly": "Miesięcznie"
     },
+    "kpi": {
+      "balance": "Aktualne saldo",
+      "income": "Przychód (bieżący)",
+      "expenses": "Wydatki (bieżący)",
+      "savings": "Oszczędności",
+      "vsPreviousPeriod": "vs poprzedni okres"
+    },
     "breakdown": {
       "expensesTitle": "Wydatki wg kategorii",
-      "incomeTitle": "Przychody wg kategorii"
+      "incomeTitle": "Przychody wg kategorii",
+      "noExpenses": "Brak wydatków w wybranym okresie",
+      "noIncome": "Brak przychodów w wybranym okresie"
     },
     "drilldown": {
       "close": "Zamknij",

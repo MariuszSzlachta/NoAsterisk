@@ -48,8 +48,8 @@ export const AnalyticsCategoryBreakdown = ({
             return (
               <p className="px-4 pb-4 text-sm text-muted-foreground">
                 {filters.metric === 'expenses'
-                  ? 'Brak wydatków w wybranym okresie'
-                  : 'Brak przychodów w wybranym okresie'}
+                  ? t('analytics.breakdown.noExpenses')
+                  : t('analytics.breakdown.noIncome')}
               </p>
             );
           }

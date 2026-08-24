@@ -1,1 +1,1 @@
-export { getSeriesColors } from './getSeriesColors';
+export { getMetricColors, getSeriesColors } from './getSeriesColors';
