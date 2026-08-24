@@ -1,10 +1,7 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — useApplyRules Hook
-// ═══════════════════════════════════════════════════════════════════
-
 import { useState } from 'react';
 
 import { autoCategorize } from '#features/admin-rules/model';
+import type { AutoCategorizeResult } from '#features/admin-rules/model/types';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 // ARCH-EXCEPTION: cross-feature import — rules must read and modify transactions.
 // Accepted per devplan. Alternative (entities/) is overkill at this stage.
@@ -22,6 +19,35 @@ interface UseApplyRulesResult {
   readonly lastResult: ApplyResult | undefined;
 }
 
+// ─── Pure Functions (exported for testability) ───────────────────
+
+export const countUncategorized = (
+  transactions: ReadonlyArray<{ readonly categoryId?: string }>,
+): number =>
+  transactions.filter((tx) => tx.categoryId === undefined).length;
+
+export const groupByCategoryId = (
+  results: ReadonlyArray<AutoCategorizeResult>,
+): ReadonlyMap<string, ReadonlyArray<string>> => {
+  const grouped = new Map<string, string[]>();
+
+  for (const result of results) {
+    const existing = grouped.get(result.categoryId);
+    const ids = existing !== undefined ? [...existing, result.transactionId] : [result.transactionId];
+    grouped.set(result.categoryId, ids);
+  }
+
+  return grouped;
+};
+
+export const buildApplyResult = (
+  categorizedCount: number,
+  uncategorizedCount: number,
+): ApplyResult => ({
+  categorized: categorizedCount,
+  total: uncategorizedCount,
+});
+
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useApplyRules = (): UseApplyRulesResult => {
@@ -32,28 +58,15 @@ export const useApplyRules = (): UseApplyRulesResult => {
   const [lastResult, setLastResult] = useState<ApplyResult | undefined>(undefined);
 
   const handleApplyRules = (): void => {
-    const uncategorizedCount = transactions.filter(
-      (tx) => tx.categoryId === undefined,
-    ).length;
-
+    const uncategorizedCount = countUncategorized(transactions);
     const results = autoCategorize(rules, transactions);
-
-    // Group results by categoryId for bulk updates (fewer re-renders)
-    const grouped = new Map<string, string[]>();
-    for (const result of results) {
-      const ids = grouped.get(result.categoryId) ?? [];
-      ids.push(result.transactionId);
-      grouped.set(result.categoryId, ids);
-    }
+    const grouped = groupByCategoryId(results);
 
     for (const [categoryId, ids] of grouped) {
-      bulkUpdateCategory(ids, categoryId);
+      bulkUpdateCategory([...ids], categoryId);
     }
 
-    setLastResult({
-      categorized: results.length,
-      total: uncategorizedCount,
-    });
+    setLastResult(buildApplyResult(results.length, uncategorizedCount));
   };
 
   return {

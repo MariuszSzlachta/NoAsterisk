@@ -11,17 +11,23 @@ import {
   useImportWizard,
 } from '#features/csv-import';
 
+// ─── Constants ───────────────────────────────────────────────────
+
+const WIZARD_STEP_KEYS = [
+  'import.steps.file',
+  'import.steps.columns',
+  'import.steps.anonymization',
+  'import.steps.preview',
+  'import.steps.import',
+] as const;
+
+// ─── Page ────────────────────────────────────────────────────────
+
 export const ImportPage = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { step } = useImportWizard();
 
-  const wizardSteps = [
-    { label: t('import.steps.file') },
-    { label: t('import.steps.columns') },
-    { label: t('import.steps.anonymization') },
-    { label: t('import.steps.preview') },
-    { label: t('import.steps.import') },
-  ];
+  const wizardSteps = WIZARD_STEP_KEYS.map((key) => ({ label: t(key) }));
 
   return (
     <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-6">

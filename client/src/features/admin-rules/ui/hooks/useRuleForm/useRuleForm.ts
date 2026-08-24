@@ -99,22 +99,20 @@ export const useRuleForm = (
       return;
     }
 
+    const payload = {
+      keyword: formValues.keyword.trim(),
+      matcherType: formValues.matcherType,
+      categoryId: formValues.categoryId,
+      priority: formValues.priority,
+    };
+
     if (editingRule) {
-      updateRule(editingRule.id, {
-        keyword: formValues.keyword.trim(),
-        matcherType: formValues.matcherType,
-        categoryId: formValues.categoryId,
-        priority: formValues.priority,
-      });
-    } else {
-      addRule({
-        keyword: formValues.keyword.trim(),
-        matcherType: formValues.matcherType,
-        categoryId: formValues.categoryId,
-        priority: formValues.priority,
-      });
+      updateRule(editingRule.id, payload);
+      onClose();
+      return;
     }
 
+    addRule(payload);
     onClose();
   };
 

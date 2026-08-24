@@ -29,6 +29,8 @@ export const RulesTable = ({ onEdit }: RulesTableProps): React.JSX.Element => {
     );
   }
 
+  // useMemo not needed: DataTable is not memoized, re-renders are driven by
+  // data changes (rules CRUD) which are infrequent. No measured performance issue.
   const columns = buildRulesColumns(handleDelete, onEdit, t);
 
   return (

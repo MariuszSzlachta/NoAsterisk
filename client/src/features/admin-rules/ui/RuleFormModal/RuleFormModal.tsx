@@ -31,6 +31,7 @@ export const RuleFormModal = ({
   const { formValues, errors, isEditing, handleFieldChange, handleSubmit, handleCancel } =
     useRuleForm(editingRule, onClose);
 
+  // -> constants
   const matcherOptions: readonly SelectOption[] = [
     { value: 'Contains', label: t('rules.form.matcherContains') },
     { value: 'Exact', label: t('rules.form.matcherExact') },

@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — useRulesTable Hook
-// ═══════════════════════════════════════════════════════════════════
+import { useTranslation } from 'react-i18next';
 
 import { STUB_CATEGORIES } from '#entities/category';
 import { mapRuleToViewModel } from '#features/admin-rules/model';
@@ -17,10 +15,11 @@ interface UseRulesTableResult {
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useRulesTable = (): UseRulesTableResult => {
+  const { t } = useTranslation();
   const rules = useRulesStore((s) => s.rules);
   const deleteRule = useRulesStore((s) => s.deleteRule);
 
-  const viewModels = rules.map((rule) => mapRuleToViewModel(rule, STUB_CATEGORIES));
+  const viewModels = rules.map((rule) => mapRuleToViewModel(rule, STUB_CATEGORIES, t));
 
   const handleDelete = (id: string): void => {
     deleteRule(id);

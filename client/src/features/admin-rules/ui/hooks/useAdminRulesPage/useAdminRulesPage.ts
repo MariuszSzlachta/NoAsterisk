@@ -1,10 +1,5 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — useAdminRulesPage Hook
-// ═══════════════════════════════════════════════════════════════════
-
-import { useState } from 'react';
-
 import type { RuleRecord } from '#features/admin-rules/model/types';
+import { useRuleFormStore } from '#features/admin-rules/store/useRuleFormStore';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 import type { ApplyResult } from '#features/admin-rules/ui/hooks/useApplyRules';
 import { useApplyRules } from '#features/admin-rules/ui/hooks/useApplyRules';
@@ -27,35 +22,23 @@ export const useAdminRulesPage = (): UseAdminRulesPageResult => {
   const rules = useRulesStore((s) => s.rules);
   const { handleApplyRules, lastResult } = useApplyRules();
 
-  const [showForm, setShowForm] = useState(false);
-  const [editingRuleId, setEditingRuleId] = useState<string | undefined>(undefined);
+  const showForm = useRuleFormStore((s) => s.showForm);
+  const editingRuleId = useRuleFormStore((s) => s.editingRuleId);
+  const openAddForm = useRuleFormStore((s) => s.openAddForm);
+  const openEditForm = useRuleFormStore((s) => s.openEditForm);
+  const closeForm = useRuleFormStore((s) => s.closeForm);
 
   const editingRule = editingRuleId
     ? rules.find((r) => r.id === editingRuleId)
     : undefined;
 
-  const handleAddRule = (): void => {
-    setEditingRuleId(undefined);
-    setShowForm(true);
-  };
-
-  const handleEditRule = (id: string): void => {
-    setEditingRuleId(id);
-    setShowForm(true);
-  };
-
-  const handleCloseForm = (): void => {
-    setShowForm(false);
-    setEditingRuleId(undefined);
-  };
-
   return {
     showForm,
     editingRule,
     lastResult,
-    handleAddRule,
-    handleEditRule,
-    handleCloseForm,
+    handleAddRule: openAddForm,
+    handleEditRule: openEditForm,
+    handleCloseForm: closeForm,
     handleApplyRules,
   };
 };

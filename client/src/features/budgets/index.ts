@@ -9,6 +9,7 @@ export { SavingsBudgetCard } from './ui/SavingsBudgetCard';
 export { useBudgetFilters } from './ui/hooks/useBudgetFilters';
 export { useBudgetsStore } from './store/useBudgetsStore';
 export { usePeriodHistoryStore } from './store/usePeriodHistoryStore';
+export { useBudgetsPageStore } from './store/useBudgetsPageStore';
 export { mapBudgetRecordToViewModel } from './model/transformers';
 export type {
   BudgetRecord,

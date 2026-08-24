@@ -2,7 +2,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '#shared/api';
 
-// ─── Response Type ───────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────
+
+const INVITE_CODES_PATH = '/admin/invite-codes' as const;
+const INVITE_CODES_QUERY_KEY = ['admin', 'invite-codes'] as const;
+
+// ─── Types ───────────────────────────────────────────────────────
+
+interface GenerateCodeRequest {
+  readonly expiresAt?: string;
+}
 
 interface GenerateCodeResponse {
   readonly id: string;
@@ -23,21 +32,20 @@ export const useGenerateCodeMutation = (): UseGenerateCodeMutationResult => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (expiresAt?: string): Promise<GenerateCodeResponse> => {
-      const body: Record<string, unknown> = expiresAt ? { expiresAt } : {};
-      return apiClient.post<GenerateCodeResponse, Record<string, unknown>>(
-        '/admin/invite-codes',
+    mutationFn: (expiresAt?: string): Promise<GenerateCodeResponse> => {
+      const body: GenerateCodeRequest = expiresAt ? { expiresAt } : {};
+      return apiClient.post<GenerateCodeResponse, GenerateCodeRequest>(
+        INVITE_CODES_PATH,
         body,
       );
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'invite-codes'] });
+      void queryClient.invalidateQueries({ queryKey: [...INVITE_CODES_QUERY_KEY] });
     },
   });
 
-  const generate = async (expiresAt?: string): Promise<GenerateCodeResponse> => {
-    return mutation.mutateAsync(expiresAt);
-  };
+  const generate = (expiresAt?: string): Promise<GenerateCodeResponse> =>
+    mutation.mutateAsync(expiresAt);
 
   return { generate, isLoading: mutation.isPending };
 };
