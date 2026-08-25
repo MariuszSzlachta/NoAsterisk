@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { AutoCategorizeResult } from '#features/admin-rules/model/types';
 
-import { buildApplyResult, countUncategorized, groupByCategoryId } from './useApplyRules';
+import { buildApplyResult, countUncategorized, groupByCategoryId } from '#features/admin-rules/model/apply-rules';
 
 // ─── countUncategorized ──────────────────────────────────────────
 

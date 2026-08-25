@@ -20,6 +20,9 @@ const buildMonthlyTrend = (
   transactions: readonly StoredTransaction[],
   category: string,
 ): ChartSeries => {
+  // REVIEW [P1]: Funkcja czyta new Date() z systemu, więc wynik pure modelu
+  // zmienia się w czasie i testy nie są deterministyczne. now/Clock oraz zakres
+  // powinny być zależnościami wejściowymi, nie ukrytą globalną implementacją.
   const now = new Date();
   const data: ChartSeriesDataPoint[] = [];
 
@@ -29,6 +32,10 @@ const buildMonthlyTrend = (
     const monthStart = month.toISOString().slice(0, 10);
     const monthEndStr = monthEnd.toISOString().slice(0, 10);
 
+    // REVIEW [P0]: Trend ignoruje dateRange i metric z wywołania poniżej:
+    // zawsze liczy ostatnie 6 miesięcy i sumuje absolute amounts, więc drilldown
+    // income zawiera też wydatki, a wybór 1m/1y nie ma wpływu na wykres. Przekaż
+    // znormalizowany zakres i metrykę do buildera oraz pokryj oba przypadki testami.
     const monthTotal = transactions
       .filter(
         (tx) =>

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { DictionariesPanel } from '#features/admin/ui/DictionariesPanel';
 import { useAdminDashboard } from '#features/admin/ui/hooks/useAdminDashboard';
 import { InviteCodesPanel } from '#features/admin/ui/InviteCodesPanel';
@@ -13,9 +15,10 @@ interface AdminDashboardProps {
 // ─── Component ───────────────────────────────────────────────────
 
 export const AdminDashboard = ({ onNavigateToTab }: AdminDashboardProps): React.JSX.Element => {
-  const { isLoading, stats, recentUsers, recentCodes, dictionaryItems } = useAdminDashboard();
+  const { t } = useTranslation();
+  const dashboardState = useAdminDashboard();
 
-  if (isLoading) {
+  if (dashboardState.status === 'loading') {
     return (
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Skeleton className="h-80" />
@@ -24,6 +27,16 @@ export const AdminDashboard = ({ onNavigateToTab }: AdminDashboardProps): React.
       </div>
     );
   }
+
+  if (dashboardState.status === 'error') {
+    return (
+      <div className="rounded-md bg-expense-soft px-4 py-3" role="alert">
+        <p className="text-sm text-expense">{t('common.error', { defaultValue: dashboardState.error })}</p>
+      </div>
+    );
+  }
+
+  const { stats, recentUsers, recentCodes, dictionaryItems } = dashboardState;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

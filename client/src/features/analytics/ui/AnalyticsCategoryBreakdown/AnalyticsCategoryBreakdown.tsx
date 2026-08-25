@@ -54,6 +54,11 @@ export const AnalyticsCategoryBreakdown = ({
             );
           }
 
+          // REVIEW [P0]: Przy noUncheckedIndexedAccess wyrażenie index % length
+          // ma typ string | undefined, więc feature nie przechodzi tsc. Nie lecz
+          // tego non-null assertionem: kolor jest też positional i niezależny od
+          // category identity. Dostarcz kolor z metadanych kategorii/stable ID
+          // i zapewnij jawny fallback.
           const maxAmount = Math.max(...items.map((i) => i.amount), 0);
 
           return (

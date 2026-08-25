@@ -2,12 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import { getMetricColors, getSeriesColors } from './getSeriesColors';
 
-describe('getSeriesColors (legacy)', () => {
-  it('maps known series ids to their colors', () => {
-    expect(getSeriesColors(['Przychody', 'Wydatki'])).toEqual([
+describe('getSeriesColors', () => {
+  it('maps metric type IDs to their colors', () => {
+    expect(getSeriesColors(['income', 'expenses'])).toEqual([
       'var(--income)',
       'var(--expense)',
     ]);
+  });
+
+  it('maps balance to primary', () => {
+    expect(getSeriesColors(['balance'])).toEqual(['var(--primary)']);
+  });
+
+  it('maps savings to warning', () => {
+    expect(getSeriesColors(['savings'])).toEqual(['var(--warning)']);
   });
 
   it('falls back to primary for unknown ids', () => {

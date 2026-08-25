@@ -375,7 +375,12 @@
       "priority": "Priority",
       "save": "Save",
       "add": "Add",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "errors": {
+        "keywordRequired": "Keyword is required",
+        "categoryRequired": "Category is required",
+        "priorityMin": "Priority must be greater than 0"
+      }
     },
     "columns": {
       "keyword": "Keyword",

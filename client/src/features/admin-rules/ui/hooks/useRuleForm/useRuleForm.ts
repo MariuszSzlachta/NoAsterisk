@@ -1,10 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — useRuleForm Hook
-// ═══════════════════════════════════════════════════════════════════
-
 import { useState } from 'react';
 
 import type { MatcherType, RuleRecord } from '#features/admin-rules/model/types';
+import type { RuleFormErrors } from '#features/admin-rules/model/validators';
+import { hasRuleFormErrors, validateRuleForm } from '#features/admin-rules/model/validators';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -16,15 +14,9 @@ interface FormValues {
   readonly priority: number;
 }
 
-interface FormErrors {
-  readonly keyword?: string;
-  readonly categoryId?: string;
-  readonly priority?: string;
-}
-
 interface UseRuleFormResult {
   readonly formValues: FormValues;
-  readonly errors: FormErrors;
+  readonly errors: RuleFormErrors;
   readonly isEditing: boolean;
   readonly handleFieldChange: <TKey extends keyof FormValues>(
     field: TKey,
@@ -66,7 +58,7 @@ export const useRuleForm = (
     : DEFAULT_FORM_VALUES;
 
   const [formValues, setFormValues] = useState<FormValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<RuleFormErrors>({});
 
   const handleFieldChange = <TKey extends keyof FormValues>(
     field: TKey,
@@ -76,26 +68,11 @@ export const useRuleForm = (
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const validate = (): boolean => {
-    const keywordError =
-      formValues.keyword.trim() === '' ? 'Słowo kluczowe jest wymagane' : undefined;
-    const categoryError =
-      formValues.categoryId === '' ? 'Kategoria jest wymagana' : undefined;
-    const priorityError =
-      formValues.priority < 1 ? 'Priorytet musi być większy od 0' : undefined;
-
-    const newErrors: FormErrors = {
-      ...(keywordError ? { keyword: keywordError } : {}),
-      ...(categoryError ? { categoryId: categoryError } : {}),
-      ...(priorityError ? { priority: priorityError } : {}),
-    };
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (): void => {
-    if (!validate()) {
+    const validationErrors = validateRuleForm(formValues);
+    setErrors(validationErrors);
+
+    if (hasRuleFormErrors(validationErrors)) {
       return;
     }
 
@@ -108,11 +85,10 @@ export const useRuleForm = (
 
     if (editingRule) {
       updateRule(editingRule.id, payload);
-      onClose();
-      return;
+    } else {
+      addRule(payload);
     }
 
-    addRule(payload);
     onClose();
   };
 

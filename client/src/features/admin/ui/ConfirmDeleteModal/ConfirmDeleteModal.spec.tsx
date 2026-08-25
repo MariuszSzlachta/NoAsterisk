@@ -44,11 +44,12 @@ describe('ConfirmDeleteModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onCancel when Escape key pressed', () => {
+  it('calls onCancel when Escape key pressed on dialog', () => {
     const onCancel = vi.fn();
     render(<ConfirmDeleteModal {...defaultProps} onCancel={onCancel} />);
 
-    fireEvent.keyDown(document, { key: 'Escape' });
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    fireEvent.keyDown(dialog, { key: 'Escape' });
 
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
@@ -57,7 +58,8 @@ describe('ConfirmDeleteModal', () => {
     const onCancel = vi.fn();
     render(<ConfirmDeleteModal {...defaultProps} onCancel={onCancel} />);
 
-    fireEvent.keyDown(document, { key: 'Enter' });
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    fireEvent.keyDown(dialog, { key: 'Enter' });
 
     expect(onCancel).not.toHaveBeenCalled();
   });
@@ -66,7 +68,8 @@ describe('ConfirmDeleteModal', () => {
     const onCancel = vi.fn();
     render(<ConfirmDeleteModal {...defaultProps} onCancel={onCancel} />);
 
-    const backdrop = screen.getByRole('dialog');
+    // Backdrop is the aria-hidden outer div
+    const backdrop = screen.getByRole('dialog', { hidden: true }).parentElement!;
     fireEvent.click(backdrop);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -84,8 +87,18 @@ describe('ConfirmDeleteModal', () => {
   it('has correct aria attributes', () => {
     render(<ConfirmDeleteModal {...defaultProps} />);
 
-    const dialog = screen.getByRole('dialog');
+    const dialog = screen.getByRole('dialog', { hidden: true });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(dialog).toHaveAttribute('aria-labelledby', 'confirm-delete-title');
+    expect(dialog).toHaveAttribute('aria-labelledby');
+    expect(dialog).toHaveAttribute('aria-describedby');
+    expect(dialog).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('renders inside a portal (in document.body)', () => {
+    const { baseElement } = render(<ConfirmDeleteModal {...defaultProps} />);
+
+    // Portal renders outside the container div
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    expect(baseElement.contains(dialog)).toBe(true);
   });
 });

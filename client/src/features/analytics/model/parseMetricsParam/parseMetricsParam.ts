@@ -7,6 +7,9 @@ const VALID_METRICS: MetricType[] = [
   'savings',
 ];
 const DEFAULT_METRICS: MetricType[] = ['expenses'];
+// REVIEW [P2]: Zwracanie tej samej mutowalnej tablicy z kilku wywołań pozwala
+// przypadkowemu callerowi zmienić globalny default dla całej aplikacji. Zwracaj
+// readonly value albo nową kopię i trzymaj immutability także w AnalyticsFilters.
 /**
  * Parses the `metric` URL search param into validated MetricType[].
  * Supports comma-separated values (e.g. "income,expenses").

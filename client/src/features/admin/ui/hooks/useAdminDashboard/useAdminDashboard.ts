@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { useAdminUsersQuery, useInviteCodesQuery } from '#features/admin';
-
+import { useAdminUsersQuery } from '#features/admin/api/useAdminUsersQuery';
+import { useInviteCodesQuery } from '#features/admin/api/useInviteCodesQuery';
 import type {
   AdminDashboardStats,
   AdminUserViewModel,
   InviteCodeViewModel,
-} from '#features/admin';
+} from '#features/admin/model/types';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -16,13 +16,16 @@ interface DictionaryDisplayItem {
   readonly lastUpdated: string;
 }
 
-interface UseAdminDashboardResult {
-  readonly isLoading: boolean;
-  readonly stats: AdminDashboardStats;
-  readonly recentUsers: readonly AdminUserViewModel[];
-  readonly recentCodes: readonly InviteCodeViewModel[];
-  readonly dictionaryItems: readonly DictionaryDisplayItem[];
-}
+type UseAdminDashboardResult =
+  | { readonly status: 'loading' }
+  | { readonly status: 'error'; readonly error: string }
+  | {
+      readonly status: 'loaded';
+      readonly stats: AdminDashboardStats;
+      readonly recentUsers: readonly AdminUserViewModel[];
+      readonly recentCodes: readonly InviteCodeViewModel[];
+      readonly dictionaryItems: readonly DictionaryDisplayItem[];
+    };
 
 // ─── Hook ────────────────────────────────────────────────────────
 
@@ -31,13 +34,30 @@ export const useAdminDashboard = (): UseAdminDashboardResult => {
   const usersQuery = useAdminUsersQuery();
   const codesQuery = useInviteCodesQuery();
 
-  const isLoading = usersQuery.status === 'loading' || codesQuery.status === 'loading';
+  if (usersQuery.status === 'loading' || codesQuery.status === 'loading') {
+    return { status: 'loading' };
+  }
 
-  const users: readonly AdminUserViewModel[] =
-    usersQuery.status === 'loaded' ? usersQuery.data.users : [];
+  if (usersQuery.status === 'error') {
+    return { status: 'error', error: usersQuery.error };
+  }
 
-  const codes: readonly InviteCodeViewModel[] =
-    codesQuery.status === 'loaded' ? codesQuery.data.codes : [];
+  if (codesQuery.status === 'error') {
+    return { status: 'error', error: codesQuery.error };
+  }
+
+  if (usersQuery.status === 'notLoaded' || codesQuery.status === 'notLoaded') {
+    return { status: 'loading' };
+  }
+
+  const users: readonly AdminUserViewModel[] = usersQuery.data.users;
+
+  const codes: readonly InviteCodeViewModel[] = codesQuery.data.codes.map((code) => ({
+    ...code,
+    expiresAt: code.expiresAt ?? undefined,
+    usedBy: code.usedBy ?? undefined,
+    usedAt: code.usedAt ?? undefined,
+  }));
 
   const stats: AdminDashboardStats = {
     totalUsers: users.length,
@@ -59,5 +79,5 @@ export const useAdminDashboard = (): UseAdminDashboardResult => {
     { label: t('admin.dictTypes.phrases'), count: 200, lastUpdated: '6 dni temu' },
   ];
 
-  return { isLoading, stats, recentUsers, recentCodes, dictionaryItems };
+  return { status: 'loaded', stats, recentUsers, recentCodes, dictionaryItems };
 };

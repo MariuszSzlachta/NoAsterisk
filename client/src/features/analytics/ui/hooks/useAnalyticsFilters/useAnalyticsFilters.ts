@@ -13,6 +13,11 @@ export const useAnalyticsFilters = (): {
   const { filters, setFilters } = useAnalyticsFiltersStore();
   const initialized = useRef(false);
 
+  // REVIEW [P1]: initialized robi z URL tylko jednorazowy bootstrap. Nawigacja
+  // back/forward albo zmiana search params po mount jest ignorowana, a zmiany
+  // filtrów nie aktualizują URL. Wybierz jedno source of truth i zdefiniuj
+  // dwukierunkową synchronizację albo usuń połowiczną integrację; pokryj deep link
+  // oraz browser navigation testami.
   useEffect(() => {
     if (initialized.current) {
       return;

@@ -11,24 +11,16 @@ const METRIC_COLORS: Record<MetricType, string> = {
   savings: 'var(--warning)',
 };
 
-/**
- * Legacy: maps Polish series labels to colors.
- * @deprecated Use getMetricColors instead.
- */
-const SERIES_COLOR: Record<string, string> = {
-  Saldo: 'var(--primary)',
-  Przychody: 'var(--income)',
-  Wydatki: 'var(--expense)',
-  Oszczędności: 'var(--warning)',
-};
+const isMetricType = (value: string): value is MetricType =>
+  value in METRIC_COLORS;
 
 /** Returns color array for given metric types. */
 export const getMetricColors = (metrics: MetricType[]): string[] =>
   metrics.map((metric) => METRIC_COLORS[metric]);
 
 /**
- * Returns color array for given series IDs (legacy Polish labels).
- * @deprecated Use getMetricColors instead.
+ * Returns color array for given series IDs.
+ * Series IDs should be MetricType values (e.g. 'balance', 'income').
  */
 export const getSeriesColors = (seriesIds: string[]): string[] =>
-  seriesIds.map((id) => SERIES_COLOR[id] ?? 'var(--primary)');
+  seriesIds.map((id) => isMetricType(id) ? METRIC_COLORS[id] : 'var(--primary)');

@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useRuleFormStore } from '#features/admin-rules/store/useRuleFormStore';
@@ -10,6 +10,14 @@ let uuidCounter = 0;
 vi.stubGlobal('crypto', {
   randomUUID: () => `rule-${++uuidCounter}`,
 });
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const getRule = (index: number): NonNullable<ReturnType<typeof useRulesStore.getState>['rules'][number]> => {
+  const rule = useRulesStore.getState().rules[index];
+  if (!rule) throw new Error(`No rule at index ${index}`);
+  return rule;
+};
 
 // ─── Tests ───────────────────────────────────────────────────────
 
@@ -38,8 +46,10 @@ describe('Admin-Rules CRUD — integration flow', () => {
 
     const rules = useRulesStore.getState().rules;
     expect(rules).toHaveLength(1);
-    expect(rules[0].keyword).toBe('BIEDRONKA');
-    expect(rules[0].id).toBe('rule-1');
+
+    const firstRule = getRule(0);
+    expect(firstRule.keyword).toBe('BIEDRONKA');
+    expect(firstRule.id).toBe('rule-1');
 
     // Step 3: Close form
     act(() => { useRuleFormStore.getState().closeForm(); });
@@ -58,7 +68,7 @@ describe('Admin-Rules CRUD — integration flow', () => {
       });
     });
 
-    const updated = useRulesStore.getState().rules[0];
+    const updated = getRule(0);
     expect(updated.keyword).toBe('LIDL');
     expect(updated.priority).toBe(10);
     expect(updated.matcherType).toBe('Contains'); // unchanged
@@ -87,11 +97,16 @@ describe('Admin-Rules CRUD — integration flow', () => {
 
     const remaining = useRulesStore.getState().rules;
     expect(remaining).toHaveLength(2);
-    expect(remaining[0].keyword).toBe('A');
-    expect(remaining[1].keyword).toBe('C');
+
+    const first = getRule(0);
+    const second = getRule(1);
+    expect(first.keyword).toBe('A');
+    expect(second.keyword).toBe('C');
 
     // Update first one — doesn't affect last
     act(() => { useRulesStore.getState().updateRule('rule-1', { keyword: 'UPDATED' }); });
-    expect(useRulesStore.getState().rules[1].keyword).toBe('C');
+
+    const secondAfterUpdate = getRule(1);
+    expect(secondAfterUpdate.keyword).toBe('C');
   });
 });

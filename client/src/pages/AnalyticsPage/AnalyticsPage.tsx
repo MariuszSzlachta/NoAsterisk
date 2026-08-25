@@ -21,7 +21,6 @@ export const AnalyticsPage = (): React.JSX.Element => {
           <div className="flex flex-col gap-6">
             <AnalyticsChart
               series={data.series}
-              chartType={filters.chartType}
             />
             <AnalyticsKpiRow kpis={data.kpis} />
             {breakdownFilters !== undefined ? (

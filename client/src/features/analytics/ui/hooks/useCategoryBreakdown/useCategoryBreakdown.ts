@@ -22,6 +22,10 @@ export const useCategoryBreakdown = (
     undefined,
   );
 
+  // REVIEW [P1]: Selection nie jest uzgadniany po zmianie period/metric. Po zmianie
+  // filtrów może zostać otwarty drilldown dla kategorii, której już nie ma w wyniku,
+  // albo dla starego labelu. Trzymaj categoryId i resetuj/reconcile selection
+  // względem aktualnych items po zmianie query.
   const createCategoryClickHandler = (category: string) => (): void => {
     setSelectedCategory(selectedCategory === category ? undefined : category);
   };

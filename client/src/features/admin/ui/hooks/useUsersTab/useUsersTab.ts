@@ -41,6 +41,10 @@ export const useUsersTab = (): UseUsersTabResult => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<AdminUserViewModel | undefined>(undefined);
 
+  // REVIEW [P1]: QueryState error/notLoaded trafia do tej samej ścieżki co
+  // pusty wynik. Dodatkowo mutacje poniżej są fire-and-forget. Trzeba wystawić
+  // loading/error/retry oraz obsłużyć odrzucenie mutacji, inaczej UI może pokazać
+  // pustą tabelę albo zamknąć potwierdzenie mimo nieudanego delete.
   const isLoading = usersQuery.status === 'loading';
 
   const allUsers: readonly AdminUserViewModel[] =

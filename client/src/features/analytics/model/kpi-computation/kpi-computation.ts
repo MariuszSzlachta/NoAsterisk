@@ -26,6 +26,10 @@ export const METRIC_LABELS: Record<MetricType, string> = {
   savings: 'Oszczędności',
 };
 
+// REVIEW [P1]: Model zwraca polskie presentation strings, mimo że obok istnieje
+// METRIC_LABEL_KEYS i aplikacja ma i18n. W angielskim locale KPI nadal pokaże
+// polski tekst, a UI używa label jako React key. Zwracaj stable metric/key,
+// tłumacz dopiero w komponencie i identyfikuj KPI po metric, nie po label.
 /**
  * Computes a single KPI for the given metric by comparing current range vs previous range.
  * The previous range is the same duration immediately before the current range.

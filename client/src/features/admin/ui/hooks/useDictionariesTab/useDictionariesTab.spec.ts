@@ -114,6 +114,16 @@ describe('useDictionariesTab', () => {
       expect(result.current.activeType).toBe('cities');
     });
 
+    it('ignores invalid tab id', () => {
+      const { result } = renderHook(() => useDictionariesTab());
+
+      act(() => {
+        result.current.handleSubTabChange('invalidType');
+      });
+
+      expect(result.current.activeType).toBe('firstNames');
+    });
+
     it('resets page to 1 on tab switch', () => {
       const { result } = renderHook(() => useDictionariesTab());
 

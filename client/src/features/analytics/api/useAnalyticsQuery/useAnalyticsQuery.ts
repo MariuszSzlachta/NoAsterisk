@@ -1,5 +1,4 @@
 import { getBuckets } from '#features/analytics/model/buckets';
-import { SERIES_LABELS } from '#features/analytics/model/compute-analytics';
 import { getDateRangeAsDate, toLocalDateStr } from '#features/analytics/model/date-range';
 import { computeKpi } from '#features/analytics/model/kpi-computation';
 import { computeMetricForBucket } from '#features/analytics/model/metric-computation';
@@ -8,12 +7,11 @@ import type {
   AnalyticsKpi,
   AnalyticsSeries,
 } from '#features/analytics/model/types';
-import { useTransactionsStore } from '#features/transactions';
-import type { QueryState } from '#shared/api';
-
 // ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
 // Analytics needs transaction data for chart computation. Planned resolution: migrate to TanStack
 // Query with real API when backend provides aggregation endpoints.
+import { useTransactionsStore } from '#features/transactions';
+import type { QueryState } from '#shared/api';
 
 interface AnalyticsData {
   readonly series: AnalyticsSeries[];
@@ -40,7 +38,7 @@ export const useAnalyticsQuery = (
   const buckets = getBuckets(range.from, range.to, filters.granularity);
 
   const series: AnalyticsSeries[] = filters.metrics.map((metric) => ({
-    id: SERIES_LABELS[metric],
+    id: metric,
     data: buckets.map((bucket) => ({
       x: bucket.label,
       y: computeMetricForBucket(filteredTransactions, bucket, metric, transactions),

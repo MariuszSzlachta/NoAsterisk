@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { DictionaryEntryViewModel, DictionaryType } from '#features/admin';
+import type { DictionaryEntryViewModel, DictionaryType } from '#features/admin/model/types';
 
 // ─── Constants ───────────────────────────────────────────────────
 
@@ -12,6 +12,9 @@ const DICTIONARY_TYPES: readonly DictionaryType[] = [
   'merchants',
   'phrases',
 ];
+
+const isDictionaryType = (value: string): value is DictionaryType =>
+  (DICTIONARY_TYPES as readonly string[]).includes(value);
 
 // ─── Mock Data (will be replaced by API query when backend ready) ───
 
@@ -46,7 +49,6 @@ interface UseDictionariesTabResult {
   readonly handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   readonly handlePrevPage: () => void;
   readonly handleNextPage: () => void;
-  readonly handleDeleteEntry: (entryId: string) => void;
   readonly handleOpenAdd: () => void;
   readonly handleCloseAdd: () => void;
   readonly handleOpenBulk: () => void;
@@ -72,7 +74,7 @@ export const useDictionariesTab = (): UseDictionariesTabResult => {
     count: MOCK_COUNTS[type],
   }));
 
-  // TODO: Replace with real API query
+  // TODO: Replace with real API query — currently mock data
   const totalEntries = MOCK_COUNTS[activeType];
   const totalPages = Math.max(1, Math.ceil(totalEntries / PAGE_SIZE));
 
@@ -94,7 +96,10 @@ export const useDictionariesTab = (): UseDictionariesTabResult => {
   const displayRange = `${rangeStart}–${rangeEnd}`;
 
   const handleSubTabChange = (id: string): void => {
-    setActiveType(id as DictionaryType);
+    if (!isDictionaryType(id)) {
+      return;
+    }
+    setActiveType(id);
     setCurrentPage(1);
     setSearchQuery('');
   };
@@ -114,10 +119,6 @@ export const useDictionariesTab = (): UseDictionariesTabResult => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
-  };
-
-  const handleDeleteEntry = (_entryId: string): void => {
-    // TODO: Call delete mutation when backend available
   };
 
   const handleOpenAdd = (): void => { setShowAddModal(true); };
@@ -140,7 +141,6 @@ export const useDictionariesTab = (): UseDictionariesTabResult => {
     handleSearchChange,
     handlePrevPage,
     handleNextPage,
-    handleDeleteEntry,
     handleOpenAdd,
     handleCloseAdd,
     handleOpenBulk,

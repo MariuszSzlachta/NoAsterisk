@@ -45,6 +45,10 @@ export const useInviteCodesTab = (): UseInviteCodesTabResult => {
         }))
       : [];
 
+  // REVIEW [P1]: Błędy generate/delete i stan pending są całkowicie ignorowane.
+  // Po odrzuceniu Promise powstaje unhandled rejection, a użytkownik nie dostaje
+  // informacji ani blokady przed wielokrotnym kliknięciem. Zwróć stan operacji
+  // i jawny rezultat/error do komponentu.
   const handleGenerate = (): void => {
     void generate(expiryDate || undefined).then((result) => {
       setGeneratedCode(result.code);

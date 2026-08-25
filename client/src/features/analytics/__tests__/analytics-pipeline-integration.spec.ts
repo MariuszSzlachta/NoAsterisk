@@ -1,3 +1,6 @@
+// REVIEW [P1]: Integration test również łamie quality gate: duplicate import
+// oraz unchecked buckets[0]/wyniki. Bez przejścia strict tsc/lint zielone testy
+// nie są wiarygodnym dowodem jakości feature.
 import { describe, expect, it } from 'vitest';
 
 import { computeCategoryBreakdown } from '#features/analytics/model/category-breakdown';

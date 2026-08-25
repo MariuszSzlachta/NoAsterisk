@@ -1,5 +1,10 @@
 import type { AutoCategorizeResult, RuleRecord, UncategorizedTransaction } from '#features/admin-rules/model/types';
 
+// ─── Validation ──────────────────────────────────────────────────
+
+const isValidRule = (rule: RuleRecord): boolean =>
+  rule.keyword.trim().length > 0 && rule.priority >= 1;
+
 // ─── Matcher Functions ───────────────────────────────────────────
 
 const containsMatch = (description: string, keyword: string): boolean =>
@@ -9,6 +14,10 @@ const exactMatch = (description: string, keyword: string): boolean =>
   description.toLowerCase() === keyword.toLowerCase();
 
 export const matchesRule = (description: string, rule: RuleRecord): boolean => {
+  if (!isValidRule(rule)) {
+    return false;
+  }
+
   switch (rule.matcherType) {
     case 'Contains':
       return containsMatch(description, rule.keyword);
@@ -43,11 +52,13 @@ export const autoCategorize = (
   rules: ReadonlyArray<RuleRecord>,
   transactions: ReadonlyArray<UncategorizedTransaction>,
 ): ReadonlyArray<AutoCategorizeResult> => {
-  if (rules.length === 0) {
+  const validRules = rules.filter(isValidRule);
+
+  if (validRules.length === 0) {
     return [];
   }
 
-  const sortedRules = sortRulesByPriority(rules);
+  const sortedRules = sortRulesByPriority(validRules);
   const uncategorized = filterUncategorized(transactions);
 
   const results: AutoCategorizeResult[] = [];

@@ -24,7 +24,6 @@ export const DictionariesTab = (): React.JSX.Element => {
     handleSearchChange,
     handlePrevPage,
     handleNextPage,
-    handleDeleteEntry,
     handleOpenAdd,
     handleOpenBulk,
   } = useDictionariesTab();
@@ -62,11 +61,7 @@ export const DictionariesTab = (): React.JSX.Element => {
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
         {entries.map((entry) => (
-          <DictionaryEntryCard
-            key={entry.id}
-            entry={entry}
-            onDelete={handleDeleteEntry}
-          />
+          <DictionaryEntryCard key={entry.id} entry={entry} />
         ))}
       </div>
 

@@ -17,6 +17,10 @@ export const computeCategoryBreakdown = (
     return metric === 'expenses' ? tx.amount < 0 : tx.amount > 0;
   });
 
+  // REVIEW [P0]: Grupowanie po display label zamiast categoryId scala dwie różne
+  // kategorie o tej samej nazwie i traci identity potrzebne do drilldown. Model
+  // powinien zwracać { categoryId, label/key, amount, percentage }, grupować
+  // oraz sortować po ID, a tłumaczenie pozostawić warstwie prezentacji.
   const grouped = new Map<string, number>();
   for (const tx of filtered) {
     const label = getCategoryLabel(tx.categoryId);
