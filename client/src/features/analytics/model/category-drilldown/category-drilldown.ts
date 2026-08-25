@@ -11,37 +11,41 @@ import type { ChartSeries, ChartSeriesDataPoint } from '#shared/adapters/charts'
 /** Maximum transactions to show in drilldown. Prevents list from dominating the panel. */
 const MAX_TRANSACTIONS = 10;
 
+/** Number of monthly buckets in the trend chart. */
+const TREND_MONTHS = 6;
+
 // ─── Helpers ─────────────────────────────────────────────────────
 
 const matchesCategory = (tx: StoredTransaction, categoryLabel: string): boolean =>
   getCategoryLabel(tx.categoryId) === categoryLabel;
 
+const matchesMetric = (tx: StoredTransaction, metric: CategoryBreakdownFilters['metric']): boolean =>
+  metric === 'expenses' ? tx.amount < 0 : tx.amount > 0;
+
 const buildMonthlyTrend = (
   transactions: readonly StoredTransaction[],
   category: string,
+  dateRange: { from: string; to: string },
+  metric: CategoryBreakdownFilters['metric'],
+  now: Date,
 ): ChartSeries => {
-  // REVIEW [P1]: Funkcja czyta new Date() z systemu, więc wynik pure modelu
-  // zmienia się w czasie i testy nie są deterministyczne. now/Clock oraz zakres
-  // powinny być zależnościami wejściowymi, nie ukrytą globalną implementacją.
-  const now = new Date();
   const data: ChartSeriesDataPoint[] = [];
 
-  for (let i = 5; i >= 0; i--) {
+  for (let i = TREND_MONTHS - 1; i >= 0; i--) {
     const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
     const monthStart = month.toISOString().slice(0, 10);
     const monthEndStr = monthEnd.toISOString().slice(0, 10);
 
-    // REVIEW [P0]: Trend ignoruje dateRange i metric z wywołania poniżej:
-    // zawsze liczy ostatnie 6 miesięcy i sumuje absolute amounts, więc drilldown
-    // income zawiera też wydatki, a wybór 1m/1y nie ma wpływu na wykres. Przekaż
-    // znormalizowany zakres i metrykę do buildera oraz pokryj oba przypadki testami.
     const monthTotal = transactions
       .filter(
         (tx) =>
           tx.date >= monthStart &&
           tx.date <= monthEndStr &&
-          matchesCategory(tx, category),
+          tx.date >= dateRange.from &&
+          tx.date <= dateRange.to &&
+          matchesCategory(tx, category) &&
+          matchesMetric(tx, metric),
       )
       .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
@@ -56,24 +60,27 @@ const buildMonthlyTrend = (
 
 /**
  * Computes drilldown data for a specific category:
- * - 6-month trend chart series
+ * - 6-month trend chart series (respects dateRange and metric)
  * - Most recent transactions (max 10)
+ *
+ * @param now - Current date for trend calculation (injected for testability).
  */
 export const computeCategoryDrilldown = (
   transactions: readonly StoredTransaction[],
   category: string,
   dateRange: { from: string; to: string },
   metric: CategoryBreakdownFilters['metric'],
+  now: Date = new Date(),
 ): CategoryDrilldownData => {
   const categoryTransactions = transactions.filter(
     (tx) =>
       tx.date >= dateRange.from &&
       tx.date <= dateRange.to &&
       matchesCategory(tx, category) &&
-      (metric === 'expenses' ? tx.amount < 0 : tx.amount > 0),
+      matchesMetric(tx, metric),
   );
 
-  const trend = buildMonthlyTrend(transactions, category);
+  const trend = buildMonthlyTrend(transactions, category, dateRange, metric, now);
 
   const recentTransactions: CategoryDrilldownTransaction[] = [...categoryTransactions]
     .sort((a, b) => b.date.localeCompare(a.date))

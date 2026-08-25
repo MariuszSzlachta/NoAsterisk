@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useCategoryBreakdownQuery } from '#features/analytics/api/useCategoryBreakdownQuery';
 import type {
@@ -22,10 +22,16 @@ export const useCategoryBreakdown = (
     undefined,
   );
 
-  // REVIEW [P1]: Selection nie jest uzgadniany po zmianie period/metric. Po zmianie
-  // filtrów może zostać otwarty drilldown dla kategorii, której już nie ma w wyniku,
-  // albo dla starego labelu. Trzymaj categoryId i resetuj/reconcile selection
-  // względem aktualnych items po zmianie query.
+  // Reset selection when filters change — previous selection may not exist in new results.
+  const prevFiltersRef = useRef(filters);
+  useEffect(() => {
+    const prev = prevFiltersRef.current;
+    if (prev.metric !== filters.metric || prev.period !== filters.period || prev.granularity !== filters.granularity) {
+      setSelectedCategory(undefined);
+    }
+    prevFiltersRef.current = filters;
+  }, [filters]);
+
   const createCategoryClickHandler = (category: string) => (): void => {
     setSelectedCategory(selectedCategory === category ? undefined : category);
   };

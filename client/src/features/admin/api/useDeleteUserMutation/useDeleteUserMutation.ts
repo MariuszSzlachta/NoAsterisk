@@ -19,6 +19,7 @@ interface DeleteUserResponse {
 interface UseDeleteUserMutationResult {
   readonly deleteUser: (userId: string) => Promise<DeleteUserResponse>;
   readonly isLoading: boolean;
+  readonly error: string | undefined;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
@@ -37,5 +38,7 @@ export const useDeleteUserMutation = (): UseDeleteUserMutationResult => {
   const deleteUser = (userId: string): Promise<DeleteUserResponse> =>
     mutation.mutateAsync(userId);
 
-  return { deleteUser, isLoading: mutation.isPending };
+  const error = mutation.error ? (mutation.error as Error).message : undefined;
+
+  return { deleteUser, isLoading: mutation.isPending, error };
 };

@@ -14,7 +14,12 @@ const CATEGORY_COLORS = [
   'var(--cat-dining)',
   'var(--cat-bills)',
   'var(--cat-entertainment)',
-];
+] as const;
+
+const DEFAULT_COLOR = CATEGORY_COLORS[0];
+
+const getCategoryColor = (index: number): string =>
+  CATEGORY_COLORS[index % CATEGORY_COLORS.length] ?? DEFAULT_COLOR;
 
 const DRILLDOWN_ID = 'category-drilldown-panel';
 
@@ -54,11 +59,6 @@ export const AnalyticsCategoryBreakdown = ({
             );
           }
 
-          // REVIEW [P0]: Przy noUncheckedIndexedAccess wyrażenie index % length
-          // ma typ string | undefined, więc feature nie przechodzi tsc. Nie lecz
-          // tego non-null assertionem: kolor jest też positional i niezależny od
-          // category identity. Dostarcz kolor z metadanych kategorii/stable ID
-          // i zapewnij jawny fallback.
           const maxAmount = Math.max(...items.map((i) => i.amount), 0);
 
           return (
@@ -66,9 +66,9 @@ export const AnalyticsCategoryBreakdown = ({
               <ul className="flex flex-col gap-2">
                 {items.map((item, index) => (
                   <BreakdownListItem
-                    key={item.category}
+                    key={item.categoryId}
                     item={item}
-                    color={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
+                    color={getCategoryColor(index)}
                     maxAmount={maxAmount}
                     isSelected={selectedCategory === item.category}
                     drilldownId={DRILLDOWN_ID}
@@ -80,12 +80,9 @@ export const AnalyticsCategoryBreakdown = ({
                 <CategoryDrilldown
                   id={DRILLDOWN_ID}
                   category={selectedCategory}
-                  color={
-                    CATEGORY_COLORS[
-                      items.findIndex((i) => i.category === selectedCategory) %
-                        CATEGORY_COLORS.length
-                    ] ?? CATEGORY_COLORS[0]
-                  }
+                  color={getCategoryColor(
+                    items.findIndex((i) => i.category === selectedCategory),
+                  )}
                   filters={filters}
                   onClose={handleDrilldownClose}
                 />

@@ -12,20 +12,32 @@ import { Skeleton } from '#shared/ui/Skeleton';
 
 export const InviteCodesTab = (): React.JSX.Element => {
   const { t } = useTranslation();
+  const state = useInviteCodesTab();
+
+  if (state.status === 'loading') {
+    return <Skeleton className="h-96" />;
+  }
+
+  if (state.status === 'error') {
+    return (
+      <div className="rounded-md bg-expense-soft px-4 py-3" role="alert">
+        <p className="text-sm text-expense">{state.error}</p>
+      </div>
+    );
+  }
+
   const {
-    isLoading,
     codes,
     generatedCode,
     expiryDate,
+    isGeneratePending,
+    generateError,
+    deleteError,
     handleGenerate,
     handleExpiryChange,
     handleCopy,
     handleDelete,
-  } = useInviteCodesTab();
-
-  if (isLoading) {
-    return <Skeleton className="h-96" />;
-  }
+  } = state;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -38,7 +50,18 @@ export const InviteCodesTab = (): React.JSX.Element => {
           {t('admin.codes.newCodeDesc')}
         </p>
 
-        <Button icon={<Plus size={14} />} onClick={handleGenerate} className="mb-4 w-full">
+        {generateError && (
+          <div className="mb-4 rounded-md bg-expense-soft px-3 py-2" role="alert">
+            <p className="text-xs text-expense">{generateError}</p>
+          </div>
+        )}
+
+        <Button
+          icon={<Plus size={14} />}
+          onClick={handleGenerate}
+          disabled={isGeneratePending}
+          className="mb-4 w-full"
+        >
           {t('admin.codes.generate')}
         </Button>
 
@@ -71,6 +94,11 @@ export const InviteCodesTab = (): React.JSX.Element => {
 
       {/* Right panel: Table */}
       <div className="lg:col-span-2">
+        {deleteError && (
+          <div className="mb-4 rounded-md bg-expense-soft px-4 py-3" role="alert">
+            <p className="text-sm text-expense">{deleteError}</p>
+          </div>
+        )}
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>

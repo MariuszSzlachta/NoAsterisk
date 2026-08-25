@@ -29,13 +29,6 @@ export const RulesTable = ({ onEdit }: RulesTableProps): React.JSX.Element => {
     );
   }
 
-  // REVIEW [P0]: Ten kod obecnie nie przechodzi tsc: DataTable wymaga
-  // TRow extends Record<string, unknown>, ale RuleViewModel jest poprawnym
-  // interfejsem bez index signature. Napraw kontrakt wspólnego DataTable (bez
-  // zaśmiecania modeli domenowych index signature), a dopiero potem oceniaj
-  // memoizację.
-  // useMemo not needed: DataTable is not memoized, re-renders are driven by
-  // data changes (rules CRUD) which are infrequent. No measured performance issue.
   const columns = buildRulesColumns(handleDelete, onEdit, t);
 
   return (

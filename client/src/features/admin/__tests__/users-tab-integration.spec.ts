@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { UseUsersTabResult } from '#features/admin/ui/hooks/useUsersTab/useUsersTab';
 import { useUsersTab } from '#features/admin/ui/hooks/useUsersTab/useUsersTab';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
@@ -21,11 +22,24 @@ const MOCK_USERS = [
   { id: '10', email: 'last@budget.pl', role: 'Member' as const, createdAt: '2026-08-18', hasVault: true },
 ];
 
-vi.mock('#features/admin', () => ({
+vi.mock('#features/admin/api/useAdminUsersQuery', () => ({
   useAdminUsersQuery: () => ({ status: 'loaded', data: { users: MOCK_USERS, total: 10 } }),
-  useBlockUserMutation: () => ({ toggleBlock: mockToggleBlock, isLoading: false }),
-  useDeleteUserMutation: () => ({ deleteUser: mockDeleteUser, isLoading: false }),
 }));
+
+vi.mock('#features/admin/api/useBlockUserMutation', () => ({
+  useBlockUserMutation: () => ({ toggleBlock: mockToggleBlock, isLoading: false, error: undefined }),
+}));
+
+vi.mock('#features/admin/api/useDeleteUserMutation', () => ({
+  useDeleteUserMutation: () => ({ deleteUser: mockDeleteUser, isLoading: false, error: undefined }),
+}));
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const getLoaded = (result: UseUsersTabResult) => {
+  if (result.status !== 'loaded') throw new Error(`Expected loaded, got ${result.status}`);
+  return result;
+};
 
 // ─── Integration Tests ───────────────────────────────────────────
 
@@ -37,44 +51,46 @@ describe('useUsersTab — integration flow', () => {
   describe('pagination', () => {
     it('paginates users with PAGE_SIZE=8', () => {
       const { result } = renderHook(() => useUsersTab());
+      const data = getLoaded(result.current);
 
-      expect(result.current.users).toHaveLength(8);
-      expect(result.current.totalPages).toBe(2);
-      expect(result.current.currentPage).toBe(1);
+      expect(data.users).toHaveLength(8);
+      expect(data.totalPages).toBe(2);
+      expect(data.currentPage).toBe(1);
     });
 
     it('shows remaining users on page 2', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleNextPage();
+        getLoaded(result.current).handleNextPage();
       });
 
-      expect(result.current.currentPage).toBe(2);
-      expect(result.current.users).toHaveLength(2);
+      const data = getLoaded(result.current);
+      expect(data.currentPage).toBe(2);
+      expect(data.users).toHaveLength(2);
     });
 
     it('prevents going below page 1', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handlePrevPage();
+        getLoaded(result.current).handlePrevPage();
       });
 
-      expect(result.current.currentPage).toBe(1);
+      expect(getLoaded(result.current).currentPage).toBe(1);
     });
 
     it('prevents going beyond last page', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleNextPage();
+        getLoaded(result.current).handleNextPage();
       });
       act(() => {
-        result.current.handleNextPage();
+        getLoaded(result.current).handleNextPage();
       });
 
-      expect(result.current.currentPage).toBe(2);
+      expect(getLoaded(result.current).currentPage).toBe(2);
     });
   });
 
@@ -82,51 +98,51 @@ describe('useUsersTab — integration flow', () => {
     it('resets to page 1 when searching', () => {
       const { result } = renderHook(() => useUsersTab());
 
-      // Navigate to page 2
       act(() => {
-        result.current.handleNextPage();
+        getLoaded(result.current).handleNextPage();
       });
-      expect(result.current.currentPage).toBe(2);
+      expect(getLoaded(result.current).currentPage).toBe(2);
 
-      // Search — should reset to page 1
       act(() => {
-        result.current.handleSearchChange({
+        getLoaded(result.current).handleSearchChange({
           target: { value: 'admin' },
         } as React.ChangeEvent<HTMLInputElement>);
       });
 
-      expect(result.current.currentPage).toBe(1);
-      expect(result.current.users).toHaveLength(1);
+      const data = getLoaded(result.current);
+      expect(data.currentPage).toBe(1);
+      expect(data.users).toHaveLength(1);
     });
 
     it('filters case-insensitively', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleSearchChange({
+        getLoaded(result.current).handleSearchChange({
           target: { value: 'ADMIN' },
         } as React.ChangeEvent<HTMLInputElement>);
       });
 
-      expect(result.current.users).toHaveLength(1);
-      expect(result.current.users[0].email).toBe('admin@budget.pl');
+      const data = getLoaded(result.current);
+      expect(data.users).toHaveLength(1);
+      expect(data.users[0].email).toBe('admin@budget.pl');
     });
 
     it('shows all when search is cleared', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleSearchChange({
+        getLoaded(result.current).handleSearchChange({
           target: { value: 'admin' },
         } as React.ChangeEvent<HTMLInputElement>);
       });
       act(() => {
-        result.current.handleSearchChange({
+        getLoaded(result.current).handleSearchChange({
           target: { value: '' },
         } as React.ChangeEvent<HTMLInputElement>);
       });
 
-      expect(result.current.users).toHaveLength(8); // page 1 of 10
+      expect(getLoaded(result.current).users).toHaveLength(8);
     });
   });
 
@@ -135,7 +151,7 @@ describe('useUsersTab — integration flow', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleBlock('3', false);
+        getLoaded(result.current).handleBlock('3', false);
       });
 
       expect(mockToggleBlock).toHaveBeenCalledWith('3', false);
@@ -143,42 +159,40 @@ describe('useUsersTab — integration flow', () => {
   });
 
   describe('delete user flow', () => {
-    it('full delete flow: request → confirm → mutation called', () => {
+    it('full delete flow: request → confirm → mutation called', async () => {
       const { result } = renderHook(() => useUsersTab());
 
-      // Step 1: Request delete
       act(() => {
-        result.current.handleDeleteRequest(MOCK_USERS[1]);
+        getLoaded(result.current).handleDeleteRequest(MOCK_USERS[1]);
       });
-      expect(result.current.deleteTarget).toEqual(MOCK_USERS[1]);
+      expect(getLoaded(result.current).deleteTarget).toEqual(MOCK_USERS[1]);
 
-      // Step 2: Confirm
-      act(() => {
-        result.current.handleDeleteConfirm();
+      await act(async () => {
+        getLoaded(result.current).handleDeleteConfirm();
       });
       expect(mockDeleteUser).toHaveBeenCalledWith('2');
-      expect(result.current.deleteTarget).toBeUndefined();
+      expect(getLoaded(result.current).deleteTarget).toBeUndefined();
     });
 
     it('full delete flow: request → cancel → no mutation', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleDeleteRequest(MOCK_USERS[1]);
+        getLoaded(result.current).handleDeleteRequest(MOCK_USERS[1]);
       });
       act(() => {
-        result.current.handleDeleteCancel();
+        getLoaded(result.current).handleDeleteCancel();
       });
 
       expect(mockDeleteUser).not.toHaveBeenCalled();
-      expect(result.current.deleteTarget).toBeUndefined();
+      expect(getLoaded(result.current).deleteTarget).toBeUndefined();
     });
 
     it('does not call deleteUser when no target set', () => {
       const { result } = renderHook(() => useUsersTab());
 
       act(() => {
-        result.current.handleDeleteConfirm();
+        getLoaded(result.current).handleDeleteConfirm();
       });
 
       expect(mockDeleteUser).not.toHaveBeenCalled();

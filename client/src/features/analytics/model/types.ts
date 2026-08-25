@@ -30,6 +30,7 @@ export interface AnalyticsKpi {
 }
 
 export interface CategoryBreakdownItem {
+  readonly categoryId: string;
   readonly category: string;
   readonly amount: number;
   readonly percentage: number;

@@ -1,54 +1,58 @@
 import { useState } from 'react';
 
-import {
-  useDeleteInviteCodeMutation,
-  useGenerateCodeMutation,
-  useInviteCodesQuery,
-} from '#features/admin';
-import type { InviteCodeViewModel } from '#features/admin';
+import { useDeleteInviteCodeMutation } from '#features/admin/api/useDeleteInviteCodeMutation';
+import { useGenerateCodeMutation } from '#features/admin/api/useGenerateCodeMutation';
+import { useInviteCodesQuery } from '#features/admin/api/useInviteCodesQuery';
+import type { InviteCodeViewModel } from '#features/admin/model/types';
 
 // ─── Result Interface ────────────────────────────────────────────
 
-interface UseInviteCodesTabResult {
-  readonly isLoading: boolean;
-  readonly codes: readonly InviteCodeViewModel[];
-  readonly generatedCode: string | undefined;
-  readonly expiryDate: string;
-  readonly handleGenerate: () => void;
-  readonly handleExpiryChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  readonly handleCopy: () => void;
-  readonly handleDelete: (codeId: string) => void;
-}
+export type UseInviteCodesTabResult =
+  | { readonly status: 'loading' }
+  | { readonly status: 'error'; readonly error: string }
+  | {
+      readonly status: 'loaded';
+      readonly codes: readonly InviteCodeViewModel[];
+      readonly generatedCode: string | undefined;
+      readonly expiryDate: string;
+      readonly isGeneratePending: boolean;
+      readonly generateError: string | undefined;
+      readonly isDeletePending: boolean;
+      readonly deleteError: string | undefined;
+      readonly handleGenerate: () => void;
+      readonly handleExpiryChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+      readonly handleCopy: () => void;
+      readonly handleDelete: (codeId: string) => void;
+    };
 
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useInviteCodesTab = (): UseInviteCodesTabResult => {
   const codesQuery = useInviteCodesQuery();
-  const { generate } = useGenerateCodeMutation();
-  const { deleteCode } = useDeleteInviteCodeMutation();
+  const { generate, isLoading: isGeneratePending, error: generateError } = useGenerateCodeMutation();
+  const { deleteCode, isLoading: isDeletePending, error: deleteError } = useDeleteInviteCodeMutation();
 
   const [generatedCode, setGeneratedCode] = useState<string | undefined>(undefined);
   const [expiryDate, setExpiryDate] = useState('');
 
-  const isLoading = codesQuery.status === 'loading';
+  if (codesQuery.status === 'loading' || codesQuery.status === 'notLoaded') {
+    return { status: 'loading' };
+  }
 
-  const codes: readonly InviteCodeViewModel[] =
-    codesQuery.status === 'loaded'
-      ? codesQuery.data.codes.map((dto) => ({
-          id: dto.id,
-          code: dto.code,
-          status: dto.status,
-          createdAt: dto.createdAt,
-          expiresAt: dto.expiresAt ?? undefined,
-          usedBy: dto.usedBy ?? undefined,
-          usedAt: dto.usedAt ?? undefined,
-        }))
-      : [];
+  if (codesQuery.status === 'error') {
+    return { status: 'error', error: codesQuery.error };
+  }
 
-  // REVIEW [P1]: Błędy generate/delete i stan pending są całkowicie ignorowane.
-  // Po odrzuceniu Promise powstaje unhandled rejection, a użytkownik nie dostaje
-  // informacji ani blokady przed wielokrotnym kliknięciem. Zwróć stan operacji
-  // i jawny rezultat/error do komponentu.
+  const codes: readonly InviteCodeViewModel[] = codesQuery.data.codes.map((dto) => ({
+    id: dto.id,
+    code: dto.code,
+    status: dto.status,
+    createdAt: dto.createdAt,
+    expiresAt: dto.expiresAt ?? undefined,
+    usedBy: dto.usedBy ?? undefined,
+    usedAt: dto.usedAt ?? undefined,
+  }));
+
   const handleGenerate = (): void => {
     void generate(expiryDate || undefined).then((result) => {
       setGeneratedCode(result.code);
@@ -70,10 +74,14 @@ export const useInviteCodesTab = (): UseInviteCodesTabResult => {
   };
 
   return {
-    isLoading,
+    status: 'loaded',
     codes,
     generatedCode,
     expiryDate,
+    isGeneratePending,
+    generateError,
+    isDeletePending,
+    deleteError,
     handleGenerate,
     handleExpiryChange,
     handleCopy,

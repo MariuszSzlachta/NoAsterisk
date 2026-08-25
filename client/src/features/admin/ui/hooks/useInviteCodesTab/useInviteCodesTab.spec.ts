@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { UseInviteCodesTabResult } from './useInviteCodesTab';
 import { useInviteCodesTab } from './useInviteCodesTab';
 
 // ─── Mocks ───────────────────────────────────────────────────────
@@ -14,11 +15,24 @@ const MOCK_CODES = [
   { id: 'c3', code: 'GHI-789', status: 'Expired' as const, createdAt: '2026-07-01', expiresAt: '2026-07-15', usedBy: null, usedAt: null },
 ];
 
-vi.mock('#features/admin', () => ({
+vi.mock('#features/admin/api/useInviteCodesQuery', () => ({
   useInviteCodesQuery: () => ({ status: 'loaded', data: { codes: MOCK_CODES, total: 3 } }),
-  useGenerateCodeMutation: () => ({ generate: mockGenerate, isLoading: false }),
-  useDeleteInviteCodeMutation: () => ({ deleteCode: mockDeleteCode, isLoading: false }),
 }));
+
+vi.mock('#features/admin/api/useGenerateCodeMutation', () => ({
+  useGenerateCodeMutation: () => ({ generate: mockGenerate, isLoading: false, error: undefined }),
+}));
+
+vi.mock('#features/admin/api/useDeleteInviteCodeMutation', () => ({
+  useDeleteInviteCodeMutation: () => ({ deleteCode: mockDeleteCode, isLoading: false, error: undefined }),
+}));
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const getLoaded = (result: UseInviteCodesTabResult) => {
+  if (result.status !== 'loaded') throw new Error(`Expected loaded, got ${result.status}`);
+  return result;
+};
 
 // ─── Tests ───────────────────────────────────────────────────────
 
@@ -29,37 +43,40 @@ describe('useInviteCodesTab', () => {
 
   it('maps DTO codes to ViewModels (null → undefined)', () => {
     const { result } = renderHook(() => useInviteCodesTab());
+    const data = getLoaded(result.current);
 
-    expect(result.current.codes).toHaveLength(3);
-    expect(result.current.codes[0].expiresAt).toBeUndefined();
-    expect(result.current.codes[0].usedBy).toBeUndefined();
-    expect(result.current.codes[1].expiresAt).toBe('2026-09-01');
-    expect(result.current.codes[1].usedBy).toBe('user@test.pl');
+    expect(data.codes).toHaveLength(3);
+    expect(data.codes[0].expiresAt).toBeUndefined();
+    expect(data.codes[0].usedBy).toBeUndefined();
+    expect(data.codes[1].expiresAt).toBe('2026-09-01');
+    expect(data.codes[1].usedBy).toBe('user@test.pl');
   });
 
-  it('returns isLoading false when data is loaded', () => {
+  it('returns loaded status when data is available', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.status).toBe('loaded');
   });
 
   it('starts with no generated code', () => {
     const { result } = renderHook(() => useInviteCodesTab());
+    const data = getLoaded(result.current);
 
-    expect(result.current.generatedCode).toBeUndefined();
+    expect(data.generatedCode).toBeUndefined();
   });
 
   it('starts with empty expiry date', () => {
     const { result } = renderHook(() => useInviteCodesTab());
+    const data = getLoaded(result.current);
 
-    expect(result.current.expiryDate).toBe('');
+    expect(data.expiryDate).toBe('');
   });
 
   it('calls generate with undefined when no expiry date set', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      result.current.handleGenerate();
+      getLoaded(result.current).handleGenerate();
     });
 
     expect(mockGenerate).toHaveBeenCalledWith(undefined);
@@ -69,10 +86,10 @@ describe('useInviteCodesTab', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      result.current.handleExpiryChange({ target: { value: '2026-12-31' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-12-31' } } as React.ChangeEvent<HTMLInputElement>);
     });
     act(() => {
-      result.current.handleGenerate();
+      getLoaded(result.current).handleGenerate();
     });
 
     expect(mockGenerate).toHaveBeenCalledWith('2026-12-31');
@@ -82,27 +99,27 @@ describe('useInviteCodesTab', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     await act(async () => {
-      result.current.handleGenerate();
+      getLoaded(result.current).handleGenerate();
     });
 
-    expect(result.current.generatedCode).toBe('GEN-ABC');
+    expect(getLoaded(result.current).generatedCode).toBe('GEN-ABC');
   });
 
   it('updates expiryDate on change', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      result.current.handleExpiryChange({ target: { value: '2026-10-15' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-10-15' } } as React.ChangeEvent<HTMLInputElement>);
     });
 
-    expect(result.current.expiryDate).toBe('2026-10-15');
+    expect(getLoaded(result.current).expiryDate).toBe('2026-10-15');
   });
 
   it('calls deleteCode with correct id', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      result.current.handleDelete('c2');
+      getLoaded(result.current).handleDelete('c2');
     });
 
     expect(mockDeleteCode).toHaveBeenCalledWith('c2');
@@ -115,10 +132,10 @@ describe('useInviteCodesTab', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     await act(async () => {
-      result.current.handleGenerate();
+      getLoaded(result.current).handleGenerate();
     });
     act(() => {
-      result.current.handleCopy();
+      getLoaded(result.current).handleCopy();
     });
 
     expect(writeText).toHaveBeenCalledWith('GEN-ABC');

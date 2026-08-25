@@ -19,6 +19,7 @@ interface DeleteInviteCodeResponse {
 interface UseDeleteInviteCodeMutationResult {
   readonly deleteCode: (codeId: string) => Promise<DeleteInviteCodeResponse>;
   readonly isLoading: boolean;
+  readonly error: string | undefined;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
@@ -37,5 +38,7 @@ export const useDeleteInviteCodeMutation = (): UseDeleteInviteCodeMutationResult
   const deleteCode = (codeId: string): Promise<DeleteInviteCodeResponse> =>
     mutation.mutateAsync(codeId);
 
-  return { deleteCode, isLoading: mutation.isPending };
+  const error = mutation.error ? (mutation.error as Error).message : undefined;
+
+  return { deleteCode, isLoading: mutation.isPending, error };
 };

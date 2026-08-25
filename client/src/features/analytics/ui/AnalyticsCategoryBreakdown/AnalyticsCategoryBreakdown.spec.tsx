@@ -27,8 +27,8 @@ vi.mock('#features/analytics/ui/CategoryDrilldown', () => ({
 
 const mockCreateHandler = vi.fn(() => vi.fn());
 let mockData: unknown[] = [
-  { category: 'Spożywcze', amount: 500, percentage: 50 },
-  { category: 'Transport', amount: 300, percentage: 30 },
+  { categoryId: 'cat-groceries', category: 'Spożywcze', amount: 500, percentage: 50 },
+  { categoryId: 'cat-transport', category: 'Transport', amount: 300, percentage: 30 },
 ];
 let mockSelected: string | undefined = undefined;
 
@@ -50,8 +50,8 @@ const filters: CategoryBreakdownFilters = {
 describe('AnalyticsCategoryBreakdown', () => {
   beforeEach(() => {
     mockData = [
-      { category: 'Spożywcze', amount: 500, percentage: 50 },
-      { category: 'Transport', amount: 300, percentage: 30 },
+      { categoryId: 'cat-groceries', category: 'Spożywcze', amount: 500, percentage: 50 },
+      { categoryId: 'cat-transport', category: 'Transport', amount: 300, percentage: 30 },
     ];
     mockSelected = undefined;
   });

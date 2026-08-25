@@ -5,8 +5,8 @@ import { mapBreakdownToChartData } from './transformers';
 describe('mapBreakdownToChartData', () => {
   it('maps category and amount to label and value', () => {
     const items = [
-      { category: 'Zakupy', amount: 1200, percentage: 40 },
-      { category: 'Transport', amount: 800, percentage: 27 },
+      { categoryId: 'cat-groceries', category: 'Zakupy', amount: 1200, percentage: 40 },
+      { categoryId: 'cat-transport', category: 'Transport', amount: 800, percentage: 27 },
     ];
 
     expect(mapBreakdownToChartData(items)).toEqual([

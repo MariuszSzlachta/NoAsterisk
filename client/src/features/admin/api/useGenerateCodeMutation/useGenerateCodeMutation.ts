@@ -24,6 +24,7 @@ interface GenerateCodeResponse {
 interface UseGenerateCodeMutationResult {
   readonly generate: (expiresAt?: string) => Promise<GenerateCodeResponse>;
   readonly isLoading: boolean;
+  readonly error: string | undefined;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
@@ -47,5 +48,7 @@ export const useGenerateCodeMutation = (): UseGenerateCodeMutationResult => {
   const generate = (expiresAt?: string): Promise<GenerateCodeResponse> =>
     mutation.mutateAsync(expiresAt);
 
-  return { generate, isLoading: mutation.isPending };
+  const error = mutation.error ? (mutation.error as Error).message : undefined;
+
+  return { generate, isLoading: mutation.isPending, error };
 };

@@ -11,14 +11,31 @@ import { Skeleton } from '#shared/ui/Skeleton';
 
 export const UsersTab = (): React.JSX.Element => {
   const { t } = useTranslation();
+  const state = useUsersTab();
+
+  if (state.status === 'loading') {
+    return <Skeleton className="h-96" />;
+  }
+
+  if (state.status === 'error') {
+    return (
+      <div className="rounded-md bg-expense-soft px-4 py-3" role="alert">
+        <p className="text-sm text-expense">{state.error}</p>
+      </div>
+    );
+  }
+
   const {
-    isLoading,
     users,
     totalUsers,
     searchQuery,
     currentPage,
     totalPages,
     deleteTarget,
+    isBlockPending,
+    blockError,
+    isDeletePending,
+    deleteError,
     handleSearchChange,
     handlePrevPage,
     handleNextPage,
@@ -26,14 +43,21 @@ export const UsersTab = (): React.JSX.Element => {
     handleDeleteRequest,
     handleDeleteConfirm,
     handleDeleteCancel,
-  } = useUsersTab();
-
-  if (isLoading) {
-    return <Skeleton className="h-96" />;
-  }
+  } = state;
 
   return (
     <div className="flex flex-col gap-4">
+      {blockError && (
+        <div className="rounded-md bg-expense-soft px-4 py-3" role="alert">
+          <p className="text-sm text-expense">{blockError}</p>
+        </div>
+      )}
+      {deleteError && (
+        <div className="rounded-md bg-expense-soft px-4 py-3" role="alert">
+          <p className="text-sm text-expense">{deleteError}</p>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <Input
           placeholder={t('admin.users.searchPlaceholder')}

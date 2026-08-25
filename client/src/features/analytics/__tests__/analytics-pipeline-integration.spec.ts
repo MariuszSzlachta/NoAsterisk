@@ -1,15 +1,11 @@
-// REVIEW [P1]: Integration test również łamie quality gate: duplicate import
-// oraz unchecked buckets[0]/wyniki. Bez przejścia strict tsc/lint zielone testy
-// nie są wiarygodnym dowodem jakości feature.
 import { describe, expect, it } from 'vitest';
 
+import { getBuckets } from '#features/analytics/model/buckets';
 import { computeCategoryBreakdown } from '#features/analytics/model/category-breakdown';
 import { computeCategoryDrilldown } from '#features/analytics/model/category-drilldown';
-import { getDateRange } from '#features/analytics/model/date-range';
-import { computeKpi } from '#features/analytics/model/kpi-computation';
+import { getDateRange, getDateRangeAsDate } from '#features/analytics/model/date-range';
+import { computeKpi, METRIC_LABEL_KEYS } from '#features/analytics/model/kpi-computation';
 import { computeMetricForBucket } from '#features/analytics/model/metric-computation';
-import { getBuckets } from '#features/analytics/model/buckets';
-import { getDateRangeAsDate } from '#features/analytics/model/date-range';
 import type { StoredTransaction } from '#features/transactions';
 
 // ─── Builder ─────────────────────────────────────────────────────
@@ -44,7 +40,10 @@ describe('Analytics data pipeline (integration)', () => {
 
     expect(buckets.length).toBeGreaterThanOrEqual(1);
 
-    const incomeForBucket = computeMetricForBucket(transactions, buckets[0], 'income', transactions);
+    const firstBucket = buckets[0];
+    expect(firstBucket).toBeDefined();
+
+    const incomeForBucket = computeMetricForBucket(transactions, firstBucket!, 'income', transactions);
     expect(typeof incomeForBucket).toBe('number');
   });
 
@@ -52,7 +51,7 @@ describe('Analytics data pipeline (integration)', () => {
     const range = getDateRangeAsDate('3m');
     const kpi = computeKpi(transactions, range, 'expenses');
 
-    expect(kpi.label).toBeDefined();
+    expect(kpi.label).toBe(METRIC_LABEL_KEYS.expenses);
     expect(kpi.value).toContain('zł');
     expect(['up', 'down', 'neutral']).toContain(kpi.trend);
   });
@@ -62,7 +61,7 @@ describe('Analytics data pipeline (integration)', () => {
     const breakdown = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
     // Should have groceries and transport
-    const groceries = breakdown.find((b) => b.category === 'Spożywcze');
+    const groceries = breakdown.find((b) => b.categoryId === 'cat-groceries');
     expect(groceries).toBeDefined();
     expect(groceries!.amount).toBeGreaterThan(0);
     expect(groceries!.percentage).toBeGreaterThan(0);
@@ -70,12 +69,13 @@ describe('Analytics data pipeline (integration)', () => {
 
   it('computeCategoryDrilldown returns trend + transactions for a category', () => {
     const dateRange = getDateRange('1y');
-    const drilldown = computeCategoryDrilldown(transactions, 'Spożywcze', dateRange, 'expenses');
+    const now = new Date(2026, 5, 30); // Fixed date for deterministic trend
+    const drilldown = computeCategoryDrilldown(transactions, 'Spożywcze', dateRange, 'expenses', now);
 
     expect(drilldown.trend.id).toBe('Spożywcze');
     expect(drilldown.trend.data).toHaveLength(6); // 6-month window
     expect(drilldown.transactions.length).toBeGreaterThan(0);
-    expect(drilldown.transactions[0].amount).toBeGreaterThan(0); // absolute
+    expect(drilldown.transactions[0]!.amount).toBeGreaterThan(0); // absolute
   });
 
   it('end-to-end: filters → series + kpis', () => {

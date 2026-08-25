@@ -19,7 +19,7 @@ export const AnalyticsKpiRow = ({
         <Card key={kpi.label}>
           <div className="flex flex-col gap-1 p-4">
             <span className="text-xs font-medium text-muted-foreground">
-              {kpi.label}
+              {t(kpi.label)}
             </span>
             <span
               className={`font-mono text-lg font-semibold tabular-nums ${getTrendClass(kpi.trend, kpi.invertColor)}`}

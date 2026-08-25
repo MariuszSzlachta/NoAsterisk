@@ -1,11 +1,9 @@
 import { useState } from 'react';
 
-import {
-  useAdminUsersQuery,
-  useBlockUserMutation,
-  useDeleteUserMutation,
-} from '#features/admin';
-import type { AdminUserViewModel } from '#features/admin';
+import { useAdminUsersQuery } from '#features/admin/api/useAdminUsersQuery';
+import { useBlockUserMutation } from '#features/admin/api/useBlockUserMutation';
+import { useDeleteUserMutation } from '#features/admin/api/useDeleteUserMutation';
+import type { AdminUserViewModel } from '#features/admin/model/types';
 
 // ─── Constants ───────────────────────────────────────────────────
 
@@ -13,42 +11,50 @@ const PAGE_SIZE = 8;
 
 // ─── Result Interface ────────────────────────────────────────────
 
-interface UseUsersTabResult {
-  readonly isLoading: boolean;
-  readonly users: readonly AdminUserViewModel[];
-  readonly totalUsers: number;
-  readonly searchQuery: string;
-  readonly currentPage: number;
-  readonly totalPages: number;
-  readonly deleteTarget: AdminUserViewModel | undefined;
-  readonly handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  readonly handlePrevPage: () => void;
-  readonly handleNextPage: () => void;
-  readonly handleBlock: (userId: string, block: boolean) => void;
-  readonly handleDeleteRequest: (user: AdminUserViewModel) => void;
-  readonly handleDeleteConfirm: () => void;
-  readonly handleDeleteCancel: () => void;
-}
+export type UseUsersTabResult =
+  | { readonly status: 'loading' }
+  | { readonly status: 'error'; readonly error: string }
+  | {
+      readonly status: 'loaded';
+      readonly users: readonly AdminUserViewModel[];
+      readonly totalUsers: number;
+      readonly searchQuery: string;
+      readonly currentPage: number;
+      readonly totalPages: number;
+      readonly deleteTarget: AdminUserViewModel | undefined;
+      readonly isBlockPending: boolean;
+      readonly blockError: string | undefined;
+      readonly isDeletePending: boolean;
+      readonly deleteError: string | undefined;
+      readonly handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+      readonly handlePrevPage: () => void;
+      readonly handleNextPage: () => void;
+      readonly handleBlock: (userId: string, block: boolean) => void;
+      readonly handleDeleteRequest: (user: AdminUserViewModel) => void;
+      readonly handleDeleteConfirm: () => void;
+      readonly handleDeleteCancel: () => void;
+    };
 
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useUsersTab = (): UseUsersTabResult => {
   const usersQuery = useAdminUsersQuery();
-  const { toggleBlock } = useBlockUserMutation();
-  const { deleteUser } = useDeleteUserMutation();
+  const { toggleBlock, isLoading: isBlockPending, error: blockError } = useBlockUserMutation();
+  const { deleteUser, isLoading: isDeletePending, error: deleteError } = useDeleteUserMutation();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<AdminUserViewModel | undefined>(undefined);
 
-  // REVIEW [P1]: QueryState error/notLoaded trafia do tej samej ścieżki co
-  // pusty wynik. Dodatkowo mutacje poniżej są fire-and-forget. Trzeba wystawić
-  // loading/error/retry oraz obsłużyć odrzucenie mutacji, inaczej UI może pokazać
-  // pustą tabelę albo zamknąć potwierdzenie mimo nieudanego delete.
-  const isLoading = usersQuery.status === 'loading';
+  if (usersQuery.status === 'loading' || usersQuery.status === 'notLoaded') {
+    return { status: 'loading' };
+  }
 
-  const allUsers: readonly AdminUserViewModel[] =
-    usersQuery.status === 'loaded' ? usersQuery.data.users : [];
+  if (usersQuery.status === 'error') {
+    return { status: 'error', error: usersQuery.error };
+  }
+
+  const allUsers: readonly AdminUserViewModel[] = usersQuery.data.users;
 
   const filteredUsers = searchQuery
     ? allUsers.filter((u) => u.email.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -85,8 +91,9 @@ export const useUsersTab = (): UseUsersTabResult => {
 
   const handleDeleteConfirm = (): void => {
     if (deleteTarget) {
-      void deleteUser(deleteTarget.id);
-      setDeleteTarget(undefined);
+      void deleteUser(deleteTarget.id).then(() => {
+        setDeleteTarget(undefined);
+      });
     }
   };
 
@@ -95,13 +102,17 @@ export const useUsersTab = (): UseUsersTabResult => {
   };
 
   return {
-    isLoading,
+    status: 'loaded',
     users,
     totalUsers: allUsers.length,
     searchQuery,
     currentPage,
     totalPages,
     deleteTarget,
+    isBlockPending,
+    blockError,
+    isDeletePending,
+    deleteError,
     handleSearchChange,
     handlePrevPage,
     handleNextPage,

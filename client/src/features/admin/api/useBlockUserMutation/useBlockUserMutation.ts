@@ -28,6 +28,7 @@ interface BlockUserParams {
 interface UseBlockUserMutationResult {
   readonly toggleBlock: (userId: string, block: boolean) => Promise<BlockUserResponse>;
   readonly isLoading: boolean;
+  readonly error: string | undefined;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
@@ -35,11 +36,6 @@ interface UseBlockUserMutationResult {
 export const useBlockUserMutation = (): UseBlockUserMutationResult => {
   const queryClient = useQueryClient();
 
-  // REVIEW [P0]: Ten boundary obecnie nie przechodzi kompilacji: HttpClient.patch
-  // wymaga TResponse extends Record<string, unknown>, choć zwykły interfejs DTO
-  // nie musi mieć index signature. Napraw kontrakt wspólnego klienta HTTP i dodaj
-  // walidację/parsing odpowiedzi na granicy API; nie maskuj problemu osobnymi
-  // '& Record<string, unknown>' w każdym feature.
   const mutation = useMutation({
     mutationFn: ({ userId, block }: BlockUserParams): Promise<BlockUserResponse> =>
       apiClient.patch<BlockUserResponse, BlockUserRequest>(
@@ -54,5 +50,7 @@ export const useBlockUserMutation = (): UseBlockUserMutationResult => {
   const toggleBlock = (userId: string, block: boolean): Promise<BlockUserResponse> =>
     mutation.mutateAsync({ userId, block });
 
-  return { toggleBlock, isLoading: mutation.isPending };
+  const error = mutation.error ? (mutation.error as Error).message : undefined;
+
+  return { toggleBlock, isLoading: mutation.isPending, error };
 };

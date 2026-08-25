@@ -10,7 +10,7 @@ const tx = (amount: number, date: string, categoryId?: string): StoredTransactio
 const dateRange = { from: '2026-01-01', to: '2026-01-31' };
 
 describe('computeCategoryBreakdown', () => {
-  it('groups expenses by category with absolute amounts', () => {
+  it('groups expenses by categoryId with absolute amounts', () => {
     const transactions = [
       tx(-100, '2026-01-05', 'cat-groceries'),
       tx(-200, '2026-01-10', 'cat-groceries'),
@@ -20,11 +20,11 @@ describe('computeCategoryBreakdown', () => {
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
     expect(result).toHaveLength(2);
-    expect(result[0]).toMatchObject({ category: 'Spożywcze', amount: 300 });
-    expect(result[1]).toMatchObject({ category: 'Transport', amount: 50 });
+    expect(result[0]).toMatchObject({ categoryId: 'cat-groceries', category: 'Spożywcze', amount: 300 });
+    expect(result[1]).toMatchObject({ categoryId: 'cat-transport', category: 'Transport', amount: 50 });
   });
 
-  it('groups income by category', () => {
+  it('groups income by categoryId', () => {
     const transactions = [
       tx(8000, '2026-01-01', 'cat-salary'),
       tx(500, '2026-01-15', 'cat-other'),
@@ -32,8 +32,8 @@ describe('computeCategoryBreakdown', () => {
 
     const result = computeCategoryBreakdown(transactions, dateRange, 'income');
 
-    expect(result[0]).toMatchObject({ category: 'Wynagrodzenie', amount: 8000 });
-    expect(result[1]).toMatchObject({ category: 'Inne', amount: 500 });
+    expect(result[0]).toMatchObject({ categoryId: 'cat-salary', category: 'Wynagrodzenie', amount: 8000 });
+    expect(result[1]).toMatchObject({ categoryId: 'cat-other', category: 'Inne', amount: 500 });
   });
 
   it('calculates percentages (rounded)', () => {
@@ -44,8 +44,8 @@ describe('computeCategoryBreakdown', () => {
 
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
-    expect(result[0].percentage).toBe(75);
-    expect(result[1].percentage).toBe(25);
+    expect(result[0]!.percentage).toBe(75);
+    expect(result[1]!.percentage).toBe(25);
   });
 
   it('sorts by amount descending', () => {
@@ -57,9 +57,9 @@ describe('computeCategoryBreakdown', () => {
 
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
-    expect(result[0].category).toBe('Spożywcze');
-    expect(result[1].category).toBe('Rozrywka');
-    expect(result[2].category).toBe('Transport');
+    expect(result[0]!.categoryId).toBe('cat-groceries');
+    expect(result[1]!.categoryId).toBe('cat-entertainment');
+    expect(result[2]!.categoryId).toBe('cat-transport');
   });
 
   it('filters out transactions outside date range', () => {
@@ -72,7 +72,7 @@ describe('computeCategoryBreakdown', () => {
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
     expect(result).toHaveLength(1);
-    expect(result[0].amount).toBe(200);
+    expect(result[0]!.amount).toBe(200);
   });
 
   it('returns empty array when no matching transactions', () => {
@@ -84,6 +84,7 @@ describe('computeCategoryBreakdown', () => {
   it('labels uncategorized transactions', () => {
     const transactions = [tx(-100, '2026-01-10', undefined)];
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
-    expect(result[0].category).toBe('Bez kategorii');
+    expect(result[0]!.category).toBe('Bez kategorii');
+    expect(result[0]!.categoryId).toBe('__uncategorized__');
   });
 });

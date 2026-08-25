@@ -6,6 +6,7 @@ import type { CategoryBreakdownItem } from '#features/analytics/model/types';
 import { BreakdownListItem } from './BreakdownListItem';
 
 const item: CategoryBreakdownItem = {
+  categoryId: 'cat-groceries',
   category: 'Spożywcze',
   amount: 750,
   percentage: 60,

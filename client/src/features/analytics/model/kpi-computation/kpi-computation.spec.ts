@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { StoredTransaction } from '#features/transactions';
 
-import { METRIC_LABELS, computeKpi } from './kpi-computation';
+import { METRIC_LABEL_KEYS, computeKpi } from './kpi-computation';
 
 const tx = (amount: number, date: string): StoredTransaction =>
   ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId: undefined }) as StoredTransaction;
@@ -20,9 +20,10 @@ describe('computeKpi', () => {
     tx(-600, '2025-12-15'),
   ];
 
-  it('returns correct label from METRIC_LABELS', () => {
+  it('returns i18n key as label', () => {
     const kpi = computeKpi(transactions, range, 'income');
-    expect(kpi.label).toBe(METRIC_LABELS.income);
+    expect(kpi.label).toBe(METRIC_LABEL_KEYS.income);
+    expect(kpi.label).toBe('analytics.kpi.income');
   });
 
   it('formats value with Polish locale and zł suffix', () => {
@@ -57,5 +58,18 @@ describe('computeKpi', () => {
     const kpi = computeKpi([], range, 'income');
     expect(kpi.trend).toBe('neutral');
     expect(kpi.delta).toBe('0,0%');
+  });
+
+  it('uses formatSignedAmount for balance metric (preserves sign)', () => {
+    const balanceKpi = computeKpi(transactions, range, 'balance');
+    expect(balanceKpi.label).toBe('analytics.kpi.balance');
+    expect(balanceKpi.value).toContain('zł');
+  });
+
+  it('uses formatAbsoluteAmount for expenses metric (absolute value)', () => {
+    const kpi = computeKpi(transactions, range, 'expenses');
+    // expenses value should not have negative sign
+    expect(kpi.value).not.toMatch(/^-/);
+    expect(kpi.value).toContain('zł');
   });
 });

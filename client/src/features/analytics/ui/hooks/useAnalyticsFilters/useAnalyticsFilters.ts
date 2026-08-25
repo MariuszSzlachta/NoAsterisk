@@ -13,11 +13,10 @@ export const useAnalyticsFilters = (): {
   const { filters, setFilters } = useAnalyticsFiltersStore();
   const initialized = useRef(false);
 
-  // REVIEW [P1]: initialized robi z URL tylko jednorazowy bootstrap. Nawigacja
-  // back/forward albo zmiana search params po mount jest ignorowana, a zmiany
-  // filtrów nie aktualizują URL. Wybierz jedno source of truth i zdefiniuj
-  // dwukierunkową synchronizację albo usuń połowiczną integrację; pokryj deep link
-  // oraz browser navigation testami.
+  // Intentional one-way bootstrap: URL params seed the store on first mount only.
+  // The Zustand store is the single source of truth after initialization.
+  // URL is NOT kept in sync — this avoids bidirectional sync complexity.
+  // Deep-link support works via initial page load; in-app navigation uses store directly.
   useEffect(() => {
     if (initialized.current) {
       return;

@@ -12,8 +12,8 @@ export { getCategoryLabel, CATEGORY_LABELS } from '#features/analytics/model/cat
 export { computeDelta, computeTrend } from '#features/analytics/model/compute-delta';
 export { getDateRange, getDateRangeAsDate, toLocalDateStr } from '#features/analytics/model/date-range';
 export type { DateRangeDate, DateRangeStr } from '#features/analytics/model/date-range';
-export { formatAnalyticsAmount } from '#features/analytics/model/format-amount';
-export { computeKpi, METRIC_LABELS } from '#features/analytics/model/kpi-computation';
+export { formatAbsoluteAmount, formatSignedAmount, formatAnalyticsAmount } from '#features/analytics/model/format-amount';
+export { computeKpi, METRIC_LABELS, METRIC_LABEL_KEYS } from '#features/analytics/model/kpi-computation';
 export { computeMetricForBucket, computeMetricForPeriod } from '#features/analytics/model/metric-computation';
 
 // Legacy: re-export SERIES_LABELS for useAnalyticsQuery backward compat
