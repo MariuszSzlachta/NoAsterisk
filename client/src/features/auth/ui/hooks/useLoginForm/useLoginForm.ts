@@ -1,10 +1,10 @@
 import type { ChangeEvent, FormEvent } from 'react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '#features/auth/api/useLoginMutation';
 import type { FieldErrors, LoginFormValues } from '#features/auth/model/types';
 import { hasErrors, validateLoginForm } from '#features/auth/model/validators';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
 
 interface UseLoginFormResult {
   readonly values: LoginFormValues;
@@ -18,22 +18,19 @@ interface UseLoginFormResult {
 
 export const useLoginForm = (): UseLoginFormResult => {
   const navigate = useNavigate();
-  const { state: mutationState, mutateAsync } = useLoginMutation();
+  const { isLoading, error, mutateAsync } = useLoginMutation();
 
-  const [values, setValues] = useState<LoginFormValues>({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const values = useAuthStore((s) => s.loginForm);
+  const errors = useAuthStore((s) => s.loginErrors);
+  const setField = useAuthStore((s) => s.setLoginField);
+  const setErrors = useAuthStore((s) => s.setLoginErrors);
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setValues((prev) => ({ ...prev, email: e.target.value }));
-    setErrors((prev) => ({ ...prev, email: undefined }));
+    setField('email', e.target.value);
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setValues((prev) => ({ ...prev, password: e.target.value }));
-    setErrors((prev) => ({ ...prev, password: undefined }));
+    setField('password', e.target.value);
   };
 
   const handleSubmit = (e: FormEvent): void => {
@@ -46,18 +43,20 @@ export const useLoginForm = (): UseLoginFormResult => {
       return;
     }
 
-    void mutateAsync(values).then(() => {
-      navigate('/dashboard');
-    }).catch(() => {
-      // Error is already captured in mutationState.error
-    });
+    void mutateAsync({ email: values.email, password: values.password })
+      .then(() => {
+        navigate('/dashboard');
+      })
+      .catch(() => {
+        // Error is captured in store via mutation hook
+      });
   };
 
   return {
     values,
     errors,
-    serverError: mutationState.error,
-    isSubmitting: mutationState.isLoading,
+    serverError: error,
+    isSubmitting: isLoading,
     handleEmailChange,
     handlePasswordChange,
     handleSubmit,

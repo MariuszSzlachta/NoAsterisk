@@ -1,57 +1,47 @@
-import { useState } from 'react';
-
-import type { AuthResponse, RegisterFormValues } from '#features/auth/model/types';
+import type { AuthResponse, RegisterRequestBody } from '#features/auth/model/types';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { ApiError, apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
-interface RegisterMutationState {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
+import { AUTH_ENDPOINTS } from '../constants';
 
 interface UseRegisterMutationResult {
-  readonly state: RegisterMutationState;
-  readonly mutateAsync: (values: RegisterFormValues) => Promise<AuthResponse>;
+  readonly isLoading: boolean;
+  readonly error: string | undefined;
+  readonly mutateAsync: (body: RegisterRequestBody) => Promise<AuthResponse>;
   readonly reset: () => void;
 }
 
-interface RegisterBody {
-  readonly email: string;
-  readonly password: string;
-}
-
 export const useRegisterMutation = (): UseRegisterMutationResult => {
-  const [state, setState] = useState<RegisterMutationState>({
-    isLoading: false,
-    error: undefined,
-  });
+  const isSubmitting = useAuthStore((s) => s.isSubmitting);
+  const serverError = useAuthStore((s) => s.serverError);
+  const setSubmitting = useAuthStore((s) => s.setSubmitting);
+  const setServerError = useAuthStore((s) => s.setServerError);
+  const resetRegister = useAuthStore((s) => s.resetRegister);
 
-  const mutateAsync = async (values: RegisterFormValues): Promise<AuthResponse> => {
-    setState({ isLoading: true, error: undefined });
+  const mutateAsync = async (body: RegisterRequestBody): Promise<AuthResponse> => {
+    setSubmitting(true);
+    setServerError(undefined);
 
     try {
-      const body: RegisterBody = { email: values.email, password: values.password };
-      const response = await apiClient.post<AuthResponse, RegisterBody>(
-        '/auth/register',
+      const response = await apiClient.post<AuthResponse, RegisterRequestBody>(
+        AUTH_ENDPOINTS.REGISTER,
         body,
         { skipAuth: true },
       );
       authTokens.setAccessToken(response.accessToken);
-      setState({ isLoading: false, error: undefined });
+      setSubmitting(false);
       return response;
     } catch (error) {
       const message =
         error instanceof ApiError && error.status === 409
-          ? 'Konto z tym adresem email już istnieje'
-          : 'Wystąpił błąd. Spróbuj ponownie.';
-      setState({ isLoading: false, error: message });
+          ? 'auth.register.emailConflict'
+          : 'auth.register.genericError';
+      setServerError(message);
+      setSubmitting(false);
       throw error;
     }
   };
 
-  const reset = (): void => {
-    setState({ isLoading: false, error: undefined });
-  };
-
-  return { state, mutateAsync, reset };
+  return { isLoading: isSubmitting, error: serverError, mutateAsync, reset: resetRegister };
 };

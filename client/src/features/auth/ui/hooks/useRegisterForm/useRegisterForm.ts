@@ -1,10 +1,10 @@
 import type { ChangeEvent, FormEvent } from 'react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useRegisterMutation } from '#features/auth/api/useRegisterMutation';
 import type { FieldErrors, RegisterFormValues } from '#features/auth/model/types';
 import { hasErrors, validateRegisterForm } from '#features/auth/model/validators';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
 
 interface UseRegisterFormResult {
   readonly values: RegisterFormValues;
@@ -19,28 +19,23 @@ interface UseRegisterFormResult {
 
 export const useRegisterForm = (): UseRegisterFormResult => {
   const navigate = useNavigate();
-  const { state: mutationState, mutateAsync } = useRegisterMutation();
+  const { isLoading, error, mutateAsync } = useRegisterMutation();
 
-  const [values, setValues] = useState<RegisterFormValues>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const values = useAuthStore((s) => s.registerForm);
+  const errors = useAuthStore((s) => s.registerErrors);
+  const setField = useAuthStore((s) => s.setRegisterField);
+  const setErrors = useAuthStore((s) => s.setRegisterErrors);
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setValues((prev) => ({ ...prev, email: e.target.value }));
-    setErrors((prev) => ({ ...prev, email: undefined }));
+    setField('email', e.target.value);
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setValues((prev) => ({ ...prev, password: e.target.value }));
-    setErrors((prev) => ({ ...prev, password: undefined }));
+    setField('password', e.target.value);
   };
 
   const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setValues((prev) => ({ ...prev, confirmPassword: e.target.value }));
-    setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+    setField('confirmPassword', e.target.value);
   };
 
   const handleSubmit = (e: FormEvent): void => {
@@ -53,18 +48,20 @@ export const useRegisterForm = (): UseRegisterFormResult => {
       return;
     }
 
-    void mutateAsync(values).then(() => {
-      navigate('/dashboard');
-    }).catch(() => {
-      // Error is already captured in mutationState.error
-    });
+    void mutateAsync({ email: values.email, password: values.password })
+      .then(() => {
+        navigate('/dashboard');
+      })
+      .catch(() => {
+        // Error is captured in store via mutation hook
+      });
   };
 
   return {
     values,
     errors,
-    serverError: mutationState.error,
-    isSubmitting: mutationState.isLoading,
+    serverError: error,
+    isSubmitting: isLoading,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,

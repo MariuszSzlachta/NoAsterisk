@@ -9,6 +9,16 @@ export interface RegisterFormValues {
   readonly confirmPassword: string;
 }
 
+export interface LoginRequestBody {
+  readonly email: string;
+  readonly password: string;
+}
+
+export interface RegisterRequestBody {
+  readonly email: string;
+  readonly password: string;
+}
+
 export interface AuthResponse {
   readonly accessToken: string;
   readonly refreshToken: string;

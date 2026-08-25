@@ -637,5 +637,45 @@
       "deleteCodeTitle": "Delete code?",
       "deleteCodeDesc": "The invite code will be revoked."
     }
+  },
+  "auth": {
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least {{min}} characters",
+      "confirmPasswordRequired": "Password confirmation is required",
+      "passwordsMismatch": "Passwords do not match"
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Enter your credentials to access your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up",
+      "invalidCredentials": "Invalid email or password",
+      "genericError": "An error occurred. Please try again."
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Fill in the form to create a new account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Sign up",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "emailConflict": "An account with this email already exists",
+      "genericError": "An error occurred. Please try again."
+    }
   }
 }

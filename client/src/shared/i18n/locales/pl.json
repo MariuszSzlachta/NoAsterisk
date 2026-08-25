@@ -638,5 +638,45 @@
       "deleteCodeTitle": "Usunąć kod?",
       "deleteCodeDesc": "Kod zaproszenia zostanie unieważniony."
     }
+  },
+  "auth": {
+    "validation": {
+      "emailRequired": "Email jest wymagany",
+      "emailInvalid": "Nieprawidłowy format email",
+      "passwordRequired": "Hasło jest wymagane",
+      "passwordMinLength": "Hasło musi mieć minimum {{min}} znaków",
+      "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
+      "passwordsMismatch": "Hasła nie są identyczne"
+    },
+    "login": {
+      "title": "Zaloguj się",
+      "subtitle": "Wpisz dane, aby uzyskać dostęp do konta",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Zaloguj",
+      "submitting": "Logowanie...",
+      "noAccount": "Nie masz konta?",
+      "registerLink": "Zarejestruj się",
+      "invalidCredentials": "Nieprawidłowy email lub hasło",
+      "genericError": "Wystąpił błąd. Spróbuj ponownie."
+    },
+    "register": {
+      "title": "Utwórz konto",
+      "subtitle": "Wypełnij formularz, aby utworzyć nowe konto",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Potwierdź hasło",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Zarejestruj się",
+      "submitting": "Tworzenie konta...",
+      "hasAccount": "Masz już konto?",
+      "loginLink": "Zaloguj się",
+      "emailConflict": "Konto z tym adresem email już istnieje",
+      "genericError": "Wystąpił błąd. Spróbuj ponownie."
+    }
   }
 }

@@ -1,51 +1,47 @@
-import { useState } from 'react';
-
-import type { AuthResponse, LoginFormValues } from '#features/auth/model/types';
+import type { AuthResponse, LoginRequestBody } from '#features/auth/model/types';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { ApiError, apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
-interface LoginMutationState {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
+import { AUTH_ENDPOINTS } from '../constants';
 
 interface UseLoginMutationResult {
-  readonly state: LoginMutationState;
-  readonly mutateAsync: (values: LoginFormValues) => Promise<AuthResponse>;
+  readonly isLoading: boolean;
+  readonly error: string | undefined;
+  readonly mutateAsync: (body: LoginRequestBody) => Promise<AuthResponse>;
   readonly reset: () => void;
 }
 
 export const useLoginMutation = (): UseLoginMutationResult => {
-  const [state, setState] = useState<LoginMutationState>({
-    isLoading: false,
-    error: undefined,
-  });
+  const isSubmitting = useAuthStore((s) => s.isSubmitting);
+  const serverError = useAuthStore((s) => s.serverError);
+  const setSubmitting = useAuthStore((s) => s.setSubmitting);
+  const setServerError = useAuthStore((s) => s.setServerError);
+  const resetLogin = useAuthStore((s) => s.resetLogin);
 
-  const mutateAsync = async (values: LoginFormValues): Promise<AuthResponse> => {
-    setState({ isLoading: true, error: undefined });
+  const mutateAsync = async (body: LoginRequestBody): Promise<AuthResponse> => {
+    setSubmitting(true);
+    setServerError(undefined);
 
     try {
-      const response = await apiClient.post<AuthResponse, LoginFormValues>(
-        '/auth/login',
-        values,
+      const response = await apiClient.post<AuthResponse, LoginRequestBody>(
+        AUTH_ENDPOINTS.LOGIN,
+        body,
         { skipAuth: true },
       );
       authTokens.setAccessToken(response.accessToken);
-      setState({ isLoading: false, error: undefined });
+      setSubmitting(false);
       return response;
     } catch (error) {
       const message =
         error instanceof ApiError && error.status === 401
-          ? 'Nieprawidłowy email lub hasło'
-          : 'Wystąpił błąd. Spróbuj ponownie.';
-      setState({ isLoading: false, error: message });
+          ? 'auth.login.invalidCredentials'
+          : 'auth.login.genericError';
+      setServerError(message);
+      setSubmitting(false);
       throw error;
     }
   };
 
-  const reset = (): void => {
-    setState({ isLoading: false, error: undefined });
-  };
-
-  return { state, mutateAsync, reset };
+  return { isLoading: isSubmitting, error: serverError, mutateAsync, reset: resetLogin };
 };
