@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Stepper } from '#shared/ui/Stepper';
@@ -10,6 +11,7 @@ import {
   UploadStepCard,
   useImportWizard,
 } from '#features/csv-import';
+import { useImportWizardStore } from '#features/csv-import';
 
 // ─── Constants ───────────────────────────────────────────────────
 
@@ -26,6 +28,11 @@ const WIZARD_STEP_KEYS = [
 export const ImportPage = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { step } = useImportWizard();
+
+  // Security: clear PII from memory on route departure
+  useEffect(() => () => {
+    useImportWizardStore.getState().reset();
+  }, []);
 
   const wizardSteps = WIZARD_STEP_KEYS.map((key) => ({ label: t(key) }));
 

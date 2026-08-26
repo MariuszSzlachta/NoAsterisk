@@ -14,7 +14,7 @@ export const emailDetector: PiiDetector = {
     let match: RegExpExecArray | null;
     while ((match = EMAIL_PATTERN.exec(text)) !== null) {
       const email = match[0];
-      const [local] = email.split('@');
+      const [local = ''] = email.split('@');
 
       // Personal emails (jan.kowalski@, longer local parts) = higher confidence
       // Short/generic (info@, admin@) = lower — may be business contact user wants to keep

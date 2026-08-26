@@ -88,11 +88,12 @@ export const ibanDetector: PiiDetector = {
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(text)) !== null) {
         const original = match[0];
+        const matchStart = match.index;
+        const matchEnd = match.index + original.length;
 
         // Skip if already covered by a full IBAN span
         const overlaps = spans.some(
-          (s) =>
-            match.index < s.end && match.index + match[0].length > s.start,
+          (s) => matchStart < s.end && matchEnd > s.start,
         );
         if (overlaps) {
           continue;

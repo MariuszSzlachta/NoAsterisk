@@ -4,6 +4,7 @@ import { useImportWizardStore } from './useImportWizardStore';
 
 // ─── Tests ───────────────────────────────────────────────────────
 
+// krytycznej maszyny importu.
 describe('useImportWizardStore', () => {
   beforeEach(() => {
     useImportWizardStore.getState().reset();

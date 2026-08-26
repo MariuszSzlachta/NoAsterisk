@@ -74,6 +74,7 @@ export const useImportWizard = (): ImportWizardResult => {
         err instanceof Error ? err.message : 'Failed to parse file';
 
       if (import.meta.env.DEV) {
+        // potrzebny jest sanitised diagnostic event.
         console.warn('[csv-import] Parse FAILED', {
           file: file.name,
           size: file.size,

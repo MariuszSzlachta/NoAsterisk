@@ -36,6 +36,7 @@ export const ColumnMappingRow = ({
   );
 };
 
+// useColumnMappingStep. Brakuje category/source/recipient/counterpart/reference,
 const FIELD_OPTIONS = (t: (key: string) => string): SelectOption[] => [
   { value: '', label: t('import.mapping.skip') },
   { value: 'date', label: t('import.mapping.fields.date') },

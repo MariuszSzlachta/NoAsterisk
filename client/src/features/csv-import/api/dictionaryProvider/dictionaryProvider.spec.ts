@@ -126,7 +126,7 @@ describe('dictionaryProvider', () => {
     await dictionaryProvider.loadAll();
 
     expect(warnSpy).toHaveBeenCalledWith(
-      '[Dictionaries] Backend unavailable, using bundled stubs',
+      '[Dictionaries] Backend unavailable, using bundled stubs — reduced PII coverage',
     );
     warnSpy.mockRestore();
   });

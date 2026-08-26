@@ -15,7 +15,6 @@ const NAME_CONTEXT_KEYWORDS = [
   'beneficjent',
 ];
 
-// Mixed-case: "Jan Kowalski", "Anna Nowak-Wiśniewska"
 const MIXED_CASE_NAME =
   /\b([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})(?:[\s-]([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})){1,2}\b/g;
 

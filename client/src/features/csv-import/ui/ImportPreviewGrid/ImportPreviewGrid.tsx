@@ -49,6 +49,8 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
     (r) => r.status === 'ok' || r.status === 'warning',
   ).length;
 
+  // przypadki anonimizacji, nie tylko statusy transformacji CSV.
+
   // Total error count across ALL rows (not filtered)
   const totalErrors = rows.filter((r) => r.status === 'error').length;
   const hasErrors = totalErrors > 0;
@@ -66,6 +68,9 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
         </div>
       )}
 
+          destructive`, których Badge design system nie posiada (kontrakt to
+          soft/solid/outline + color). To jest compile blocker i sygnał, że UI
+          omija centralny model komponentu zamiast używać jego publicznego API. */}
       <div className="flex items-center gap-3">
         <Badge variant="default">
           {t('import.preview.rows', { count: stats.total })}

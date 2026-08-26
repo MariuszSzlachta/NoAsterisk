@@ -114,17 +114,20 @@ export const cardDetector: PiiDetector = {
     COMPACT_CARD.lastIndex = 0;
     while ((match = COMPACT_CARD.exec(text)) !== null) {
       const digits = match[0];
+      const matchStart = match.index;
+      const matchEnd = match.index + match[0].length;
+
       // Skip if overlaps with already-found span (IBAN might grab it)
       const overlaps = spans.some(
-        (s) => match.index < s.end && match.index + match[0].length > s.start,
+        (s) => matchStart < s.end && matchEnd > s.start,
       );
       if (overlaps) {
         continue;
       }
       if (hasCardPrefix(digits) && validateLuhn(digits)) {
         spans.push({
-          start: match.index,
-          end: match.index + match[0].length,
+          start: matchStart,
+          end: matchEnd,
           type: 'card',
           confidence: 0.97,
           original: match[0],
@@ -144,19 +147,22 @@ export const cardDetector: PiiDetector = {
     ]) {
       pattern.lastIndex = 0;
       while ((match = pattern.exec(text)) !== null) {
+        const matchStart = match.index;
+        const matchEnd = match.index + match[0].length;
+        const matchOriginal = match[0];
+
         const overlaps = spans.some(
-          (s) =>
-            match.index < s.end && match.index + match[0].length > s.start,
+          (s) => matchStart < s.end && matchEnd > s.start,
         );
         if (overlaps) {
           continue;
         }
         spans.push({
-          start: match.index,
-          end: match.index + match[0].length,
+          start: matchStart,
+          end: matchEnd,
           type: 'card',
           confidence: 0.92,
-          original: match[0],
+          original: matchOriginal,
           detectorId: 'card',
           metadata: { format: 'masked' },
         });

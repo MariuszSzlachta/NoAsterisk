@@ -52,7 +52,6 @@ test.describe('Import CSV — Step 2: Column Mapping', () => {
   });
 
   test('shows example values in assignment rows', async ({ page }) => {
-    // Example values appear in assignment section with 'przykład' sublabel
     const exampleLabels = page.getByText('przykład');
     await expect(exampleLabels).toHaveCount(4);
 

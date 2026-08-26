@@ -136,6 +136,7 @@ export const transformRows = (
   const referenceCol = firstCol('reference');
 
   // Auto-detect formats from sample data
+  // guarda, a `row[dateCol]` nie przechodzi strict build. Model mappingu nie
   const dateSamples = rows.slice(0, SAMPLE_SIZE).map((r) => r[dateCol] ?? '');
 
   // For amount locale detection — hasAmountSource is guaranteed truthy after guard

@@ -62,7 +62,6 @@ export const detectEncoding = (buffer: ArrayBuffer): string => {
   }
 
   // Low confidence fallback: check for common Windows-1250 patterns
-  // Polish chars in Win-1250: ą=0xB9, ć=0xE6, ę=0xEA, ł=0xB3, ń=0xF1, ó=0xF3, ś=0x9C, ź=0x9F, ż=0xBF
   const win1250Chars = [0xb9, 0xe6, 0xea, 0xb3, 0xf1, 0xf3, 0x9c, 0x9f, 0xbf];
   const hasWin1250 = bytes.some((b) => win1250Chars.includes(b));
   if (hasWin1250) {

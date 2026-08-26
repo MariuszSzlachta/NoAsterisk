@@ -48,6 +48,7 @@ export const FilterToolbar = ({
     onTypeChange(id as TransactionTypeFilter);
   };
 
+  // przez getFullYear/getMonth/getDate jako lokalne. W strefach ujemnych granica
   const selectedRange: DateRange | undefined =
     dateFrom || dateTo
       ? {

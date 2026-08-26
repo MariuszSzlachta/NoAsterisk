@@ -18,6 +18,7 @@ export const ImportConfirmStep = (): React.JSX.Element => {
       ? Math.round((progress.completedChunks / progress.totalChunks) * 100)
       : 0;
 
+  // terminalnym stanem i starym progress zamiast nowej sesji importu.
   const isInProgress = progress.status === 'submitting' || progress.status === 'completed';
 
   return (

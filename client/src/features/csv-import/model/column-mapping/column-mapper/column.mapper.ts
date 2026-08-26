@@ -51,7 +51,6 @@ export const normalizeHeader = (header: string): string => {
   // Strip surrounding quotes (single or double)
   normalized = normalized.replace(/^["']+|["']+$/g, '');
 
-  // Strip parenthetical suffixes like "(PLN)", "(zł)", "(EUR)"
   normalized = normalized.replace(/\s*\([^)]*\)\s*$/, '');
 
   // Normalize whitespace and trim

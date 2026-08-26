@@ -68,6 +68,8 @@ export const ColumnMappingStep = (): React.JSX.Element => {
           ))}
         </div>
 
+            funkcję, której feature nie implementuje, więc użytkownik traci zaufanie
+            do zapisanej konfiguracji importu. */}
         {/* Save profile bar */}
         <div className="mt-5">
           <SaveProfileBar onSave={handleSaveProfile} />

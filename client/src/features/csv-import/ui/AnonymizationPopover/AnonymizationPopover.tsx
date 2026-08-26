@@ -69,6 +69,8 @@ export const AnonymizationPopover = ({
       />
 
       {/* Modal panel */}
+          aria-labelledby pozostawia użytkownika klawiatury poza modalem. Ten
+          ekran pokazuje raw PII, więc przypadkowe Escape/click semantics są istotne. */}
       <div
         className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-surface p-5 shadow-card"
         role="dialog"
@@ -108,6 +110,7 @@ export const AnonymizationPopover = ({
             {t('import.anonymization.popover.anonymized')}
           </p>
           {isEditing ? (
+               być jedyną granicą bezpieczeństwa. */
             <input
               type="text"
               className="mt-1.5 w-full rounded-md border border-primary bg-surface-2 px-3 py-2 font-mono text-[13px] text-foreground outline-none ring-1 ring-primary/30"

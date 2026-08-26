@@ -54,15 +54,22 @@ const MASK_STRATEGIES: Record<string, MaskFn> = {
 
 /**
  * Mask a single detected PII span using type-specific strategy.
+ * Logs a warning in DEV when no strategy is found for the span type.
  */
-export const maskSpan = (span: DetectionSpan): string =>
-  (MASK_STRATEGIES[span.type] ?? ((o: string) => '•'.repeat(o.length)))(
-    span.original,
-  );
+export const maskSpan = (span: DetectionSpan): string => {
+  const strategy = MASK_STRATEGIES[span.type];
+  if (!strategy) {
+    if (import.meta.env.DEV) {
+      console.warn(`[pii.masker] No masking strategy for type '${span.type}'. Using length-based fallback.`);
+    }
+    return '•'.repeat(span.original.length);
+  }
+  return strategy(span.original);
+};
 
 /**
  * Apply masking to all resolved spans in a text string.
- * Spans MUST be sorted by start position (non-overlapping).
+ * Validates that spans are sorted and non-overlapping before proceeding.
  */
 export const applyMasking = (
   text: string,
@@ -70,6 +77,20 @@ export const applyMasking = (
 ): string => {
   if (spans.length === 0) {
     return text;
+  }
+
+  // Validate invariant: sorted, non-overlapping, within bounds
+  for (let i = 0; i < spans.length; i++) {
+    const span = spans[i]!;
+    if (span.start < 0 || span.end > text.length || span.start >= span.end) {
+      throw new Error(`[pii.masker] Span out of bounds at index ${i}: [${span.start}, ${span.end}) in text of length ${text.length}`);
+    }
+    if (i > 0) {
+      const prev = spans[i - 1]!;
+      if (span.start < prev.end) {
+        throw new Error(`[pii.masker] Overlapping spans at index ${i}: prev.end=${prev.end}, current.start=${span.start}`);
+      }
+    }
   }
 
   let result = '';

@@ -13,6 +13,9 @@
  * Test classification:
  * - PASS tests = parser works correctly for this stub
  * - it.fails() tests = known bugs in the parsing pipeline, documented for architect
+ *
+ * więc zielony pipeline CI nie oznacza poprawnego importu. Dla krytycznego
+ * a test ma stać się zwykłym `it` natychmiast po naprawie.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -102,7 +105,6 @@ describe('parseCsvFile e2e: 01-easy-revolut.csv', () => {
 // (index 2) as overflow column. The real overflow comes from:
 // - Empty #Nadawca/Odbiorca + #Numer konta producing extra semicolons
 // - Semicolons INSIDE #Nadawca/Odbiorca (e.g. "NOVA DEVELOPMENT; SP. Z O.O.")
-// Result: #Opis and #Tytuł get merged; tail columns shift left by 1+.
 // ═══════════════════════════════════════════════════════════════════
 
 describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
@@ -147,7 +149,6 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
 
     expect(row).toBeDefined();
     expect(row!['#Data operacji']).toBe('14.06.2025');
-    // Middle merged: contains both Opis and Tytuł content
     expect(row!['#Opis operacji']).toContain('ZAKUP PRZY UŻYCIU KARTY');
     expect(row!['#Opis operacji']).toContain('ŻABKA');
     // Key: amounts are NOT shifted
@@ -162,7 +163,6 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
 
     expect(row).toBeDefined();
     expect(row!['#Data operacji']).toBe('13.06.2025');
-    // Middle merged: contains Opis + Tytuł + Nadawca (with semicolons)
     expect(row!['#Opis operacji']).toContain('PRZELEW WYCHODZĄCY');
     expect(row!['#Opis operacji']).toContain('CZYNSZ LIPIEC');
     expect(row!['#Opis operacji']).toContain('NOVA DEVELOPMENT');
@@ -380,7 +380,6 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
     expect(row!['SALDO']).toBe('22 140,55');
   });
 
-  // BUG: overflow-merge misaligns rows with multiline quoted SZCZEGÓŁY field
   it.fails('maps first 3 data rows with correct column alignment', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),

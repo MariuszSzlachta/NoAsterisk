@@ -107,6 +107,7 @@ describe('createImportChunks', () => {
     expect(chunks[0].rows).toHaveLength(1);
   });
 
+  // transformacji.
   it('includes warning rows', async () => {
     const rows = [
       makeRow({ id: 'ok', status: 'ok' }),
@@ -174,4 +175,5 @@ describe('createImportChunks', () => {
 
     expect(chunks[0].batchHash).toBe(chunks[1].batchHash);
   });
+
 });

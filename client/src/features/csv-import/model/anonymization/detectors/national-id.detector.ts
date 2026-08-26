@@ -1,6 +1,5 @@
 import type { DetectionSpan, DictionarySet, PiiDetector } from '../types';
 
-// Polish national ID (dowód osobisty): 3 uppercase letters + 6 digits
 // Example: ABS 847291, ABS847291
 const NATIONAL_ID_PATTERN = /\b([A-Z]{3})\s?(\d{6})\b/g;
 

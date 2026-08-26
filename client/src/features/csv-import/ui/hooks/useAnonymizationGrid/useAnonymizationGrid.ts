@@ -41,6 +41,7 @@ const DOMAIN_FIELD_TO_GRID_FIELD: Partial<Record<DomainField, keyof Anonymizatio
   category: 'category',
 };
 
+
 const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
   date: 'import.grid.date',
   title: 'import.grid.title',

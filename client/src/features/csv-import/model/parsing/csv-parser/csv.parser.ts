@@ -191,6 +191,7 @@ export const parseCsvFile = async (file: File): Promise<ParsedCsvData> => {
     skipEmptyLines: true,
   });
 
+
   if (result.data.length === 0) {
     throw new CsvParseError('CSV contains no data rows', 'NO_DATA');
   }

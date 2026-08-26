@@ -125,9 +125,22 @@ export const useImportWizardStore = create<ImportWizardState>()(
       }),
 
     // Step 0: Upload
-    setFile: (file) => set({ file, parseError: undefined }),
-    setParsedData: (data) => set({ parsedData: data, parseError: undefined }),
-    setParseError: (error) => set({ parseError: error }),
+    setFile: (file) => set({
+      file,
+      parseError: undefined,
+      parsedData: undefined,
+      rows: [],
+      anonymizationEntries: [],
+      columnMapping: {},
+      detectedMapping: {},
+      batchId: undefined,
+      isSubmitting: false,
+      submitError: undefined,
+      selectedRowIds: [],
+      batchEditPanel: { isOpen: false, pendingEdit: undefined },
+    }),
+    setParsedData: (data) => set({ parsedData: data, parseError: undefined, rows: [], anonymizationEntries: [] }),
+    setParseError: (error) => set({ parseError: error, parsedData: undefined }),
 
     // Step 1: Column Mapping
     setDetectedMapping: (mapping) =>
@@ -142,7 +155,7 @@ export const useImportWizardStore = create<ImportWizardState>()(
       }),
     confirmMapping: (mapping) => set({ columnMapping: mapping }),
 
-    // Step 2: Preview
+    // Step 2: Preview — rows and entries are a relational pair
     setRows: (rows) => set({ rows }),
     updateRow: (id, updates) =>
       set((state) => {
@@ -150,9 +163,23 @@ export const useImportWizardStore = create<ImportWizardState>()(
         const idx = rows.findIndex((r) => r.id === id);
         if (idx !== -1) {
           rows[idx] = { ...rows[idx], ...updates };
+          // SECURITY: title change invalidates anonymization entry at this index.
+          // Caller (anonymization step hook) MUST re-run detection after updating.
+          if (updates.title !== undefined && import.meta.env.DEV) {
+            console.warn('[ImportWizardStore] Row title changed — anonymization entry at index may be stale');
+          }
         }
       }),
-    setAnonymizationEntries: (entries) => set({ anonymizationEntries: entries }),
+    setAnonymizationEntries: (entries) => {
+      // Validate row-entry index alignment
+      const currentRows = useImportWizardStore.getState().rows;
+      if (entries.length > 0 && currentRows.length > 0 && entries.length !== currentRows.length) {
+        if (import.meta.env.DEV) {
+          console.error(`[ImportWizardStore] entries.length (${entries.length}) !== rows.length (${currentRows.length})`);
+        }
+      }
+      set({ anonymizationEntries: entries });
+    },
 
     // UI
     setSelectedRowIds: (ids) => set({ selectedRowIds: ids }),
@@ -170,6 +197,10 @@ export const useImportWizardStore = create<ImportWizardState>()(
         if (!pending) {
           return;
         }
+        // SECURITY: Batch title edits require re-anonymization by the calling hook.
+        if (pending.field === 'title' && import.meta.env.DEV) {
+          console.warn('[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows');
+        }
         const rows = state.rows as TransactionRow[];
         for (const rowId of pending.similarRowIds) {
           const idx = rows.findIndex((r) => r.id === rowId);
@@ -180,7 +211,7 @@ export const useImportWizardStore = create<ImportWizardState>()(
         state.batchEditPanel = { isOpen: false, pendingEdit: undefined };
       }),
 
-    // Reset
+    // Reset — clears all state including raw PII from memory
     reset: () => set(INITIAL_STATE),
   })),
 );

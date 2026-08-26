@@ -146,6 +146,7 @@ describe('useAnonymizationStep', () => {
   });
 
   describe('bulk accept', () => {
+    // masked title + entry oraz blokady unresolved PII.
     it('marks all entries as accepted', () => {
       const { result } = renderHook(() => useAnonymizationStep());
 

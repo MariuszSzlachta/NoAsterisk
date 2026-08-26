@@ -22,22 +22,38 @@ export const buildFromStubs = (): DictionarySet => ({
 /**
  * Factory: creates a DictionaryProvider with its own cache instance.
  * Pass a custom loader to override the default (bundled stubs).
+ * Implements single-flight: concurrent loadAll() calls share one in-flight promise.
  */
 export const createDictionaryProvider = (
   loader: () => Promise<DictionarySet> = async () => buildFromStubs(),
+  options: { isStub?: boolean } = {},
 ): DictionaryProvider & { resetCache: () => void } => {
   let cache: DictionarySet | null = null;
+  let inflight: Promise<DictionarySet> | null = null;
+  const stubFallback = options.isStub ?? true;
 
   return {
     loadAll: async (): Promise<DictionarySet> => {
-      if (!cache) {
-        cache = await loader();
+      if (cache) return cache;
+      if (!inflight) {
+        inflight = loader()
+          .then((result) => {
+            cache = result;
+            inflight = null;
+            return result;
+          })
+          .catch((err: unknown) => {
+            inflight = null;
+            throw err;
+          });
       }
-      return cache;
+      return inflight;
     },
     isLoaded: (): boolean => cache !== null,
+    isStubFallback: (): boolean => stubFallback,
     resetCache: (): void => {
       cache = null;
+      inflight = null;
     },
   };
 };

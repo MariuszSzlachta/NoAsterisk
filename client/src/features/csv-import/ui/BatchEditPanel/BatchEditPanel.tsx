@@ -34,6 +34,7 @@ export const BatchEditPanel = (): React.JSX.Element | null => {
           </p>
 
           <div className="mt-3 flex items-center gap-2 text-xs">
+                PII. To może być potrzebne do decyzji użytkownika, ale zakres tej
             <span className="rounded bg-surface px-2 py-0.5 font-mono text-muted-foreground line-through">
               {originalValue}
             </span>

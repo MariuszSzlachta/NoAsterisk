@@ -120,7 +120,6 @@ const NUMERIC_FORMATS: readonly NumericFormatDef[] = [
 ];
 
 const MONTH_NAME_FORMATS: readonly MonthNameFormatDef[] = [
-  // DD-MMM-YYYY (05-CZE-2025, 14-Januar-2025, 01-Październik-2025)
   {
     format: 'DD-MMM-YYYY',
     regex: /^(\d{2})-([A-Za-zÄäÖöÜüßĄąĆćĘęŁłŃńÓóŚśŹźŻż]{3,12})-(\d{4})$/,

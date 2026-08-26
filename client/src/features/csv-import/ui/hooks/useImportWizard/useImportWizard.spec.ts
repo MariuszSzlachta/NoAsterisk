@@ -160,6 +160,7 @@ describe('useImportWizard', () => {
         encoding: 'utf-8',
       };
       useImportWizardStore.setState({
+        // Test przechodzi w Vitest, ale nie jest zgodny z domenowym kontraktem,
         parsedData,
         columnMapping: { date: 'date', title: 'title', amount: 'amount' },
       });
@@ -170,6 +171,7 @@ describe('useImportWizard', () => {
       const anonymizationEntries = [
         { rowIndex: 0, originalTitle: 'BIEDRONKA', anonymizedTitle: 'BIEDRONKA', spans: [], status: 'safe', accepted: true },
       ];
+      // a test sprawdza tylko lokalny krok (0→1). Nie pokrywa realnego flow 1→2→3
       const withDuplicates = [{ ...transformed[0], isDuplicate: false }];
 
       mockTransformRows.mockReturnValue(transformed);
@@ -237,6 +239,7 @@ describe('useImportWizard', () => {
 
     it('sets parseError when processing fails', async () => {
       useImportWizardStore.setState({
+        // obiektu utrzymywanego tylko przez testowy typ inference.
         parsedData: { headers: ['a'], rows: [{ a: '1' }], separator: ',', encoding: 'utf-8' },
         columnMapping: { a: 'date' },
       });

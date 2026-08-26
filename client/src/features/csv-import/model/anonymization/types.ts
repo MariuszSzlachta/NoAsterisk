@@ -43,6 +43,8 @@ export interface DictionarySet {
 export interface DictionaryProvider {
   loadAll(): Promise<DictionarySet>;
   isLoaded(): boolean;
+  /** Whether the loaded dictionaries are from API (full) or local stubs (reduced coverage). */
+  isStubFallback(): boolean;
 }
 
 // ─── Pipeline Output ─────────────────────────────────────────────
@@ -54,6 +56,17 @@ export interface AnonymizationEntry {
   readonly originalTitle: string;
   readonly anonymizedTitle: string;
   readonly spans: readonly DetectionSpan[];
+  readonly status: AnonymizationStatus;
+  readonly accepted: boolean;
+}
+
+/**
+ * Safe entry for persistence/submission — originalTitle stripped.
+ * Use `toSubmitEntry()` from pipeline to create.
+ */
+export interface AnonymizationSubmitEntry {
+  readonly rowIndex: number;
+  readonly anonymizedTitle: string;
   readonly status: AnonymizationStatus;
   readonly accepted: boolean;
 }

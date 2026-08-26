@@ -1,6 +1,7 @@
 import type {
   AnonymizationEntry,
   AnonymizationStatus,
+  AnonymizationSubmitEntry,
   DetectionSpan,
   DictionarySet,
   PiiDetector,
@@ -20,8 +21,8 @@ import { applyMasking } from '../masker/pii.masker';
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const AUTO_ACCEPT_THRESHOLD = 0.9;
-const REVIEW_THRESHOLD = 0.7;
+export const AUTO_ACCEPT_THRESHOLD = 0.9;
+export const REVIEW_THRESHOLD = 0.7;
 
 // ─── Registry ────────────────────────────────────────────────────
 
@@ -38,10 +39,21 @@ const DEFAULT_DETECTORS: readonly PiiDetector[] = [
   addressDetector,
 ];
 
+/**
+ * Build priority map from detectors. Rejects duplicate IDs.
+ */
 const buildPriorityMap = (
   detectors: readonly PiiDetector[],
-): Map<string, number> =>
-  new Map(detectors.map((d) => [d.id, d.priority]));
+): Map<string, number> => {
+  const map = new Map<string, number>();
+  for (const d of detectors) {
+    if (map.has(d.id)) {
+      throw new Error(`Duplicate detector id: '${d.id}'. Each detector must have a unique id.`);
+    }
+    map.set(d.id, d.priority);
+  }
+  return map;
+};
 
 // ─── Whitelist Filter ────────────────────────────────────────────
 
@@ -80,18 +92,39 @@ const filterByWhitelist = (
 
 // ─── Confidence Gate ─────────────────────────────────────────────
 
+interface GateResult {
+  readonly accepted: readonly DetectionSpan[];
+  readonly belowThreshold: readonly DetectionSpan[];
+}
+
 /**
- * Architecture doc § 4 step 5: discard spans below review threshold.
+ * Architecture doc § 4 step 5: separate spans by confidence threshold.
+ * Below-threshold spans are NOT discarded — they force needs_review status.
  */
 const applyConfidenceGate = (
   spans: readonly DetectionSpan[],
-): DetectionSpan[] => spans.filter((s) => s.confidence >= REVIEW_THRESHOLD);
+): GateResult => {
+  const accepted: DetectionSpan[] = [];
+  const belowThreshold: DetectionSpan[] = [];
+  for (const s of spans) {
+    if (s.confidence >= REVIEW_THRESHOLD) {
+      accepted.push(s);
+    } else {
+      belowThreshold.push(s);
+    }
+  }
+  return { accepted, belowThreshold };
+};
 
 // ─── Pipeline ────────────────────────────────────────────────────
 
 const determineStatus = (
   spans: readonly DetectionSpan[],
+  hasBelowThreshold: boolean,
 ): AnonymizationStatus => {
+  if (hasBelowThreshold) {
+    return 'needs_review';
+  }
   if (spans.length === 0) {
     return 'safe';
   }
@@ -107,7 +140,7 @@ const determineStatus = (
  * Pipeline steps (per architecture doc § 4):
  * 1. Run all detectors
  * 2. Whitelist filter (merchants/cities/phrases)
- * 3. Confidence gate (discard < 0.7)
+ * 3. Confidence gate (separate by threshold — below-threshold forces needs_review)
  * 4. Conflict resolution (priority > confidence)
  * 5. Masking
  */
@@ -126,11 +159,11 @@ export const anonymizeTitle = (
   // 2. Whitelist filter
   const filtered = filterByWhitelist(allSpans, dictionaries);
 
-  // 3. Confidence gate
-  const gated = applyConfidenceGate(filtered);
+  // 3. Confidence gate — below-threshold spans force needs_review
+  const { accepted, belowThreshold } = applyConfidenceGate(filtered);
 
-  // 4. Resolve conflicts
-  const resolved = resolveConflicts(gated, priorityMap);
+  // 4. Resolve conflicts (only on accepted spans that will be masked)
+  const resolved = resolveConflicts(accepted, priorityMap);
 
   // 5. Apply masking
   const masked = applyMasking(text, resolved);
@@ -138,8 +171,8 @@ export const anonymizeTitle = (
   // 5.5. Normalize whitespace (replace tabs, collapse multi-spaces after masking)
   const normalized = masked.replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
 
-  // 6. Determine status
-  const status = determineStatus(resolved);
+  // 6. Determine status (below-threshold detections prevent 'safe')
+  const status = determineStatus(resolved, belowThreshold.length > 0);
 
   return { spans: resolved, masked: normalized, status };
 };
@@ -165,3 +198,14 @@ export const processRows = (
       accepted: status === 'safe' || status === 'anonymized',
     };
   });
+
+/**
+ * Strip raw PII from entry before persistence/submission.
+ * MUST be used before any entry leaves the browser.
+ */
+export const toSubmitEntry = (entry: AnonymizationEntry): AnonymizationSubmitEntry => ({
+  rowIndex: entry.rowIndex,
+  anonymizedTitle: entry.anonymizedTitle,
+  status: entry.status,
+  accepted: entry.accepted,
+});

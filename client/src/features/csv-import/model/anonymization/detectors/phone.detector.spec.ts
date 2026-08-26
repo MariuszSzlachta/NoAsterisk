@@ -26,7 +26,7 @@ describe('phoneDetector', () => {
     const spans = phoneDetector.detect(text, EMPTY_DICTS);
 
     expect(spans).toHaveLength(1);
-    expect(spans[0].confidence).toBe(0.75);
+    expect(spans[0].confidence).toBe(0.8);
   });
 
   it('detects international phone', () => {

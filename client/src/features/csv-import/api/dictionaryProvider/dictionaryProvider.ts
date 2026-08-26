@@ -11,17 +11,29 @@ import {
 import { fetchDictionaries } from '../fetchDictionaries';
 
 /**
+ * Tracks whether the provider had to fall back to stubs.
+ * UI should check this and show a warning banner.
+ */
+let usedStubFallback = false;
+
+/**
  * Loader that tries API first, falls back to bundled stubs on error.
- * Ensures anonymization works offline or when backend is unavailable.
+ * Sets `usedStubFallback = true` so UI can inform the user of reduced PII coverage.
  */
 const fetchWithFallback = async (): Promise<DictionarySet> => {
   try {
-    return await fetchDictionaries();
+    const result = await fetchDictionaries();
+    usedStubFallback = false;
+    return result;
   } catch {
-    console.warn('[Dictionaries] Backend unavailable, using bundled stubs');
+    console.warn('[Dictionaries] Backend unavailable, using bundled stubs — reduced PII coverage');
+    usedStubFallback = true;
     return buildFromStubs();
   }
 };
 
 /** Production provider — fetches from API with stub fallback. */
-export const dictionaryProvider = createDictionaryProvider(fetchWithFallback);
+export const dictionaryProvider = createDictionaryProvider(fetchWithFallback, { isStub: false });
+
+/** Check if the last load used stub fallback (reduced coverage). */
+export const isDictionaryStubFallback = (): boolean => usedStubFallback;

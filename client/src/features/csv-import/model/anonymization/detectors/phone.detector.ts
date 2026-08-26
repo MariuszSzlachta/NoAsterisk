@@ -89,9 +89,17 @@ export const phoneDetector: PiiDetector = {
           }
         }
 
-        // +48 prefix = high confidence, context keyword = high, bare 9 digits = medium
+        // +48 prefix = high confidence, context keyword = high, bare with PL prefix = medium-high, bare without = low (below gate)
         const hasContext = hasPhoneContext(text, start);
-        const confidence = hasPlus ? 0.95 : hasContext ? 0.9 : 0.75;
+        let confidence: number;
+        if (hasPlus) {
+          confidence = 0.95;
+        } else if (hasContext) {
+          confidence = 0.9;
+        } else {
+          // Bare 9-digit with confirmed PL mobile prefix — needs_review band
+          confidence = 0.8;
+        }
 
         spans.push({
           start,

@@ -40,6 +40,7 @@ describe('CSV Integration: 01-easy-revolut', () => {
 
   it('has no metadata rows (header is first line)', () => {
     const boundaries = detectDataBoundaries(text, ',');
+    // DataBoundaries. To nie jest test kontraktu parsera, tylko stale assertion;
     expect(boundaries.skipRows).toBe(0);
     // footerLines = 1 is just the trailing empty line, acceptable
     expect(boundaries.footerLines).toBeLessThanOrEqual(1);
@@ -136,7 +137,6 @@ describe('CSV Integration: 03-hard-pkobp', () => {
 
   it('detects footer lines', () => {
     const boundaries = detectDataBoundaries(text, ';');
-    // Footer: "Liczba operacji", "Suma uznań", "Suma obciążeń", "Saldo końcowe", "Wygenerowano", blank
     expect(boundaries.footerLines).toBeGreaterThanOrEqual(5);
   });
 
@@ -241,7 +241,6 @@ describe('CSV Integration: 05-mixed-hard-structure-mixed-data', () => {
   it('detects footer lines (PODSUMOWANIE section)', () => {
     const sep = detectSeparator(text);
     const boundaries = detectDataBoundaries(text, sep);
-    // Footer: blank, === PODSUMOWANIE ===, Uznania, Obciążenia, Saldo początkowe, Saldo końcowe, Dokument...
     expect(boundaries.footerLines).toBeGreaterThanOrEqual(5);
   });
 

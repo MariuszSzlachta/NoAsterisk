@@ -26,7 +26,6 @@ describe('detectEncoding', () => {
   });
 
   it('detects Windows-1250 from Polish chars', () => {
-    // "ąęćś" in Windows-1250: ą=0xB9, ę=0xEA, ć=0xE6, ś=0x9C
     const header = [0x44, 0x61, 0x74, 0x61]; // "Data"
     const polishChars = [0xb9, 0xea, 0xe6, 0x9c]; // ąęćś in Win-1250
     const buffer = toBuffer([
@@ -87,7 +86,6 @@ describe('decodeBufferWithWarning', () => {
 
   it('returns warning when replacement chars present', () => {
     // Decode Windows-1250 bytes as UTF-8 → will produce replacement chars
-    // ą in Win-1250 = 0xB9, which is invalid in UTF-8
     const bytes = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0xb9, 0xea]; // "Hello" + Win-1250 ąę
     const buffer = toBuffer(bytes);
     const result = decodeBufferWithWarning(buffer, 'utf-8');

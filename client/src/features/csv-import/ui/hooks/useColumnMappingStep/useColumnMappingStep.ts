@@ -41,7 +41,6 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
   const headers = parsedData?.headers ?? [];
   const rows = parsedData?.rows ?? [];
   const previewRows = rows.slice(0, MAX_PREVIEW_ROWS);
-
   if (import.meta.env.DEV && parsedData) {
     console.info('[column-mapping] Parsed data', {
       headers,
