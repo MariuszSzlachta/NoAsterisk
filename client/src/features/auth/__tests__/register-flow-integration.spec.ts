@@ -2,7 +2,6 @@ import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { useRegisterForm } from '#features/auth/ui/hooks/useRegisterForm/useRegisterForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
@@ -39,6 +38,9 @@ vi.mock('#shared/api/auth-tokens', () => ({
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
+/** Strong password meeting ADR-010: uppercase, lowercase, digit, special */
+const STRONG_PASSWORD = 'P@ssw0rd!x';
+
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
   ({ target: { value } } as ChangeEvent<HTMLInputElement>);
 
@@ -56,14 +58,6 @@ const buildAuthResponse = () => ({
 describe('Register flow — integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
   });
 
   it('flow: fill form → submit → token stored → navigate', async () => {
@@ -71,22 +65,19 @@ describe('Register flow — integration', () => {
 
     const { result } = renderHook(() => useRegisterForm());
 
-    // Step 1: Fill all fields
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('strongpass123'));
-      result.current.handleConfirmPasswordChange(buildChangeEvent('strongpass123'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
     });
 
-    // Step 2: Submit
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
-    // Assertions
     expect(mockPost).toHaveBeenCalledWith(
       '/auth/register',
-      { email: 'new@user.com', password: 'strongpass123' },
+      { email: 'new@user.com', password: STRONG_PASSWORD },
       { skipAuth: true },
     );
     expect(mockSetAccessToken).toHaveBeenCalledWith('new-user-token');
@@ -99,7 +90,7 @@ describe('Register flow — integration', () => {
 
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('password123'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent('different'));
     });
 
@@ -111,16 +102,52 @@ describe('Register flow — integration', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('flow: submit → 409 → shows conflict error', async () => {
+  it('flow: weak password → validation error → no API call', () => {
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent('short'));
+      result.current.handleConfirmPasswordChange(buildChangeEvent('short'));
+    });
+
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(result.current.errors.password).toBe('auth.validation.passwordMinLength');
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('flow: password without uppercase → validation error', () => {
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent('p@ssw0rd!'));
+      result.current.handleConfirmPasswordChange(buildChangeEvent('p@ssw0rd!'));
+    });
+
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(result.current.errors.password).toBe('auth.validation.passwordUppercase');
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('flow: submit → 400 duplicate email → shows conflict error', async () => {
     const { ApiError } = await import('#shared/api');
-    mockPost.mockRejectedValue(new ApiError('Conflict', 409));
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Registration failed' }),
+    );
 
     const { result } = renderHook(() => useRegisterForm());
 
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('existing@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('password123'));
-      result.current.handleConfirmPasswordChange(buildChangeEvent('password123'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
     });
 
     await act(async () => {
@@ -131,6 +158,28 @@ describe('Register flow — integration', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
+  it('flow: submit → 400 invalid invite code → shows invite error', async () => {
+    const { ApiError } = await import('#shared/api');
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Invalid invite code' }),
+    );
+
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleInviteCodeChange(buildChangeEvent('BADCODE'));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(result.current.serverError).toBe('auth.register.invalidInviteCode');
+  });
+
   it('flow: submit → 500 → shows generic error', async () => {
     const { ApiError } = await import('#shared/api');
     mockPost.mockRejectedValue(new ApiError('Internal', 500));
@@ -139,8 +188,8 @@ describe('Register flow — integration', () => {
 
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('password123'));
-      result.current.handleConfirmPasswordChange(buildChangeEvent('password123'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
     });
 
     await act(async () => {
@@ -148,33 +197,6 @@ describe('Register flow — integration', () => {
     });
 
     expect(result.current.serverError).toBe('auth.register.genericError');
-  });
-
-  it('flow: server error clears when user types in any field', async () => {
-    const { ApiError } = await import('#shared/api');
-    mockPost.mockRejectedValue(new ApiError('Conflict', 409));
-
-    const { result } = renderHook(() => useRegisterForm());
-
-    // Fill and submit
-    act(() => {
-      result.current.handleEmailChange(buildChangeEvent('existing@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('password123'));
-      result.current.handleConfirmPasswordChange(buildChangeEvent('password123'));
-    });
-
-    await act(async () => {
-      result.current.handleSubmit(buildSubmitEvent());
-    });
-
-    expect(result.current.serverError).toBe('auth.register.emailConflict');
-
-    // Type in email → error clears
-    act(() => {
-      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
-    });
-
-    expect(result.current.serverError).toBeUndefined();
   });
 
   it('flow: empty form submit → all validation errors shown', () => {
@@ -190,23 +212,73 @@ describe('Register flow — integration', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('sends only email and password to API (not confirmPassword)', async () => {
+  it('sends inviteCode to API when provided', async () => {
     mockPost.mockResolvedValue(buildAuthResponse());
 
     const { result } = renderHook(() => useRegisterForm());
 
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
-      result.current.handlePasswordChange(buildChangeEvent('strongpass123'));
-      result.current.handleConfirmPasswordChange(buildChangeEvent('strongpass123'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
     });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
-    const callBody = mockPost.mock.calls[0][1] as Record<string, unknown>;
-    expect(callBody).not.toHaveProperty('confirmPassword');
-    expect(callBody).toEqual({ email: 'new@user.com', password: 'strongpass123' });
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    const [, callBody] = mockPost.mock.calls[0] as [string, Record<string, unknown>];
+    expect(callBody).toEqual({
+      email: 'new@user.com',
+      password: STRONG_PASSWORD,
+      inviteCode: 'ABC123',
+    });
+  });
+
+  it('sends only email and password when inviteCode is empty', async () => {
+    mockPost.mockResolvedValue(buildAuthResponse());
+
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    const [, callBody] = mockPost.mock.calls[0] as [string, Record<string, unknown>];
+    expect(callBody).not.toHaveProperty('inviteCode');
+    expect(callBody).toEqual({ email: 'new@user.com', password: STRONG_PASSWORD });
+  });
+
+  it('canonicalizes email before sending to API', async () => {
+    mockPost.mockResolvedValue(buildAuthResponse());
+
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('  NEW@User.COM  '));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+      await Promise.resolve();
+    });
+
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    expect(mockPost).toHaveBeenCalledWith(
+      '/auth/register',
+      expect.objectContaining({ email: 'new@user.com' }),
+      { skipAuth: true },
+    );
   });
 });

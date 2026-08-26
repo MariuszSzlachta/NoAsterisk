@@ -12,6 +12,7 @@ const createMockResponse = (
   });
 
 describe('HttpClient', () => {
+  // REVIEW [P1]: Brakuje testu najbardziej wrażliwej ścieżki auth: 401 → refresh z poprawnym kontraktem → ponowienie requestu oraz 401 po refreshu → clear sesji. Bez tych testów obecna niezgodność body/nazw pól refresh tokenu mogła przejść niezauważona.
   let client: HttpClient;
   const tokenProvider = vi.fn<() => string | undefined>();
 
@@ -193,6 +194,16 @@ describe('HttpClient', () => {
           }),
         }),
       );
+    });
+
+    it('omits Authorization header when skipAuth is true even if token exists', async () => {
+      tokenProvider.mockReturnValue('existing-token');
+
+      await client.post('/auth/login', { email: 'a@b.com', password: 'x' }, { skipAuth: true });
+
+      const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
+        ?.headers as Record<string, string>;
+      expect(headers['Authorization']).toBeUndefined();
     });
   });
 });

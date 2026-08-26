@@ -650,8 +650,14 @@
       "emailInvalid": "Nieprawidłowy format email",
       "passwordRequired": "Hasło jest wymagane",
       "passwordMinLength": "Hasło musi mieć minimum {{min}} znaków",
+      "passwordMaxLength": "Hasło nie może przekraczać 128 znaków",
+      "passwordUppercase": "Hasło musi zawierać wielką literę",
+      "passwordLowercase": "Hasło musi zawierać małą literę",
+      "passwordDigit": "Hasło musi zawierać cyfrę",
+      "passwordSpecial": "Hasło musi zawierać znak specjalny",
       "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
-      "passwordsMismatch": "Hasła nie są identyczne"
+      "passwordsMismatch": "Hasła nie są identyczne",
+      "inviteCodeInvalid": "Nieprawidłowy format kodu zaproszenia"
     },
     "login": {
       "title": "Zaloguj się",
@@ -676,11 +682,15 @@
       "passwordPlaceholder": "••••••••",
       "confirmPasswordLabel": "Potwierdź hasło",
       "confirmPasswordPlaceholder": "••••••••",
+      "inviteCodeLabel": "Kod zaproszenia",
+      "inviteCodePlaceholder": "np. ABC123",
       "submit": "Zarejestruj się",
       "submitting": "Tworzenie konta...",
       "hasAccount": "Masz już konto?",
       "loginLink": "Zaloguj się",
       "emailConflict": "Konto z tym adresem email już istnieje",
+      "invalidInviteCode": "Nieprawidłowy lub wygasły kod zaproszenia",
+      "validationFailed": "Walidacja nie powiodła się. Sprawdź dane.",
       "genericError": "Wystąpił błąd. Spróbuj ponownie."
     }
   }

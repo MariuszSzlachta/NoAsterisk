@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 import type { AuthResponse, LoginRequestBody } from '#features/auth/model/types';
+import { parseAuthResponse } from '#features/auth/model/parseAuthResponse';
 import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { ApiError, apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
@@ -13,35 +16,44 @@ interface UseLoginMutationResult {
 }
 
 export const useLoginMutation = (): UseLoginMutationResult => {
-  const isSubmitting = useAuthStore((s) => s.isSubmitting);
-  const serverError = useAuthStore((s) => s.serverError);
-  const setSubmitting = useAuthStore((s) => s.setSubmitting);
-  const setServerError = useAuthStore((s) => s.setServerError);
-  const resetLogin = useAuthStore((s) => s.resetLogin);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const setLoginSubmitting = useAuthStore((s) => s.setLoginSubmitting);
 
   const mutateAsync = async (body: LoginRequestBody): Promise<AuthResponse> => {
-    setSubmitting(true);
-    setServerError(undefined);
+    setIsLoading(true);
+    setError(undefined);
+    setLoginSubmitting(true);
 
     try {
-      const response = await apiClient.post<AuthResponse, LoginRequestBody>(
+      const raw = await apiClient.post<unknown, LoginRequestBody>(
         AUTH_ENDPOINTS.LOGIN,
         body,
         { skipAuth: true },
       );
+
+      const response = parseAuthResponse(raw);
       authTokens.setAccessToken(response.accessToken);
-      setSubmitting(false);
+
+      setIsLoading(false);
+      setLoginSubmitting(false);
       return response;
-    } catch (error) {
+    } catch (err) {
       const message =
-        error instanceof ApiError && error.status === 401
+        err instanceof ApiError && err.status === 401
           ? 'auth.login.invalidCredentials'
           : 'auth.login.genericError';
-      setServerError(message);
-      setSubmitting(false);
-      throw error;
+      setError(message);
+      setIsLoading(false);
+      setLoginSubmitting(false);
+      throw err;
     }
   };
 
-  return { isLoading: isSubmitting, error: serverError, mutateAsync, reset: resetLogin };
+  const reset = (): void => {
+    setIsLoading(false);
+    setError(undefined);
+  };
+
+  return { isLoading, error, mutateAsync, reset };
 };

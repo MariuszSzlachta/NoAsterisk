@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useLoginMutation } from '#features/auth/api/useLoginMutation/useLoginMutation';
 import { useRegisterMutation } from '#features/auth/api/useRegisterMutation/useRegisterMutation';
-import { useAuthStore } from '#features/auth/store/useAuthStore';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
 
@@ -45,14 +44,6 @@ const buildAuthResponse = () => ({
 describe('useLoginMutation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
   });
 
   afterEach(() => {
@@ -60,8 +51,7 @@ describe('useLoginMutation', () => {
   });
 
   it('calls POST /auth/login with credentials and skipAuth', async () => {
-    const response = buildAuthResponse();
-    mockPost.mockResolvedValue(response);
+    mockPost.mockResolvedValue(buildAuthResponse());
 
     const { result } = renderHook(() => useLoginMutation());
 
@@ -77,8 +67,7 @@ describe('useLoginMutation', () => {
   });
 
   it('sets access token on successful login', async () => {
-    const response = buildAuthResponse();
-    mockPost.mockResolvedValue(response);
+    mockPost.mockResolvedValue(buildAuthResponse());
 
     const { result } = renderHook(() => useLoginMutation());
 
@@ -161,6 +150,19 @@ describe('useLoginMutation', () => {
     expect(result.current.error).toBe('auth.login.genericError');
   });
 
+  it('rejects malformed response (missing accessToken)', async () => {
+    mockPost.mockResolvedValue({ user: { id: 'u-1' } });
+
+    const { result } = renderHook(() => useLoginMutation());
+
+    await act(async () => {
+      await result.current.mutateAsync({ email: 'a@b.com', password: 'pass1234' }).catch(() => {});
+    });
+
+    expect(result.current.error).toBe('auth.login.genericError');
+    expect(mockSetAccessToken).not.toHaveBeenCalled();
+  });
+
   it('resets state on reset call', async () => {
     const { ApiError } = await import('#shared/api');
     mockPost.mockRejectedValue(new ApiError('Unauthorized', 401));
@@ -185,14 +187,6 @@ describe('useLoginMutation', () => {
 describe('useRegisterMutation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
   });
 
   afterEach(() => {
@@ -200,8 +194,7 @@ describe('useRegisterMutation', () => {
   });
 
   it('calls POST /auth/register with body and skipAuth', async () => {
-    const response = buildAuthResponse();
-    mockPost.mockResolvedValue(response);
+    mockPost.mockResolvedValue(buildAuthResponse());
 
     const { result } = renderHook(() => useRegisterMutation());
 
@@ -216,9 +209,24 @@ describe('useRegisterMutation', () => {
     );
   });
 
+  it('sends inviteCode when provided', async () => {
+    mockPost.mockResolvedValue(buildAuthResponse());
+
+    const { result } = renderHook(() => useRegisterMutation());
+
+    await act(async () => {
+      await result.current.mutateAsync({ email: 'new@user.com', password: 'password123', inviteCode: 'ABC123' });
+    });
+
+    expect(mockPost).toHaveBeenCalledWith(
+      '/auth/register',
+      { email: 'new@user.com', password: 'password123', inviteCode: 'ABC123' },
+      { skipAuth: true },
+    );
+  });
+
   it('sets access token on successful registration', async () => {
-    const response = buildAuthResponse();
-    mockPost.mockResolvedValue(response);
+    mockPost.mockResolvedValue(buildAuthResponse());
 
     const { result } = renderHook(() => useRegisterMutation());
 
@@ -229,9 +237,11 @@ describe('useRegisterMutation', () => {
     expect(mockSetAccessToken).toHaveBeenCalledWith('test-access-token');
   });
 
-  it('sets emailConflict error on 409', async () => {
+  it('sets emailConflict error on 400 with "Registration failed" message', async () => {
     const { ApiError } = await import('#shared/api');
-    mockPost.mockRejectedValue(new ApiError('Conflict', 409));
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Registration failed' }),
+    );
 
     const { result } = renderHook(() => useRegisterMutation());
 
@@ -243,7 +253,37 @@ describe('useRegisterMutation', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('sets generic error on non-409 errors', async () => {
+  it('sets invalidInviteCode error on 400 with invite code message', async () => {
+    const { ApiError } = await import('#shared/api');
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Invalid invite code' }),
+    );
+
+    const { result } = renderHook(() => useRegisterMutation());
+
+    await act(async () => {
+      await result.current.mutateAsync({ email: 'new@user.com', password: 'pass1234', inviteCode: 'BAD' }).catch(() => {});
+    });
+
+    expect(result.current.error).toBe('auth.register.invalidInviteCode');
+  });
+
+  it('sets validationFailed error on 400 with "Validation failed" message', async () => {
+    const { ApiError } = await import('#shared/api');
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Validation failed', fields: ['password'] }),
+    );
+
+    const { result } = renderHook(() => useRegisterMutation());
+
+    await act(async () => {
+      await result.current.mutateAsync({ email: 'new@user.com', password: 'weak' }).catch(() => {});
+    });
+
+    expect(result.current.error).toBe('auth.register.validationFailed');
+  });
+
+  it('sets generic error on non-400 errors', async () => {
     const { ApiError } = await import('#shared/api');
     mockPost.mockRejectedValue(new ApiError('Server Error', 500));
 
@@ -268,9 +308,24 @@ describe('useRegisterMutation', () => {
     expect(result.current.error).toBe('auth.register.genericError');
   });
 
+  it('rejects malformed response (missing user)', async () => {
+    mockPost.mockResolvedValue({ accessToken: 'tok', refreshToken: 'ref' });
+
+    const { result } = renderHook(() => useRegisterMutation());
+
+    await act(async () => {
+      await result.current.mutateAsync({ email: 'a@b.com', password: 'pass1234' }).catch(() => {});
+    });
+
+    expect(result.current.error).toBe('auth.register.genericError');
+    expect(mockSetAccessToken).not.toHaveBeenCalled();
+  });
+
   it('resets state on reset call', async () => {
     const { ApiError } = await import('#shared/api');
-    mockPost.mockRejectedValue(new ApiError('Conflict', 409));
+    mockPost.mockRejectedValue(
+      new ApiError('Bad Request', 400, { statusCode: 400, message: 'Registration failed' }),
+    );
 
     const { result } = renderHook(() => useRegisterMutation());
 

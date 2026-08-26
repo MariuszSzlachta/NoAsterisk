@@ -1,58 +1,43 @@
 import { create } from 'zustand';
 
-import type { FieldErrors, LoginFormValues, RegisterFormValues } from '#features/auth/model/types';
-
-interface AuthFormState {
-  readonly loginForm: LoginFormValues;
-  readonly loginErrors: FieldErrors;
-  readonly registerForm: RegisterFormValues;
-  readonly registerErrors: FieldErrors;
+interface AuthMutationState {
   readonly serverError: string | undefined;
   readonly isSubmitting: boolean;
-  readonly setLoginField: (field: keyof LoginFormValues, value: string) => void;
-  readonly setLoginErrors: (errors: FieldErrors) => void;
-  readonly setRegisterField: (field: keyof RegisterFormValues, value: string) => void;
-  readonly setRegisterErrors: (errors: FieldErrors) => void;
-  readonly setServerError: (error: string | undefined) => void;
-  readonly setSubmitting: (isSubmitting: boolean) => void;
+}
+
+interface AuthStoreState {
+  readonly login: AuthMutationState;
+  readonly register: AuthMutationState;
+  readonly setLoginSubmitting: (isSubmitting: boolean) => void;
+  readonly setLoginError: (error: string | undefined) => void;
   readonly resetLogin: () => void;
+  readonly setRegisterSubmitting: (isSubmitting: boolean) => void;
+  readonly setRegisterError: (error: string | undefined) => void;
   readonly resetRegister: () => void;
 }
 
-const INITIAL_LOGIN: LoginFormValues = { email: '', password: '' };
-const INITIAL_REGISTER: RegisterFormValues = { email: '', password: '', confirmPassword: '' };
-
-export const useAuthStore = create<AuthFormState>((set) => ({
-  loginForm: INITIAL_LOGIN,
-  loginErrors: {},
-  registerForm: INITIAL_REGISTER,
-  registerErrors: {},
+const INITIAL_MUTATION_STATE: AuthMutationState = {
   serverError: undefined,
   isSubmitting: false,
+};
 
-  setLoginField: (field, value) =>
-    set((state) => ({
-      loginForm: { ...state.loginForm, [field]: value },
-      loginErrors: { ...state.loginErrors, [field]: undefined },
-      serverError: undefined,
-    })),
+export const useAuthStore = create<AuthStoreState>((set) => ({
+  login: INITIAL_MUTATION_STATE,
+  register: INITIAL_MUTATION_STATE,
 
-  setLoginErrors: (errors) => set({ loginErrors: errors }),
+  setLoginSubmitting: (isSubmitting) =>
+    set((state) => ({ login: { ...state.login, isSubmitting } })),
 
-  setRegisterField: (field, value) =>
-    set((state) => ({
-      registerForm: { ...state.registerForm, [field]: value },
-      registerErrors: { ...state.registerErrors, [field]: undefined },
-      serverError: undefined,
-    })),
+  setLoginError: (error) =>
+    set((state) => ({ login: { ...state.login, serverError: error } })),
 
-  setRegisterErrors: (errors) => set({ registerErrors: errors }),
+  resetLogin: () => set({ login: INITIAL_MUTATION_STATE }),
 
-  setServerError: (error) => set({ serverError: error }),
+  setRegisterSubmitting: (isSubmitting) =>
+    set((state) => ({ register: { ...state.register, isSubmitting } })),
 
-  setSubmitting: (isSubmitting) => set({ isSubmitting }),
+  setRegisterError: (error) =>
+    set((state) => ({ register: { ...state.register, serverError: error } })),
 
-  resetLogin: () => set({ loginForm: INITIAL_LOGIN, loginErrors: {}, serverError: undefined, isSubmitting: false }),
-
-  resetRegister: () => set({ registerForm: INITIAL_REGISTER, registerErrors: {}, serverError: undefined, isSubmitting: false }),
+  resetRegister: () => set({ register: INITIAL_MUTATION_STATE }),
 }));

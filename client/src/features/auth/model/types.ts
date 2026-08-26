@@ -7,6 +7,7 @@ export interface RegisterFormValues {
   readonly email: string;
   readonly password: string;
   readonly confirmPassword: string;
+  readonly inviteCode: string;
 }
 
 export interface LoginRequestBody {
@@ -17,12 +18,7 @@ export interface LoginRequestBody {
 export interface RegisterRequestBody {
   readonly email: string;
   readonly password: string;
-}
-
-export interface AuthResponse {
-  readonly accessToken: string;
-  readonly refreshToken: string;
-  readonly user: AuthUser;
+  readonly inviteCode?: string;
 }
 
 export interface AuthUser {
@@ -32,8 +28,15 @@ export interface AuthUser {
   readonly workspaceId: string;
 }
 
+export interface AuthResponse {
+  readonly accessToken: string;
+  readonly refreshToken: string;
+  readonly user: AuthUser;
+}
+
 export interface FieldErrors {
   readonly email?: string;
   readonly password?: string;
   readonly confirmPassword?: string;
+  readonly inviteCode?: string;
 }

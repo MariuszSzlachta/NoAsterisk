@@ -17,6 +17,7 @@ vi.mock('react-i18next', () => ({
 const mockHandleEmailChange = vi.fn();
 const mockHandlePasswordChange = vi.fn();
 const mockHandleConfirmPasswordChange = vi.fn();
+const mockHandleInviteCodeChange = vi.fn();
 const mockHandleSubmit = vi.fn();
 
 vi.mock('#features/auth/ui/hooks/useRegisterForm', () => ({
@@ -30,13 +31,14 @@ vi.mock('react-router-dom', () => ({
 }));
 
 let mockRegisterFormState: {
-  values: { email: string; password: string; confirmPassword: string };
-  errors: { email?: string; password?: string; confirmPassword?: string };
+  values: { email: string; password: string; confirmPassword: string; inviteCode: string };
+  errors: { email?: string; password?: string; confirmPassword?: string; inviteCode?: string };
   serverError: string | undefined;
   isSubmitting: boolean;
   handleEmailChange: typeof mockHandleEmailChange;
   handlePasswordChange: typeof mockHandlePasswordChange;
   handleConfirmPasswordChange: typeof mockHandleConfirmPasswordChange;
+  handleInviteCodeChange: typeof mockHandleInviteCodeChange;
   handleSubmit: typeof mockHandleSubmit;
 };
 
@@ -46,13 +48,14 @@ describe('RegisterForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRegisterFormState = {
-      values: { email: '', password: '', confirmPassword: '' },
+      values: { email: '', password: '', confirmPassword: '', inviteCode: '' },
       errors: {},
       serverError: undefined,
       isSubmitting: false,
       handleEmailChange: mockHandleEmailChange,
       handlePasswordChange: mockHandlePasswordChange,
       handleConfirmPasswordChange: mockHandleConfirmPasswordChange,
+      handleInviteCodeChange: mockHandleInviteCodeChange,
       handleSubmit: mockHandleSubmit,
     };
   });
@@ -85,6 +88,12 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     expect(screen.getByLabelText('auth.register.confirmPasswordLabel')).toBeInTheDocument();
+  });
+
+  it('renders invite code input with label', () => {
+    render(<RegisterForm />);
+
+    expect(screen.getByLabelText('auth.register.inviteCodeLabel')).toBeInTheDocument();
   });
 
   it('renders submit button with correct text', () => {
@@ -160,5 +169,13 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     expect(screen.getByText('auth.validation.passwordsMismatch')).toBeInTheDocument();
+  });
+
+  it('displays invite code validation error', () => {
+    mockRegisterFormState.errors = { inviteCode: 'auth.validation.inviteCodeInvalid' };
+
+    render(<RegisterForm />);
+
+    expect(screen.getByText('auth.validation.inviteCodeInvalid')).toBeInTheDocument();
   });
 });

@@ -2,14 +2,15 @@ import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from '#features/auth/store/useAuthStore';
-
 import { useRegisterForm } from './useRegisterForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
 
 const mockNavigate = vi.fn();
 const mockMutateAsync = vi.fn();
+const mockReset = vi.fn();
+let mockIsLoading = false;
+let mockError: string | undefined;
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
@@ -17,14 +18,17 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('#features/auth/api/useRegisterMutation', () => ({
   useRegisterMutation: () => ({
-    isLoading: useAuthStore.getState().isSubmitting,
-    error: useAuthStore.getState().serverError,
+    isLoading: mockIsLoading,
+    error: mockError,
     mutateAsync: mockMutateAsync,
-    reset: vi.fn(),
+    reset: mockReset,
   }),
 }));
 
 // ─── Helpers ─────────────────────────────────────────────────────
+
+/** Strong password meeting ADR-010 policy */
+const STRONG_PASSWORD = 'P@ssw0rd!x';
 
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
   ({ target: { value } } as ChangeEvent<HTMLInputElement>);
@@ -37,20 +41,14 @@ const buildSubmitEvent = (): FormEvent =>
 describe('useRegisterForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
+    mockIsLoading = false;
+    mockError = undefined;
   });
 
   it('returns initial empty form values', () => {
     const { result } = renderHook(() => useRegisterForm());
 
-    expect(result.current.values).toEqual({ email: '', password: '', confirmPassword: '' });
+    expect(result.current.values).toEqual({ email: '', password: '', confirmPassword: '', inviteCode: '' });
     expect(result.current.errors).toEqual({});
     expect(result.current.serverError).toBeUndefined();
     expect(result.current.isSubmitting).toBe(false);
@@ -86,15 +84,29 @@ describe('useRegisterForm', () => {
     expect(result.current.values.confirmPassword).toBe('secret123');
   });
 
-  it('clears field error when typing in that field', () => {
-    useAuthStore.setState({ registerErrors: { email: 'auth.validation.emailRequired' } });
-
+  it('updates inviteCode on handleInviteCodeChange', () => {
     const { result } = renderHook(() => useRegisterForm());
 
     act(() => {
-      result.current.handleEmailChange(buildChangeEvent('a'));
+      result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
     });
 
+    expect(result.current.values.inviteCode).toBe('ABC123');
+  });
+
+  it('clears field error when typing in that field', () => {
+    const { result } = renderHook(() => useRegisterForm());
+
+    // Force errors
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+    expect(result.current.errors.email).toBe('auth.validation.emailRequired');
+
+    // Clear by typing
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('a'));
+    });
     expect(result.current.errors.email).toBeUndefined();
   });
 
@@ -112,11 +124,13 @@ describe('useRegisterForm', () => {
   });
 
   it('sets mismatch error when passwords differ', () => {
-    useAuthStore.setState({
-      registerForm: { email: 'test@example.com', password: 'password123', confirmPassword: 'different' },
-    });
-
     const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent('different'));
+    });
 
     act(() => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -125,12 +139,31 @@ describe('useRegisterForm', () => {
     expect(result.current.errors.confirmPassword).toBe('auth.validation.passwordsMismatch');
   });
 
-  it('does not call mutateAsync when validation fails', () => {
-    useAuthStore.setState({
-      registerForm: { email: 'bad', password: 'short', confirmPassword: 'short' },
+  it('rejects weak password that meets login but not register policy', () => {
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent('simplepassword'));
+      result.current.handleConfirmPasswordChange(buildChangeEvent('simplepassword'));
     });
 
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(result.current.errors.password).toBeDefined();
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('does not call mutateAsync when validation fails', () => {
     const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('bad'));
+      result.current.handlePasswordChange(buildChangeEvent('short'));
+      result.current.handleConfirmPasswordChange(buildChangeEvent('short'));
+    });
 
     act(() => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -139,28 +172,57 @@ describe('useRegisterForm', () => {
     expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 
-  it('calls mutateAsync with email and password only on valid submit', () => {
-    useAuthStore.setState({
-      registerForm: { email: 'new@user.com', password: 'password123', confirmPassword: 'password123' },
-    });
+  it('calls mutateAsync with canonicalized email and password on valid submit', async () => {
     mockMutateAsync.mockResolvedValue({ accessToken: 'token' });
 
     const { result } = renderHook(() => useRegisterForm());
 
     act(() => {
+      result.current.handleEmailChange(buildChangeEvent('  New@User.COM  '));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
+
+    await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
-    expect(mockMutateAsync).toHaveBeenCalledWith({ email: 'new@user.com', password: 'password123' });
+    expect(mockMutateAsync).toHaveBeenCalledWith({ email: 'new@user.com', password: STRONG_PASSWORD });
   });
 
-  it('navigates to /dashboard on successful registration', async () => {
-    useAuthStore.setState({
-      registerForm: { email: 'new@user.com', password: 'password123', confirmPassword: 'password123' },
-    });
+  it('includes inviteCode when provided', async () => {
     mockMutateAsync.mockResolvedValue({ accessToken: 'token' });
 
     const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      email: 'new@user.com',
+      password: STRONG_PASSWORD,
+      inviteCode: 'ABC123',
+    });
+  });
+
+  it('navigates to /dashboard on successful registration', async () => {
+    mockMutateAsync.mockResolvedValue({ accessToken: 'token' });
+
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -170,12 +232,15 @@ describe('useRegisterForm', () => {
   });
 
   it('does not navigate on failed registration', async () => {
-    useAuthStore.setState({
-      registerForm: { email: 'new@user.com', password: 'password123', confirmPassword: 'password123' },
-    });
     mockMutateAsync.mockRejectedValue(new Error('Conflict'));
 
     const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('new@user.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -194,5 +259,23 @@ describe('useRegisterForm', () => {
     });
 
     expect(event.preventDefault).toHaveBeenCalled();
+  });
+
+  it('guards against double submit when isLoading', () => {
+    mockIsLoading = true;
+
+    const { result } = renderHook(() => useRegisterForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+    });
+
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 });

@@ -26,16 +26,26 @@ const attemptTokenRefresh = async (baseUrl: string): Promise<boolean> => {
   try {
     const response = await fetch(`${baseUrl}/auth/refresh`, {
       method: 'POST',
-      credentials: 'include', // sends httpOnly refresh cookie
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
 
     if (!response.ok) {
       return false;
     }
 
-    const data = (await response.json()) as { access_token: string };
-    authTokens.setAccessToken(data.access_token);
-    return true;
+    const data: unknown = await response.json();
+    if (
+      typeof data === 'object' &&
+      data !== null &&
+      'accessToken' in data &&
+      typeof (data as Record<string, unknown>)['accessToken'] === 'string'
+    ) {
+      authTokens.setAccessToken((data as { accessToken: string }).accessToken);
+      return true;
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -50,42 +60,45 @@ export class HttpClient {
     this.#tokenProvider = tokenProvider;
   }
 
-  async get<TResponse extends Record<string, unknown>>(
+  async get<TResponse>(
     path: string,
     options?: RequestOptions,
   ): Promise<TResponse> {
     return this.requestWithRetry<TResponse>('GET', path, undefined, options);
   }
 
-  async post<
-    TResponse extends Record<string, unknown>,
-    TBody extends Record<string, unknown>,
-  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+  async post<TResponse, TBody extends Record<string, unknown>>(
+    path: string,
+    body: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
     return this.requestWithRetry<TResponse>('POST', path, body, options);
   }
 
-  async patch<
-    TResponse extends Record<string, unknown>,
-    TBody extends Record<string, unknown>,
-  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+  async patch<TResponse, TBody extends Record<string, unknown>>(
+    path: string,
+    body: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
     return this.requestWithRetry<TResponse>('PATCH', path, body, options);
   }
 
-  async put<
-    TResponse extends Record<string, unknown>,
-    TBody extends Record<string, unknown>,
-  >(path: string, body: TBody, options?: RequestOptions): Promise<TResponse> {
+  async put<TResponse, TBody extends Record<string, unknown>>(
+    path: string,
+    body: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
     return this.requestWithRetry<TResponse>('PUT', path, body, options);
   }
 
-  async delete<TResponse extends Record<string, unknown>>(
+  async delete<TResponse>(
     path: string,
     options?: RequestOptions,
   ): Promise<TResponse> {
     return this.requestWithRetry<TResponse>('DELETE', path, undefined, options);
   }
 
-  private async requestWithRetry<TResponse extends Record<string, unknown>>(
+  private async requestWithRetry<TResponse>(
     method: HttpMethod,
     path: string,
     body?: Record<string, unknown>,
@@ -118,7 +131,7 @@ export class HttpClient {
     return refreshPromise;
   }
 
-  private async request<TResponse extends Record<string, unknown>>(
+  private async request<TResponse>(
     method: HttpMethod,
     path: string,
     body?: Record<string, unknown>,
@@ -143,15 +156,17 @@ export class HttpClient {
       ...options?.headers,
     };
 
-    const token = this.#tokenProvider();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (!options?.skipAuth) {
+      const token = this.#tokenProvider();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     }
 
     return headers;
   }
 
-  private async handleResponse<TResponse extends Record<string, unknown>>(
+  private async handleResponse<TResponse>(
     response: Response,
   ): Promise<TResponse> {
     if (!response.ok) {

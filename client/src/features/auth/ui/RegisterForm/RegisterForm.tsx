@@ -15,6 +15,7 @@ export const RegisterForm = (): React.JSX.Element => {
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
+    handleInviteCodeChange,
     handleSubmit,
   } = useRegisterForm();
 
@@ -58,6 +59,15 @@ export const RegisterForm = (): React.JSX.Element => {
           value={values.confirmPassword}
           onChange={handleConfirmPasswordChange}
           error={errors.confirmPassword ? t(errors.confirmPassword) : undefined}
+        />
+        <Input
+          label={t('auth.register.inviteCodeLabel')}
+          type="text"
+          autoComplete="off"
+          placeholder={t('auth.register.inviteCodePlaceholder')}
+          value={values.inviteCode}
+          onChange={handleInviteCodeChange}
+          error={errors.inviteCode ? t(errors.inviteCode) : undefined}
         />
       </div>
 

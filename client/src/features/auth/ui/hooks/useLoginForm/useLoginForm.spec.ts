@@ -2,14 +2,15 @@ import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from '#features/auth/store/useAuthStore';
-
 import { useLoginForm } from './useLoginForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
 
 const mockNavigate = vi.fn();
 const mockMutateAsync = vi.fn();
+const mockReset = vi.fn();
+let mockIsLoading = false;
+let mockError: string | undefined;
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
@@ -17,10 +18,10 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('#features/auth/api/useLoginMutation', () => ({
   useLoginMutation: () => ({
-    isLoading: useAuthStore.getState().isSubmitting,
-    error: useAuthStore.getState().serverError,
+    isLoading: mockIsLoading,
+    error: mockError,
     mutateAsync: mockMutateAsync,
-    reset: vi.fn(),
+    reset: mockReset,
   }),
 }));
 
@@ -37,14 +38,8 @@ const buildSubmitEvent = (): FormEvent =>
 describe('useLoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
+    mockIsLoading = false;
+    mockError = undefined;
   });
 
   it('returns initial empty form values', () => {
@@ -77,14 +72,18 @@ describe('useLoginForm', () => {
   });
 
   it('clears field error when typing in that field', () => {
-    useAuthStore.setState({ loginErrors: { email: 'auth.validation.emailRequired' } });
-
     const { result } = renderHook(() => useLoginForm());
 
+    // Force an error
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+    expect(result.current.errors.email).toBe('auth.validation.emailRequired');
+
+    // Clear it by typing
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('a'));
     });
-
     expect(result.current.errors.email).toBeUndefined();
   });
 
@@ -101,9 +100,12 @@ describe('useLoginForm', () => {
   });
 
   it('does not call mutateAsync when validation fails', () => {
-    useAuthStore.setState({ loginForm: { email: 'bad', password: 'short' } });
-
     const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('bad'));
+      result.current.handlePasswordChange(buildChangeEvent('short'));
+    });
 
     act(() => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -112,13 +114,17 @@ describe('useLoginForm', () => {
     expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 
-  it('calls mutateAsync with form values on valid submit', () => {
-    useAuthStore.setState({ loginForm: { email: 'test@example.com', password: 'password123' } });
+  it('calls mutateAsync with canonicalized email on valid submit', async () => {
     mockMutateAsync.mockResolvedValue({ accessToken: 'token' });
 
     const { result } = renderHook(() => useLoginForm());
 
     act(() => {
+      result.current.handleEmailChange(buildChangeEvent('  Test@Example.COM  '));
+      result.current.handlePasswordChange(buildChangeEvent('password123'));
+    });
+
+    await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
@@ -126,10 +132,14 @@ describe('useLoginForm', () => {
   });
 
   it('navigates to /dashboard on successful login', async () => {
-    useAuthStore.setState({ loginForm: { email: 'test@example.com', password: 'password123' } });
     mockMutateAsync.mockResolvedValue({ accessToken: 'token' });
 
     const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent('password123'));
+    });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -139,10 +149,14 @@ describe('useLoginForm', () => {
   });
 
   it('does not navigate on failed login', async () => {
-    useAuthStore.setState({ loginForm: { email: 'test@example.com', password: 'password123' } });
     mockMutateAsync.mockRejectedValue(new Error('Unauthorized'));
 
     const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent('password123'));
+    });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
@@ -161,5 +175,22 @@ describe('useLoginForm', () => {
     });
 
     expect(event.preventDefault).toHaveBeenCalled();
+  });
+
+  it('guards against double submit when isLoading', () => {
+    mockIsLoading = true;
+
+    const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('test@example.com'));
+      result.current.handlePasswordChange(buildChangeEvent('password123'));
+    });
+
+    act(() => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 });

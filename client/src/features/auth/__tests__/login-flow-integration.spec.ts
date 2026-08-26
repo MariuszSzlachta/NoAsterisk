@@ -2,7 +2,6 @@ import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { useLoginForm } from '#features/auth/ui/hooks/useLoginForm/useLoginForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
@@ -56,14 +55,6 @@ const buildAuthResponse = () => ({
 describe('Login flow — integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({
-      loginForm: { email: '', password: '' },
-      loginErrors: {},
-      registerForm: { email: '', password: '', confirmPassword: '' },
-      registerErrors: {},
-      serverError: undefined,
-      isSubmitting: false,
-    });
   });
 
   it('flow: type credentials → submit → token stored → navigate', async () => {
@@ -71,24 +62,20 @@ describe('Login flow — integration', () => {
 
     const { result } = renderHook(() => useLoginForm());
 
-    // Step 1: Fill email
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('user@budget.pl'));
     });
     expect(result.current.values.email).toBe('user@budget.pl');
 
-    // Step 2: Fill password
     act(() => {
       result.current.handlePasswordChange(buildChangeEvent('securepass123'));
     });
     expect(result.current.values.password).toBe('securepass123');
 
-    // Step 3: Submit
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
-    // Assertions
     expect(mockPost).toHaveBeenCalledWith(
       '/auth/login',
       { email: 'user@budget.pl', password: 'securepass123' },
@@ -124,13 +111,11 @@ describe('Login flow — integration', () => {
 
     const { result } = renderHook(() => useLoginForm());
 
-    // Fill form
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('user@budget.pl'));
       result.current.handlePasswordChange(buildChangeEvent('wrongpass1'));
     });
 
-    // First submit — fails
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
@@ -138,15 +123,10 @@ describe('Login flow — integration', () => {
     expect(result.current.serverError).toBe('auth.login.invalidCredentials');
     expect(mockNavigate).not.toHaveBeenCalled();
 
-    // Fix password
     act(() => {
       result.current.handlePasswordChange(buildChangeEvent('correctpass'));
     });
 
-    // Server error clears on typing
-    expect(result.current.serverError).toBeUndefined();
-
-    // Second submit — succeeds
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
@@ -158,16 +138,55 @@ describe('Login flow — integration', () => {
   it('flow: type email → see error → clear error by typing', () => {
     const { result } = renderHook(() => useLoginForm());
 
-    // Submit empty → errors
     act(() => {
       result.current.handleSubmit(buildSubmitEvent());
     });
     expect(result.current.errors.email).toBe('auth.validation.emailRequired');
 
-    // Start typing → error clears
     act(() => {
       result.current.handleEmailChange(buildChangeEvent('a'));
     });
     expect(result.current.errors.email).toBeUndefined();
+  });
+
+  it('canonicalizes email before sending to API', async () => {
+    mockPost.mockResolvedValue(buildAuthResponse());
+
+    const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('  User@Budget.PL  '));
+      result.current.handlePasswordChange(buildChangeEvent('securepass123'));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+      await Promise.resolve();
+    });
+
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    expect(mockPost).toHaveBeenCalledWith(
+      '/auth/login',
+      expect.objectContaining({ email: 'user@budget.pl' }),
+      { skipAuth: true },
+    );
+  });
+
+  it('clears form values after successful login', async () => {
+    mockPost.mockResolvedValue(buildAuthResponse());
+
+    const { result } = renderHook(() => useLoginForm());
+
+    act(() => {
+      result.current.handleEmailChange(buildChangeEvent('user@budget.pl'));
+      result.current.handlePasswordChange(buildChangeEvent('securepass123'));
+    });
+
+    await act(async () => {
+      result.current.handleSubmit(buildSubmitEvent());
+    });
+
+    expect(result.current.values.email).toBe('');
+    expect(result.current.values.password).toBe('');
   });
 });

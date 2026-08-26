@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 import type { AuthResponse, RegisterRequestBody } from '#features/auth/model/types';
+import { parseAuthResponse } from '#features/auth/model/parseAuthResponse';
 import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { ApiError, apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
@@ -12,36 +15,79 @@ interface UseRegisterMutationResult {
   readonly reset: () => void;
 }
 
+/**
+ * Maps backend error response to i18n key.
+ * Backend returns 400 for both DomainError and Zod validation.
+ * DomainError body: { statusCode: 400, message: string }
+ * Zod body: { statusCode: 400, message: 'Validation failed', fields: string[] }
+ */
+const mapRegisterError = (err: unknown): string => {
+  if (!(err instanceof ApiError)) {
+    return 'auth.register.genericError';
+  }
+
+  if (err.status !== 400) {
+    return 'auth.register.genericError';
+  }
+
+  const body = err.body as Record<string, unknown> | undefined;
+  if (!body || typeof body['message'] !== 'string') {
+    return 'auth.register.genericError';
+  }
+
+  const message = body['message'];
+
+  if (message === 'Registration failed') {
+    return 'auth.register.emailConflict';
+  }
+
+  if (message === 'Invite code is required' || message === 'Invalid invite code') {
+    return 'auth.register.invalidInviteCode';
+  }
+
+  if (message === 'Validation failed') {
+    return 'auth.register.validationFailed';
+  }
+
+  return 'auth.register.genericError';
+};
+
 export const useRegisterMutation = (): UseRegisterMutationResult => {
-  const isSubmitting = useAuthStore((s) => s.isSubmitting);
-  const serverError = useAuthStore((s) => s.serverError);
-  const setSubmitting = useAuthStore((s) => s.setSubmitting);
-  const setServerError = useAuthStore((s) => s.setServerError);
-  const resetRegister = useAuthStore((s) => s.resetRegister);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const setRegisterSubmitting = useAuthStore((s) => s.setRegisterSubmitting);
 
   const mutateAsync = async (body: RegisterRequestBody): Promise<AuthResponse> => {
-    setSubmitting(true);
-    setServerError(undefined);
+    setIsLoading(true);
+    setError(undefined);
+    setRegisterSubmitting(true);
 
     try {
-      const response = await apiClient.post<AuthResponse, RegisterRequestBody>(
+      const raw = await apiClient.post<unknown, RegisterRequestBody>(
         AUTH_ENDPOINTS.REGISTER,
         body,
         { skipAuth: true },
       );
+
+      const response = parseAuthResponse(raw);
       authTokens.setAccessToken(response.accessToken);
-      setSubmitting(false);
+
+      setIsLoading(false);
+      setRegisterSubmitting(false);
       return response;
-    } catch (error) {
-      const message =
-        error instanceof ApiError && error.status === 409
-          ? 'auth.register.emailConflict'
-          : 'auth.register.genericError';
-      setServerError(message);
-      setSubmitting(false);
-      throw error;
+    } catch (err) {
+      const message = mapRegisterError(err);
+      setError(message);
+      setIsLoading(false);
+      setRegisterSubmitting(false);
+      throw err;
     }
   };
 
-  return { isLoading: isSubmitting, error: serverError, mutateAsync, reset: resetRegister };
+  const reset = (): void => {
+    setIsLoading(false);
+    setError(undefined);
+  };
+
+  return { isLoading, error, mutateAsync, reset };
 };

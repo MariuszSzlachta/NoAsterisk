@@ -649,8 +649,14 @@
       "emailInvalid": "Invalid email format",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least {{min}} characters",
+      "passwordMaxLength": "Password must not exceed 128 characters",
+      "passwordUppercase": "Password must contain an uppercase letter",
+      "passwordLowercase": "Password must contain a lowercase letter",
+      "passwordDigit": "Password must contain a digit",
+      "passwordSpecial": "Password must contain a special character",
       "confirmPasswordRequired": "Password confirmation is required",
-      "passwordsMismatch": "Passwords do not match"
+      "passwordsMismatch": "Passwords do not match",
+      "inviteCodeInvalid": "Invalid invite code format"
     },
     "login": {
       "title": "Sign in",
@@ -675,11 +681,15 @@
       "passwordPlaceholder": "••••••••",
       "confirmPasswordLabel": "Confirm password",
       "confirmPasswordPlaceholder": "••••••••",
+      "inviteCodeLabel": "Invite code",
+      "inviteCodePlaceholder": "e.g. ABC123",
       "submit": "Sign up",
       "submitting": "Creating account...",
       "hasAccount": "Already have an account?",
       "loginLink": "Sign in",
       "emailConflict": "An account with this email already exists",
+      "invalidInviteCode": "Invalid or expired invite code",
+      "validationFailed": "Validation failed. Please check your input.",
       "genericError": "An error occurred. Please try again."
     }
   }
