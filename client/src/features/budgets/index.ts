@@ -11,8 +11,11 @@ export { useBudgetsStore } from './store/useBudgetsStore';
 export { usePeriodHistoryStore } from './store/usePeriodHistoryStore';
 export { useBudgetsPageStore } from './store/useBudgetsPageStore';
 export { mapBudgetRecordToViewModel } from './model/transformers';
+export { isStandardBudget, isSavingsBudget } from './model/types';
 export type {
   BudgetRecord,
+  StandardBudgetRecord,
+  SavingsBudgetRecord,
   BudgetType,
   BudgetViewModel,
   SavingsBudgetViewModel,

@@ -1,8 +1,9 @@
-import { type ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useEffect, useState } from 'react';
 import { parseISO } from 'date-fns';
 
 // ARCH-EXCEPTION: cross-feature import — budgets needs to assign budgetId on transactions.
 // Transactions feature exports useTransactionsStore via its public API (index.ts).
+// Event-driven decoupling planned in Phase 4.
 import { useTransactionsStore } from '#features/transactions';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
@@ -64,6 +65,11 @@ export const useAssignTransaction = ({ budgetId, onClose }: UseAssignTransaction
       )
     : unassignedTransactions;
 
+  // Clear selection when search filter changes (prevents stale selection)
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [searchQuery]);
+
   const hasSelection = selectedIds.size > 0;
 
   const handleToggleSelection = (txId: string): void => {
@@ -94,7 +100,18 @@ export const useAssignTransaction = ({ budgetId, onClose }: UseAssignTransaction
     if (selectedIds.size === 0) {
       return;
     }
-    assignBudget(Array.from(selectedIds), budgetId);
+
+    // Re-verify selected IDs still exist in unassigned transactions
+    const validIds = Array.from(selectedIds).filter((id) =>
+      unassignedTransactions.some((tx) => tx.id === id),
+    );
+
+    if (validIds.length === 0) {
+      setSelectedIds(new Set());
+      return;
+    }
+
+    assignBudget(validIds, budgetId);
     setSelectedIds(new Set());
     onClose();
   };

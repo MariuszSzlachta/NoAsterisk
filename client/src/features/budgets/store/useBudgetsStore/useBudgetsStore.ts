@@ -5,6 +5,39 @@ import type { BudgetPeriodRecord, BudgetRecord, BudgetType, CloseBudgetPeriodPar
 import type { PeriodHistoryRecord } from '#features/budgets/model/period-history';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
 
+// ─── Validation ──────────────────────────────────────────────────
+
+const validateBudgetInvariants = (budgetType: BudgetType, period: BudgetPeriodRecord | null, limitAmount: number): void => {
+  if (budgetType === 'standard' && period === null) {
+    throw new Error('Standard budget must have a period');
+  }
+  if (budgetType === 'savings' && period !== null) {
+    throw new Error('Savings budget must not have a period');
+  }
+  if (!Number.isFinite(limitAmount) || limitAmount < 0) {
+    throw new Error('limitAmount must be a non-negative finite number');
+  }
+};
+
+const validateUpdateInvariants = (existing: BudgetRecord, props: UpdateBudgetProps): void => {
+  const limitAmount = props.limitAmount ?? existing.limitAmount;
+  const period = props.period !== undefined ? props.period : existing.period;
+
+  if (!Number.isFinite(limitAmount) || limitAmount < 0) {
+    throw new Error('limitAmount must be a non-negative finite number');
+  }
+
+  // Standard budget: period must remain non-null
+  if (existing.budgetType === 'standard' && period === null) {
+    throw new Error('Cannot remove period from standard budget');
+  }
+
+  // Savings budget: period must remain null
+  if (existing.budgetType === 'savings' && period !== null) {
+    throw new Error('Cannot add period to savings budget');
+  }
+};
+
 // ─── State Interface ─────────────────────────────────────────────
 
 interface BudgetsState {
@@ -17,6 +50,7 @@ interface BudgetsState {
 }
 
 interface CreateBudgetProps {
+  readonly workspaceId: string;
   readonly name: string;
   readonly budgetType: BudgetType;
   readonly color: string;
@@ -42,13 +76,15 @@ export const useBudgetsStore = create<BudgetsState>()(
     (set, get) => ({
       budgets: [],
 
-      createBudget: (props) =>
+      createBudget: (props) => {
+        validateBudgetInvariants(props.budgetType, props.period, props.limitAmount);
+
         set((state) => ({
           budgets: [
             ...state.budgets,
             {
               id: crypto.randomUUID(),
-              workspaceId: 'default',
+              workspaceId: props.workspaceId,
               budgetType: props.budgetType,
               name: props.name.trim(),
               color: props.color.trim(),
@@ -58,11 +94,19 @@ export const useBudgetsStore = create<BudgetsState>()(
               categoryIds: props.categoryIds ?? [],
               createdAt: new Date().toISOString(),
               isArchived: false,
-            },
+            } as BudgetRecord,
           ],
-        })),
+        }));
+      },
 
-      updateBudget: (id, props) =>
+      updateBudget: (id, props) => {
+        const existing = get().budgets.find((b) => b.id === id);
+        if (!existing) {
+          return;
+        }
+
+        validateUpdateInvariants(existing, props);
+
         set((state) => ({
           budgets: state.budgets.map((b) =>
             b.id === id
@@ -77,7 +121,8 @@ export const useBudgetsStore = create<BudgetsState>()(
                 }
               : b,
           ),
-        })),
+        }));
+      },
 
       archiveBudget: (id) =>
         set((state) => ({
@@ -86,15 +131,41 @@ export const useBudgetsStore = create<BudgetsState>()(
           ),
         })),
 
+      /**
+       * Soft-deletes a budget by archiving it.
+       * Period history records are preserved for audit trail.
+       * Use archiveBudget for reversible operation.
+       */
       deleteBudget: (id) =>
         set((state) => ({
-          budgets: state.budgets.filter((b) => b.id !== id),
+          budgets: state.budgets.map((b) =>
+            b.id === id ? { ...b, isArchived: true } : b,
+          ),
         })),
 
       closeBudgetPeriod: (params) => {
         const budget = get().budgets.find((b) => b.id === params.budgetId);
         if (!budget || budget.period === null) {
           return;
+        }
+
+        // Validate amounts are consistent
+        if (!Number.isFinite(params.spentAmount) || params.spentAmount < 0) {
+          throw new Error('spentAmount must be a non-negative finite number');
+        }
+        if (!Number.isFinite(params.remainingAmount)) {
+          throw new Error('remainingAmount must be a finite number');
+        }
+
+        // Validate savings target exists when rollover is savings
+        if (params.rolloverOption.type === 'savings') {
+          const targetBudgetId = params.rolloverOption.targetBudgetId;
+          const targetExists = get().budgets.some(
+            (b) => b.id === targetBudgetId && b.budgetType === 'savings',
+          );
+          if (!targetExists) {
+            throw new Error('Savings target budget not found or is not a savings budget');
+          }
         }
 
         // Build rollover record
@@ -104,7 +175,7 @@ export const useBudgetsStore = create<BudgetsState>()(
             ? { amount: params.remainingAmount, targetType: 'savings_budget' as const, targetBudgetId: params.rolloverOption.targetBudgetId }
             : null;
 
-        // Build and persist history record
+        // Build history record
         const historyRecord: PeriodHistoryRecord = {
           id: crypto.randomUUID(),
           budgetId: params.budgetId,
@@ -117,7 +188,12 @@ export const useBudgetsStore = create<BudgetsState>()(
           rollover,
         };
 
-        usePeriodHistoryStore.getState().addClosedPeriod(historyRecord);
+        // Persist history (idempotency-checked by the history store)
+        const wasAdded = usePeriodHistoryStore.getState().addClosedPeriod(historyRecord);
+        if (!wasAdded) {
+          // Period already closed — idempotent no-op
+          return;
+        }
 
         // Compute new limit for next period
         const newLimit = params.rolloverOption.type === 'carry_forward'

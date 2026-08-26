@@ -5,7 +5,8 @@ import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 
 import type { BudgetRecord, BudgetType } from '#features/budgets/model/types';
-import { useBudgetForm, COLOR_PALETTE } from '../hooks/useBudgetForm';
+import { useBudgetForm } from '../hooks/useBudgetForm';
+import { COLOR_PALETTE } from '../constants/color-palette';
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -13,17 +14,19 @@ interface BudgetFormModalProps {
   readonly isOpen: boolean;
   readonly editBudget?: BudgetRecord;
   readonly initialBudgetType?: BudgetType;
+  readonly workspaceId?: string;
   readonly onClose: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose }: BudgetFormModalProps): React.JSX.Element | null => {
+export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, workspaceId = 'default', onClose }: BudgetFormModalProps): React.JSX.Element | null => {
   const { t } = useTranslation();
   const { values, errors, isSavings, handleChange, handleBudgetTypeChange, handleSubmit, isEditing } = useBudgetForm({
     editBudget,
     onClose,
     initialBudgetType,
+    workspaceId,
   });
 
   if (!isOpen) {
@@ -100,7 +103,7 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose
             value={values.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder={t('budgets.form.namePlaceholder')}
-            error={errors.name}
+            error={errors.name ? t(errors.name) : undefined}
           />
 
           {/* Color picker */}
@@ -131,7 +134,7 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose
             onChange={(e) => handleChange('limitAmount', e.target.value)}
             placeholder={isSavings ? t('budgets.form.goalPlaceholder') : t('budgets.form.limitPlaceholder')}
             type="number"
-            error={errors.limitAmount}
+            error={errors.limitAmount ? t(errors.limitAmount) : undefined}
           />
 
           {/* Period selector (standard only) */}
@@ -166,7 +169,7 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose
                       value={values.dateFrom}
                       onChange={(e) => handleChange('dateFrom', e.target.value)}
                       type="date"
-                      error={errors.dateFrom}
+                      error={errors.dateFrom ? t(errors.dateFrom) : undefined}
                     />
                   </div>
                   <div className="flex-1">
@@ -175,7 +178,7 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, onClose
                       value={values.dateTo}
                       onChange={(e) => handleChange('dateTo', e.target.value)}
                       type="date"
-                      error={errors.dateTo}
+                      error={errors.dateTo ? t(errors.dateTo) : undefined}
                     />
                   </div>
                 </div>

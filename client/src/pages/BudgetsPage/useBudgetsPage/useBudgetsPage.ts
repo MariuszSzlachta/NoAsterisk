@@ -13,6 +13,7 @@ import { useTransactionsStore } from '#features/transactions';
 
 // ─── Constants ───────────────────────────────────────────────────
 
+// REVIEW [P1]: Strona duplikuje guardy i listy filtrów z `useBudgetFilters`, zamiast mieć jeden kontrakt. Taka duplikacja już rozjechała się z typem (`savings` jest w modelu, ale nie w tej liście).
 const VALID_FILTER_TABS: ReadonlyArray<BudgetFilterTab> = ['all', 'needsAttention'];
 
 const isBudgetFilterTab = (value: string): value is BudgetFilterTab =>
@@ -70,6 +71,7 @@ export const useBudgetsPage = (): UseBudgetsPageResult => {
     ? allBudgets.find((b) => b.id === closingBudgetId)
     : null;
 
+  // REVIEW [P1]: Orkiestrator strony sam składa i mapuje VM, mimo że grid i KPI robią podobne obliczenia. Dodatkowo wynik zależy od tego, czy przekazano `periodHistory`. Wydziel jeden selector/use case i ogranicz stronę do routingu zdarzeń.
   const closingBudgetVm = closingBudget && closingBudget.period
     ? mapBudgetRecordToViewModel(closingBudget, transactions, new Date(), periodHistory)
     : null;

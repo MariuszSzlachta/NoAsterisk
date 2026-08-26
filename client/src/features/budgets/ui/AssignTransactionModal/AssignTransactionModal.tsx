@@ -130,7 +130,7 @@ export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTran
                       <span className="text-xs font-medium text-foreground">{tx.description}</span>
                       <span className="text-xs text-muted-foreground">{tx.date}</span>
                     </div>
-                    <span className="font-mono text-xs tabular-nums text-expense">
+                    <span className={`font-mono text-xs tabular-nums ${tx.amount >= 0 ? 'text-income' : 'text-expense'}`}>
                       {formatAmount(tx.amount)} {tx.currency}
                     </span>
                   </div>

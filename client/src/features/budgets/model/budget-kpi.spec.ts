@@ -8,8 +8,8 @@ const buildBudgetVM = (overrides?: Partial<BudgetViewModel>): BudgetViewModel =>
   name: 'Test',
   color: '#34d399',
   status: 'onTrack',
-  statusLabel: 'W normie',
-  periodLabel: '1–30 czerwca',
+  statusLabel: 'onTrack',
+  periodLabel: '1–30 Jun',
   daysRemaining: 15,
   spent: 500,
   limit: 2000,
@@ -30,7 +30,7 @@ describe('computeBudgetKpis', () => {
       buildBudgetVM({ id: 'budget-3', limit: 1000, spent: 800 }),
     ];
 
-    const kpi = computeBudgetKpis(budgets);
+    const kpi = computeBudgetKpis(budgets, 'PLN');
 
     expect(kpi.totalPlanned).toBe(6000);
     expect(kpi.totalSpent).toBe(2800);
@@ -46,13 +46,13 @@ describe('computeBudgetKpis', () => {
       buildBudgetVM({ id: 'b5', status: 'newPeriod' }),
     ];
 
-    const kpi = computeBudgetKpis(budgets);
+    const kpi = computeBudgetKpis(budgets, 'PLN');
 
     expect(kpi.needsAttentionCount).toBe(2);
   });
 
-  it('returns PLN as default currency when no budgets', () => {
-    const kpi = computeBudgetKpis([]);
+  it('returns defaultCurrency when no budgets', () => {
+    const kpi = computeBudgetKpis([], 'PLN');
 
     expect(kpi.currency).toBe('PLN');
     expect(kpi.totalPlanned).toBe(0);
@@ -64,8 +64,17 @@ describe('computeBudgetKpis', () => {
   it('takes currency from first budget', () => {
     const budgets = [buildBudgetVM({ currency: 'EUR' })];
 
-    const kpi = computeBudgetKpis(budgets);
+    const kpi = computeBudgetKpis(budgets, 'PLN');
 
     expect(kpi.currency).toBe('EUR');
+  });
+
+  it('throws on mixed currencies', () => {
+    const budgets = [
+      buildBudgetVM({ id: 'b1', currency: 'PLN' }),
+      buildBudgetVM({ id: 'b2', currency: 'EUR' }),
+    ];
+
+    expect(() => computeBudgetKpis(budgets, 'PLN')).toThrow('mixed currencies');
   });
 });

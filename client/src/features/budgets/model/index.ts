@@ -1,5 +1,7 @@
 export type {
   BudgetRecord,
+  StandardBudgetRecord,
+  SavingsBudgetRecord,
   BudgetPeriodRecord,
   BudgetType,
   BudgetStatus,
@@ -14,7 +16,8 @@ export type {
   RolloverOption,
   CloseBudgetPeriodParams,
 } from './types';
-export { computeBudgetStatus, getStatusLabelKey } from './budget-status';
+export { isStandardBudget, isSavingsBudget } from './types';
+export { computeBudgetStatus } from './budget-status';
 export { computeBudgetKpis } from './budget-kpi';
 export { mapBudgetRecordToViewModel, mapSavingsBudgetToViewModel, getPeriodRange, computeNextPeriod } from './transformers';
 export type {

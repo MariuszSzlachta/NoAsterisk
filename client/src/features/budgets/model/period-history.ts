@@ -24,6 +24,23 @@ export interface PeriodHistoryRecord {
   readonly rollover: RolloverRecord | null;
 }
 
+// ─── Idempotency Check ──────────────────────────────────────────
+
+/**
+ * Checks if a period has already been closed (duplicate detection).
+ * Key: (budgetId, periodFrom, periodTo)
+ */
+export const isDuplicateClosure = (
+  record: PeriodHistoryRecord,
+  existingHistory: readonly PeriodHistoryRecord[],
+): boolean =>
+  existingHistory.some(
+    (existing) =>
+      existing.budgetId === record.budgetId &&
+      existing.periodFrom === record.periodFrom &&
+      existing.periodTo === record.periodTo,
+  );
+
 // ─── Pure computation: savings balance ───────────────────────────
 
 /**
@@ -45,6 +62,7 @@ export const computeSavingsBalance = (
 
 /**
  * Returns all rollovers targeting a savings budget, sorted newest-first.
+ * `sourceBudgetName` is undefined when the source budget has been deleted (orphan).
  */
 export const getInflowHistory = (
   savingsBudgetId: string,
@@ -63,7 +81,7 @@ export const getInflowHistory = (
       return {
         id: record.id,
         amount: record.rollover.amount,
-        sourceBudgetName: sourceBudget?.name ?? '—',
+        sourceBudgetName: sourceBudget?.name,
         date: record.closedAt,
       };
     });

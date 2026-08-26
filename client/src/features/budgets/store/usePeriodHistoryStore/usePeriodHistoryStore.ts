@@ -2,25 +2,36 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import type { PeriodHistoryRecord } from '#features/budgets/model/period-history';
+import { isDuplicateClosure } from '#features/budgets/model/period-history';
 
 // ─── State Interface ─────────────────────────────────────────────
 
 interface PeriodHistoryState {
   readonly history: ReadonlyArray<PeriodHistoryRecord>;
-  readonly addClosedPeriod: (record: PeriodHistoryRecord) => void;
+  readonly addClosedPeriod: (record: PeriodHistoryRecord) => boolean;
 }
 
 // ─── Store ───────────────────────────────────────────────────────
 
 export const usePeriodHistoryStore = create<PeriodHistoryState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       history: [],
 
-      addClosedPeriod: (record) =>
-        set((state) => ({
-          history: [...state.history, record],
-        })),
+      /**
+       * Adds a closed period record. Returns false and does nothing
+       * if this period has already been closed (idempotency guard).
+       */
+      addClosedPeriod: (record) => {
+        const currentHistory = get().history;
+
+        if (isDuplicateClosure(record, currentHistory)) {
+          return false;
+        }
+
+        set({ history: [...currentHistory, record] });
+        return true;
+      },
     }),
     {
       name: 'budget-period-history',

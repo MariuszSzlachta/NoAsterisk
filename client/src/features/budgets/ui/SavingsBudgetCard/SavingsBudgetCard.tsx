@@ -68,7 +68,7 @@ export const SavingsBudgetCard = ({ budgetId }: SavingsBudgetCardProps): React.J
         <div className="mt-3 text-xs text-muted-foreground">
           {t('budgets.savings.lastInflow', {
             amount: formatAmount(vm.lastInflow.amount),
-            source: vm.lastInflow.sourceBudgetName,
+            source: vm.lastInflow.sourceBudgetName ?? t('budgets.savings.unknownSource'),
           })}
         </div>
       )}
@@ -91,7 +91,7 @@ export const SavingsBudgetCard = ({ budgetId }: SavingsBudgetCardProps): React.J
               {inflowHistory.map((inflow) => (
                 <div key={inflow.id} className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">
-                    {inflow.sourceBudgetName} · {inflow.displayDate}
+                    {inflow.sourceBudgetName ?? t('budgets.savings.unknownSource')} · {inflow.displayDate}
                   </span>
                   <span className="font-mono tabular-nums text-income">
                     +{formatAmount(inflow.amount)} {vm.currency}

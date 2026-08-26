@@ -9,7 +9,7 @@ import type { BudgetStatus, BudgetViewModel } from '#features/budgets/model/type
 import { useBudgetCard } from '../hooks/useBudgetCard';
 import { BudgetTransactionList } from './BudgetTransactionList';
 
-// ─── Constants ───────────────────────────────────────────────────
+// ─── Status → Design System Variant Mapping ──────────────────────
 
 const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' | 'blue' | 'neutral'> = {
   awaitingClosure: 'warning',
@@ -68,7 +68,7 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCar
           <span className="text-sm font-semibold text-foreground">{vm.name}</span>
         </div>
         <Badge variant="soft" color={STATUS_BADGE_COLOR[vm.status]} dot={false}>
-          {t(vm.statusLabel)}
+          {t(`budgets.status.${vm.statusLabel}`)}
         </Badge>
       </div>
 

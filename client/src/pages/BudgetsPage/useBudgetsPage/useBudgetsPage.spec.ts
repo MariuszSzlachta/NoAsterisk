@@ -11,6 +11,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+// REVIEW [P1]: Fixture nie jest `BudgetRecord` (`budgetType: 'monthly'`, `period: { start, end }`) i przechodzi dzięki luźnym castom selectorów. Test omija realny kontrakt modelu oraz mockuje transformer/store, więc nie wykryje błędów integracji strony z feature'em.
 const MOCK_BUDGETS = [
   { id: 'b1', budgetType: 'monthly', isArchived: false, period: { start: '2026-08-01', end: '2026-08-31' } },
   { id: 'b2', budgetType: 'savings', isArchived: false },

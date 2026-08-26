@@ -1,5 +1,18 @@
 import type { BudgetStatus } from './types';
 
+// ─── Status Policy Thresholds ────────────────────────────────────
+
+/** Spending ratio above which a budget enters "warning" state */
+const WARNING_SPENDING_THRESHOLD = 0.7;
+
+/** Spending ratio below which a budget is considered "surplus" */
+const SURPLUS_SPENDING_THRESHOLD = 0.5;
+
+/** Time ratio above which surplus comparison applies */
+const SURPLUS_TIME_THRESHOLD = 0.5;
+
+// ─── Status Computation ──────────────────────────────────────────
+
 /**
  * Computes the budget status from spending and time metrics.
  * ADR-009 Decision D4: Status is always derived, never stored.
@@ -12,9 +25,9 @@ export const computeBudgetStatus = (
   daysElapsed: number,
   totalDays: number,
   totalTransactions: number,
-  periodEnded?: boolean,
+  periodEnded: boolean,
 ): BudgetStatus => {
-  if (periodEnded === true) {
+  if (periodEnded) {
     return 'awaitingClosure';
   }
 
@@ -29,24 +42,13 @@ export const computeBudgetStatus = (
   const spentRatio = limit > 0 ? spent / limit : 0;
   const timeRatio = totalDays > 0 ? daysElapsed / totalDays : 0;
 
-  if (spentRatio > timeRatio && spentRatio > 0.7) {
+  if (spentRatio > timeRatio && spentRatio > WARNING_SPENDING_THRESHOLD) {
     return 'warning';
   }
 
-  if (spentRatio < 0.5 && timeRatio > 0.5) {
+  if (spentRatio < SURPLUS_SPENDING_THRESHOLD && timeRatio > SURPLUS_TIME_THRESHOLD) {
     return 'surplus';
   }
 
   return 'onTrack';
 };
-
-const STATUS_LABEL_KEYS: Record<BudgetStatus, string> = {
-  awaitingClosure: 'budgets.status.awaitingClosure',
-  overBudget: 'budgets.status.overBudget',
-  warning: 'budgets.status.warning',
-  onTrack: 'budgets.status.onTrack',
-  surplus: 'budgets.status.surplus',
-  newPeriod: 'budgets.status.newPeriod',
-};
-
-export const getStatusLabelKey = (status: BudgetStatus): string => STATUS_LABEL_KEYS[status];

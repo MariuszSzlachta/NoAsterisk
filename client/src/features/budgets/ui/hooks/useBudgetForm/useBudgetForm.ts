@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import type { BudgetPeriodRecord, BudgetRecord, BudgetType } from '#features/budgets/model/types';
@@ -27,6 +27,7 @@ interface UseBudgetFormProps {
   readonly editBudget?: BudgetRecord;
   readonly onClose: () => void;
   readonly initialBudgetType?: BudgetType;
+  readonly workspaceId: string;
 }
 
 interface UseBudgetFormReturn {
@@ -52,36 +53,49 @@ const DEFAULT_VALUES: BudgetFormValues = {
   dateTo: '',
 };
 
-const COLOR_PALETTE = [
-  '#34d399', '#60a5fa', '#a78bfa', '#fbbf24', '#94a3b8', '#fb7185',
-  '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6',
-] as const;
+// ─── Validation Error Codes ──────────────────────────────────────
 
-export { COLOR_PALETTE };
+const ERROR_CODES = {
+  nameRequired: 'budgets.form.errors.nameRequired',
+  limitRequired: 'budgets.form.errors.limitRequired',
+  limitInvalid: 'budgets.form.errors.limitInvalid',
+  goalInvalid: 'budgets.form.errors.goalInvalid',
+  dateFromRequired: 'budgets.form.errors.dateFromRequired',
+  dateToRequired: 'budgets.form.errors.dateToRequired',
+  dateRangeInvalid: 'budgets.form.errors.dateRangeInvalid',
+} as const;
 
 // ─── Hook ────────────────────────────────────────────────────────
 
-export const useBudgetForm = ({ editBudget, onClose, initialBudgetType }: UseBudgetFormProps): UseBudgetFormReturn => {
+export const useBudgetForm = ({ editBudget, onClose, initialBudgetType, workspaceId }: UseBudgetFormProps): UseBudgetFormReturn => {
   const createBudget = useBudgetsStore((s) => s.createBudget);
   const updateBudget = useBudgetsStore((s) => s.updateBudget);
 
   const isEditing = editBudget !== undefined;
 
-  const initialValues: BudgetFormValues = editBudget
-    ? {
-        budgetType: editBudget.budgetType,
-        name: editBudget.name,
-        color: editBudget.color,
-        limitAmount: String(editBudget.limitAmount),
-        limitCurrency: editBudget.limitCurrency,
-        periodType: editBudget.period?.type ?? 'monthly',
-        dateFrom: editBudget.period?.type === 'custom' ? editBudget.period.dateFrom : '',
-        dateTo: editBudget.period?.type === 'custom' ? editBudget.period.dateTo : '',
-      }
-    : { ...DEFAULT_VALUES, budgetType: initialBudgetType ?? 'standard' };
+  const buildInitialValues = (): BudgetFormValues =>
+    editBudget
+      ? {
+          budgetType: editBudget.budgetType,
+          name: editBudget.name,
+          color: editBudget.color,
+          limitAmount: String(editBudget.limitAmount),
+          limitCurrency: editBudget.limitCurrency,
+          periodType: editBudget.period?.type ?? 'monthly',
+          dateFrom: editBudget.period?.type === 'custom' ? editBudget.period.dateFrom : '',
+          dateTo: editBudget.period?.type === 'custom' ? editBudget.period.dateTo : '',
+        }
+      : { ...DEFAULT_VALUES, budgetType: initialBudgetType ?? 'standard' };
 
-  const [values, setValues] = useState<BudgetFormValues>(initialValues);
+  const [values, setValues] = useState<BudgetFormValues>(buildInitialValues);
   const [errors, setErrors] = useState<BudgetFormErrors>({});
+
+  // Reset form state when editBudget context changes (handles modal reuse)
+  useEffect(() => {
+    setValues(buildInitialValues());
+    setErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when editBudget identity changes
+  }, [editBudget?.id]);
 
   const isSavings = values.budgetType === 'savings';
 
@@ -99,31 +113,29 @@ export const useBudgetForm = ({ editBudget, onClose, initialBudgetType }: UseBud
     const newErrors: Partial<Record<keyof BudgetFormErrors, string>> = {};
 
     if (!values.name.trim()) {
-      newErrors.name = 'Nazwa jest wymagana';
+      newErrors.name = ERROR_CODES.nameRequired;
     }
 
     if (isSavings) {
-      // Savings: goal is optional, but if provided must be >= 0
       const amount = Number(values.limitAmount);
-      if (values.limitAmount && (isNaN(amount) || amount < 0)) {
-        newErrors.limitAmount = 'Podaj poprawną kwotę celu (>= 0)';
+      if (values.limitAmount && (!Number.isFinite(amount) || amount < 0)) {
+        newErrors.limitAmount = ERROR_CODES.goalInvalid;
       }
     } else {
-      // Standard: limit is required and must be > 0
       const amount = Number(values.limitAmount);
-      if (!values.limitAmount || isNaN(amount) || amount <= 0) {
-        newErrors.limitAmount = 'Podaj poprawną kwotę limitu (> 0)';
+      if (!values.limitAmount || !Number.isFinite(amount) || amount <= 0) {
+        newErrors.limitAmount = ERROR_CODES.limitRequired;
       }
 
       if (values.periodType === 'custom') {
         if (!values.dateFrom) {
-          newErrors.dateFrom = 'Data początkowa jest wymagana';
+          newErrors.dateFrom = ERROR_CODES.dateFromRequired;
         }
         if (!values.dateTo) {
-          newErrors.dateTo = 'Data końcowa jest wymagana';
+          newErrors.dateTo = ERROR_CODES.dateToRequired;
         }
         if (values.dateFrom && values.dateTo && values.dateFrom >= values.dateTo) {
-          newErrors.dateTo = 'Data końcowa musi być po początkowej';
+          newErrors.dateTo = ERROR_CODES.dateRangeInvalid;
         }
       }
     }
@@ -164,6 +176,7 @@ export const useBudgetForm = ({ editBudget, onClose, initialBudgetType }: UseBud
       });
     } else {
       createBudget({
+        workspaceId,
         name: values.name,
         budgetType: values.budgetType,
         color: values.color,

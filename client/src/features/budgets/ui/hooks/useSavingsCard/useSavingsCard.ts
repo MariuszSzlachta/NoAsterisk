@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
@@ -11,7 +11,7 @@ import type { SavingsBudgetViewModel } from '#features/budgets/model/types';
 export interface InflowDisplayEntry {
   readonly id: string;
   readonly amount: number;
-  readonly sourceBudgetName: string;
+  readonly sourceBudgetName: string | undefined;
   readonly displayDate: string;
 }
 
@@ -35,18 +35,23 @@ export const useSavingsCard = ({ budgetId }: UseSavingsCardProps): UseSavingsCar
 
   const budget = allBudgets.find((b) => b.id === budgetId);
 
-  const vm = budget
-    ? mapSavingsBudgetToViewModel(budget, history, allBudgets)
-    : null;
+  const vm = useMemo(
+    () => (budget ? mapSavingsBudgetToViewModel(budget, history, allBudgets) : null),
+    [budget, history, allBudgets],
+  );
 
-  const inflowHistory: readonly InflowDisplayEntry[] = budget
-    ? getInflowHistory(budgetId, history, allBudgets).map((entry) => ({
-        id: entry.id,
-        amount: entry.amount,
-        sourceBudgetName: entry.sourceBudgetName,
-        displayDate: entry.date.split('T')[0] ?? entry.date,
-      }))
-    : [];
+  const inflowHistory: readonly InflowDisplayEntry[] = useMemo(
+    () =>
+      budget
+        ? getInflowHistory(budgetId, history, allBudgets).map((entry) => ({
+            id: entry.id,
+            amount: entry.amount,
+            sourceBudgetName: entry.sourceBudgetName,
+            displayDate: entry.date.split('T')[0] ?? entry.date,
+          }))
+        : [],
+    [budget, budgetId, history, allBudgets],
+  );
 
   const handleToggleHistory = (): void => {
     setIsHistoryExpanded((prev) => !prev);

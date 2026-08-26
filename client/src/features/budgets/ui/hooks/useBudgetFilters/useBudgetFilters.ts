@@ -4,10 +4,10 @@ import type { BudgetPeriodFilter } from '#features/budgets/model/types';
 
 // ─── Type Guard ──────────────────────────────────────────────────
 
-const VALID_PERIODS: ReadonlyArray<BudgetPeriodFilter> = ['monthly', 'yearly', 'custom'];
+const VALID_PERIODS: ReadonlyArray<BudgetPeriodFilter> = ['monthly', 'yearly', 'custom', 'savings'];
 
 const isBudgetPeriodFilter = (value: string): value is BudgetPeriodFilter =>
-  VALID_PERIODS.includes(value as BudgetPeriodFilter);
+  (VALID_PERIODS as ReadonlyArray<string>).includes(value);
 
 // ─── Hook ────────────────────────────────────────────────────────
 

@@ -6,26 +6,46 @@
 
 export type BudgetType = 'standard' | 'savings';
 
-// ─── Budget Record (persistence shape, stored in Zustand) ────────
+// ─── Budget Period ───────────────────────────────────────────────
 
 export type BudgetPeriodRecord =
   | { readonly type: 'monthly' }
   | { readonly type: 'yearly' }
   | { readonly type: 'custom'; readonly dateFrom: string; readonly dateTo: string };
 
-export interface BudgetRecord {
+// ─── Budget Record (discriminated union — persistence shape) ─────
+
+interface BudgetRecordBase {
   readonly id: string;
   readonly workspaceId: string;
-  readonly budgetType: BudgetType;
   readonly name: string;
   readonly color: string;
   readonly limitAmount: number;
   readonly limitCurrency: string;
-  readonly period: BudgetPeriodRecord | null;
   readonly categoryIds: readonly string[];
   readonly createdAt: string;
   readonly isArchived: boolean;
 }
+
+export interface StandardBudgetRecord extends BudgetRecordBase {
+  readonly budgetType: 'standard';
+  readonly period: BudgetPeriodRecord;
+}
+
+export interface SavingsBudgetRecord extends BudgetRecordBase {
+  readonly budgetType: 'savings';
+  readonly period: null;
+}
+
+export type BudgetRecord = StandardBudgetRecord | SavingsBudgetRecord;
+
+// ─── Type Guards ─────────────────────────────────────────────────
+
+export const isStandardBudget = (budget: BudgetRecord): budget is StandardBudgetRecord =>
+  budget.budgetType === 'standard';
+
+export const isSavingsBudget = (budget: BudgetRecord): budget is SavingsBudgetRecord =>
+  budget.budgetType === 'savings';
 
 // ─── Budget Status (derived, never stored) ───────────────────────
 
@@ -64,7 +84,7 @@ export interface BudgetViewModel {
 export interface SavingsInflowEntry {
   readonly id: string;
   readonly amount: number;
-  readonly sourceBudgetName: string;
+  readonly sourceBudgetName: string | undefined;
   readonly date: string;
 }
 
@@ -116,8 +136,8 @@ export interface CloseBudgetPeriodParams {
 
 /**
  * Minimal transaction data needed for budget computation.
- * Avoids cross-feature import (FSD boundary).
- * Wiring happens at page/hook level.
+ * This is the read contract — wiring happens at page/hook level
+ * to avoid cross-feature imports.
  */
 export interface BudgetTransactionInput {
   readonly id: string;

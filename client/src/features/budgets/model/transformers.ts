@@ -1,10 +1,18 @@
-import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, differenceInDays, parseISO } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, differenceInDays, parseISO, endOfDay, addDays } from 'date-fns';
 
-import { computeBudgetStatus, getStatusLabelKey } from './budget-status';
+import { computeBudgetStatus } from './budget-status';
 import { computeSavingsBalance, getLastInflow } from './period-history';
 import type { PeriodHistoryRecord } from './period-history';
-import type { BudgetPeriodRecord, BudgetRecord, BudgetTransactionInput, BudgetTransactionVM, BudgetViewModel, SavingsBudgetViewModel } from './types';
+import type {
+  BudgetPeriodRecord,
+  BudgetRecord,
+  BudgetTransactionInput,
+  BudgetTransactionVM,
+  BudgetViewModel,
+  SavingsBudgetViewModel,
+  StandardBudgetRecord,
+} from './types';
+import { isStandardBudget } from './types';
 
 // ─── Period helpers ──────────────────────────────────────────────
 
@@ -18,14 +26,8 @@ export const getPeriodRange = (
     case 'yearly':
       return { from: startOfYear(now), to: endOfYear(now) };
     case 'custom':
-      return { from: parseISO(period.dateFrom), to: parseISO(period.dateTo) };
+      return { from: parseISO(period.dateFrom), to: endOfDay(parseISO(period.dateTo)) };
   }
-};
-
-const formatPeriodLabel = (from: Date, to: Date): string => {
-  const fromStr = format(from, 'd', { locale: pl });
-  const toStr = format(to, 'd MMMM', { locale: pl });
-  return `${fromStr}–${toStr}`;
 };
 
 // ─── Transaction filtering ───────────────────────────────────────
@@ -60,15 +62,14 @@ export const mapBudgetRecordToViewModel = (
   now: Date,
   periodHistory?: readonly PeriodHistoryRecord[],
 ): BudgetViewModel => {
-  if (budget.period === null) {
+  if (!isStandardBudget(budget)) {
     throw new Error(`mapBudgetRecordToViewModel called on savings budget "${budget.id}". Use mapSavingsBudgetToViewModel instead.`);
   }
 
-  const { from, to } = getPeriodRange(budget.period, now);
+  const standardBudget: StandardBudgetRecord = budget;
+  const { from, to } = getPeriodRange(standardBudget.period, now);
 
-  const budgetTransactions = filterTransactionsForBudget(allTransactions, budget.id, from, to);
-  // Expenses are negative amounts, refunds are positive.
-  // Spent = negated sum: -(-150 + -100 + 50) = 200
+  const budgetTransactions = filterTransactionsForBudget(allTransactions, standardBudget.id, from, to);
   const rawSpent = -budgetTransactions.reduce((sum, tx) => sum + tx.amount, 0);
   const spent = Math.max(0, rawSpent);
 
@@ -76,38 +77,49 @@ export const mapBudgetRecordToViewModel = (
   const daysElapsed = Math.max(0, differenceInDays(now, from) + 1);
   const daysRemaining = Math.max(0, differenceInDays(to, now));
 
-  const remaining = budget.limitAmount - spent;
-  const rawProgressPercent = budget.limitAmount > 0
-    ? Math.round((spent / budget.limitAmount) * 100)
+  const remaining = standardBudget.limitAmount - spent;
+  const rawProgressPercent = standardBudget.limitAmount > 0
+    ? Math.round((spent / standardBudget.limitAmount) * 100)
     : 0;
-  // Capped at 100 for Progress bar rendering; over-budget shown via status/color
   const progressPercent = Math.min(100, rawProgressPercent);
 
-  // Period ended = now is past the period's end AND no closure recorded in history
-  const periodEnded = now > to && !hasBeenClosed(budget.id, from, to, periodHistory);
+  const periodEnded = now > to && !hasBeenClosed(standardBudget.id, from, to, periodHistory);
 
-  const status = computeBudgetStatus(spent, budget.limitAmount, daysElapsed, totalDays, budgetTransactions.length, periodEnded);
+  const status = computeBudgetStatus(spent, standardBudget.limitAmount, daysElapsed, totalDays, budgetTransactions.length, periodEnded);
 
-  const spentPercent = budget.limitAmount > 0 ? Math.round((spent / budget.limitAmount) * 100) : 0;
+  const spentPercent = standardBudget.limitAmount > 0 ? Math.round((spent / standardBudget.limitAmount) * 100) : 0;
   const timePercent = totalDays > 0 ? Math.round((daysElapsed / totalDays) * 100) : 0;
 
   return {
-    id: budget.id,
-    name: budget.name,
-    color: budget.color,
+    id: standardBudget.id,
+    name: standardBudget.name,
+    color: standardBudget.color,
     status,
-    statusLabel: getStatusLabelKey(status),
+    statusLabel: status,
     periodLabel: formatPeriodLabel(from, to),
     daysRemaining,
     spent,
-    limit: budget.limitAmount,
+    limit: standardBudget.limitAmount,
     remaining,
-    currency: budget.limitCurrency,
+    currency: standardBudget.limitCurrency,
     progressPercent,
     spentPercent,
     timePercent,
     transactions: budgetTransactions.map(mapToTransactionVM),
   };
+};
+
+// ─── Period label formatting (presentation helper) ───────────────
+
+/**
+ * Formats a date range as a period label for display.
+ * This is a presentation concern kept in transformers for practical bundling;
+ * it uses date-fns format which is locale-aware.
+ */
+const formatPeriodLabel = (from: Date, to: Date): string => {
+  const fromStr = format(from, 'd');
+  const toStr = format(to, 'd MMM');
+  return `${fromStr}–${toStr}`;
 };
 
 // ─── Savings budget transformer ──────────────────────────────────
@@ -152,9 +164,9 @@ export const computeNextPeriod = (currentPeriod: BudgetPeriodRecord): BudgetPeri
     case 'custom': {
       const from = parseISO(currentPeriod.dateFrom);
       const to = parseISO(currentPeriod.dateTo);
-      const durationMs = to.getTime() - from.getTime();
-      const nextFrom = new Date(to.getTime() + 86400000);
-      const nextTo = new Date(nextFrom.getTime() + durationMs);
+      const durationDays = differenceInDays(to, from);
+      const nextFrom = addDays(to, 1);
+      const nextTo = addDays(nextFrom, durationDays);
       return { type: 'custom', dateFrom: format(nextFrom, 'yyyy-MM-dd'), dateTo: format(nextTo, 'yyyy-MM-dd') };
     }
   }

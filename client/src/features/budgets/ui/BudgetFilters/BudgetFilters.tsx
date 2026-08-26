@@ -5,14 +5,16 @@ import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import type { FilterTab } from '#shared/ui/FilterTabs';
 
+import type { BudgetFilterTab, BudgetPeriodFilter } from '#features/budgets/model/types';
+
 // ─── Props ───────────────────────────────────────────────────────
 
 interface BudgetFiltersProps {
   readonly statusTabs: readonly FilterTab[];
-  readonly activeTab: string;
-  readonly onTabChange: (id: string) => void;
-  readonly selectedPeriod: string;
-  readonly onPeriodChange: (id: string) => void;
+  readonly activeTab: BudgetFilterTab;
+  readonly onTabChange: (id: BudgetFilterTab) => void;
+  readonly selectedPeriod: BudgetPeriodFilter;
+  readonly onPeriodChange: (id: BudgetPeriodFilter) => void;
   readonly customRange?: DateRange;
   readonly onCustomRangeChange?: (range: DateRange | undefined) => void;
 }
@@ -41,9 +43,9 @@ export const BudgetFilters = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-4">
-        <FilterTabs tabs={statusTabs} activeTab={activeTab} onTabChange={onTabChange} />
+        <FilterTabs tabs={statusTabs} activeTab={activeTab} onTabChange={onTabChange as (id: string) => void} />
         <div className="flex items-center gap-3">
-          <FilterTabs tabs={periodTabs} activeTab={selectedPeriod} onTabChange={onPeriodChange} />
+          <FilterTabs tabs={periodTabs} activeTab={selectedPeriod} onTabChange={onPeriodChange as (id: string) => void} />
           {isCustom && onCustomRangeChange && (
             <DateRangePicker
               selected={customRange}

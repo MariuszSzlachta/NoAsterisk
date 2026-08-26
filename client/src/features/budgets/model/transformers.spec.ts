@@ -68,7 +68,7 @@ describe('mapBudgetRecordToViewModel', () => {
 
     expect(vm.remaining).toBe(-150);
     expect(vm.status).toBe('overBudget');
-    expect(vm.statusLabel).toBe('budgets.status.overBudget');
+    expect(vm.statusLabel).toBe('overBudget');
   });
 
   it('returns newPeriod status when no transactions', () => {
@@ -77,7 +77,7 @@ describe('mapBudgetRecordToViewModel', () => {
     const vm = mapBudgetRecordToViewModel(budget, [], now);
 
     expect(vm.status).toBe('newPeriod');
-    expect(vm.statusLabel).toBe('budgets.status.newPeriod');
+    expect(vm.statusLabel).toBe('newPeriod');
     expect(vm.spent).toBe(0);
     expect(vm.remaining).toBe(2000);
     expect(vm.transactions).toHaveLength(0);
@@ -119,15 +119,15 @@ describe('mapBudgetRecordToViewModel', () => {
     expect(vm.daysRemaining).toBe(15);
   });
 
-  it('generates periodLabel in Polish format', () => {
+  it('generates periodLabel with day range and month', () => {
     const budget = buildBudgetRecord({ period: { type: 'monthly' } });
 
     const vm = mapBudgetRecordToViewModel(budget, [], now);
 
-    // "1–30 czerwca"
+    // "1–30 Jun" (English short month from date-fns default locale)
     expect(vm.periodLabel).toContain('1');
     expect(vm.periodLabel).toContain('30');
-    expect(vm.periodLabel).toContain('czerwca');
+    expect(vm.periodLabel).toContain('Jun');
   });
 
   it('computes spentPercent and timePercent', () => {
@@ -163,7 +163,7 @@ describe('mapBudgetRecordToViewModel', () => {
 
     expect(vm.spent).toBe(1000);
     expect(vm.periodLabel).toContain('1');
-    expect(vm.periodLabel).toContain('grudnia');
+    expect(vm.periodLabel).toContain('Dec');
   });
 
   it('handles refunds — positive amounts reduce spent', () => {

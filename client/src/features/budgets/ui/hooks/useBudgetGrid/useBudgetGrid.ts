@@ -14,12 +14,14 @@ interface UseBudgetGridReturn {
   readonly isEmpty: boolean;
 }
 
+/**
+ * Pure filter predicate: checks if a budget's period overlaps a custom date range.
+ */
 const doesPeriodOverlap = (budget: BudgetRecord, range: DateRange, now: Date): boolean => {
   if (!range.from || !range.to || budget.period === null) {
     return false;
   }
   const { from, to } = getPeriodRange(budget.period, now);
-  // Overlap: budgetFrom <= rangeEnd AND budgetTo >= rangeStart
   return from <= range.to && to >= range.from;
 };
 
@@ -27,16 +29,14 @@ export const useBudgetGrid = (
   activeTab: BudgetFilterTab,
   selectedPeriod: BudgetPeriodFilter,
   customRange?: DateRange,
+  now: Date = new Date(),
 ): UseBudgetGridReturn => {
   const allBudgets = useBudgetsStore((s) => s.budgets);
   const transactions = useTransactionsStore((s) => s.transactions);
   const periodHistory = usePeriodHistoryStore((s) => s.history);
 
-  const now = new Date();
-
   const standardBudgets = allBudgets.filter((b) => !b.isArchived && b.budgetType !== 'savings');
 
-  // Savings filter is handled by a separate section on the page — grid shows nothing
   const activeBudgets = selectedPeriod === 'savings'
     ? []
     : selectedPeriod === 'custom'

@@ -171,7 +171,7 @@ describe('getLastInflow', () => {
     expect(result).toEqual({
       id: 'ph-1',
       amount: 200,
-      sourceBudgetName: '—',
+      sourceBudgetName: undefined,
       date: '2026-08-01T10:00:00.000Z',
     });
   });

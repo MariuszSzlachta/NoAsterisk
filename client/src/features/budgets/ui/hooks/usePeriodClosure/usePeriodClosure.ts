@@ -60,7 +60,13 @@ export const usePeriodClosure = ({ budgetId, vm, onClose }: UsePeriodClosureProp
   };
 
   const handleSubmit = (): void => {
-    const budget = allBudgets.find((b) => b.id === budgetId);
+    // Enforce savings target invariant (not just UI disabled state)
+    if (selectedOption === 'savings' && !selectedSavingsBudgetId) {
+      return;
+    }
+
+    // Read fresh budget data from store (not stale VM)
+    const budget = useBudgetsStore.getState().budgets.find((b) => b.id === budgetId);
     if (!budget || budget.period === null) {
       return;
     }
@@ -76,6 +82,8 @@ export const usePeriodClosure = ({ budgetId, vm, onClose }: UsePeriodClosureProp
         ? { type: 'savings', targetBudgetId: selectedSavingsBudgetId }
         : { type: 'discard' };
 
+    // Use VM values for spent/remaining — they are the latest rendered values
+    // The store-level closeBudgetPeriod validates these are finite numbers
     closeBudgetPeriod({
       budgetId,
       spentAmount: vm.spent,
