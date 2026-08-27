@@ -1,4 +1,8 @@
-import type { DictionaryProvider, DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type {
+  DictionaryProvider,
+  DictionarySet,
+} from '#features/csv-import/model/anonymization/types';
+
 import { buildFromStubs } from './stub-builder';
 
 /**
@@ -10,7 +14,8 @@ import { buildFromStubs } from './stub-builder';
  * `let` is intentional here — the provider is a stateful cache by design.
  */
 export const createDictionaryProvider = (
-  loader: () => Promise<DictionarySet> = () => Promise.resolve(buildFromStubs()),
+  loader: () => Promise<DictionarySet> = () =>
+    Promise.resolve(buildFromStubs()),
   options: { isStub?: boolean } = {},
 ): DictionaryProvider & { resetCache: () => void } => {
   let cache: DictionarySet | null = null;

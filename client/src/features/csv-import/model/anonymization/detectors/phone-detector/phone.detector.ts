@@ -1,4 +1,9 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import {
   BARE_CONFIDENCE,
   CONTEXT_CONFIDENCE,
@@ -28,8 +33,7 @@ export const phoneDetector: PiiDetector = {
         .filter((match) => !isLikelyNotPhone(text, match.index))
         .filter((match) => {
           const original = match[0];
-          const hasPlus =
-            original.startsWith('+') || original.startsWith('(');
+          const hasPlus = original.startsWith('+') || original.startsWith('(');
           if (hasPlus) {
             return true;
           }
@@ -43,8 +47,7 @@ export const phoneDetector: PiiDetector = {
         .map((match): DetectionSpan => {
           const original = match[0];
           const start = match.index;
-          const hasPlus =
-            original.startsWith('+') || original.startsWith('(');
+          const hasPlus = original.startsWith('+') || original.startsWith('(');
           const hasContext = hasPhoneContext(text, start);
 
           const confidence = hasPlus

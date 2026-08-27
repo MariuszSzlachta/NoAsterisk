@@ -7,12 +7,24 @@ import { detectBankFromHeaders } from './detect-bank-from-headers';
 describe('defaultBankProfileRegistry', () => {
   describe('detect', () => {
     it('detects mBank from header pattern', () => {
-      const headers = ['#Data operacji', '#Opis operacji', '#Rachunek', '#Kwota', '#Saldo po operacji'];
+      const headers = [
+        '#Data operacji',
+        '#Opis operacji',
+        '#Rachunek',
+        '#Kwota',
+        '#Saldo po operacji',
+      ];
       expect(defaultBankProfileRegistry.detect(headers)).toBe('mBank');
     });
 
     it('detects PKO BP from header pattern', () => {
-      const headers = ['Data operacji', 'Data waluty', 'Typ transakcji', 'Kwota', 'Waluta'];
+      const headers = [
+        'Data operacji',
+        'Data waluty',
+        'Typ transakcji',
+        'Kwota',
+        'Waluta',
+      ];
       expect(defaultBankProfileRegistry.detect(headers)).toBe('PKO BP');
     });
 
@@ -37,15 +49,24 @@ describe('createBankProfileRegistry', () => {
         headerPatterns: [['custom_date', 'custom_amount', 'custom_desc']],
       });
 
-      expect(extended.detect(['custom_date', 'custom_amount', 'custom_desc'])).toBe('Custom Bank');
-      expect(registry.detect(['custom_date', 'custom_amount', 'custom_desc'])).toBeUndefined();
+      expect(
+        extended.detect(['custom_date', 'custom_amount', 'custom_desc']),
+      ).toBe('Custom Bank');
+      expect(
+        registry.detect(['custom_date', 'custom_amount', 'custom_desc']),
+      ).toBeUndefined();
     });
   });
 });
 
 describe('detectBankFromHeaders', () => {
   it('delegates to default registry', () => {
-    const headers = ['Data operacji', 'Opis operacji', 'Kwota', 'Saldo po operacji'];
+    const headers = [
+      'Data operacji',
+      'Opis operacji',
+      'Kwota',
+      'Saldo po operacji',
+    ];
     expect(detectBankFromHeaders(headers)).toBe('mBank');
   });
 });

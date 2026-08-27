@@ -15,15 +15,21 @@ import {
 
 describe('maskIban', () => {
   it('shows first 4 + last 4 chars of spaced IBAN', () => {
-    expect(maskIban('PL61 1090 1014 0000 0712 1981 2874')).toBe('PL61 •••• •••• 2874');
+    expect(maskIban('PL61 1090 1014 0000 0712 1981 2874')).toBe(
+      'PL61 •••• •••• 2874',
+    );
   });
 
   it('handles compact IBAN', () => {
-    expect(maskIban('PL61109010140000071219812874')).toBe('PL61 •••• •••• 2874');
+    expect(maskIban('PL61109010140000071219812874')).toBe(
+      'PL61 •••• •••• 2874',
+    );
   });
 
   it('strips leading apostrophe (Excel artifact)', () => {
-    expect(maskIban("'PL61109010140000071219812874")).toBe('PL61 •••• •••• 2874');
+    expect(maskIban("'PL61109010140000071219812874")).toBe(
+      'PL61 •••• •••• 2874',
+    );
   });
 });
 

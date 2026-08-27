@@ -56,16 +56,14 @@ describe('createPostalCodePattern', () => {
     expect(match![0]).toBe(expected);
   });
 
-  it.each([
-    '12345 no dash',
-    '1-234 wrong format',
-    '00-001',
-    'przelew 12-345',
-  ])('does NOT match: "%s"', (input) => {
-    const pattern = createPostalCodePattern();
+  it.each(['12345 no dash', '1-234 wrong format', '00-001', 'przelew 12-345'])(
+    'does NOT match: "%s"',
+    (input) => {
+      const pattern = createPostalCodePattern();
 
-    expect(pattern.exec(input)).toBeNull();
-  });
+      expect(pattern.exec(input)).toBeNull();
+    },
+  );
 
   it('returns fresh instance (no shared lastIndex)', () => {
     const p1 = createPostalCodePattern();

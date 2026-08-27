@@ -4,7 +4,17 @@
 
 // ─── Detection ───────────────────────────────────────────────────
 
-export type PiiType = 'iban' | 'phone' | 'email' | 'name' | 'address' | 'card' | 'pesel' | 'nip' | 'national_id' | 'birth_date';
+export type PiiType =
+  | 'iban'
+  | 'phone'
+  | 'email'
+  | 'name'
+  | 'address'
+  | 'card'
+  | 'pesel'
+  | 'nip'
+  | 'national_id'
+  | 'birth_date';
 
 export interface DetectionSpan {
   readonly start: number;

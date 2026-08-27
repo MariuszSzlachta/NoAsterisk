@@ -1,26 +1,43 @@
-import type { ReassemblyConfig, ReassemblyStrategy, ResolvedStrategy } from '#features/csv-import/model/parsing/types';
 import { LEADING_HASH_PATTERN } from '#features/csv-import/model/parsing/shared/patterns';
+import type {
+  ReassemblyConfig,
+  ReassemblyStrategy,
+  ResolvedStrategy,
+} from '#features/csv-import/model/parsing/types';
+
 import { anchorStrategy } from './anchor.strategy';
 import { directStrategy } from './direct.strategy';
 import { overflowMergeStrategy } from './overflow-merge.strategy';
 import { AMOUNT_PATTERN, DATE_PATTERN } from './patterns';
 
 const OVERFLOW_COLUMN_KEYWORDS = [
-  'opis operacji', 'opis', 'description', 'tytuł', 'title', 'szczegóły', 'details', 'treść',
+  'opis operacji',
+  'opis',
+  'description',
+  'tytuł',
+  'title',
+  'szczegóły',
+  'details',
+  'treść',
 ];
 
 const DEFAULT_SAMPLE_SIZE = 10;
 const ANCHOR_THRESHOLD = 0.8;
 const MIN_ROW_LENGTH_FOR_ANCHOR = 4;
 
-export const detectOverflowColumnIndex = (headers: readonly string[]): number | undefined =>
+export const detectOverflowColumnIndex = (
+  headers: readonly string[],
+): number | undefined =>
   headers.findIndex((h) => {
     const normalized = h.toLowerCase().replace(LEADING_HASH_PATTERN, '').trim();
     return OVERFLOW_COLUMN_KEYWORDS.some((kw) => normalized.includes(kw));
   }) === -1
     ? undefined
     : headers.findIndex((h) => {
-        const normalized = h.toLowerCase().replace(LEADING_HASH_PATTERN, '').trim();
+        const normalized = h
+          .toLowerCase()
+          .replace(LEADING_HASH_PATTERN, '')
+          .trim();
         return OVERFLOW_COLUMN_KEYWORDS.some((kw) => normalized.includes(kw));
       });
 
@@ -36,7 +53,9 @@ export const hasAnchorPattern = (
   sampleSize = DEFAULT_SAMPLE_SIZE,
 ): boolean => {
   const sample = dataRows.slice(0, sampleSize);
-  if (sample.length === 0) return false;
+  if (sample.length === 0) {
+    return false;
+  }
 
   const scores = sample
     .filter((row) => row.length >= MIN_ROW_LENGTH_FOR_ANCHOR)
@@ -73,23 +92,37 @@ export const resolveStrategy = (
   const expectedColumnCount = headers.length;
 
   if (hasAnchorPattern(dataRows)) {
-    return { strategy: anchorStrategy, config: { expectedColumnCount, separator } };
+    return {
+      strategy: anchorStrategy,
+      config: { expectedColumnCount, separator },
+    };
   }
 
   if (!hasOverflowRows(dataRows, expectedColumnCount)) {
-    return { strategy: directStrategy, config: { expectedColumnCount, separator } };
+    return {
+      strategy: directStrategy,
+      config: { expectedColumnCount, separator },
+    };
   }
 
   const overflowColumnIndex = detectOverflowColumnIndex(headers);
 
   if (overflowColumnIndex === undefined) {
-    return { strategy: directStrategy, config: { expectedColumnCount, separator } };
+    return {
+      strategy: directStrategy,
+      config: { expectedColumnCount, separator },
+    };
   }
 
   const fixedTailColumns = expectedColumnCount - overflowColumnIndex - 1;
 
   return {
     strategy: overflowMergeStrategy,
-    config: { expectedColumnCount, separator, overflowColumnIndex, fixedTailColumns },
+    config: {
+      expectedColumnCount,
+      separator,
+      overflowColumnIndex,
+      fixedTailColumns,
+    },
   };
 };

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { parseAmount, detectAmountLocale } from './amount-parser';
+import { detectAmountLocale, parseAmount } from './amount-parser';
 import { detectDataBoundaries } from './data-boundary-detector';
 import { parseDateFlexible } from './date-parser';
 import { decodeBuffer, detectEncoding } from './encoding-detector';
@@ -85,7 +85,7 @@ describe('CSV Integration: 02-medium-mbank', () => {
     expect(parseAmount('8 500,00', 'pl')).toBe(8500.0);
   });
 
-  it('parses Polish amount with leading quote: \'68 1050...', () => {
+  it("parses Polish amount with leading quote: '68 1050...", () => {
     expect(parseAmount("'68", 'pl')).toBe(68);
   });
 
@@ -158,9 +158,7 @@ describe('CSV Integration: 03-hard-pkobp', () => {
 });
 
 describe('CSV Integration: 04-mixed-easy-structure-hard-data', () => {
-  const { encoding, text } = loadStub(
-    '04-mixed-easy-structure-hard-data.csv',
-  );
+  const { encoding, text } = loadStub('04-mixed-easy-structure-hard-data.csv');
 
   it('detects UTF-8 encoding', () => {
     expect(encoding).toBe('utf-8');
@@ -176,7 +174,7 @@ describe('CSV Integration: 04-mixed-easy-structure-hard-data', () => {
   });
 
   it('parses parentheses-negative amount: (8.50) → -8.50', () => {
-    expect(parseAmount('(8.50)', 'en')).toBe(-8.50);
+    expect(parseAmount('(8.50)', 'en')).toBe(-8.5);
   });
 
   it('parses parentheses-negative with spaces: (2 350.00) → -2350.00', () => {
@@ -217,9 +215,7 @@ describe('CSV Integration: 04-mixed-easy-structure-hard-data', () => {
 });
 
 describe('CSV Integration: 05-mixed-hard-structure-mixed-data', () => {
-  const { encoding, text } = loadStub(
-    '05-mixed-hard-structure-mixed-data.csv',
-  );
+  const { encoding, text } = loadStub('05-mixed-hard-structure-mixed-data.csv');
 
   it('detects UTF-8 encoding', () => {
     expect(encoding).toBe('utf-8');

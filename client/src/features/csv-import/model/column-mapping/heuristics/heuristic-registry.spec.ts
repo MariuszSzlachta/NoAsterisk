@@ -69,14 +69,22 @@ describe('createHeuristicRegistry', () => {
   describe('register', () => {
     it('returns new registry with user heuristic taking priority', () => {
       const registry = createHeuristicRegistry();
-      const extended = registry.register({ normalized: 'custom date', field: 'date', source: 'user' });
+      const extended = registry.register({
+        normalized: 'custom date',
+        field: 'date',
+        source: 'user',
+      });
 
       expect(extended.match('custom date')).toBe('date');
       expect(registry.match('custom date')).toBeUndefined();
     });
 
     it('user heuristic overrides builtin for same key', () => {
-      const overridden = createHeuristicRegistry().register({ normalized: 'data', field: 'title', source: 'user' });
+      const overridden = createHeuristicRegistry().register({
+        normalized: 'data',
+        field: 'title',
+        source: 'user',
+      });
       expect(overridden.match('data')).toBe('title');
     });
   });
@@ -84,7 +92,11 @@ describe('createHeuristicRegistry', () => {
   describe('getAll', () => {
     it('includes registered heuristics', () => {
       const registry = createHeuristicRegistry();
-      const extended = registry.register({ normalized: 'new_field', field: 'balance', source: 'user' });
+      const extended = registry.register({
+        normalized: 'new_field',
+        field: 'balance',
+        source: 'user',
+      });
       expect(extended.getAll().length).toBe(registry.getAll().length + 1);
     });
   });

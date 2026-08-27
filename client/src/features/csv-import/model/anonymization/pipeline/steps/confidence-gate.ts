@@ -1,5 +1,5 @@
-import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 import { REVIEW_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 
 export interface GateResult {
   readonly accepted: readonly DetectionSpan[];

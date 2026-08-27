@@ -1,5 +1,10 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
 import { overlapsAny } from '#features/csv-import/model/anonymization/detectors/shared/overlap';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import { BARE_PL_CONFIDENCE, FULL_IBAN_CONFIDENCE } from './constants';
 import {
   BARE_PL_COMPACT,

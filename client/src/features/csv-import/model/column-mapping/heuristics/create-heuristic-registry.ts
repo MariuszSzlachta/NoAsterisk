@@ -1,4 +1,9 @@
-import type { DomainField, HeaderHeuristic, HeuristicRegistry } from '#features/csv-import/model/column-mapping/types';
+import type {
+  DomainField,
+  HeaderHeuristic,
+  HeuristicRegistry,
+} from '#features/csv-import/model/column-mapping/types';
+
 import { BUILTIN_HEURISTICS } from './field-heuristics';
 
 export const createHeuristicRegistry = (

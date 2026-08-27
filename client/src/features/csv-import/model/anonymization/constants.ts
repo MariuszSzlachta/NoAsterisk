@@ -40,5 +40,6 @@ export const COMPANY_FORM_VARIANTS = [
  * that appear directly before names in bank titles.
  */
 export const COMPANY_PREFIX_ABBREVIATIONS = COMPANY_FORM_VARIANTS.filter(
-  (v) => (v.length <= 12 && /[.]/.test(v)) || ['phu', 'fhu', 'pphu'].includes(v),
+  (v) =>
+    (v.length <= 12 && /[.]/.test(v)) || ['phu', 'fhu', 'pphu'].includes(v),
 );

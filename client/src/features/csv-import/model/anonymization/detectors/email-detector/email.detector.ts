@@ -1,4 +1,9 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import {
   GENERIC_EMAIL_CONFIDENCE,
   PERSONAL_EMAIL_CONFIDENCE,

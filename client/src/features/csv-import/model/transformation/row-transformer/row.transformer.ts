@@ -1,8 +1,15 @@
+import {
+  MERGEABLE_FIELDS,
+  type ColumnMapping,
+  type DomainField,
+} from '../../column-mapping/types';
 import { detectAmountLocale, parseAmount } from '../../parsing/amount-parser';
-import { detectDateFormat, parseDate, parseDateFlexible } from '../../parsing/date-parser';
+import {
+  detectDateFormat,
+  parseDate,
+  parseDateFlexible,
+} from '../../parsing/date-parser';
 import type { CsvRow } from '../../parsing/types';
-import type { ColumnMapping, DomainField } from '../../column-mapping/types';
-import { MERGEABLE_FIELDS } from '../../column-mapping/types';
 import type { RowStatus, TransactionRow } from '../types';
 
 const MIN_DATE_YEAR = 2000;
@@ -152,7 +159,13 @@ export const transformRows = (
     let status: RowStatus = 'ok';
 
     // Parse amount (single column or debit/credit merge)
-    const amount = resolveAmount(row, amountCol, debitCol, creditCol, amountLocale);
+    const amount = resolveAmount(
+      row,
+      amountCol,
+      debitCol,
+      creditCol,
+      amountLocale,
+    );
     if (amount === null) {
       status = 'error';
       reasons.push('Invalid amount');
@@ -183,10 +196,18 @@ export const transformRows = (
     }
 
     // Merge optional fields
-    const source = sourceCols ? mergeColumns(row, sourceCols) || undefined : undefined;
-    const recipient = recipientCols ? mergeColumns(row, recipientCols) || undefined : undefined;
-    const counterpart = counterpartCols ? mergeColumns(row, counterpartCols) || undefined : undefined;
-    const reference = referenceCol ? (row[referenceCol]?.trim() || undefined) : undefined;
+    const source = sourceCols
+      ? mergeColumns(row, sourceCols) || undefined
+      : undefined;
+    const recipient = recipientCols
+      ? mergeColumns(row, recipientCols) || undefined
+      : undefined;
+    const counterpart = counterpartCols
+      ? mergeColumns(row, counterpartCols) || undefined
+      : undefined;
+    const reference = referenceCol
+      ? row[referenceCol]?.trim() || undefined
+      : undefined;
 
     return {
       id: crypto.randomUUID(),
@@ -197,7 +218,7 @@ export const transformRows = (
       balance: balanceCol
         ? (parseAmount(row[balanceCol] ?? '', amountLocale) ?? undefined)
         : undefined,
-      category: categoryCol ? (row[categoryCol]?.trim() || undefined) : undefined,
+      category: categoryCol ? row[categoryCol]?.trim() || undefined : undefined,
       source,
       recipient,
       counterpart,

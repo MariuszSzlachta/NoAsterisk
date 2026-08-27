@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+
 import { applyConfidenceGate } from './confidence-gate';
 
 const span = (confidence: number): DetectionSpan => ({
@@ -26,7 +27,12 @@ describe('applyConfidenceGate', () => {
   });
 
   it('splits mixed confidence spans correctly', () => {
-    const result = applyConfidenceGate([span(0.95), span(0.5), span(0.7), span(0.3)]);
+    const result = applyConfidenceGate([
+      span(0.95),
+      span(0.5),
+      span(0.7),
+      span(0.3),
+    ]);
     expect(result.accepted).toHaveLength(2);
     expect(result.belowThreshold).toHaveLength(2);
   });

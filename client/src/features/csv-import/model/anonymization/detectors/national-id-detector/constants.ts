@@ -12,4 +12,4 @@ export const ID_CONTEXT = [
 export const ID_WEIGHTS = [7, 3, 1, 0, 7, 3, 1, 7, 3] as const;
 
 export const WITH_CONTEXT_CONFIDENCE = 0.95;
-export const WITHOUT_CONTEXT_CONFIDENCE = 0.80;
+export const WITHOUT_CONTEXT_CONFIDENCE = 0.8;

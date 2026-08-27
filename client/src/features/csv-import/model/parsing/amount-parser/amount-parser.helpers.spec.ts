@@ -25,20 +25,16 @@ describe('scoreSample', () => {
   });
 
   describe('neutral', () => {
-    it.each([
-      ['100'],
-      ['-250'],
-      ['0'],
-    ])('scores "%s" as neutral (0/0)', (input) => {
-      expect(scoreSample(input)).toEqual({ pl: 0, en: 0 });
-    });
+    it.each([['100'], ['-250'], ['0']])(
+      'scores "%s" as neutral (0/0)',
+      (input) => {
+        expect(scoreSample(input)).toEqual({ pl: 0, en: 0 });
+      },
+    );
   });
 
   describe('empty', () => {
-    it.each([
-      [''],
-      ['   '],
-    ])('scores "%s" as neutral (0/0)', (input) => {
+    it.each([[''], ['   ']])('scores "%s" as neutral (0/0)', (input) => {
       expect(scoreSample(input)).toEqual({ pl: 0, en: 0 });
     });
   });

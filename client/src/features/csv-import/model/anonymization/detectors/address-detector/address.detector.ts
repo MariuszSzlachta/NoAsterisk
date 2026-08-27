@@ -1,4 +1,9 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import { POSTAL_CODE_CONFIDENCE, STREET_CONFIDENCE } from './constants';
 import { createAddressPattern, createPostalCodePattern } from './patterns';
 
@@ -19,14 +24,11 @@ export const addressDetector: PiiDetector = {
   priority: 40,
 
   detect(text: string, _dictionaries: DictionarySet): readonly DetectionSpan[] {
-    const streetSpans = Array.from(
-      text.matchAll(createAddressPattern()),
-      (m) => toSpan(m, STREET_CONFIDENCE),
+    const streetSpans = Array.from(text.matchAll(createAddressPattern()), (m) =>
+      toSpan(m, STREET_CONFIDENCE),
     );
 
-    const postalSpans = Array.from(
-      text.matchAll(createPostalCodePattern()),
-    )
+    const postalSpans = Array.from(text.matchAll(createPostalCodePattern()))
       .filter((m) => {
         const start = m.index ?? 0;
         const end = start + m[0].length;

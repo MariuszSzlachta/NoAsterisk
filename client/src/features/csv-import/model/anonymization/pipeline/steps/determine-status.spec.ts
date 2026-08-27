@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+
 import { determineStatus } from './determine-status';
 
 const span = (confidence: number): DetectionSpan => ({
@@ -30,7 +31,9 @@ describe('determineStatus', () => {
   });
 
   it('returns needs_review when some spans below 0.9', () => {
-    expect(determineStatus([span(0.95), span(0.85)], false)).toBe('needs_review');
+    expect(determineStatus([span(0.95), span(0.85)], false)).toBe(
+      'needs_review',
+    );
   });
 
   it('returns needs_review for single low-confidence span', () => {

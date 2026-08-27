@@ -4,7 +4,13 @@ import { autoDetectMapping } from './auto-detect-mapping';
 
 describe('autoDetectMapping', () => {
   it('detects common Polish bank headers', () => {
-    const headers = ['Data operacji', 'Opis operacji', 'Kwota', 'Waluta', 'Saldo po operacji'];
+    const headers = [
+      'Data operacji',
+      'Opis operacji',
+      'Kwota',
+      'Waluta',
+      'Saldo po operacji',
+    ];
     const mapping = autoDetectMapping(headers);
 
     expect(mapping['Data operacji']).toBe('date');
@@ -16,8 +22,14 @@ describe('autoDetectMapping', () => {
 
   it('handles mBank # prefix headers', () => {
     const headers = [
-      '#Data operacji', '#Data księgowania', '#Opis operacji', '#Tytuł',
-      '#Nadawca/Odbiorca', '#Numer konta', '#Kwota', '#Saldo po operacji',
+      '#Data operacji',
+      '#Data księgowania',
+      '#Opis operacji',
+      '#Tytuł',
+      '#Nadawca/Odbiorca',
+      '#Numer konta',
+      '#Kwota',
+      '#Saldo po operacji',
     ];
     const mapping = autoDetectMapping(headers);
 
@@ -28,7 +40,14 @@ describe('autoDetectMapping', () => {
   });
 
   it('handles quoted headers (PKO BP style)', () => {
-    const headers = ['"Data waluty"', '"Data operacji"', '"Typ"', '"Opis"', '"Kwota"', '"Waluta"'];
+    const headers = [
+      '"Data waluty"',
+      '"Data operacji"',
+      '"Typ"',
+      '"Opis"',
+      '"Kwota"',
+      '"Waluta"',
+    ];
     const mapping = autoDetectMapping(headers);
 
     expect(mapping['"Data waluty"']).toBe('date');
@@ -59,7 +78,15 @@ describe('autoDetectMapping', () => {
   });
 
   it('handles Santander pipe-separated headers', () => {
-    const headers = ['DATA WALUTY', 'DATA KSIĘGOWANIA', 'TYP OPERACJI', 'SZCZEGÓŁY', 'KWOTA (PLN)', 'SALDO', 'REF'];
+    const headers = [
+      'DATA WALUTY',
+      'DATA KSIĘGOWANIA',
+      'TYP OPERACJI',
+      'SZCZEGÓŁY',
+      'KWOTA (PLN)',
+      'SALDO',
+      'REF',
+    ];
     const mapping = autoDetectMapping(headers);
 
     expect(mapping['DATA WALUTY']).toBe('date');
@@ -98,7 +125,9 @@ describe('autoDetectMapping', () => {
     const headers = ['Opis operacji', 'Tytuł', 'Kwota', 'Data'];
     const mapping = autoDetectMapping(headers);
 
-    const titleColumns = Object.entries(mapping).filter(([, f]) => f === 'title');
+    const titleColumns = Object.entries(mapping).filter(
+      ([, f]) => f === 'title',
+    );
     expect(titleColumns.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -106,7 +135,9 @@ describe('autoDetectMapping', () => {
     const headers = ['Data', 'Opis', 'Kwota', 'Adresat', 'Nazwa odbiorcy'];
     const mapping = autoDetectMapping(headers);
 
-    const recipientColumns = Object.entries(mapping).filter(([, f]) => f === 'recipient');
+    const recipientColumns = Object.entries(mapping).filter(
+      ([, f]) => f === 'recipient',
+    );
     expect(recipientColumns.length).toBe(2);
   });
 
@@ -114,12 +145,20 @@ describe('autoDetectMapping', () => {
     const headers = ['Kwota', 'Wartość', 'Data'];
     const mapping = autoDetectMapping(headers);
 
-    const amountColumns = Object.entries(mapping).filter(([, f]) => f === 'amount');
+    const amountColumns = Object.entries(mapping).filter(
+      ([, f]) => f === 'amount',
+    );
     expect(amountColumns.length).toBe(1);
   });
 
   it('detects recipient from ING format', () => {
-    const headers = ['Data operacji', 'Opis', 'Kwota', 'Dane kontrahenta', 'Waluta'];
+    const headers = [
+      'Data operacji',
+      'Opis',
+      'Kwota',
+      'Dane kontrahenta',
+      'Waluta',
+    ];
     const mapping = autoDetectMapping(headers);
 
     expect(mapping['Dane kontrahenta']).toBe('recipient');

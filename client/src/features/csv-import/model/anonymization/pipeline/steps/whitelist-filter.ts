@@ -1,4 +1,7 @@
-import type { DetectionSpan, DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+} from '#features/csv-import/model/anonymization/types';
 
 /**
  * Architecture doc § 4 step 3: discard spans whose text matches known entities

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { computeBatchHash, computeContentHash, createImportChunks } from './import.chunks';
 import type { TransactionRow } from '../../transformation/types';
+import {
+  computeBatchHash,
+  computeContentHash,
+  createImportChunks,
+} from './import.chunks';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: crypto.randomUUID(),
@@ -175,5 +179,4 @@ describe('createImportChunks', () => {
 
     expect(chunks[0].batchHash).toBe(chunks[1].batchHash);
   });
-
 });

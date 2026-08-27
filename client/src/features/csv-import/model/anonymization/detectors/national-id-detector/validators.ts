@@ -1,6 +1,9 @@
 import { ID_CONTEXT, ID_WEIGHTS } from './constants';
 
-export const validateNationalId = (letters: string, digits: string): boolean => {
+export const validateNationalId = (
+  letters: string,
+  digits: string,
+): boolean => {
   if (letters.length !== 3 || digits.length !== 6) {
     return false;
   }

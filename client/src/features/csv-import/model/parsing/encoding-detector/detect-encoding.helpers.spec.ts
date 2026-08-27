@@ -16,9 +16,12 @@ describe('normalizeEncoding', () => {
   it.each([
     ['windows-1252', 'windows-1250'],
     ['Windows_1252', 'windows-1250'],
-  ])('normalizes "%s" → "%s" (windows-1252 mapped to windows-1250 for PL)', (input, expected) => {
-    expect(normalizeEncoding(input)).toBe(expected);
-  });
+  ])(
+    'normalizes "%s" → "%s" (windows-1252 mapped to windows-1250 for PL)',
+    (input, expected) => {
+      expect(normalizeEncoding(input)).toBe(expected);
+    },
+  );
 
   it.each([
     ['utf-8', 'utf-8'],
@@ -43,9 +46,12 @@ describe('normalizeEncoding', () => {
     ['ASCII', 'utf-8'],
     ['US-ASCII', 'utf-8'],
     ['us_ascii', 'utf-8'],
-  ])('normalizes "%s" → "%s" (ascii variants mapped to utf-8)', (input, expected) => {
-    expect(normalizeEncoding(input)).toBe(expected);
-  });
+  ])(
+    'normalizes "%s" → "%s" (ascii variants mapped to utf-8)',
+    (input, expected) => {
+      expect(normalizeEncoding(input)).toBe(expected);
+    },
+  );
 
   it('returns lowercased input for unknown encoding', () => {
     expect(normalizeEncoding('KOI8-R')).toBe('koi8-r');
@@ -78,4 +84,3 @@ describe('matchesBom', () => {
     expect(matchesBom(bytes, [])).toBe(true);
   });
 });
-

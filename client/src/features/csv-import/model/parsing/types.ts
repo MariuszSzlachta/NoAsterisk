@@ -45,7 +45,10 @@ export interface ReassemblyConfig {
 
 export interface ReassemblyStrategy {
   readonly type: ReassemblyStrategyType;
-  reassemble(rawTokens: readonly string[], config: ReassemblyConfig): readonly string[];
+  reassemble(
+    rawTokens: readonly string[],
+    config: ReassemblyConfig,
+  ): readonly string[];
 }
 
 export interface DataBoundaries {
@@ -80,18 +83,26 @@ export interface MonthLocale {
 export interface NumericFormatDef {
   readonly format: DateFormat;
   readonly regex: RegExp;
-  readonly groups: { readonly year: number; readonly month: number; readonly day: number };
+  readonly groups: {
+    readonly year: number;
+    readonly month: number;
+    readonly day: number;
+  };
   readonly yearResolver?: (s: string) => number | null;
 }
 
 export interface MonthNameFormatDef {
   readonly format: DateFormat;
   readonly regex: RegExp;
-  readonly parse: (match: RegExpMatchArray) => { year: number; month: number; day: number } | null;
+  readonly parse: (
+    match: RegExpMatchArray,
+  ) => { year: number; month: number; day: number } | null;
 }
 
 export interface ParseableDateFormat {
   readonly format: DateFormat;
   readonly regex: RegExp;
-  readonly parse: (m: RegExpMatchArray) => { year: number; month: number; day: number } | null;
+  readonly parse: (
+    m: RegExpMatchArray,
+  ) => { year: number; month: number; day: number } | null;
 }

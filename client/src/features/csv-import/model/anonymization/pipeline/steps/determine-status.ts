@@ -1,5 +1,8 @@
-import type { AnonymizationStatus, DetectionSpan } from '#features/csv-import/model/anonymization/types';
 import { AUTO_ACCEPT_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants';
+import type {
+  AnonymizationStatus,
+  DetectionSpan,
+} from '#features/csv-import/model/anonymization/types';
 
 /**
  * Determine anonymization status from resolved spans and below-threshold presence.

@@ -1,5 +1,13 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
-import { WITH_CONTEXT_CONFIDENCE, WITHOUT_CONTEXT_CONFIDENCE } from './constants';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
+import {
+  WITH_CONTEXT_CONFIDENCE,
+  WITHOUT_CONTEXT_CONFIDENCE,
+} from './constants';
 import { createNationalIdPattern } from './patterns';
 import { hasIdContext, validateNationalId } from './validators';
 
@@ -19,7 +27,9 @@ export const nationalIdDetector: PiiDetector = {
         const letters = match[1] ?? '';
         const digits = match[2] ?? '';
         const hasContext = hasIdContext(text, match.index);
-        const confidence = hasContext ? WITH_CONTEXT_CONFIDENCE : WITHOUT_CONTEXT_CONFIDENCE;
+        const confidence = hasContext
+          ? WITH_CONTEXT_CONFIDENCE
+          : WITHOUT_CONTEXT_CONFIDENCE;
 
         return {
           start: match.index,

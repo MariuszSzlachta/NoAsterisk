@@ -27,7 +27,10 @@ export interface ImportChunkResult {
   readonly status: 'accepted' | 'partial' | 'rejected';
   readonly saved: number;
   readonly duplicatesSkipped: number;
-  readonly rejected?: ReadonlyArray<{ readonly rowIndex: number; readonly reason: string }>;
+  readonly rejected?: ReadonlyArray<{
+    readonly rowIndex: number;
+    readonly reason: string;
+  }>;
 }
 
 export interface ImportProgress {
@@ -36,6 +39,9 @@ export interface ImportProgress {
   readonly totalRows: number;
   readonly savedRows: number;
   readonly duplicatesSkipped: number;
-  readonly errors: ReadonlyArray<{ readonly chunkIndex: number; readonly message: string }>;
+  readonly errors: ReadonlyArray<{
+    readonly chunkIndex: number;
+    readonly message: string;
+  }>;
   readonly status: 'idle' | 'submitting' | 'completed' | 'failed';
 }

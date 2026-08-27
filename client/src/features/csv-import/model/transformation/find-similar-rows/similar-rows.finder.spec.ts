@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { findSimilarRows } from './similar-rows.finder';
 import type { TransactionRow } from '../types';
+import { findSimilarRows } from './similar-rows.finder';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: crypto.randomUUID(),

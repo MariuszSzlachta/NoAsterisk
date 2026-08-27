@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  isDateValue,
-  isHeaderLine,
-  isDataLine,
-  findFirstDataRow,
-  walkBackToCandidate,
   classifyHeader,
   fallbackKeywordDetection,
+  findFirstDataRow,
+  isDataLine,
+  isDateValue,
+  isHeaderLine,
+  walkBackToCandidate,
 } from './data-boundary.detector';
 
 describe('isDateValue', () => {
@@ -77,7 +77,9 @@ describe('isHeaderLine', () => {
     });
 
     it('returns false for data rows even with keyword-like text', () => {
-      expect(isHeaderLine('2025-06-15;description of balance;-100;500', ';')).toBe(false);
+      expect(
+        isHeaderLine('2025-06-15;description of balance;-100;500', ';'),
+      ).toBe(false);
     });
   });
 
@@ -151,20 +153,12 @@ describe('findFirstDataRow', () => {
   });
 
   it('returns -1 when no data lines found', () => {
-    const lines = [
-      'Bank Name',
-      'Account: 123',
-      'Some metadata',
-    ];
+    const lines = ['Bank Name', 'Account: 123', 'Some metadata'];
     expect(findFirstDataRow(lines, ';')).toBe(-1);
   });
 
   it('skips empty lines', () => {
-    const lines = [
-      '',
-      '',
-      '15.06.2025;BIEDRONKA;-87,43;3840,67',
-    ];
+    const lines = ['', '', '15.06.2025;BIEDRONKA;-87,43;3840,67'];
     expect(findFirstDataRow(lines, ';')).toBe(2);
   });
 });
@@ -191,11 +185,7 @@ describe('walkBackToCandidate', () => {
   });
 
   it('returns null when no non-empty lines before fromIndex', () => {
-    const lines = [
-      '',
-      '',
-      '15.06.2025;BIEDRONKA;-87,43;3840,67',
-    ];
+    const lines = ['', '', '15.06.2025;BIEDRONKA;-87,43;3840,67'];
     expect(walkBackToCandidate(lines, 2)).toBeNull();
   });
 
@@ -295,11 +285,7 @@ describe('fallbackKeywordDetection', () => {
   });
 
   it('skips empty lines and lines with too few columns', () => {
-    const lines = [
-      '',
-      'x',
-      'Data operacji;Opis;Kwota;Saldo',
-    ];
+    const lines = ['', 'x', 'Data operacji;Opis;Kwota;Saldo'];
 
     const result = fallbackKeywordDetection(lines, ';');
     expect(result.headerRow).toBe(2);

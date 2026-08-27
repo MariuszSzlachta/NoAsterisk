@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+
 import { nipDetector } from './nip.detector';
 
 const EMPTY_DICTS: DictionarySet = {

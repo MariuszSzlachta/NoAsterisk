@@ -1,7 +1,12 @@
 export { padToLength } from './pad-to-length';
 export { splitRespectingQuotes } from './split-respecting-quotes';
 export { NBSP, BOM, REPLACEMENT_CHAR } from './constants';
-export { stripBom, normalizeCrlf, normalizeNbsp, normalizeWhitespace } from './text-normalizers';
+export {
+  stripBom,
+  normalizeCrlf,
+  normalizeNbsp,
+  normalizeWhitespace,
+} from './text-normalizers';
 export {
   CRLF_PATTERN,
   LINE_SPLIT_PATTERN,

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizeCrlf, normalizeNbsp, normalizeWhitespace, stripBom } from './text-normalizers';
+import {
+  normalizeCrlf,
+  normalizeNbsp,
+  normalizeWhitespace,
+  stripBom,
+} from './text-normalizers';
 
 describe('stripBom', () => {
   it('strips BOM from start', () => {

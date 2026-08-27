@@ -1,4 +1,7 @@
-import type { AmountLocale, DateFormat } from '#features/csv-import/model/parsing/types';
+import type {
+  AmountLocale,
+  DateFormat,
+} from '#features/csv-import/model/parsing/types';
 
 export type DomainField =
   | 'date'

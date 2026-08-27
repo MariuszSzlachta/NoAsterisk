@@ -12,11 +12,19 @@ describe('splitRespectingQuotes', () => {
   });
 
   it('preserves content inside quotes containing separator', () => {
-    expect(splitRespectingQuotes('"a,b",c,d', ',')).toEqual(['"a,b"', 'c', 'd']);
+    expect(splitRespectingQuotes('"a,b",c,d', ',')).toEqual([
+      '"a,b"',
+      'c',
+      'd',
+    ]);
   });
 
   it('handles multiple quoted fields', () => {
-    expect(splitRespectingQuotes('"a;b";"c;d";e', ';')).toEqual(['"a;b"', '"c;d"', 'e']);
+    expect(splitRespectingQuotes('"a;b";"c;d";e', ';')).toEqual([
+      '"a;b"',
+      '"c;d"',
+      'e',
+    ]);
   });
 
   it('handles empty fields', () => {

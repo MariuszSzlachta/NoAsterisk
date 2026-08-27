@@ -1,5 +1,8 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/parsing/types';
 import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
+import type {
+  ReassemblyConfig,
+  ReassemblyStrategy,
+} from '#features/csv-import/model/parsing/types';
 
 /**
  * For CSVs where a known column (e.g. description) contains unescaped separators.
@@ -9,7 +12,10 @@ import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-le
 export const overflowMergeStrategy: ReassemblyStrategy = {
   type: 'overflow-merge',
 
-  reassemble(rawTokens: readonly string[], config: ReassemblyConfig): readonly string[] {
+  reassemble(
+    rawTokens: readonly string[],
+    config: ReassemblyConfig,
+  ): readonly string[] {
     const { expectedColumnCount, separator, overflowColumnIndex } = config;
 
     if (rawTokens.length <= expectedColumnCount) {
@@ -20,7 +26,9 @@ export const overflowMergeStrategy: ReassemblyStrategy = {
     const overflowTokenCount = rawTokens.length - expectedColumnCount + 1;
 
     const head = rawTokens.slice(0, overflow);
-    const mergedOverflow = rawTokens.slice(overflow, overflow + overflowTokenCount).join(separator);
+    const mergedOverflow = rawTokens
+      .slice(overflow, overflow + overflowTokenCount)
+      .join(separator);
     const tail = rawTokens.slice(overflow + overflowTokenCount);
 
     return [...head, mergedOverflow, ...tail];

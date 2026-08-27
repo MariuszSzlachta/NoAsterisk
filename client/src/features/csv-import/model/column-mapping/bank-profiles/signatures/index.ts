@@ -1,4 +1,4 @@
-import type { BankSignature } from '../../types';
+import type { BankSignature } from '#features/csv-import/model/column-mapping/types';
 import { ING_SIGNATURE } from './ing';
 import { MBANK_SIGNATURE } from './mbank';
 import { MILLENNIUM_SIGNATURE } from './millennium';

@@ -1,4 +1,9 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import { MIN_CONFIDENCE } from './constants';
 import { createMixedCaseNamePattern } from './patterns';
 import {
@@ -7,10 +12,11 @@ import {
   hasCompanyContext,
   hasNameContext,
   isWhitelisted,
+  type MatchCandidate,
 } from './validators';
-import type { MatchCandidate } from './validators';
 
-const candidateKey = (c: MatchCandidate): string => `${c.index}:${c.original.length}`;
+const candidateKey = (c: MatchCandidate): string =>
+  `${c.index}:${c.original.length}`;
 
 const toDetectionSpan = (
   candidate: MatchCandidate,

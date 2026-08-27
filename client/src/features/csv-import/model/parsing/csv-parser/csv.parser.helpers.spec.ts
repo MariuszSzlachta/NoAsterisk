@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  CsvParseError,
   countTrailingEmpties,
   countTrailingEmptiesInRow,
+  CsvParseError,
   generatePositionalHeaders,
   normalizeTrailingSeparator,
   tokensToRow,
@@ -36,7 +36,9 @@ describe('validateFile', () => {
       validateFile(file);
     } catch (err) {
       expect((err as CsvParseError).code).toBe('INVALID_EXTENSION');
-      expect((err as CsvParseError).message).toBe('Only .csv files are supported');
+      expect((err as CsvParseError).message).toBe(
+        'Only .csv files are supported',
+      );
     }
   });
 
@@ -179,9 +181,9 @@ describe('normalizeTrailingSeparator', () => {
     const headers = ['A', 'B', ''];
     const dataRows = [
       ['1', '2', ''],
-      ['3', '4', 'X'],  // not empty — inconsistent
+      ['3', '4', 'X'], // not empty — inconsistent
       ['5', '6', ''],
-      ['7', '8', 'Y'],  // not empty — inconsistent
+      ['7', '8', 'Y'], // not empty — inconsistent
       ['9', '10', ''],
     ];
 
@@ -199,7 +201,7 @@ describe('normalizeTrailingSeparator', () => {
       ['3', '4', ''],
       ['5', '6', ''],
       ['7', '8', ''],
-      ['9', '10', 'X'],  // 1 out of 5 non-empty = 80% consistent
+      ['9', '10', 'X'], // 1 out of 5 non-empty = 80% consistent
     ];
 
     const result = normalizeTrailingSeparator(headers, dataRows);

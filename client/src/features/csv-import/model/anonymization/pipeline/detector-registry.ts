@@ -1,4 +1,3 @@
-import type { PiiDetector } from '#features/csv-import/model/anonymization/types';
 import { addressDetector } from '#features/csv-import/model/anonymization/detectors/address-detector';
 import { birthDateDetector } from '#features/csv-import/model/anonymization/detectors/birth-date-detector';
 import { cardDetector } from '#features/csv-import/model/anonymization/detectors/card-detector';
@@ -9,6 +8,7 @@ import { nationalIdDetector } from '#features/csv-import/model/anonymization/det
 import { nipDetector } from '#features/csv-import/model/anonymization/detectors/nip-detector';
 import { peselDetector } from '#features/csv-import/model/anonymization/detectors/pesel-detector';
 import { phoneDetector } from '#features/csv-import/model/anonymization/detectors/phone-detector';
+import type { PiiDetector } from '#features/csv-import/model/anonymization/types';
 
 export const DEFAULT_DETECTORS: readonly PiiDetector[] = [
   peselDetector,

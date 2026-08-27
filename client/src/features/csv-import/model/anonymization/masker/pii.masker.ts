@@ -1,4 +1,5 @@
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+
 import { MASK_STRATEGIES } from './strategies';
 import { validateSpanInvariants } from './validate-spans';
 

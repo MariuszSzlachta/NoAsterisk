@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+
 import { overlapsAny } from './overlap';
 
 const span = (start: number, end: number): DetectionSpan => ({

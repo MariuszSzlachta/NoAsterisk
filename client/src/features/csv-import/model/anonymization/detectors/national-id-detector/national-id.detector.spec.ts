@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+
 import { nationalIdDetector } from './national-id.detector';
 
 const EMPTY_DICTS: DictionarySet = {
@@ -42,7 +43,7 @@ describe('nationalIdDetector', () => {
     const spans = nationalIdDetector.detect(text, EMPTY_DICTS);
 
     expect(spans).toHaveLength(1);
-    expect(spans[0].confidence).toBe(0.80);
+    expect(spans[0].confidence).toBe(0.8);
     expect(spans[0].metadata?.hasContext).toBe(false);
   });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ColumnMapping } from '../types';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/types';
 import { hasRequiredFields } from './has-required-fields';
 
 describe('hasRequiredFields', () => {
@@ -10,7 +10,12 @@ describe('hasRequiredFields', () => {
   });
 
   it('returns true with date + title + debit/credit', () => {
-    const mapping: ColumnMapping = { A: 'date', B: 'title', C: 'debit', D: 'credit' };
+    const mapping: ColumnMapping = {
+      A: 'date',
+      B: 'title',
+      C: 'debit',
+      D: 'credit',
+    };
     expect(hasRequiredFields(mapping)).toBe(true);
   });
 

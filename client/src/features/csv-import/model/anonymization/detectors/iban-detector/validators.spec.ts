@@ -29,9 +29,7 @@ describe('validateMod97', () => {
     });
 
     it('returns false for too long input (>34 chars)', () => {
-      expect(
-        validateMod97('PL611090101400000712198128741234567'),
-      ).toBe(false);
+      expect(validateMod97('PL611090101400000712198128741234567')).toBe(false);
     });
 
     it('returns false for empty string', () => {

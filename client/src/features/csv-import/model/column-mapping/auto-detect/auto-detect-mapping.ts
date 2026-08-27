@@ -1,7 +1,11 @@
-import type { ColumnMapping, DomainField, HeuristicRegistry } from '#features/csv-import/model/column-mapping/types';
-import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping/types';
 import { defaultHeuristicRegistry } from '#features/csv-import/model/column-mapping/heuristics/default-heuristic-registry';
 import { normalizeHeader } from '#features/csv-import/model/column-mapping/normalize-header';
+import {
+  MERGEABLE_FIELDS,
+  type ColumnMapping,
+  type DomainField,
+  type HeuristicRegistry,
+} from '#features/csv-import/model/column-mapping/types';
 
 interface AccumulatorState {
   readonly mapping: ColumnMapping;

@@ -64,21 +64,35 @@ describe('SURROUNDING_QUOTES_PATTERN', () => {
 
 describe('DATE_DELIMITER_PATTERN', () => {
   it('splits on dot', () => {
-    expect('01.02.2025'.split(DATE_DELIMITER_PATTERN)).toEqual(['01', '02', '2025']);
+    expect('01.02.2025'.split(DATE_DELIMITER_PATTERN)).toEqual([
+      '01',
+      '02',
+      '2025',
+    ]);
   });
 
   it('splits on dash', () => {
-    expect('2025-01-02'.split(DATE_DELIMITER_PATTERN)).toEqual(['2025', '01', '02']);
+    expect('2025-01-02'.split(DATE_DELIMITER_PATTERN)).toEqual([
+      '2025',
+      '01',
+      '02',
+    ]);
   });
 
   it('splits on slash', () => {
-    expect('01/02/2025'.split(DATE_DELIMITER_PATTERN)).toEqual(['01', '02', '2025']);
+    expect('01/02/2025'.split(DATE_DELIMITER_PATTERN)).toEqual([
+      '01',
+      '02',
+      '2025',
+    ]);
   });
 });
 
 describe('ENCODING_SEPARATOR_PATTERN', () => {
   it('strips dashes and underscores', () => {
-    expect('windows-1250'.replace(ENCODING_SEPARATOR_PATTERN, '')).toBe('windows1250');
+    expect('windows-1250'.replace(ENCODING_SEPARATOR_PATTERN, '')).toBe(
+      'windows1250',
+    );
     expect('utf_8'.replace(ENCODING_SEPARATOR_PATTERN, '')).toBe('utf8');
   });
 });

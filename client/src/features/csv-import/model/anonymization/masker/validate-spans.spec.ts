@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+
 import { validateSpanInvariants } from './validate-spans';
 
 const span = (start: number, end: number): DetectionSpan => ({
@@ -54,14 +55,14 @@ describe('validateSpanInvariants', () => {
   });
 
   it('throws for overlapping spans', () => {
-    expect(() =>
-      validateSpanInvariants([span(0, 5), span(3, 8)], 10),
-    ).toThrow('Overlapping spans');
+    expect(() => validateSpanInvariants([span(0, 5), span(3, 8)], 10)).toThrow(
+      'Overlapping spans',
+    );
   });
 
   it('includes index in error message', () => {
-    expect(() =>
-      validateSpanInvariants([span(0, 5), span(3, 8)], 10),
-    ).toThrow('at index 1');
+    expect(() => validateSpanInvariants([span(0, 5), span(3, 8)], 10)).toThrow(
+      'at index 1',
+    );
   });
 });

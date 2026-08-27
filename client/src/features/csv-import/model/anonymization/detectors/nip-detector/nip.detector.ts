@@ -1,5 +1,10 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
 import { overlapsAny } from '#features/csv-import/model/anonymization/detectors/shared/overlap';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import {
   COMPACT_WITH_CONTEXT_CONFIDENCE,
   DASHED_NO_CONTEXT_CONFIDENCE,
@@ -33,18 +38,23 @@ export const nipDetector: PiiDetector = {
 
     const compactPattern = createNipCompactPattern();
     const compactSpans = Array.from(text.matchAll(compactPattern))
-      .filter((match) => !overlapsAny(dashedSpans, match.index, match.index + match[0].length))
+      .filter(
+        (match) =>
+          !overlapsAny(dashedSpans, match.index, match.index + match[0].length),
+      )
       .filter((match) => validateNip(match[0]))
       .filter((match) => hasNipContext(text, match.index))
-      .map((match): DetectionSpan => ({
-        start: match.index,
-        end: match.index + match[0].length,
-        type: 'nip',
-        confidence: COMPACT_WITH_CONTEXT_CONFIDENCE,
-        original: match[0],
-        detectorId: 'nip',
-        metadata: { checksumValid: true },
-      }));
+      .map(
+        (match): DetectionSpan => ({
+          start: match.index,
+          end: match.index + match[0].length,
+          type: 'nip',
+          confidence: COMPACT_WITH_CONTEXT_CONFIDENCE,
+          original: match[0],
+          detectorId: 'nip',
+          metadata: { checksumValid: true },
+        }),
+      );
 
     return [...dashedSpans, ...compactSpans];
   },

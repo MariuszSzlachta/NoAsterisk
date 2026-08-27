@@ -1,4 +1,9 @@
-export const PESEL_CONTEXT = ['pesel', 'pesel:', 'nr pesel', 'numer pesel'] as const;
+export const PESEL_CONTEXT = [
+  'pesel',
+  'pesel:',
+  'nr pesel',
+  'numer pesel',
+] as const;
 
 export const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3] as const;
 

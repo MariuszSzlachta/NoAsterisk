@@ -1,5 +1,9 @@
-import type { ImportChunkPayload, ImportRowPayload, TransactionType } from '../types';
 import type { TransactionRow } from '../../transformation/types';
+import type {
+  ImportChunkPayload,
+  ImportRowPayload,
+  TransactionType,
+} from '../types';
 
 const MAX_ROWS_PER_CHUNK = 200;
 
@@ -8,7 +12,9 @@ const MAX_ROWS_PER_CHUNK = 200;
  * Hash input: date|amount|title (lowercase, trimmed).
  * This must match backend expectations for dedup.
  */
-export const computeContentHash = async (row: TransactionRow): Promise<string> => {
+export const computeContentHash = async (
+  row: TransactionRow,
+): Promise<string> => {
   const input = `${row.date}|${row.amount}|${row.title.toLowerCase().trim()}`;
   const encoded = new TextEncoder().encode(input);
   const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
@@ -35,7 +41,10 @@ export const computeBatchHash = async (
 /**
  * Map a TransactionRow to the API payload format.
  */
-const mapRowToPayload = (row: TransactionRow, contentHash: string): ImportRowPayload => ({
+const mapRowToPayload = (
+  row: TransactionRow,
+  contentHash: string,
+): ImportRowPayload => ({
   amount: Math.abs(row.amount),
   currency: row.currency,
   type: (row.amount >= 0 ? 'income' : 'expense') as TransactionType,

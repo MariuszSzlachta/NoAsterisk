@@ -1,5 +1,10 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
 import { overlapsAny } from '#features/csv-import/model/anonymization/detectors/shared/overlap';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import {
   COMPACT_CARD_CONFIDENCE,
   FULL_CARD_CONFIDENCE,
@@ -62,28 +67,32 @@ export const cardDetector: PiiDetector = {
     const validatedSpans = [...fullSpans, ...compactSpans];
 
     // Longer patterns first to prevent shorter ones from eating their tails
-    const maskedSpans = [MASKED_CARD_SPACED, BIN_LAST4, DOTTED_CARD, SHORT_MASKED]
-      .reduce<readonly DetectionSpan[]>((acc, factory) => {
-        const newSpans = Array.from(text.matchAll(factory()))
-          .filter((m) => {
-            const start = m.index ?? 0;
-            const end = start + m[0].length;
-            return (
-              !overlapsAny(validatedSpans, start, end) &&
-              !overlapsAny(acc, start, end)
-            );
-          })
-          .map((m) => ({
-            start: m.index ?? 0,
-            end: (m.index ?? 0) + m[0].length,
-            type: 'card' as const,
-            confidence: MASKED_CARD_CONFIDENCE,
-            original: m[0],
-            detectorId: 'card',
-            metadata: { format: 'masked' },
-          }));
-        return [...acc, ...newSpans];
-      }, []);
+    const maskedSpans = [
+      MASKED_CARD_SPACED,
+      BIN_LAST4,
+      DOTTED_CARD,
+      SHORT_MASKED,
+    ].reduce<readonly DetectionSpan[]>((acc, factory) => {
+      const newSpans = Array.from(text.matchAll(factory()))
+        .filter((m) => {
+          const start = m.index ?? 0;
+          const end = start + m[0].length;
+          return (
+            !overlapsAny(validatedSpans, start, end) &&
+            !overlapsAny(acc, start, end)
+          );
+        })
+        .map((m) => ({
+          start: m.index ?? 0,
+          end: (m.index ?? 0) + m[0].length,
+          type: 'card' as const,
+          confidence: MASKED_CARD_CONFIDENCE,
+          original: m[0],
+          detectorId: 'card',
+          metadata: { format: 'masked' },
+        }));
+      return [...acc, ...newSpans];
+    }, []);
 
     return [...validatedSpans, ...maskedSpans];
   },

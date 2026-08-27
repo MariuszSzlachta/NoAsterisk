@@ -1,4 +1,9 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
 import { BIRTH_DATE_CONFIDENCE } from './constants';
 import { createBirthDatePattern } from './patterns';
 

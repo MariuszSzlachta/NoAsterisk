@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DetectionSpan, DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type {
+  DetectionSpan,
+  DictionarySet,
+} from '#features/csv-import/model/anonymization/types';
+
 import { filterByWhitelist } from './whitelist-filter';
 
 const DICTS: DictionarySet = {

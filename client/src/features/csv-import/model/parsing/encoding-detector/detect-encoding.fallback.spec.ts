@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { detectEncoding } from './detect-encoding';
+
 vi.mock('#shared/adapters/encoding', () => ({
   detectCharset: vi.fn(() => ({ encoding: 'ascii', confidence: 0.1 })),
 }));
-
-import { detectEncoding } from './detect-encoding';
 
 describe('detectEncoding (low-confidence fallback)', () => {
   it('falls back to windows-1250 when low confidence + Win-1250 indicator bytes', () => {

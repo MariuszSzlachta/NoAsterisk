@@ -1,4 +1,6 @@
+import { COMPANY_FORM_VARIANTS } from '#features/csv-import/model/anonymization/constants';
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+
 import {
   CONTEXT_ONLY_CONFIDENCE,
   DICT_MATCH_NO_CONTEXT_CONFIDENCE,
@@ -8,7 +10,6 @@ import {
   NO_MATCH_CONFIDENCE,
   SURNAME_WITH_CONTEXT_CONFIDENCE,
 } from './constants';
-import { COMPANY_FORM_VARIANTS } from '#features/csv-import/model/anonymization/constants';
 import { createAllCapsWordPattern } from './patterns';
 
 export interface MatchCandidate {
@@ -45,8 +46,14 @@ export const findAllCapsNames = (text: string): MatchCandidate[] => {
 
     const c = words[i + 2];
     const threeWordCandidates: MatchCandidate[] =
-      c !== undefined && /^[\s-]+$/.test(text.slice(b.start + b.word.length, c.start))
-        ? [{ original: text.slice(a.start, c.start + c.word.length), index: a.start }]
+      c !== undefined &&
+      /^[\s-]+$/.test(text.slice(b.start + b.word.length, c.start))
+        ? [
+            {
+              original: text.slice(a.start, c.start + c.word.length),
+              index: a.start,
+            },
+          ]
         : [];
 
     return [...acc, twoWord, ...threeWordCandidates];

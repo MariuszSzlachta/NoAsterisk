@@ -262,7 +262,13 @@ describe('parseCsvFile e2e: 04-mixed-easy-structure-hard-data.csv', () => {
       loadStubAsFile('04-mixed-easy-structure-hard-data.csv'),
     );
 
-    expect(result.headers).toEqual(['Date', 'Type', 'Title', 'Amount', 'Balance']);
+    expect(result.headers).toEqual([
+      'Date',
+      'Type',
+      'Title',
+      'Amount',
+      'Balance',
+    ]);
   });
 
   it('parses all 10 data rows', async () => {
@@ -357,16 +363,19 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
   });
 
   // BUG: footer is included in parsed data
-  it.fails('excludes footer from parsed data (PODSUMOWANIE section)', async () => {
-    const result = await parseCsvFile(
-      loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),
-    );
+  it.fails(
+    'excludes footer from parsed data (PODSUMOWANIE section)',
+    async () => {
+      const result = await parseCsvFile(
+        loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),
+      );
 
-    for (const row of result.rows) {
-      const values = Object.values(row);
-      expect(values.some((v) => v.includes('PODSUMOWANIE'))).toBe(false);
-    }
-  });
+      for (const row of result.rows) {
+        const values = Object.values(row);
+        expect(values.some((v) => v.includes('PODSUMOWANIE'))).toBe(false);
+      }
+    },
+  );
 
   it('maps first transaction row correctly', async () => {
     const result = await parseCsvFile(
@@ -402,18 +411,30 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
 
 describe('parseCsvFile e2e: 08-exotic-deceptive-simple.csv', () => {
   it('parses correct headers', async () => {
-    const result = await parseCsvFile(loadStubAsFile('08-exotic-deceptive-simple.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('08-exotic-deceptive-simple.csv'),
+    );
 
-    expect(result.headers).toEqual(['Date', 'Description', 'Amount', 'Balance', 'Currency']);
+    expect(result.headers).toEqual([
+      'Date',
+      'Description',
+      'Amount',
+      'Balance',
+      'Currency',
+    ]);
   });
 
   it('parses data rows', async () => {
-    const result = await parseCsvFile(loadStubAsFile('08-exotic-deceptive-simple.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('08-exotic-deceptive-simple.csv'),
+    );
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
   it('maps first row correctly', async () => {
-    const result = await parseCsvFile(loadStubAsFile('08-exotic-deceptive-simple.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('08-exotic-deceptive-simple.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -426,7 +447,9 @@ describe('parseCsvFile e2e: 08-exotic-deceptive-simple.csv', () => {
 
   // BUG: CRLF line endings cause trailing \r in last column values
   it.fails('maps all rows without column shift (CRLF issue)', async () => {
-    const result = await parseCsvFile(loadStubAsFile('08-exotic-deceptive-simple.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('08-exotic-deceptive-simple.csv'),
+    );
 
     for (const row of result.rows) {
       expect(row['Currency']).toBe('EUR');
@@ -441,7 +464,9 @@ describe('parseCsvFile e2e: 08-exotic-deceptive-simple.csv', () => {
 
 describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
   it('parses headers', async () => {
-    const result = await parseCsvFile(loadStubAsFile('11-overflow-indian-sbi.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('11-overflow-indian-sbi.csv'),
+    );
 
     expect(result.headers).toContain('Txn Date');
     expect(result.headers).toContain('Description');
@@ -449,12 +474,16 @@ describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
   });
 
   it('parses data rows', async () => {
-    const result = await parseCsvFile(loadStubAsFile('11-overflow-indian-sbi.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('11-overflow-indian-sbi.csv'),
+    );
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
   it('maps first row date correctly', async () => {
-    const result = await parseCsvFile(loadStubAsFile('11-overflow-indian-sbi.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('11-overflow-indian-sbi.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -462,7 +491,9 @@ describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
   });
 
   it('maps balance correctly for first row (Indian format)', async () => {
-    const result = await parseCsvFile(loadStubAsFile('11-overflow-indian-sbi.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('11-overflow-indian-sbi.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -477,7 +508,9 @@ describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
 
 describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
   it('parses headers', async () => {
-    const result = await parseCsvFile(loadStubAsFile('13-overflow-nigerian-gtb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('13-overflow-nigerian-gtb.csv'),
+    );
 
     expect(result.headers).toContain('Trans Date');
     expect(result.headers).toContain('Description');
@@ -485,12 +518,16 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
   });
 
   it('parses data rows', async () => {
-    const result = await parseCsvFile(loadStubAsFile('13-overflow-nigerian-gtb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('13-overflow-nigerian-gtb.csv'),
+    );
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
   it('maps first row date correctly', async () => {
-    const result = await parseCsvFile(loadStubAsFile('13-overflow-nigerian-gtb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('13-overflow-nigerian-gtb.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -498,7 +535,9 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
   });
 
   it('maps balance for first row (salary credit)', async () => {
-    const result = await parseCsvFile(loadStubAsFile('13-overflow-nigerian-gtb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('13-overflow-nigerian-gtb.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -517,7 +556,9 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
 describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
   // BUG: Vietnamese keywords not recognized → header detection fails
   it.fails('parses headers (Vietnamese keywords not in detector)', async () => {
-    const result = await parseCsvFile(loadStubAsFile('14-overflow-vietnamese-vcb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('14-overflow-vietnamese-vcb.csv'),
+    );
 
     expect(result.headers).toContain('Ngay GD');
     expect(result.headers).toContain('Title');
@@ -525,13 +566,17 @@ describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
   });
 
   it('parses data rows', async () => {
-    const result = await parseCsvFile(loadStubAsFile('14-overflow-vietnamese-vcb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('14-overflow-vietnamese-vcb.csv'),
+    );
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
   // BUG: depends on correct header detection
   it.fails('maps first row date correctly', async () => {
-    const result = await parseCsvFile(loadStubAsFile('14-overflow-vietnamese-vcb.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('14-overflow-vietnamese-vcb.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -550,7 +595,9 @@ describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
 describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
   // BUG: Turkish keywords not recognized → header detection fails
   it.fails('parses headers (Turkish keywords not in detector)', async () => {
-    const result = await parseCsvFile(loadStubAsFile('15-overflow-turkish-ziraat.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('15-overflow-turkish-ziraat.csv'),
+    );
 
     expect(result.headers).toContain('İşlem Tarihi');
     expect(result.headers).toContain('Açıklama/Description');
@@ -558,13 +605,17 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
   });
 
   it('parses data rows', async () => {
-    const result = await parseCsvFile(loadStubAsFile('15-overflow-turkish-ziraat.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('15-overflow-turkish-ziraat.csv'),
+    );
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
   // BUG: depends on correct header detection
   it.fails('maps first row date correctly', async () => {
-    const result = await parseCsvFile(loadStubAsFile('15-overflow-turkish-ziraat.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('15-overflow-turkish-ziraat.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();
@@ -573,7 +624,9 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
 
   // BUG: depends on correct header detection
   it.fails('maps balance for first row', async () => {
-    const result = await parseCsvFile(loadStubAsFile('15-overflow-turkish-ziraat.csv'));
+    const result = await parseCsvFile(
+      loadStubAsFile('15-overflow-turkish-ziraat.csv'),
+    );
     const row = result.rows[0];
 
     expect(row).toBeDefined();

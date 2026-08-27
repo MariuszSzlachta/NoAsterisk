@@ -80,17 +80,32 @@ describe('createNumericParser', () => {
 
 describe('parseMonthName', () => {
   it('parses DD-MMM-YYYY match array', () => {
-    const match = ['15-Jun-2025', '15', 'Jun', '2025'] as unknown as RegExpMatchArray;
+    const match = [
+      '15-Jun-2025',
+      '15',
+      'Jun',
+      '2025',
+    ] as unknown as RegExpMatchArray;
     expect(parseMonthName(match)).toEqual({ year: 2025, month: 6, day: 15 });
   });
 
   it('parses Polish month name', () => {
-    const match = ['10-Sty-2025', '10', 'Sty', '2025'] as unknown as RegExpMatchArray;
+    const match = [
+      '10-Sty-2025',
+      '10',
+      'Sty',
+      '2025',
+    ] as unknown as RegExpMatchArray;
     expect(parseMonthName(match)).toEqual({ year: 2025, month: 1, day: 10 });
   });
 
   it('returns null for unknown month name', () => {
-    const match = ['10-Xyz-2025', '10', 'Xyz', '2025'] as unknown as RegExpMatchArray;
+    const match = [
+      '10-Xyz-2025',
+      '10',
+      'Xyz',
+      '2025',
+    ] as unknown as RegExpMatchArray;
     expect(parseMonthName(match)).toBeNull();
   });
 

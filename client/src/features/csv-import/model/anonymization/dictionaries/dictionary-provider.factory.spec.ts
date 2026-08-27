@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+
 import { createDictionaryProvider } from './dictionary-provider.factory';
 
 const STUB_DICTS: DictionarySet = {
@@ -17,7 +18,9 @@ afterEach(() => {
 
 describe('createDictionaryProvider', () => {
   it('loads dictionaries from loader', () => {
-    const provider = createDictionaryProvider(() => Promise.resolve(STUB_DICTS));
+    const provider = createDictionaryProvider(() =>
+      Promise.resolve(STUB_DICTS),
+    );
     return expect(provider.loadAll()).resolves.toBe(STUB_DICTS);
   });
 
@@ -25,7 +28,8 @@ describe('createDictionaryProvider', () => {
     const loader = vi.fn(() => Promise.resolve(STUB_DICTS));
     const provider = createDictionaryProvider(loader);
 
-    return provider.loadAll()
+    return provider
+      .loadAll()
       .then(() => provider.loadAll())
       .then(() => {
         expect(loader).toHaveBeenCalledTimes(1);
@@ -33,7 +37,9 @@ describe('createDictionaryProvider', () => {
   });
 
   it('reports isLoaded correctly', () => {
-    const provider = createDictionaryProvider(() => Promise.resolve(STUB_DICTS));
+    const provider = createDictionaryProvider(() =>
+      Promise.resolve(STUB_DICTS),
+    );
 
     expect(provider.isLoaded()).toBe(false);
     return provider.loadAll().then(() => {
@@ -45,7 +51,8 @@ describe('createDictionaryProvider', () => {
     const loader = vi.fn(() => Promise.resolve(STUB_DICTS));
     const provider = createDictionaryProvider(loader);
 
-    return provider.loadAll()
+    return provider
+      .loadAll()
       .then(() => {
         provider.resetCache();
         expect(provider.isLoaded()).toBe(false);
@@ -57,14 +64,19 @@ describe('createDictionaryProvider', () => {
   });
 
   it('defaults isStubFallback to true', () => {
-    const provider = createDictionaryProvider(() => Promise.resolve(STUB_DICTS));
+    const provider = createDictionaryProvider(() =>
+      Promise.resolve(STUB_DICTS),
+    );
     expect(provider.isStubFallback()).toBe(true);
   });
 
   it('respects isStub option', () => {
-    const provider = createDictionaryProvider(() => Promise.resolve(STUB_DICTS), {
-      isStub: false,
-    });
+    const provider = createDictionaryProvider(
+      () => Promise.resolve(STUB_DICTS),
+      {
+        isStub: false,
+      },
+    );
     expect(provider.isStubFallback()).toBe(false);
   });
 
@@ -91,8 +103,11 @@ describe('createDictionaryProvider', () => {
 
     const provider = createDictionaryProvider(loader);
 
-    return provider.loadAll()
-      .then(() => { throw new Error('should have rejected'); })
+    return provider
+      .loadAll()
+      .then(() => {
+        throw new Error('should have rejected');
+      })
       .catch((err: Error) => {
         expect(err.message).toBe('network');
         return provider.loadAll();

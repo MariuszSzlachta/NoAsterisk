@@ -1,5 +1,9 @@
 import type { PiiType } from '#features/csv-import/model/anonymization/types';
-import { CARD_MIN_DIGITS_FOR_FULL_MASK, NAME_MAX_BULLET_LENGTH } from './constants';
+
+import {
+  CARD_MIN_DIGITS_FOR_FULL_MASK,
+  NAME_MAX_BULLET_LENGTH,
+} from './constants';
 
 export type MaskFn = (original: string) => string;
 
@@ -26,17 +30,18 @@ export const maskNip: MaskFn = (s) => {
   return `${digits.slice(0, 3)}-•••-••-${digits.slice(-2)}`;
 };
 
-export const maskNationalId: MaskFn = (s) =>
-  `${s.slice(0, 3)} ••••••`;
+export const maskNationalId: MaskFn = (s) => `${s.slice(0, 3)} ••••••`;
 
-export const maskBirthDate: MaskFn = () =>
-  'ur. ••.••.••••';
+export const maskBirthDate: MaskFn = () => 'ur. ••.••.••••';
 
 export const maskName: MaskFn = (s) =>
   s
     .split(/[\s-]+/)
     .filter((p) => p.length > 0)
-    .map((p) => `${p[0]}${'•'.repeat(Math.min(p.length - 1, NAME_MAX_BULLET_LENGTH))}`)
+    .map(
+      (p) =>
+        `${p[0]}${'•'.repeat(Math.min(p.length - 1, NAME_MAX_BULLET_LENGTH))}`,
+    )
     .join(' ');
 
 export const maskPhone: MaskFn = (s) => {

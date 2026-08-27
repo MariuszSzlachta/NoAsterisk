@@ -11,7 +11,9 @@ describe('toNormalizedSet', () => {
   });
 
   it('deduplicates after transform', () => {
-    const result = toNormalizedSet(['abc', 'ABC', 'Abc'], (s) => s.toLowerCase());
+    const result = toNormalizedSet(['abc', 'ABC', 'Abc'], (s) =>
+      s.toLowerCase(),
+    );
     expect(result.size).toBe(1);
   });
 

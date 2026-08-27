@@ -1,3 +1,5 @@
+import { resolveConflicts } from '#features/csv-import/model/anonymization/conflict-resolver/conflict.resolver';
+import { applyMasking } from '#features/csv-import/model/anonymization/masker/pii.masker';
 import type {
   AnonymizationEntry,
   AnonymizationStatus,
@@ -6,8 +8,6 @@ import type {
   DictionarySet,
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
-import { resolveConflicts } from '#features/csv-import/model/anonymization/conflict-resolver/conflict.resolver';
-import { applyMasking } from '#features/csv-import/model/anonymization/masker/pii.masker';
 
 import { buildPriorityMap, DEFAULT_DETECTORS } from './detector-registry';
 import { applyConfidenceGate } from './steps/confidence-gate';

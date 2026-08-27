@@ -131,9 +131,7 @@ describe('transformRows', () => {
     });
 
     it('handles debit with only one column mapped', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'OPŁATA', Wn: '100,00' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'OPŁATA', Wn: '100,00' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -163,9 +161,7 @@ describe('transformRows', () => {
     });
 
     it('marks row as error when both debit and credit are empty', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'DZIWNA OPERACJA', Wn: '', Ma: '' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'DZIWNA OPERACJA', Wn: '', Ma: '' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -180,9 +176,7 @@ describe('transformRows', () => {
     });
 
     it('makes debit always negative even if value has sign', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'PRZELEW', Wn: '-500,00', Ma: '' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'PRZELEW', Wn: '-500,00', Ma: '' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -196,9 +190,7 @@ describe('transformRows', () => {
     });
 
     it('makes credit always positive even if value has sign', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'WPŁYW', Wn: '', Ma: '+3 000,00' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'WPŁYW', Wn: '', Ma: '+3 000,00' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -248,9 +240,7 @@ describe('transformRows', () => {
     });
 
     it('filters blank values during merge', () => {
-      const rows = [
-        { D: '2026-06-26', T1: 'BIEDRONKA', T2: '', K: '-50' },
-      ];
+      const rows = [{ D: '2026-06-26', T1: 'BIEDRONKA', T2: '', K: '-50' }];
       const mapping = {
         D: 'date' as const,
         T1: 'title' as const,
@@ -280,9 +270,7 @@ describe('transformRows', () => {
     });
 
     it('reports error when all merged title columns are blank', () => {
-      const rows = [
-        { D: '2026-06-26', T1: '', T2: '   ', K: '100' },
-      ];
+      const rows = [{ D: '2026-06-26', T1: '', T2: '   ', K: '100' }];
       const mapping = {
         D: 'date' as const,
         T1: 'title' as const,
@@ -297,9 +285,7 @@ describe('transformRows', () => {
     });
 
     it('works with single column for mergeable field (backward compat)', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'SINGLE TITLE', K: '100' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'SINGLE TITLE', K: '100' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -362,9 +348,7 @@ describe('transformRows', () => {
     });
 
     it('returns undefined for unmapped optional fields', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'TEST', K: '100' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'TEST', K: '100' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,
@@ -379,9 +363,7 @@ describe('transformRows', () => {
     });
 
     it('returns undefined when source column is empty', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'TEST', K: '100', S: '' },
-      ];
+      const rows = [{ D: '2026-06-26', T: 'TEST', K: '100', S: '' }];
       const mapping = {
         D: 'date' as const,
         T: 'title' as const,

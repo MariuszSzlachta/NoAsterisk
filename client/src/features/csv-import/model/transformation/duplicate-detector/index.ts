@@ -1,1 +1,5 @@
-export { detectDuplicatesInBatch, detectDuplicatesAgainstExisting, hashTransaction } from './duplicate.detector';
+export {
+  detectDuplicatesInBatch,
+  detectDuplicatesAgainstExisting,
+  hashTransaction,
+} from './duplicate.detector';

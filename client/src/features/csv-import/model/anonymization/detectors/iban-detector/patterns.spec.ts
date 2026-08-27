@@ -24,9 +24,7 @@ describe('iban patterns', () => {
     });
 
     it('does not match bare digits without country code', () => {
-      expect(
-        IBAN_PATTERN().test('61109010140000071219812874'),
-      ).toBe(false);
+      expect(IBAN_PATTERN().test('61109010140000071219812874')).toBe(false);
     });
   });
 
@@ -36,17 +34,17 @@ describe('iban patterns', () => {
     });
 
     it('does not match IBAN with spaces', () => {
-      expect(
-        IBAN_COMPACT().test('PL61 1090 1014 0000 0712 1981 2874'),
-      ).toBe(false);
+      expect(IBAN_COMPACT().test('PL61 1090 1014 0000 0712 1981 2874')).toBe(
+        false,
+      );
     });
   });
 
   describe('BARE_PL_IBAN', () => {
     it('matches 26-digit Polish account with spaces', () => {
-      expect(
-        BARE_PL_IBAN().test('61 1090 1014 0000 0712 1981 2874'),
-      ).toBe(true);
+      expect(BARE_PL_IBAN().test('61 1090 1014 0000 0712 1981 2874')).toBe(
+        true,
+      );
     });
 
     it('matches with leading quote (CSV convention)', () => {
@@ -55,9 +53,9 @@ describe('iban patterns', () => {
     });
 
     it('does not match when preceded by digit', () => {
-      expect(
-        BARE_PL_IBAN().test('961 1090 1014 0000 0712 1981 2874'),
-      ).toBe(false);
+      expect(BARE_PL_IBAN().test('961 1090 1014 0000 0712 1981 2874')).toBe(
+        false,
+      );
     });
   });
 
@@ -71,9 +69,7 @@ describe('iban patterns', () => {
     });
 
     it('does not match when preceded by digit', () => {
-      expect(BARE_PL_COMPACT().test('961109010140000071219812874')).toBe(
-        false,
-      );
+      expect(BARE_PL_COMPACT().test('961109010140000071219812874')).toBe(false);
     });
   });
 

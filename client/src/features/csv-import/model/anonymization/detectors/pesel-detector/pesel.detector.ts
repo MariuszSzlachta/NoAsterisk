@@ -1,7 +1,19 @@
-import type { DetectionSpan, DictionarySet, PiiDetector } from '#features/csv-import/model/anonymization/types';
-import { WITHOUT_CONTEXT_CONFIDENCE, WITH_CONTEXT_CONFIDENCE } from './constants';
+import type {
+  DetectionSpan,
+  DictionarySet,
+  PiiDetector,
+} from '#features/csv-import/model/anonymization/types';
+
+import {
+  WITH_CONTEXT_CONFIDENCE,
+  WITHOUT_CONTEXT_CONFIDENCE,
+} from './constants';
 import { createPeselPattern } from './patterns';
-import { hasPeselContext, hasValidBirthDate, validatePesel } from './validators';
+import {
+  hasPeselContext,
+  hasValidBirthDate,
+  validatePesel,
+} from './validators';
 
 export const peselDetector: PiiDetector = {
   id: 'pesel',
@@ -15,7 +27,9 @@ export const peselDetector: PiiDetector = {
         match,
         digits: match[1] ?? match[0],
       }))
-      .filter(({ digits }) => validatePesel(digits) && hasValidBirthDate(digits))
+      .filter(
+        ({ digits }) => validatePesel(digits) && hasValidBirthDate(digits),
+      )
       .map(({ match }): DetectionSpan => {
         const hasContext = hasPeselContext(text, match.index);
         return {

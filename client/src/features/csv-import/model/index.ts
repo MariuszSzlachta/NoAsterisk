@@ -3,7 +3,11 @@
 
 // Parsing
 export { parseCsvFile, CsvParseError } from './parsing/csv-parser';
-export { detectDateFormat, parseDate, parseDateFlexible } from './parsing/date-parser';
+export {
+  detectDateFormat,
+  parseDate,
+  parseDateFlexible,
+} from './parsing/date-parser';
 export { detectAmountLocale, parseAmount } from './parsing/amount-parser';
 export {
   detectEncoding,
@@ -29,11 +33,18 @@ export { detectBankFromHeaders } from './column-mapping/bank-profiles/detect-ban
 
 // Transformation
 export { transformRows } from './transformation/row-transformer';
-export { detectDuplicatesInBatch, detectDuplicatesAgainstExisting } from './transformation/duplicate-detector';
+export {
+  detectDuplicatesInBatch,
+  detectDuplicatesAgainstExisting,
+} from './transformation/duplicate-detector';
 export { findSimilarRows } from './transformation/find-similar-rows';
 
 // Submission
-export { createImportChunks, computeContentHash, computeBatchHash } from './submission/import-chunks';
+export {
+  createImportChunks,
+  computeContentHash,
+  computeBatchHash,
+} from './submission/import-chunks';
 
 // Anonymization
 export { anonymizeTitle, processRows } from './anonymization/pipeline';
