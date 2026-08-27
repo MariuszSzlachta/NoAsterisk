@@ -1,1 +1,10 @@
-export { parseCsvFile, CsvParseError } from './csv.parser';
+export {
+  parseCsvFile,
+  CsvParseError,
+  validateFile,
+  generatePositionalHeaders,
+  countTrailingEmpties,
+  countTrailingEmptiesInRow,
+  normalizeTrailingSeparator,
+  tokensToRow,
+} from './csv.parser';

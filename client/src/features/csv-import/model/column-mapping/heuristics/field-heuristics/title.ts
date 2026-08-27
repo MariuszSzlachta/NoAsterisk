@@ -1,4 +1,4 @@
-import type { HeaderHeuristic } from '../../types';
+import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/types';
 
 export const TITLE_HEURISTICS: readonly HeaderHeuristic[] = [
   { normalized: 'opis operacji', field: 'title', source: 'builtin' },

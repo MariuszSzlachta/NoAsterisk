@@ -1,5 +1,5 @@
-import type { BankProfileRegistry, BankSignature } from '../types';
-import { normalizeHeader } from '../normalize-header';
+import type { BankProfileRegistry, BankSignature } from '#features/csv-import/model/column-mapping/types';
+import { normalizeHeader } from '#features/csv-import/model/column-mapping/normalize-header';
 import { BUILTIN_SIGNATURES } from './signatures';
 
 const matchesPattern = (

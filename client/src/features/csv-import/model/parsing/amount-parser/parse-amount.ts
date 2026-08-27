@@ -1,10 +1,10 @@
-import type { AmountLocale } from '../types';
-import { NBSP } from '../shared/constants';
-
-const CURRENCY_SUFFIX = /\s*(PLN|EUR|USD|GBP|CHF|CZK)\s*$/i;
-
-const normalizeWhitespace = (value: string): string =>
-  value.replace(new RegExp(NBSP, 'g'), ' ').trim();
+import type { AmountLocale } from '#features/csv-import/model/parsing/types';
+import { normalizeWhitespace } from '#features/csv-import/model/parsing/shared/text-normalizers';
+import {
+  CURRENCY_SUFFIX_PATTERN,
+  EN_THOUSANDS_PATTERN,
+  PL_THOUSANDS_PATTERN,
+} from '#features/csv-import/model/parsing/shared/patterns';
 
 /**
  * Handles NBSP thousands separator, parentheses-negative, leading +/−,
@@ -26,11 +26,11 @@ export const parseAmount = (value: string, locale: AmountLocale): number | null 
 
   const isNegative = isParenNegative || isMinusNegative;
 
-  const afterCurrency = afterMinus.replace(CURRENCY_SUFFIX, '').trim();
+  const afterCurrency = afterMinus.replace(CURRENCY_SUFFIX_PATTERN, '').trim();
 
   const normalized = locale === 'pl'
-    ? afterCurrency.replace(/[\s.]/g, '').replace(',', '.')
-    : afterCurrency.replace(/[,\s]/g, '');
+    ? afterCurrency.replace(PL_THOUSANDS_PATTERN, '').replace(',', '.')
+    : afterCurrency.replace(EN_THOUSANDS_PATTERN, '');
 
   const num = parseFloat(normalized);
   if (isNaN(num)) return null;

@@ -1,4 +1,4 @@
-import type { DateFormat } from '../types';
+import type { DateFormat } from '#features/csv-import/model/parsing/types';
 import { ALL_FORMATS, isValidDate, toIsoDateString } from './date-formats';
 
 export const parseDate = (value: string, format: DateFormat): string | null => {

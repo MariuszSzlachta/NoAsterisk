@@ -1,1 +1,20 @@
-export { detectDataBoundaries } from './data-boundary.detector';
+export {
+  detectDataBoundaries,
+  isDateValue,
+  isHeaderLine,
+  isDataLine,
+  findFirstDataRow,
+  walkBackToCandidate,
+  classifyHeader,
+  fallbackKeywordDetection,
+  DATE_PATTERNS,
+  HEADER_KEYWORDS,
+  MIN_COLUMNS,
+  MIN_DATA_ROW_COLUMNS,
+  MAX_SCAN_LINES,
+  KEYWORD_MATCH_THRESHOLD,
+  MAX_HEADER_CHECK_FIELDS,
+  MIN_YEAR,
+  MAX_YEAR,
+  MAX_TWO_DIGIT_YEAR,
+} from './data-boundary.detector';

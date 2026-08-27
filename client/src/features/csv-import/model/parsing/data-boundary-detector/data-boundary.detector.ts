@@ -1,27 +1,32 @@
-import type { DataBoundaries } from '../types';
-import { splitRespectingQuotes } from '../shared/split-respecting-quotes';
+import type { DataBoundaries } from '#features/csv-import/model/parsing/types';
+import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
+import {
+  SURROUNDING_QUOTES_PATTERN,
+  DATE_DELIMITER_PATTERN,
+  LEADING_HASH_GLOBAL_PATTERN,
+} from '#features/csv-import/model/parsing/shared/patterns';
 
-const MIN_COLUMNS = 2;
-const MIN_DATA_ROW_COLUMNS = 4;
-const MAX_SCAN_LINES = 100;
-const KEYWORD_MATCH_THRESHOLD = 2;
-const MAX_HEADER_CHECK_FIELDS = 3;
+export const MIN_COLUMNS = 2;
+export const MIN_DATA_ROW_COLUMNS = 4;
+export const MAX_SCAN_LINES = 100;
+export const KEYWORD_MATCH_THRESHOLD = 2;
+export const MAX_HEADER_CHECK_FIELDS = 3;
 
-const DATE_PATTERNS = [
+export const DATE_PATTERNS = [
   /^\d{4}[-/.]\d{2}[-/.]\d{2}$/,
   /^\d{2}[-/.]\d{2}[-/.]\d{4}$/,
   /^\d{2}[-/.]\d{2}[-/.]\d{2}$/,
 ];
 
-const MIN_YEAR = 1900;
-const MAX_YEAR = 2099;
-const MAX_TWO_DIGIT_YEAR = 99;
+export const MIN_YEAR = 1900;
+export const MAX_YEAR = 2099;
+export const MAX_TWO_DIGIT_YEAR = 99;
 
-const isDateValue = (value: string): boolean => {
-  const trimmed = value.trim().replace(/^"|"$/g, '');
+export const isDateValue = (value: string): boolean => {
+  const trimmed = value.trim().replace(SURROUNDING_QUOTES_PATTERN, '');
   if (!DATE_PATTERNS.some((p) => p.test(trimmed))) return false;
 
-  const parts = trimmed.split(/[-/.]/).map(Number);
+  const parts = trimmed.split(DATE_DELIMITER_PATTERN).map(Number);
   if (parts.length !== 3) return false;
 
   const [a, b, c] = parts;
@@ -38,7 +43,7 @@ const isDateValue = (value: string): boolean => {
  * Known header keywords for PL/EN bank CSVs (mBank, PKO BP, ING, Santander,
  * Millennium, Revolut, Wise, N26). Exotic languages degrade to headerless mode.
  */
-const HEADER_KEYWORDS = [
+export const HEADER_KEYWORDS = [
   'data', 'date', 'started', 'completed', 'value',
   'kwota', 'amount', 'debit', 'credit', 'fee',
   'opis', 'description', 'details', 'title', 'memo',
@@ -54,27 +59,27 @@ const HEADER_KEYWORDS = [
   'withdrawal', 'deposit',
 ];
 
-const isHeaderLine = (line: string, separator: string): boolean => {
+export const isHeaderLine = (line: string, separator: string): boolean => {
   const fields = splitRespectingQuotes(line, separator);
   if (fields.length < MIN_COLUMNS) return false;
   if (fields.slice(0, MAX_HEADER_CHECK_FIELDS).some((f) => isDateValue(f))) return false;
 
-  const lower = line.toLowerCase().replace(/^#/gm, '');
+  const lower = line.toLowerCase().replace(LEADING_HASH_GLOBAL_PATTERN, '');
   const keywordHits = HEADER_KEYWORDS.filter((kw) => lower.includes(kw)).length;
   return keywordHits >= KEYWORD_MATCH_THRESHOLD;
 };
 
-const isDataLine = (line: string, separator: string): boolean => {
+export const isDataLine = (line: string, separator: string): boolean => {
   if (line.trim().length === 0) return false;
   const fields = splitRespectingQuotes(line, separator);
   if (fields.length < MIN_DATA_ROW_COLUMNS) return false;
   return fields.slice(0, 2).some((f) => isDateValue(f));
 };
 
-const findFirstDataRow = (lines: readonly string[], separator: string): number =>
+export const findFirstDataRow = (lines: readonly string[], separator: string): number =>
   lines.slice(0, MAX_SCAN_LINES).findIndex((line) => isDataLine(line, separator));
 
-const walkBackToCandidate = (lines: readonly string[], fromIndex: number): number | null => {
+export const walkBackToCandidate = (lines: readonly string[], fromIndex: number): number | null => {
   const candidates = lines
     .slice(0, fromIndex)
     .map((line, i) => ({ line, index: i }))
@@ -83,7 +88,7 @@ const walkBackToCandidate = (lines: readonly string[], fromIndex: number): numbe
   return candidates.length > 0 ? candidates[candidates.length - 1]!.index : null;
 };
 
-const classifyHeader = (
+export const classifyHeader = (
   lines: readonly string[],
   candidate: number | null,
   separator: string,
@@ -101,7 +106,7 @@ const classifyHeader = (
   return deeperSearch.length > 0 ? deeperSearch[deeperSearch.length - 1]!.index : null;
 };
 
-const fallbackKeywordDetection = (
+export const fallbackKeywordDetection = (
   allLines: readonly string[],
   separator: string,
 ): DataBoundaries => {

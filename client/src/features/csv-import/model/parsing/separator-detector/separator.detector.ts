@@ -1,3 +1,5 @@
+import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared/patterns';
+
 const CANDIDATES = [';', ',', '\t', '|'] as const;
 const MAX_SAMPLE_LINES = 30;
 const DEFAULT_SEPARATOR = ';';
@@ -10,7 +12,7 @@ const DEFAULT_SEPARATOR = ';';
  */
 export const detectSeparator = (text: string): string => {
   const lines = text
-    .split(/\r?\n/)
+    .split(LINE_SPLIT_PATTERN)
     .filter((l) => l.trim().length > 0)
     .slice(0, MAX_SAMPLE_LINES);
 
@@ -25,7 +27,7 @@ export const detectSeparator = (text: string): string => {
   return best.score > 0 ? best.sep : DEFAULT_SEPARATOR;
 };
 
-const scoreSeparator = (lines: readonly string[], sep: string): number => {
+export const scoreSeparator = (lines: readonly string[], sep: string): number => {
   const counts = lines.map((line) => countUnquoted(line, sep));
   const nonZeroCounts = counts.filter((c) => c > 0);
 
@@ -39,7 +41,7 @@ const scoreSeparator = (lines: readonly string[], sep: string): number => {
   return modeCount * (matchRatio + streakBonus);
 };
 
-const findMode = (values: readonly number[]): { count: number; frequency: number } => {
+export const findMode = (values: readonly number[]): { count: number; frequency: number } => {
   const freq = values.reduce<ReadonlyMap<number, number>>(
     (map, c) => new Map([...map, [c, (map.get(c) ?? 0) + 1]]),
     new Map(),
@@ -54,7 +56,7 @@ const findMode = (values: readonly number[]): { count: number; frequency: number
   );
 };
 
-const longestStreak = (counts: readonly number[], modeCount: number): number =>
+export const longestStreak = (counts: readonly number[], modeCount: number): number =>
   counts.reduce<{ max: number; current: number }>(
     (state, count) => {
       const next = count >= modeCount - 1 && count > 0
@@ -65,7 +67,7 @@ const longestStreak = (counts: readonly number[], modeCount: number): number =>
     { max: 0, current: 0 },
   ).max;
 
-const countUnquoted = (line: string, char: string): number =>
+export const countUnquoted = (line: string, char: string): number =>
   Array.from(line).reduce<{ count: number; inQuotes: boolean }>(
     (state, c) => {
       if (c === '"') return { ...state, inQuotes: !state.inQuotes };

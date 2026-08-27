@@ -1,4 +1,4 @@
-import type { BankSignature } from '../../types';
+import type { BankSignature } from '#features/csv-import/model/column-mapping/types';
 
 export const MILLENNIUM_SIGNATURE: BankSignature = {
   displayName: 'Millennium',

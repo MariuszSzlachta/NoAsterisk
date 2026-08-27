@@ -1,4 +1,4 @@
-import type { MonthLocale } from '../types';
+import type { MonthLocale } from '#features/csv-import/model/parsing/types';
 
 const PL_LOCALE: MonthLocale = {
   id: 'pl',

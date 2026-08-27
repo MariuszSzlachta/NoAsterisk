@@ -1,5 +1,7 @@
 import { detectCharset } from '#shared/adapters/encoding';
 
+import { ENCODING_SEPARATOR_PATTERN } from '#features/csv-import/model/parsing/shared/patterns';
+
 const SAMPLE_SIZE = 4096;
 const CONFIDENCE_THRESHOLD = 0.8;
 const FALLBACK_ENCODING = 'utf-8';
@@ -13,8 +15,8 @@ const WINDOWS_1250_INDICATOR_BYTES = [0xb9, 0xe6, 0xea, 0xb3, 0xf1, 0xf3, 0x9c, 
 
 export const SUPPORTED_ENCODINGS = ['utf-8', 'windows-1250', 'iso-8859-2', 'ascii'] as const;
 
-const normalizeEncoding = (detected: string): string => {
-  const lower = detected.toLowerCase().replace(/[-_]/g, '');
+export const normalizeEncoding = (detected: string): string => {
+  const lower = detected.toLowerCase().replace(ENCODING_SEPARATOR_PATTERN, '');
   if (lower.includes('1250') || lower === 'windows1250') return 'windows-1250';
   if (lower.includes('1252') || lower === 'windows1252') return 'windows-1250'; // PL-focused: Polish bank CSVs mislabeled as 1252 by jschardet
   if (lower.includes('88592') || lower === 'iso88592' || lower === 'latin2') return 'iso-8859-2';
@@ -23,7 +25,7 @@ const normalizeEncoding = (detected: string): string => {
   return detected.toLowerCase();
 };
 
-const matchesBom = (bytes: Uint8Array, bom: readonly number[]): boolean =>
+export const matchesBom = (bytes: Uint8Array, bom: readonly number[]): boolean =>
   bom.every((b, i) => bytes[i] === b);
 
 export const detectEncoding = (buffer: ArrayBuffer): string => {

@@ -1,4 +1,4 @@
-import type { DomainField } from '../types';
+import type { DomainField } from '#features/csv-import/model/column-mapping/types';
 
 /** Exhaustive list kept in sync with DomainField union via satisfies. Compiler errors on drift. */
 const ALL_DOMAIN_FIELDS = [

@@ -1,4 +1,4 @@
-import type { DateFormat, MonthNameFormatDef, NumericFormatDef, ParseableDateFormat } from '../types';
+import type { DateFormat, MonthNameFormatDef, NumericFormatDef, ParseableDateFormat } from '#features/csv-import/model/parsing/types';
 import { resolveMonth } from './month-locales';
 
 const TWO_DIGIT_YEAR_THRESHOLD = 100;

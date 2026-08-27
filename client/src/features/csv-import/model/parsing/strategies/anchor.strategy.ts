@@ -1,5 +1,5 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../types';
-import { padToLength } from '../shared/pad-to-length';
+import type { ReassemblyConfig, ReassemblyStrategy } from '#features/csv-import/model/parsing/types';
+import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
 import { AMOUNT_PATTERN, DATE_PATTERN } from './patterns';
 
 /**

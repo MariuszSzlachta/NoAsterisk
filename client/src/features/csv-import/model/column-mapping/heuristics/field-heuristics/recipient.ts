@@ -1,4 +1,4 @@
-import type { HeaderHeuristic } from '../../types';
+import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/types';
 
 export const RECIPIENT_HEURISTICS: readonly HeaderHeuristic[] = [
   { normalized: 'adresat', field: 'recipient', source: 'builtin' },

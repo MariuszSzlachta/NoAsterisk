@@ -1,11 +1,11 @@
 import { parseCsv } from '#shared/adapters/csv';
 
-import type { CsvRow, ParsedCsvData, TrailingNormalized } from '../types';
-import { BOM, NBSP } from '../shared/constants';
-import { detectDataBoundaries } from '../data-boundary-detector/data-boundary.detector';
-import { decodeBuffer, detectEncoding } from '../encoding-detector';
-import { detectSeparator } from '../separator-detector/separator.detector';
-import { resolveStrategy } from '../strategies';
+import type { CsvRow, ParsedCsvData, TrailingNormalized } from '#features/csv-import/model/parsing/types';
+import { stripBom, normalizeCrlf, normalizeNbsp } from '#features/csv-import/model/parsing/shared/text-normalizers';
+import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector/data-boundary.detector';
+import { decodeBuffer, detectEncoding } from '#features/csv-import/model/parsing/encoding-detector';
+import { detectSeparator } from '#features/csv-import/model/parsing/separator-detector/separator.detector';
+import { resolveStrategy } from '#features/csv-import/model/parsing/strategies';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const TRAILING_CONSISTENCY_THRESHOLD = 0.8;
@@ -21,7 +21,7 @@ export class CsvParseError extends Error {
   }
 }
 
-const validateFile = (file: File): void => {
+export const validateFile = (file: File): void => {
   if (!file.name.toLowerCase().endsWith('.csv')) {
     throw new CsvParseError('Only .csv files are supported', 'INVALID_EXTENSION');
   }
@@ -33,22 +33,13 @@ const validateFile = (file: File): void => {
   }
 };
 
-const stripBom = (text: string): string =>
-  text.startsWith(BOM) ? text.slice(1) : text;
-
-const normalizeCrlf = (text: string): string =>
-  text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-const normalizeNbsp = (text: string): string =>
-  text.replace(new RegExp(NBSP, 'g'), ' ');
-
-const generatePositionalHeaders = (firstRow: readonly string[]): readonly string[] =>
+export const generatePositionalHeaders = (firstRow: readonly string[]): readonly string[] =>
   firstRow.map((value, i) => value.trim() || `Column ${i + 1}`);
 
-const countTrailingEmpties = (arr: readonly string[]): number =>
+export const countTrailingEmpties = (arr: readonly string[]): number =>
   [...arr].reverse().findIndex((s) => s !== '');
 
-const countTrailingEmptiesInRow = (arr: readonly string[]): number => {
+export const countTrailingEmptiesInRow = (arr: readonly string[]): number => {
   const idx = [...arr].reverse().findIndex((s) => s !== '');
   return idx === -1 ? arr.length : idx;
 };
@@ -57,7 +48,7 @@ const countTrailingEmptiesInRow = (arr: readonly string[]): number => {
  * Strip consistent trailing empty tokens caused by bank CSVs ending each line with separator.
  * Safe: real data columns are never consistently empty across ALL rows.
  */
-const normalizeTrailingSeparator = (
+export const normalizeTrailingSeparator = (
   headers: readonly string[],
   dataRows: readonly (readonly string[])[],
 ): TrailingNormalized => {
@@ -82,7 +73,7 @@ const normalizeTrailingSeparator = (
   return { headers: strippedHeaders, dataRows: strippedRows };
 };
 
-const tokensToRow = (headers: readonly string[], assembled: readonly string[]): CsvRow =>
+export const tokensToRow = (headers: readonly string[], assembled: readonly string[]): CsvRow =>
   Object.fromEntries(headers.map((h, i) => [h, assembled[i] ?? '']));
 
 /**

@@ -1,4 +1,4 @@
-import type { HeaderHeuristic } from '../../types';
+import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/types';
 
 export const COUNTERPART_HEURISTICS: readonly HeaderHeuristic[] = [
   { normalized: 'nadawca/odbiorca', field: 'counterpart', source: 'builtin' },
