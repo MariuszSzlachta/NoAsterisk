@@ -1,6 +1,6 @@
 import type { DecodeWarning } from '#features/csv-import/model/parsing/types';
 
-import { countReplacementChars } from './count-replacement-chars';
+import { countReplacementChars } from './helpers/count-replacement-chars';
 import { decodeBuffer } from './decode-buffer';
 
 export const decodeBufferWithWarning = (

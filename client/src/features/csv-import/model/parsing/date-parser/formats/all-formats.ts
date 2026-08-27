@@ -5,7 +5,7 @@ import type {
 } from '#features/csv-import/model/parsing/types';
 
 import { createNumericParser } from './create-numeric-parser';
-import { parseMonthName } from './parse-month-name';
+import { parseMonthName } from '../locales/parse-month-name';
 import { resolveYear } from './resolve-year';
 
 const UNICODE_LETTER_CLASS = '[A-Za-zÄäÖöÜüßĄąĆćĘęŁłŃńÓóŚśŹźŻż]';

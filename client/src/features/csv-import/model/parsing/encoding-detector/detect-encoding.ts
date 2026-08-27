@@ -1,7 +1,7 @@
 import { detectCharset } from '#shared/adapters/encoding';
 
-import { matchesBom } from './matches-bom';
-import { normalizeEncoding } from './normalize-encoding';
+import { matchesBom } from './helpers/matches-bom';
+import { normalizeEncoding } from './helpers/normalize-encoding';
 
 const SAMPLE_SIZE = 4096;
 const CONFIDENCE_THRESHOLD = 0.8;

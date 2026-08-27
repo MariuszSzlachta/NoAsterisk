@@ -1,11 +1,11 @@
 import { LEADING_HASH_GLOBAL_PATTERN } from '#features/csv-import/model/parsing/shared';
 import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
 
-import { HEADER_KEYWORDS } from './constants/header-keywords';
+import { HEADER_KEYWORDS } from '../constants/header-keywords';
 import { isDateValue } from './is-date-value';
-import { KEYWORD_MATCH_THRESHOLD } from './constants/keyword-match-threshold';
-import { MAX_HEADER_CHECK_FIELDS } from './constants/max-header-check-fields';
-import { MIN_COLUMNS } from './constants/min-columns';
+import { KEYWORD_MATCH_THRESHOLD } from '../constants/keyword-match-threshold';
+import { MAX_HEADER_CHECK_FIELDS } from '../constants/max-header-check-fields';
+import { MIN_COLUMNS } from '../constants/min-columns';
 
 export const isHeaderLine = (line: string, separator: string): boolean => {
   const fields = splitRespectingQuotes(line, separator);

@@ -1,10 +1,10 @@
 import { SURROUNDING_QUOTES_PATTERN } from '#features/csv-import/model/parsing/shared';
 import { DATE_DELIMITER_PATTERN } from '#features/csv-import/model/parsing/shared';
 
-import { DATE_PATTERNS } from './constants/date-patterns';
-import { MAX_TWO_DIGIT_YEAR } from './constants/max-two-digit-year';
-import { MAX_YEAR } from './constants/max-year';
-import { MIN_YEAR } from './constants/min-year';
+import { DATE_PATTERNS } from '../constants/date-patterns';
+import { MAX_TWO_DIGIT_YEAR } from '../constants/max-two-digit-year';
+import { MAX_YEAR } from '../constants/max-year';
+import { MIN_YEAR } from '../constants/min-year';
 
 export const isDateValue = (value: string): boolean => {
   const trimmed = value.trim().replace(SURROUNDING_QUOTES_PATTERN, '');

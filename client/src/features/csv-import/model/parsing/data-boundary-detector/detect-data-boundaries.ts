@@ -1,9 +1,9 @@
 import type { DataBoundaries } from '#features/csv-import/model/parsing/types';
 
-import { classifyHeader } from './classify-header';
-import { fallbackKeywordDetection } from './fallback-keyword-detection';
-import { findFirstDataRow } from './find-first-data-row';
-import { walkBackToCandidate } from './walk-back-to-candidate';
+import { classifyHeader } from './helpers/classify-header';
+import { fallbackKeywordDetection } from './helpers/fallback-keyword-detection';
+import { findFirstDataRow } from './helpers/find-first-data-row';
+import { walkBackToCandidate } from './helpers/walk-back-to-candidate';
 
 /**
  * 3-Phase boundary detection:

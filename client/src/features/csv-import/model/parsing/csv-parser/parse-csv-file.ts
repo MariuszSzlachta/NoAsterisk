@@ -16,11 +16,11 @@ import type {
 } from '#features/csv-import/model/parsing/types';
 import { parseCsv } from '#shared/adapters/csv';
 
-import { CsvParseError } from './csv-parse-error';
-import { generatePositionalHeaders } from './generate-positional-headers';
-import { normalizeTrailingSeparator } from './normalize-trailing-separator';
-import { tokensToRow } from './tokens-to-row';
-import { validateFile } from './validate-file';
+import { CsvParseError } from './helpers/csv-parse-error';
+import { generatePositionalHeaders } from './helpers/generate-positional-headers';
+import { normalizeTrailingSeparator } from './helpers/normalize-trailing-separator';
+import { tokensToRow } from './helpers/tokens-to-row';
+import { validateFile } from './helpers/validate-file';
 
 /**
  * Full CSV parsing pipeline:

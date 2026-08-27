@@ -1,10 +1,10 @@
 import type { ResolvedStrategy } from '#features/csv-import/model/parsing/types';
 
 import { anchorStrategy } from './anchor.strategy';
-import { detectOverflowColumnIndex } from './detect-overflow-column-index';
+import { detectOverflowColumnIndex } from './helpers/detect-overflow-column-index';
 import { directStrategy } from './direct.strategy';
-import { hasAnchorPattern } from './has-anchor-pattern';
-import { hasOverflowRows } from './has-overflow-rows';
+import { hasAnchorPattern } from './helpers/has-anchor-pattern';
+import { hasOverflowRows } from './helpers/has-overflow-rows';
 import { overflowMergeStrategy } from './overflow-merge.strategy';
 
 /**

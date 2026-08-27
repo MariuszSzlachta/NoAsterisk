@@ -1,6 +1,6 @@
 import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared';
 
-import { scoreSeparator } from './score-separator';
+import { scoreSeparator } from './helpers/score-separator';
 
 const CANDIDATES = [';', ',', '\t', '|'] as const;
 const MAX_SAMPLE_LINES = 30;

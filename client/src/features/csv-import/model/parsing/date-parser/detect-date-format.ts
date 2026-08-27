@@ -1,7 +1,7 @@
 import type { DateFormat } from '#features/csv-import/model/parsing/types';
 
-import { ALL_FORMATS } from './all-formats';
-import { isValidDate } from './is-valid-date';
+import { ALL_FORMATS } from './formats/all-formats';
+import { isValidDate } from './formats/is-valid-date';
 
 export const detectDateFormat = (
   samples: readonly string[],
