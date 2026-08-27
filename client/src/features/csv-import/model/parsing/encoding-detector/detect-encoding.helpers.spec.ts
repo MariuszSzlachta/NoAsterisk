@@ -78,3 +78,4 @@ describe('matchesBom', () => {
     expect(matchesBom(bytes, [])).toBe(true);
   });
 });
+

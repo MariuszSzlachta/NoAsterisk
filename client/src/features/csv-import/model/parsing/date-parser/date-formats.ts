@@ -4,13 +4,13 @@ import { resolveMonth } from './month-locales';
 const TWO_DIGIT_YEAR_THRESHOLD = 100;
 const TWO_DIGIT_YEAR_BASE = 2000;
 
-const resolveYear = (yearStr: string): number | null => {
+export const resolveYear = (yearStr: string): number | null => {
   const num = parseInt(yearStr, 10);
   if (isNaN(num)) return null;
   return num < TWO_DIGIT_YEAR_THRESHOLD ? TWO_DIGIT_YEAR_BASE + num : num;
 };
 
-const createNumericParser = (def: NumericFormatDef): ParseableDateFormat => ({
+export const createNumericParser = (def: NumericFormatDef): ParseableDateFormat => ({
   format: def.format,
   regex: def.regex,
   parse: (m) => {
@@ -36,7 +36,7 @@ const NUMERIC_FORMATS: readonly NumericFormatDef[] = [
   { format: 'DD/MM/YY', regex: /^(\d{2})\/(\d{2})\/(\d{2})$/, groups: { year: 3, month: 2, day: 1 }, yearResolver: resolveYear },
 ];
 
-const parseMonthName = (m: RegExpMatchArray): { year: number; month: number; day: number } | null => {
+export const parseMonthName = (m: RegExpMatchArray): { year: number; month: number; day: number } | null => {
   const [, dayStr, monthStr, yearStr] = m;
   if (dayStr === undefined || monthStr === undefined || yearStr === undefined) return null;
   const month = resolveMonth(monthStr);
