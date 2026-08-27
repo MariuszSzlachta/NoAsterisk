@@ -1,4 +1,4 @@
-import { COMPANY_FORM_VARIANTS } from './company-form-variants';
+import { COMPANY_FORM_VARIANTS } from './constants/company-form-variants';
 
 /**
  * Subset used for lookbehind context matching in name-detector.

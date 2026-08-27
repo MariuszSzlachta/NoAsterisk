@@ -4,7 +4,7 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { BIRTH_DATE_CONFIDENCE } from './constants';
+import { BIRTH_DATE_CONFIDENCE } from './constants/birth-date-confidence';
 import { createBirthDatePattern } from './patterns';
 
 export const birthDateDetector: PiiDetector = {

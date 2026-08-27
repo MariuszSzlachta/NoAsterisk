@@ -1,9 +1,9 @@
 import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
 import type { DataBoundaries } from '#features/csv-import/model/parsing/types';
 
-import { HEADER_KEYWORDS } from './header-keywords';
-import { MAX_SCAN_LINES } from './max-scan-lines';
-import { MIN_COLUMNS } from './min-columns';
+import { HEADER_KEYWORDS } from './constants/header-keywords';
+import { MAX_SCAN_LINES } from './constants/max-scan-lines';
+import { MIN_COLUMNS } from './constants/min-columns';
 
 export const fallbackKeywordDetection = (
   allLines: readonly string[],

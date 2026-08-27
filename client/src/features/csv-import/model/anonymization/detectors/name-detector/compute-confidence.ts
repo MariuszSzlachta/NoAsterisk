@@ -1,11 +1,11 @@
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
 
-import { CONTEXT_ONLY_CONFIDENCE } from './context-only-confidence';
-import { DICT_MATCH_NO_CONTEXT_CONFIDENCE } from './dict-match-no-context-confidence';
-import { FIRST_AND_SURNAME_CONFIDENCE } from './first-and-surname-confidence';
-import { FIRST_NAME_WITH_CONTEXT_CONFIDENCE } from './first-name-with-context-confidence';
-import { NO_MATCH_CONFIDENCE } from './no-match-confidence';
-import { SURNAME_WITH_CONTEXT_CONFIDENCE } from './surname-with-context-confidence';
+import { CONTEXT_ONLY_CONFIDENCE } from './constants/context-only-confidence';
+import { DICT_MATCH_NO_CONTEXT_CONFIDENCE } from './constants/dict-match-no-context-confidence';
+import { FIRST_AND_SURNAME_CONFIDENCE } from './constants/first-and-surname-confidence';
+import { FIRST_NAME_WITH_CONTEXT_CONFIDENCE } from './constants/first-name-with-context-confidence';
+import { NO_MATCH_CONFIDENCE } from './constants/no-match-confidence';
+import { SURNAME_WITH_CONTEXT_CONFIDENCE } from './constants/surname-with-context-confidence';
 
 export const computeConfidence = (
   words: readonly string[],

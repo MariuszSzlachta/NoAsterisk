@@ -4,15 +4,15 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { BARE_CONFIDENCE } from './bare-confidence';
-import { CONTEXT_CONFIDENCE } from './context-confidence';
+import { BARE_CONFIDENCE } from './constants/bare-confidence';
+import { CONTEXT_CONFIDENCE } from './constants/context-confidence';
 import { createIntPhonePattern } from './create-int-phone-pattern';
 import { createNoSpacePrefixPattern } from './create-no-space-prefix-pattern';
 import { createPlPhonePattern } from './create-pl-phone-pattern';
 import { hasPhoneContext } from './has-phone-context';
 import { isLikelyNotPhone } from './is-likely-not-phone';
-import { PL_MOBILE_PREFIXES } from './pl-mobile-prefixes';
-import { PLUS_PREFIX_CONFIDENCE } from './plus-prefix-confidence';
+import { PL_MOBILE_PREFIXES } from './constants/pl-mobile-prefixes';
+import { PLUS_PREFIX_CONFIDENCE } from './constants/plus-prefix-confidence';
 
 export const phoneDetector: PiiDetector = {
   id: 'phone',

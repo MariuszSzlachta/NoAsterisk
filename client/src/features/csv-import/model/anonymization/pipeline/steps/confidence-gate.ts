@@ -1,4 +1,4 @@
-import { REVIEW_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/review-threshold';
+import { REVIEW_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants/review-threshold';
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 
 import type { GateResult } from './gate-result';

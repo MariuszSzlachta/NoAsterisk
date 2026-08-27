@@ -1,4 +1,4 @@
-import { PESEL_CONTEXT } from './pesel-context';
+import { PESEL_CONTEXT } from './constants/pesel-context';
 
 export const hasPeselContext = (text: string, start: number): boolean => {
   const prefix = text.slice(Math.max(0, start - 25), start).toLowerCase();

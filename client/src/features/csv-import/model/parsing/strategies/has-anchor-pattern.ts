@@ -1,5 +1,5 @@
-import { AMOUNT_PATTERN } from './amount-pattern';
-import { DATE_PATTERN } from './date-pattern';
+import { AMOUNT_PATTERN } from './constants/amount-pattern';
+import { DATE_PATTERN } from './constants/date-pattern';
 
 const DEFAULT_SAMPLE_SIZE = 10;
 const ANCHOR_THRESHOLD = 0.8;

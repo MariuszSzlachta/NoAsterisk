@@ -4,7 +4,7 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { MIN_CONFIDENCE } from './min-confidence';
+import { MIN_CONFIDENCE } from './constants/min-confidence';
 import { createMixedCaseNamePattern } from './create-mixed-case-name-pattern';
 import { computeConfidence } from './compute-confidence';
 import { findAllCapsNames } from './find-all-caps-names';

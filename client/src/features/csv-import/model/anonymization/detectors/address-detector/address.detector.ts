@@ -6,8 +6,8 @@ import type {
 
 import { createAddressPattern } from './create-address-pattern';
 import { createPostalCodePattern } from './create-postal-code-pattern';
-import { POSTAL_CODE_CONFIDENCE } from './postal-code-confidence';
-import { STREET_CONFIDENCE } from './street-confidence';
+import { POSTAL_CODE_CONFIDENCE } from './constants/postal-code-confidence';
+import { STREET_CONFIDENCE } from './constants/street-confidence';
 
 const toSpan = (
   match: RegExpMatchArray,

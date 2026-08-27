@@ -1,4 +1,4 @@
-import { PESEL_WEIGHTS } from './pesel-weights';
+import { PESEL_WEIGHTS } from './constants/pesel-weights';
 
 export const validatePesel = (digits: string): boolean => {
   if (digits.length !== 11) {

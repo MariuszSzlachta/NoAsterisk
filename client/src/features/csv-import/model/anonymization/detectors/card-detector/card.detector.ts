@@ -7,12 +7,12 @@ import type {
 
 import { BIN_LAST4 } from './bin-last4-pattern';
 import { COMPACT_CARD } from './compact-card-pattern';
-import { COMPACT_CARD_CONFIDENCE } from './compact-card-confidence';
+import { COMPACT_CARD_CONFIDENCE } from './constants/compact-card-confidence';
 import { DOTTED_CARD } from './dotted-card-pattern';
 import { FULL_CARD } from './full-card-pattern';
-import { FULL_CARD_CONFIDENCE } from './full-card-confidence';
+import { FULL_CARD_CONFIDENCE } from './constants/full-card-confidence';
 import { hasCardPrefix } from './has-card-prefix';
-import { MASKED_CARD_CONFIDENCE } from './masked-card-confidence';
+import { MASKED_CARD_CONFIDENCE } from './constants/masked-card-confidence';
 import { MASKED_CARD_SPACED } from './masked-card-spaced-pattern';
 import { SHORT_MASKED } from './short-masked-pattern';
 import { validateLuhn } from './validate-luhn';

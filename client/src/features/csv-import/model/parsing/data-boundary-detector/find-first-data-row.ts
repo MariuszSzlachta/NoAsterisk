@@ -1,5 +1,5 @@
 import { isDataLine } from './is-data-line';
-import { MAX_SCAN_LINES } from './max-scan-lines';
+import { MAX_SCAN_LINES } from './constants/max-scan-lines';
 
 export const findFirstDataRow = (
   lines: readonly string[],

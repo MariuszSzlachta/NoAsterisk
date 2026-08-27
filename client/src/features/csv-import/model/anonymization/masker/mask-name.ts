@@ -1,5 +1,5 @@
 import type { MaskFn } from './mask-fn';
-import { NAME_MAX_BULLET_LENGTH } from './name-max-bullet-length';
+import { NAME_MAX_BULLET_LENGTH } from './constants/name-max-bullet-length';
 
 export const maskName: MaskFn = (s) =>
   s

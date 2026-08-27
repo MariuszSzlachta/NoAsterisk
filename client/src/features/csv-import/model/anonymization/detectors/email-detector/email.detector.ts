@@ -4,10 +4,10 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { GENERIC_EMAIL_CONFIDENCE } from './generic-email-confidence';
+import { GENERIC_EMAIL_CONFIDENCE } from './constants/generic-email-confidence';
 import { createEmailPattern } from './patterns';
-import { PERSONAL_EMAIL_CONFIDENCE } from './personal-email-confidence';
-import { PERSONAL_LOCAL_MIN_LENGTH } from './personal-local-min-length';
+import { PERSONAL_EMAIL_CONFIDENCE } from './constants/personal-email-confidence';
+import { PERSONAL_LOCAL_MIN_LENGTH } from './constants/personal-local-min-length';
 
 export const emailDetector: PiiDetector = {
   id: 'email',

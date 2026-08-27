@@ -1,6 +1,6 @@
-export { AMOUNT_PATTERN } from './amount-pattern';
+export { AMOUNT_PATTERN } from './constants/amount-pattern';
 export { anchorStrategy } from './anchor.strategy';
-export { DATE_PATTERN } from './date-pattern';
+export { DATE_PATTERN } from './constants/date-pattern';
 export { detectOverflowColumnIndex } from './detect-overflow-column-index';
 export { directStrategy } from './direct.strategy';
 export { hasAnchorPattern } from './has-anchor-pattern';

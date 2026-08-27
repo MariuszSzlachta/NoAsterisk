@@ -5,10 +5,10 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { BARE_PL_CONFIDENCE } from './bare-pl-confidence';
+import { BARE_PL_CONFIDENCE } from './constants/bare-pl-confidence';
 import { BARE_PL_COMPACT } from './bare-pl-compact-pattern';
 import { BARE_PL_IBAN } from './bare-pl-iban-pattern';
-import { FULL_IBAN_CONFIDENCE } from './full-iban-confidence';
+import { FULL_IBAN_CONFIDENCE } from './constants/full-iban-confidence';
 import { IBAN_COMPACT } from './iban-compact-pattern';
 import { IBAN_PATTERN } from './iban-pattern';
 import { validateBarePl } from './validate-bare-pl';

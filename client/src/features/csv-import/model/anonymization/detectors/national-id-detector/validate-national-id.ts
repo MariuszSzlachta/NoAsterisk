@@ -1,4 +1,4 @@
-import { ID_WEIGHTS } from './id-weights';
+import { ID_WEIGHTS } from './constants/id-weights';
 
 export const validateNationalId = (
   letters: string,

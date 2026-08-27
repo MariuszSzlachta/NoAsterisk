@@ -8,8 +8,8 @@ import { createPeselPattern } from './patterns';
 import { hasPeselContext } from './has-pesel-context';
 import { hasValidBirthDate } from './has-valid-birth-date';
 import { validatePesel } from './validate-pesel';
-import { WITH_CONTEXT_CONFIDENCE } from './with-context-confidence';
-import { WITHOUT_CONTEXT_CONFIDENCE } from './without-context-confidence';
+import { WITH_CONTEXT_CONFIDENCE } from './constants/with-context-confidence';
+import { WITHOUT_CONTEXT_CONFIDENCE } from './constants/without-context-confidence';
 
 export const peselDetector: PiiDetector = {
   id: 'pesel',

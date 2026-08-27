@@ -7,8 +7,8 @@ import type {
 import { hasIdContext } from './has-id-context';
 import { createNationalIdPattern } from './patterns';
 import { validateNationalId } from './validate-national-id';
-import { WITH_CONTEXT_CONFIDENCE } from './with-context-confidence';
-import { WITHOUT_CONTEXT_CONFIDENCE } from './without-context-confidence';
+import { WITH_CONTEXT_CONFIDENCE } from './constants/with-context-confidence';
+import { WITHOUT_CONTEXT_CONFIDENCE } from './constants/without-context-confidence';
 
 export const nationalIdDetector: PiiDetector = {
   id: 'national_id',

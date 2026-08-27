@@ -1,4 +1,4 @@
-import { NIP_WEIGHTS } from './nip-weights';
+import { NIP_WEIGHTS } from './constants/nip-weights';
 
 export const validateNip = (digits: string): boolean => {
   if (digits.length !== 10) {
