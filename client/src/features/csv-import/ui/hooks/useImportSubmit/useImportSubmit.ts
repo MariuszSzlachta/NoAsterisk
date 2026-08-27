@@ -1,10 +1,13 @@
 import { useState } from 'react';
 
-import { ApiError } from '#shared/api';
 import { useImportMutation } from '#features/csv-import/api/useImportMutation';
 import { createImportChunks } from '#features/csv-import/model/submission/import-chunks';
-import type { ImportChunkPayload, ImportProgress } from '#features/csv-import/model/types';
+import type {
+  ImportChunkPayload,
+  ImportProgress,
+} from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
+import { ApiError } from '#shared/api';
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1500;
@@ -38,9 +41,9 @@ export const useImportSubmit = (): UseImportSubmitResult => {
   });
 
   // Track which chunk indices have been successfully sent
-  const [completedChunkIndices, setCompletedChunkIndices] = useState<ReadonlySet<number>>(
-    new Set(),
-  );
+  const [completedChunkIndices, setCompletedChunkIndices] = useState<
+    ReadonlySet<number>
+  >(new Set());
 
   const importableCount = rows.filter(
     (r) => r.status === 'ok' || r.status === 'warning',
@@ -50,11 +53,16 @@ export const useImportSubmit = (): UseImportSubmitResult => {
   const submitWithRetry = async (
     chunk: ImportChunkPayload,
     chunkIndex: number,
-  ): Promise<{ saved: number; duplicatesSkipped: number } | { error: string }> => {
+  ): Promise<
+    { saved: number; duplicatesSkipped: number } | { error: string }
+  > => {
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
         const result = await submitChunk(chunk);
-        return { saved: result.saved, duplicatesSkipped: result.duplicatesSkipped };
+        return {
+          saved: result.saved,
+          duplicatesSkipped: result.duplicatesSkipped,
+        };
       } catch (err: unknown) {
         const isRetryable =
           err instanceof ApiError && (err.status >= 500 || err.status === 429);

@@ -1,5 +1,5 @@
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 import { DataGrid } from '#shared/adapters/grid';
 import { Button } from '#shared/ui/Button';
@@ -10,7 +10,6 @@ import { useAnonymizationGrid } from '../hooks/useAnonymizationGrid';
 import { useAnonymizationRowActions } from '../hooks/useAnonymizationRowActions';
 import { useAnonymizationStep } from '../hooks/useAnonymizationStep';
 import { useImportWizard } from '../hooks/useImportWizard';
-
 import { CELL_RENDERERS, LEGEND_ITEMS } from './constants';
 
 // ─── Component ───────────────────────────────────────────────────
@@ -34,7 +33,10 @@ export const AnonymizationStep = (): React.JSX.Element => {
     handleEditSave,
     handleFilterChange,
   } = useAnonymizationStep();
-  const { columns, rows, getRowId, getRowClass } = useAnonymizationGrid(CELL_RENDERERS, activeFilter);
+  const { columns, rows, getRowId, getRowClass } = useAnonymizationGrid(
+    CELL_RENDERERS,
+    activeFilter,
+  );
 
   const getRowActions = useAnonymizationRowActions({
     onEdit: handleSelectRow,
@@ -64,8 +66,13 @@ export const AnonymizationStep = (): React.JSX.Element => {
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {LEGEND_ITEMS.map((item) => (
-              <span key={item.key} className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-                <span className={`inline-block h-2.5 w-2.5 rounded-full ${item.color}`} />
+              <span
+                key={item.key}
+                className="flex items-center gap-1.5 text-[12px] text-muted-foreground"
+              >
+                <span
+                  className={`inline-block h-2.5 w-2.5 rounded-full ${item.color}`}
+                />
                 {t(item.i18nKey)}
               </span>
             ))}
@@ -79,10 +86,26 @@ export const AnonymizationStep = (): React.JSX.Element => {
         <div className="mt-3">
           <FilterTabs
             tabs={[
-              { id: 'all', label: t('import.anonymization.filter.all'), count: stats.totalScanned },
-              { id: 'safe', label: t('import.anonymization.legend.safe'), count: stats.safeCount },
-              { id: 'needs_review', label: t('import.anonymization.legend.needsReview'), count: stats.needsReviewCount },
-              { id: 'anonymized', label: t('import.anonymization.legend.anonymized'), count: stats.anonymizedCount },
+              {
+                id: 'all',
+                label: t('import.anonymization.filter.all'),
+                count: stats.totalScanned,
+              },
+              {
+                id: 'safe',
+                label: t('import.anonymization.legend.safe'),
+                count: stats.safeCount,
+              },
+              {
+                id: 'needs_review',
+                label: t('import.anonymization.legend.needsReview'),
+                count: stats.needsReviewCount,
+              },
+              {
+                id: 'anonymized',
+                label: t('import.anonymization.legend.anonymized'),
+                count: stats.anonymizedCount,
+              },
             ]}
             activeTab={activeFilter}
             onTabChange={handleFilterChange}
@@ -104,15 +127,21 @@ export const AnonymizationStep = (): React.JSX.Element => {
         {/* Stats bar */}
         <div className="mt-3 flex items-center gap-3 text-[12px] text-muted-foreground">
           <span>
-            {t('import.anonymization.stats.scanned', { count: stats.totalScanned })}
+            {t('import.anonymization.stats.scanned', {
+              count: stats.totalScanned,
+            })}
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full bg-expense" />
-            {t('import.anonymization.stats.anonymized', { count: stats.anonymizedCount })}
+            {t('import.anonymization.stats.anonymized', {
+              count: stats.anonymizedCount,
+            })}
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full bg-warning" />
-            {t('import.anonymization.stats.needsReview', { count: stats.needsReviewCount })}
+            {t('import.anonymization.stats.needsReview', {
+              count: stats.needsReviewCount,
+            })}
           </span>
         </div>
       </div>

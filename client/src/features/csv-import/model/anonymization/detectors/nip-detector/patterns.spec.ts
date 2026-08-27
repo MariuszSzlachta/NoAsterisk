@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createNipCompactPattern, createNipDashedPattern } from './patterns';
+import { createNipCompactPattern } from './create-nip-compact-pattern';
+import { createNipDashedPattern } from './create-nip-dashed-pattern';
 
 describe('createNipDashedPattern', () => {
   it('matches dashed NIP format XXX-XXX-XX-XX', () => {

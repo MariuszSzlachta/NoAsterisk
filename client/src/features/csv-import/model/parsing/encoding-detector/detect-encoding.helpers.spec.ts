@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { matchesBom, normalizeEncoding } from './detect-encoding';
+import { matchesBom, normalizeEncoding } from './index';
 
 describe('normalizeEncoding', () => {
   it.each([

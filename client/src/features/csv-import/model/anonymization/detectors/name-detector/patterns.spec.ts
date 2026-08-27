@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createAllCapsWordPattern,
-  createMixedCaseNamePattern,
-} from './patterns';
+import { createAllCapsWordPattern } from './create-all-caps-word-pattern';
+import { createMixedCaseNamePattern } from './create-mixed-case-name-pattern';
 
 describe('createMixedCaseNamePattern', () => {
   it('matches two-word mixed-case name', () => {

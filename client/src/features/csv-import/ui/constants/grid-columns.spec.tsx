@@ -16,7 +16,11 @@ describe('createImportGridColumns', () => {
         throw new Error('amount column has no cellRenderer');
       }
       const { container } = render(
-        renderer({ value, data: {} as never, rowIndex: 0 }) as React.ReactElement,
+        renderer({
+          value,
+          data: {} as never,
+          rowIndex: 0,
+        }) as React.ReactElement,
       );
       return container.textContent ?? '';
     };
@@ -67,7 +71,9 @@ describe('createImportGridColumns', () => {
     it('sorts NaN values to the end (before any real number)', () => {
       // NaN is "less than" any real number → sorts last in descending
       expect(comparator!(NaN, 100, {} as never, {} as never)).toBeLessThan(0);
-      expect(comparator!(100, NaN, {} as never, {} as never)).toBeGreaterThan(0);
+      expect(comparator!(100, NaN, {} as never, {} as never)).toBeGreaterThan(
+        0,
+      );
       // Two NaN are equal
       expect(comparator!(NaN, NaN, {} as never, {} as never)).toBe(0);
     });

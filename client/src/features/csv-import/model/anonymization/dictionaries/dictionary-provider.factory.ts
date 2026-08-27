@@ -3,7 +3,7 @@ import type {
   DictionarySet,
 } from '#features/csv-import/model/anonymization/types';
 
-import { buildFromStubs } from './stub-builder';
+import { buildFromStubs } from './build-from-stubs';
 
 /**
  * Creates a DictionaryProvider with its own cache instance.

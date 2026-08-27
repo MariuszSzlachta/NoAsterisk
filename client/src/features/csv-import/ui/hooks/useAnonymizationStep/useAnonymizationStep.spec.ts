@@ -8,13 +8,29 @@ import { useAnonymizationStep } from './useAnonymizationStep';
 
 // ─── Test Data ───────────────────────────────────────────────────
 
-const buildEntry = (overrides: Partial<AnonymizationEntry> = {}): AnonymizationEntry => ({
+const buildEntry = (
+  overrides: Partial<AnonymizationEntry> = {},
+): AnonymizationEntry => ({
   rowIndex: 0,
   originalTitle: 'PRZELEW Jan Kowalski 51 2400 0005 0000 4000 1234 5678',
   anonymizedTitle: 'PRZELEW •••• 5678 Jan ███',
   spans: [
-    { start: 8, end: 21, type: 'name', confidence: 0.92, original: 'Jan Kowalski', detectorId: 'name' },
-    { start: 22, end: 52, type: 'iban', confidence: 0.99, original: '51 2400 0005 0000 4000 1234 5678', detectorId: 'iban' },
+    {
+      start: 8,
+      end: 21,
+      type: 'name',
+      confidence: 0.92,
+      original: 'Jan Kowalski',
+      detectorId: 'name',
+    },
+    {
+      start: 22,
+      end: 52,
+      type: 'iban',
+      confidence: 0.99,
+      original: '51 2400 0005 0000 4000 1234 5678',
+      detectorId: 'iban',
+    },
   ],
   status: 'anonymized',
   accepted: true,
@@ -35,7 +51,16 @@ const buildEntries = (): AnonymizationEntry[] => [
     rowIndex: 2,
     originalTitle: 'PRZELEW Jan Nowak',
     anonymizedTitle: 'PRZELEW Jan ███',
-    spans: [{ start: 12, end: 17, type: 'name', confidence: 0.75, original: 'Nowak', detectorId: 'name' }],
+    spans: [
+      {
+        start: 12,
+        end: 17,
+        type: 'name',
+        confidence: 0.75,
+        original: 'Nowak',
+        detectorId: 'name',
+      },
+    ],
     status: 'needs_review',
     accepted: false,
   }),
@@ -50,10 +75,38 @@ const buildEntries = (): AnonymizationEntry[] => [
 ];
 
 const buildRows = () => [
-  { id: 'r0', date: '2026-06-26', title: 'PRZELEW •••• 5678 Jan ███', amount: -1200, currency: 'PLN', status: 'ok' as const },
-  { id: 'r1', date: '2026-06-26', title: 'BIEDRONKA 1234 WARSZAWA', amount: -87.43, currency: 'PLN', status: 'ok' as const },
-  { id: 'r2', date: '2026-06-25', title: 'PRZELEW Jan ███', amount: -50, currency: 'PLN', status: 'ok' as const },
-  { id: 'r3', date: '2026-06-25', title: 'SPOTIFY PREMIUM', amount: -23.99, currency: 'PLN', status: 'ok' as const },
+  {
+    id: 'r0',
+    date: '2026-06-26',
+    title: 'PRZELEW •••• 5678 Jan ███',
+    amount: -1200,
+    currency: 'PLN',
+    status: 'ok' as const,
+  },
+  {
+    id: 'r1',
+    date: '2026-06-26',
+    title: 'BIEDRONKA 1234 WARSZAWA',
+    amount: -87.43,
+    currency: 'PLN',
+    status: 'ok' as const,
+  },
+  {
+    id: 'r2',
+    date: '2026-06-25',
+    title: 'PRZELEW Jan ███',
+    amount: -50,
+    currency: 'PLN',
+    status: 'ok' as const,
+  },
+  {
+    id: 'r3',
+    date: '2026-06-25',
+    title: 'SPOTIFY PREMIUM',
+    amount: -23.99,
+    currency: 'PLN',
+    status: 'ok' as const,
+  },
 ];
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -169,7 +222,9 @@ describe('useAnonymizationStep', () => {
 
       const storeEntries = useImportWizardStore.getState().anonymizationEntries;
       const restored = storeEntries.find((e) => e.rowIndex === 0);
-      expect(restored?.anonymizedTitle).toBe('PRZELEW Jan Kowalski 51 2400 0005 0000 4000 1234 5678');
+      expect(restored?.anonymizedTitle).toBe(
+        'PRZELEW Jan Kowalski 51 2400 0005 0000 4000 1234 5678',
+      );
       expect(restored?.status).toBe('safe');
       expect(restored?.spans).toHaveLength(0);
       expect(restored?.accepted).toBe(true);
@@ -183,7 +238,9 @@ describe('useAnonymizationStep', () => {
       });
 
       const storeRows = useImportWizardStore.getState().rows;
-      expect(storeRows[0]?.title).toBe('PRZELEW Jan Kowalski 51 2400 0005 0000 4000 1234 5678');
+      expect(storeRows[0]?.title).toBe(
+        'PRZELEW Jan Kowalski 51 2400 0005 0000 4000 1234 5678',
+      );
     });
 
     it('closes popover after restore', () => {

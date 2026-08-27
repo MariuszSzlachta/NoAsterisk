@@ -4,16 +4,12 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import {
-  WITH_CONTEXT_CONFIDENCE,
-  WITHOUT_CONTEXT_CONFIDENCE,
-} from './constants';
 import { createPeselPattern } from './patterns';
-import {
-  hasPeselContext,
-  hasValidBirthDate,
-  validatePesel,
-} from './validators';
+import { hasPeselContext } from './has-pesel-context';
+import { hasValidBirthDate } from './has-valid-birth-date';
+import { validatePesel } from './validate-pesel';
+import { WITH_CONTEXT_CONFIDENCE } from './with-context-confidence';
+import { WITHOUT_CONTEXT_CONFIDENCE } from './without-context-confidence';
 
 export const peselDetector: PiiDetector = {
   id: 'pesel',

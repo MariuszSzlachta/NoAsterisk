@@ -4,8 +4,10 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { POSTAL_CODE_CONFIDENCE, STREET_CONFIDENCE } from './constants';
-import { createAddressPattern, createPostalCodePattern } from './patterns';
+import { createAddressPattern } from './create-address-pattern';
+import { createPostalCodePattern } from './create-postal-code-pattern';
+import { POSTAL_CODE_CONFIDENCE } from './postal-code-confidence';
+import { STREET_CONFIDENCE } from './street-confidence';
 
 const toSpan = (
   match: RegExpMatchArray,

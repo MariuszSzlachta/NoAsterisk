@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TransactionRow } from '../types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types';
 import {
   detectDuplicatesAgainstExisting,
   detectDuplicatesInBatch,

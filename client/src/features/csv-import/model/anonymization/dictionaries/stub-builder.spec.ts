@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFromStubs, toNormalizedSet } from './stub-builder';
+import { buildFromStubs } from './build-from-stubs';
+import { toNormalizedSet } from './to-normalized-set';
 
 describe('toNormalizedSet', () => {
   it('applies transform to all items', () => {

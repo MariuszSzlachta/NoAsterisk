@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ImportConfirmStep } from './ImportConfirmStep';
 
@@ -180,7 +180,9 @@ describe('ImportConfirmStep', () => {
     it('shows saved and duplicate counts', () => {
       render(<ImportConfirmStep />);
 
-      expect(screen.getByText(/Zapisano: 240.*pominięto: 7/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Zapisano: 240.*pominięto: 7/),
+      ).toBeInTheDocument();
     });
 
     it('disables Wstecz button after completion', () => {

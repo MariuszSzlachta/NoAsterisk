@@ -5,7 +5,7 @@ import {
   findMode,
   longestStreak,
   scoreSeparator,
-} from './separator.detector';
+} from './index';
 
 describe('countUnquoted', () => {
   it('counts simple unquoted occurrences', () => {

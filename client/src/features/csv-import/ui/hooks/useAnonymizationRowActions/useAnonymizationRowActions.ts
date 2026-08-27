@@ -16,10 +16,14 @@ interface UseAnonymizationRowActionsParams {
 export const useAnonymizationRowActions = ({
   onEdit,
   onRestore,
-}: UseAnonymizationRowActionsParams): ((row: AnonymizationGridRow) => RowAction<AnonymizationGridRow>[]) => {
+}: UseAnonymizationRowActionsParams): ((
+  row: AnonymizationGridRow,
+) => RowAction<AnonymizationGridRow>[]) => {
   const { t } = useTranslation();
 
-  const getRowActions = (row: AnonymizationGridRow): RowAction<AnonymizationGridRow>[] => {
+  const getRowActions = (
+    row: AnonymizationGridRow,
+  ): RowAction<AnonymizationGridRow>[] => {
     const editAction: RowAction<AnonymizationGridRow> = {
       label: t('import.anonymization.popover.edit'),
       onClick: (r) => onEdit(r.rowIndex),

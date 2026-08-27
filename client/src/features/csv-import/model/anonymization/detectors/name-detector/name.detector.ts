@@ -4,16 +4,14 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { MIN_CONFIDENCE } from './constants';
-import { createMixedCaseNamePattern } from './patterns';
-import {
-  computeConfidence,
-  findAllCapsNames,
-  hasCompanyContext,
-  hasNameContext,
-  isWhitelisted,
-  type MatchCandidate,
-} from './validators';
+import { MIN_CONFIDENCE } from './min-confidence';
+import { createMixedCaseNamePattern } from './create-mixed-case-name-pattern';
+import { computeConfidence } from './compute-confidence';
+import { findAllCapsNames } from './find-all-caps-names';
+import { hasCompanyContext } from './has-company-context';
+import { hasNameContext } from './has-name-context';
+import { isWhitelisted } from './is-whitelisted';
+import type { MatchCandidate } from './match-candidate';
 
 const candidateKey = (c: MatchCandidate): string =>
   `${c.index}:${c.original.length}`;

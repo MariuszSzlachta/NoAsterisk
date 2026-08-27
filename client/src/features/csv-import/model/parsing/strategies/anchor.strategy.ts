@@ -4,7 +4,8 @@ import type {
   ReassemblyStrategy,
 } from '#features/csv-import/model/parsing/types';
 
-import { AMOUNT_PATTERN, DATE_PATTERN } from './patterns';
+import { AMOUNT_PATTERN } from './amount-pattern';
+import { DATE_PATTERN } from './date-pattern';
 
 /**
  * For CSVs where middle columns have unpredictable overflow but START (dates)

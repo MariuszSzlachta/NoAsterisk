@@ -9,7 +9,8 @@ import type { DictionarySet } from '#features/csv-import/model/anonymization/typ
 const mockFetchDictionaries = vi.fn<() => Promise<DictionarySet>>();
 
 vi.mock('../fetchDictionaries', () => ({
-  fetchDictionaries: (...args: unknown[]) => mockFetchDictionaries(...(args as [])),
+  fetchDictionaries: (...args: unknown[]) =>
+    mockFetchDictionaries(...(args as [])),
 }));
 
 // Must import AFTER mocks are set up
@@ -44,7 +45,9 @@ describe('dictionaryProvider', () => {
   });
 
   it('falls back to stubs on API 500 error', async () => {
-    mockFetchDictionaries.mockRejectedValue(new Error('HTTP 500: Internal Server Error'));
+    mockFetchDictionaries.mockRejectedValue(
+      new Error('HTTP 500: Internal Server Error'),
+    );
 
     const result = await dictionaryProvider.loadAll();
 
@@ -108,7 +111,9 @@ describe('dictionaryProvider', () => {
       phrases: new Set(['wpłata']),
     };
 
-    mockFetchDictionaries.mockResolvedValueOnce(firstData).mockResolvedValueOnce(secondData);
+    mockFetchDictionaries
+      .mockResolvedValueOnce(firstData)
+      .mockResolvedValueOnce(secondData);
 
     const result1 = await dictionaryProvider.loadAll();
     dictionaryProvider.resetCache();
@@ -120,7 +125,9 @@ describe('dictionaryProvider', () => {
   });
 
   it('logs warning on fallback', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
     mockFetchDictionaries.mockRejectedValue(new Error('offline'));
 
     await dictionaryProvider.loadAll();

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectSeparator } from './separator.detector';
+import { detectSeparator } from './index';
 
 describe('detectSeparator', () => {
   it('detects semicolons (most PL banks)', () => {

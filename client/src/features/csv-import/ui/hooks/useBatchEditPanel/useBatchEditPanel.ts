@@ -8,7 +8,11 @@ interface BatchEditPanelResult {
   readonly originalValue: string;
   readonly newValue: string;
   readonly similarRows: ReadonlyArray<TransactionRow>;
-  readonly handleCellEdit: (rowId: string, field: string, value: unknown) => void;
+  readonly handleCellEdit: (
+    rowId: string,
+    field: string,
+    value: unknown,
+  ) => void;
   readonly handleApply: () => void;
   readonly handleSkip: () => void;
 }
@@ -18,10 +22,16 @@ export const useBatchEditPanel = (): BatchEditPanelResult => {
   const batchEditPanel = useImportWizardStore((s) => s.batchEditPanel);
   const updateRow = useImportWizardStore((s) => s.updateRow);
   const openBatchEditPanel = useImportWizardStore((s) => s.openBatchEditPanel);
-  const closeBatchEditPanel = useImportWizardStore((s) => s.closeBatchEditPanel);
+  const closeBatchEditPanel = useImportWizardStore(
+    (s) => s.closeBatchEditPanel,
+  );
   const applyBatchEdit = useImportWizardStore((s) => s.applyBatchEdit);
 
-  const handleCellEdit = (rowId: string, field: string, value: unknown): void => {
+  const handleCellEdit = (
+    rowId: string,
+    field: string,
+    value: unknown,
+  ): void => {
     if (field !== 'title' && field !== 'category') {
       return;
     }

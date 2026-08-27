@@ -2,9 +2,10 @@
 // CSV Import — API: Dictionary Provider (fetch with stub fallback)
 // ═══════════════════════════════════════════════════════════════════
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
 import { createDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary-provider.factory';
-import { buildFromStubs } from '#features/csv-import/model/anonymization/dictionaries/stub-builder';
+import { buildFromStubs } from '#features/csv-import/model/anonymization/dictionaries/build-from-stubs';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+
 import { fetchDictionaries } from '../fetchDictionaries';
 
 /**
@@ -23,14 +24,18 @@ const fetchWithFallback = async (): Promise<DictionarySet> => {
     usedStubFallback = false;
     return result;
   } catch {
-    console.warn('[Dictionaries] Backend unavailable, using bundled stubs — reduced PII coverage');
+    console.warn(
+      '[Dictionaries] Backend unavailable, using bundled stubs — reduced PII coverage',
+    );
     usedStubFallback = true;
     return buildFromStubs();
   }
 };
 
 /** Production provider — fetches from API with stub fallback. */
-export const dictionaryProvider = createDictionaryProvider(fetchWithFallback, { isStub: false });
+export const dictionaryProvider = createDictionaryProvider(fetchWithFallback, {
+  isStub: false,
+});
 
 /** Check if the last load used stub fallback (reduced coverage). */
 export const isDictionaryStubFallback = (): boolean => usedStubFallback;

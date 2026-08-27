@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping';
+import { isDomainField } from '#features/csv-import/model/column-mapping/validators/is-domain-field';
+import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
-import { isDomainField } from '#features/csv-import/model/column-mapping/validators/is-domain-field';
-import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping';
-import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import type { SelectOption } from '#shared/ui/Select';
 
 const MAX_PREVIEW_ROWS = 5;
@@ -32,9 +32,15 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
   const { t } = useTranslation();
   const parsedData = useImportWizardStore((s) => s.parsedData);
   const columnMapping = useImportWizardStore((s) => s.columnMapping);
-  const updateColumnMapping = useImportWizardStore((s) => s.updateColumnMapping);
-  const { isMappingComplete, isProcessing, handleMappingConfirm, handlePrevStep } =
-    useImportWizard();
+  const updateColumnMapping = useImportWizardStore(
+    (s) => s.updateColumnMapping,
+  );
+  const {
+    isMappingComplete,
+    isProcessing,
+    handleMappingConfirm,
+    handlePrevStep,
+  } = useImportWizard();
 
   const [selectedPreviewRowIndex, setSelectedPreviewRowIndex] = useState(0);
 
@@ -51,9 +57,15 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
     });
 
     // Extract unique categories if #Kategoria column exists
-    const categoryHeader = headers.find((h) => h.toLowerCase().includes('kategoria') || h.toLowerCase().includes('category'));
+    const categoryHeader = headers.find(
+      (h) =>
+        h.toLowerCase().includes('kategoria') ||
+        h.toLowerCase().includes('category'),
+    );
     if (categoryHeader) {
-      const uniqueCategories = [...new Set(rows.map((r) => r[categoryHeader]).filter(Boolean))].sort();
+      const uniqueCategories = [
+        ...new Set(rows.map((r) => r[categoryHeader]).filter(Boolean)),
+      ].sort();
       console.info('[column-mapping] Unique categories from CSV', {
         column: categoryHeader,
         count: uniqueCategories.length,

@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  hasPeselContext,
-  hasValidBirthDate,
-  validatePesel,
-} from './validators';
+import { hasPeselContext } from './has-pesel-context';
+import { hasValidBirthDate } from './has-valid-birth-date';
+import { validatePesel } from './validate-pesel';
 
 describe('validatePesel', () => {
   it('returns true for valid PESEL 44051401458', () => {

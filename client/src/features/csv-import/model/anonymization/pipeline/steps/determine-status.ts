@@ -1,4 +1,4 @@
-import { AUTO_ACCEPT_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants';
+import { AUTO_ACCEPT_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/auto-accept-threshold';
 import type {
   AnonymizationStatus,
   DetectionSpan,

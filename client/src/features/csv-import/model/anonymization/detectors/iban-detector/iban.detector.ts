@@ -5,14 +5,14 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import { BARE_PL_CONFIDENCE, FULL_IBAN_CONFIDENCE } from './constants';
-import {
-  BARE_PL_COMPACT,
-  BARE_PL_IBAN,
-  IBAN_COMPACT,
-  IBAN_PATTERN,
-} from './patterns';
-import { validateBarePl, validateMod97 } from './validators';
+import { BARE_PL_CONFIDENCE } from './bare-pl-confidence';
+import { BARE_PL_COMPACT } from './bare-pl-compact-pattern';
+import { BARE_PL_IBAN } from './bare-pl-iban-pattern';
+import { FULL_IBAN_CONFIDENCE } from './full-iban-confidence';
+import { IBAN_COMPACT } from './iban-compact-pattern';
+import { IBAN_PATTERN } from './iban-pattern';
+import { validateBarePl } from './validate-bare-pl';
+import { validateMod97 } from './validate-mod97';
 
 export const ibanDetector: PiiDetector = {
   id: 'iban',

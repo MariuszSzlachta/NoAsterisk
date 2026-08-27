@@ -63,12 +63,20 @@ interface ImportWizardState {
   readonly setParseError: (error: string) => void;
 
   readonly setDetectedMapping: (mapping: ColumnMapping) => void;
-  readonly updateColumnMapping: (column: string, field: DomainField | undefined) => void;
+  readonly updateColumnMapping: (
+    column: string,
+    field: DomainField | undefined,
+  ) => void;
   readonly confirmMapping: (mapping: ColumnMapping) => void;
 
   readonly setRows: (rows: ReadonlyArray<TransactionRow>) => void;
-  readonly updateRow: (id: string, updates: Partial<Pick<TransactionRow, 'title' | 'category'>>) => void;
-  readonly setAnonymizationEntries: (entries: ReadonlyArray<AnonymizationEntry>) => void;
+  readonly updateRow: (
+    id: string,
+    updates: Partial<Pick<TransactionRow, 'title' | 'category'>>,
+  ) => void;
+  readonly setAnonymizationEntries: (
+    entries: ReadonlyArray<AnonymizationEntry>,
+  ) => void;
 
   readonly setSelectedRowIds: (ids: ReadonlyArray<string>) => void;
   readonly setSubmitting: (submitting: boolean) => void;
@@ -84,7 +92,28 @@ interface ImportWizardState {
 
 // ─── Initial State ───────────────────────────────────────────────
 
-const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep' | 'setFile' | 'setParsedData' | 'setParseError' | 'setDetectedMapping' | 'updateColumnMapping' | 'confirmMapping' | 'setRows' | 'updateRow' | 'setAnonymizationEntries' | 'setSelectedRowIds' | 'setSubmitting' | 'setSubmitError' | 'openBatchEditPanel' | 'closeBatchEditPanel' | 'applyBatchEdit' | 'reset'> = {
+const INITIAL_STATE: Omit<
+  ImportWizardState,
+  | 'setStep'
+  | 'nextStep'
+  | 'prevStep'
+  | 'setFile'
+  | 'setParsedData'
+  | 'setParseError'
+  | 'setDetectedMapping'
+  | 'updateColumnMapping'
+  | 'confirmMapping'
+  | 'setRows'
+  | 'updateRow'
+  | 'setAnonymizationEntries'
+  | 'setSelectedRowIds'
+  | 'setSubmitting'
+  | 'setSubmitError'
+  | 'openBatchEditPanel'
+  | 'closeBatchEditPanel'
+  | 'applyBatchEdit'
+  | 'reset'
+> = {
   step: 0,
   file: undefined,
   parsedData: undefined,
@@ -125,21 +154,28 @@ export const useImportWizardStore = create<ImportWizardState>()(
       }),
 
     // Step 0: Upload
-    setFile: (file) => set({
-      file,
-      parseError: undefined,
-      parsedData: undefined,
-      rows: [],
-      anonymizationEntries: [],
-      columnMapping: {},
-      detectedMapping: {},
-      batchId: undefined,
-      isSubmitting: false,
-      submitError: undefined,
-      selectedRowIds: [],
-      batchEditPanel: { isOpen: false, pendingEdit: undefined },
-    }),
-    setParsedData: (data) => set({ parsedData: data, parseError: undefined, rows: [], anonymizationEntries: [] }),
+    setFile: (file) =>
+      set({
+        file,
+        parseError: undefined,
+        parsedData: undefined,
+        rows: [],
+        anonymizationEntries: [],
+        columnMapping: {},
+        detectedMapping: {},
+        batchId: undefined,
+        isSubmitting: false,
+        submitError: undefined,
+        selectedRowIds: [],
+        batchEditPanel: { isOpen: false, pendingEdit: undefined },
+      }),
+    setParsedData: (data) =>
+      set({
+        parsedData: data,
+        parseError: undefined,
+        rows: [],
+        anonymizationEntries: [],
+      }),
     setParseError: (error) => set({ parseError: error, parsedData: undefined }),
 
     // Step 1: Column Mapping
@@ -148,9 +184,13 @@ export const useImportWizardStore = create<ImportWizardState>()(
     updateColumnMapping: (column, field) =>
       set((state) => {
         if (field === undefined) {
-          delete (state.columnMapping as Record<string, DomainField | undefined>)[column];
+          delete (
+            state.columnMapping as Record<string, DomainField | undefined>
+          )[column];
         } else {
-          (state.columnMapping as Record<string, DomainField | undefined>)[column] = field;
+          (state.columnMapping as Record<string, DomainField | undefined>)[
+            column
+          ] = field;
         }
       }),
     confirmMapping: (mapping) => set({ columnMapping: mapping }),
@@ -166,16 +206,24 @@ export const useImportWizardStore = create<ImportWizardState>()(
           // SECURITY: title change invalidates anonymization entry at this index.
           // Caller (anonymization step hook) MUST re-run detection after updating.
           if (updates.title !== undefined && import.meta.env.DEV) {
-            console.warn('[ImportWizardStore] Row title changed — anonymization entry at index may be stale');
+            console.warn(
+              '[ImportWizardStore] Row title changed — anonymization entry at index may be stale',
+            );
           }
         }
       }),
     setAnonymizationEntries: (entries) => {
       // Validate row-entry index alignment
       const currentRows = useImportWizardStore.getState().rows;
-      if (entries.length > 0 && currentRows.length > 0 && entries.length !== currentRows.length) {
+      if (
+        entries.length > 0 &&
+        currentRows.length > 0 &&
+        entries.length !== currentRows.length
+      ) {
         if (import.meta.env.DEV) {
-          console.error(`[ImportWizardStore] entries.length (${entries.length}) !== rows.length (${currentRows.length})`);
+          console.error(
+            `[ImportWizardStore] entries.length (${entries.length}) !== rows.length (${currentRows.length})`,
+          );
         }
       }
       set({ anonymizationEntries: entries });
@@ -199,7 +247,9 @@ export const useImportWizardStore = create<ImportWizardState>()(
         }
         // SECURITY: Batch title edits require re-anonymization by the calling hook.
         if (pending.field === 'title' && import.meta.env.DEV) {
-          console.warn('[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows');
+          console.warn(
+            '[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows',
+          );
         }
         const rows = state.rows as TransactionRow[];
         for (const rowId of pending.similarRowIds) {

@@ -1,5 +1,5 @@
-import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { TransactionRow } from '#features/csv-import/model/types';
+import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
 interface ImportPreviewGridResult {
   readonly rows: ReadonlyArray<TransactionRow>;

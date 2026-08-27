@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  BIN_LAST4,
-  COMPACT_CARD,
-  DOTTED_CARD,
-  FULL_CARD,
-  MASKED_CARD_SPACED,
-  SHORT_MASKED,
-} from './patterns';
+import { BIN_LAST4 } from './bin-last4-pattern';
+import { COMPACT_CARD } from './compact-card-pattern';
+import { DOTTED_CARD } from './dotted-card-pattern';
+import { FULL_CARD } from './full-card-pattern';
+import { MASKED_CARD_SPACED } from './masked-card-spaced-pattern';
+import { SHORT_MASKED } from './short-masked-pattern';
 
 describe('card patterns', () => {
   describe('FULL_CARD', () => {

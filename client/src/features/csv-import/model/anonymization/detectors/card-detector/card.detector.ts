@@ -5,20 +5,17 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import {
-  COMPACT_CARD_CONFIDENCE,
-  FULL_CARD_CONFIDENCE,
-  MASKED_CARD_CONFIDENCE,
-} from './constants';
-import {
-  BIN_LAST4,
-  COMPACT_CARD,
-  DOTTED_CARD,
-  FULL_CARD,
-  MASKED_CARD_SPACED,
-  SHORT_MASKED,
-} from './patterns';
-import { hasCardPrefix, validateLuhn } from './validators';
+import { BIN_LAST4 } from './bin-last4-pattern';
+import { COMPACT_CARD } from './compact-card-pattern';
+import { COMPACT_CARD_CONFIDENCE } from './compact-card-confidence';
+import { DOTTED_CARD } from './dotted-card-pattern';
+import { FULL_CARD } from './full-card-pattern';
+import { FULL_CARD_CONFIDENCE } from './full-card-confidence';
+import { hasCardPrefix } from './has-card-prefix';
+import { MASKED_CARD_CONFIDENCE } from './masked-card-confidence';
+import { MASKED_CARD_SPACED } from './masked-card-spaced-pattern';
+import { SHORT_MASKED } from './short-masked-pattern';
+import { validateLuhn } from './validate-luhn';
 
 export const cardDetector: PiiDetector = {
   id: 'card',

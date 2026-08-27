@@ -40,7 +40,9 @@ export const DataPreviewTable = ({
               <td
                 key={`${header}-${colIdx}`}
                 className={`whitespace-nowrap px-4 py-1.5 ${
-                  rowIdx === selectedRowIndex ? 'text-foreground' : 'text-muted-foreground'
+                  rowIdx === selectedRowIndex
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {row[header] ?? ''}

@@ -1,6 +1,6 @@
 import type { NormalizeStep } from '#features/csv-import/model/column-mapping/types';
 
-import { DEFAULT_NORMALIZE_STEPS } from './steps';
+import { DEFAULT_NORMALIZE_STEPS } from './default-normalize-steps';
 
 export const normalizeHeader = (
   header: string,

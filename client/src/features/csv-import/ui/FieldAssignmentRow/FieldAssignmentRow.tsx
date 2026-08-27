@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Badge } from '#shared/ui/Badge';
-import { Select } from '#shared/ui/Select';
-import type { SelectOption } from '#shared/ui/Select';
+import { Select, type SelectOption } from '#shared/ui/Select';
 
 import { useFieldAssignmentRow } from './useFieldAssignmentRow';
 
@@ -55,9 +54,7 @@ export const FieldAssignmentRow = ({
         <p className="truncate font-mono text-[13px] text-muted-foreground">
           {exampleValue || '—'}
         </p>
-        <p className="text-[11px] text-subtle">
-          {t('import.mapping.example')}
-        </p>
+        <p className="text-[11px] text-subtle">{t('import.mapping.example')}</p>
       </div>
 
       {/* Merge badge */}

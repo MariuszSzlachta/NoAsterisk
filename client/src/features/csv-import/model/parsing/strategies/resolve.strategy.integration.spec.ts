@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveStrategy } from './resolve.strategy';
+import { resolveStrategy } from '.';
 
 describe('resolveStrategy (integration)', () => {
   it('returns anchor when data has date-start + amount-end pattern', () => {

@@ -5,7 +5,7 @@ import {
   normalizeNbsp,
   normalizeWhitespace,
   stripBom,
-} from './text-normalizers';
+} from './index';
 
 describe('stripBom', () => {
   it('strips BOM from start', () => {

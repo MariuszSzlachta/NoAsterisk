@@ -4,12 +4,11 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import {
-  WITH_CONTEXT_CONFIDENCE,
-  WITHOUT_CONTEXT_CONFIDENCE,
-} from './constants';
+import { hasIdContext } from './has-id-context';
 import { createNationalIdPattern } from './patterns';
-import { hasIdContext, validateNationalId } from './validators';
+import { validateNationalId } from './validate-national-id';
+import { WITH_CONTEXT_CONFIDENCE } from './with-context-confidence';
+import { WITHOUT_CONTEXT_CONFIDENCE } from './without-context-confidence';
 
 export const nationalIdDetector: PiiDetector = {
   id: 'national_id',

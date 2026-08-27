@@ -8,7 +8,7 @@ import {
   isDateValue,
   isHeaderLine,
   walkBackToCandidate,
-} from './data-boundary.detector';
+} from '.';
 
 describe('isDateValue', () => {
   describe('valid dates', () => {

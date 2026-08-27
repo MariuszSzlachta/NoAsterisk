@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasPhoneContext, isLikelyNotPhone } from './validators';
+import { hasPhoneContext } from './has-phone-context';
+import { isLikelyNotPhone } from './is-likely-not-phone';
 
 describe('isLikelyNotPhone', () => {
   it('returns true for invoice prefix FV/', () => {

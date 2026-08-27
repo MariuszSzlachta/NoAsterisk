@@ -1,5 +1,6 @@
 // Anonymization — public API
-export { anonymizeTitle, processRows } from './pipeline';
-export { buildFromStubs } from './dictionaries/stub-builder';
+export { anonymizeTitle } from './pipeline/anonymize-title';
+export { processRows } from './pipeline/process-rows';
+export { buildFromStubs } from './dictionaries/build-from-stubs';
 export { createDictionaryProvider } from './dictionaries/dictionary-provider.factory';
 export { devDictionaryProvider } from './dictionaries/dev-provider';

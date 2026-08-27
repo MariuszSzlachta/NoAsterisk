@@ -21,7 +21,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { parseCsvFile } from './csv.parser';
+import { parseCsvFile } from '.';
 
 const STUBS_DIR = resolve(process.cwd(), '../stubs/csv');
 

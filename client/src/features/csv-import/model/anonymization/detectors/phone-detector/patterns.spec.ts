@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createIntPhonePattern,
-  createNoSpacePrefixPattern,
-  createPlPhonePattern,
-} from './patterns';
+import { createIntPhonePattern } from './create-int-phone-pattern';
+import { createNoSpacePrefixPattern } from './create-no-space-prefix-pattern';
+import { createPlPhonePattern } from './create-pl-phone-pattern';
 
 describe('createPlPhonePattern', () => {
   it('matches +48 prefixed phone with spaces', () => {

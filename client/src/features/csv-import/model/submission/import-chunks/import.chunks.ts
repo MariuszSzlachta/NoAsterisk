@@ -1,9 +1,9 @@
-import type { TransactionRow } from '../../transformation/types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types';
 import type {
   ImportChunkPayload,
   ImportRowPayload,
   TransactionType,
-} from '../types';
+} from '#features/csv-import/model/submission/types';
 
 const MAX_ROWS_PER_CHUNK = 200;
 

@@ -1,10 +1,7 @@
-import { REVIEW_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants';
+import { REVIEW_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/review-threshold';
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 
-export interface GateResult {
-  readonly accepted: readonly DetectionSpan[];
-  readonly belowThreshold: readonly DetectionSpan[];
-}
+import type { GateResult } from './gate-result';
 
 /**
  * Architecture doc § 4 step 5: separate spans by confidence threshold.

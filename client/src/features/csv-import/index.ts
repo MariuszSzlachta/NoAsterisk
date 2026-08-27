@@ -3,7 +3,11 @@
 
 // Model — parsers & transformers
 export { parseCsvFile, CsvParseError } from './model/parsing/csv-parser';
-export { detectDateFormat, parseDate, parseDateFlexible } from './model/parsing/date-parser';
+export {
+  detectDateFormat,
+  parseDate,
+  parseDateFlexible,
+} from './model/parsing/date-parser';
 export { detectAmountLocale, parseAmount } from './model/parsing/amount-parser';
 export {
   detectEncoding,
@@ -17,13 +21,17 @@ export { isDomainField } from './model/column-mapping/validators/is-domain-field
 export { hasRequiredFields } from './model/column-mapping/validators/has-required-fields';
 export { transformRows } from './model/transformation/row-transformer';
 export { findSimilarRows } from './model/transformation/find-similar-rows';
-export { createImportChunks, computeContentHash, computeBatchHash } from './model/submission/import-chunks';
+export {
+  createImportChunks,
+  computeContentHash,
+  computeBatchHash,
+} from './model/submission/import-chunks';
 export {
   detectDuplicatesInBatch,
   detectDuplicatesAgainstExisting,
 } from './model/transformation/duplicate-detector';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
-export { buildFromStubs } from './model/anonymization/dictionaries/stub-builder';
+export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
 export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider.factory';
 export { devDictionaryProvider } from './model/anonymization/dictionaries/dev-provider';
 export { detectBankFromHeaders } from './model/column-mapping/bank-profiles/detect-bank-from-headers';

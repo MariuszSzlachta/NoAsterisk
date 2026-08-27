@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Select } from '#shared/ui/Select';
-import type { SelectOption } from '#shared/ui/Select';
+import { Select, type SelectOption } from '#shared/ui/Select';
 
 interface ColumnMappingRowProps {
   readonly header: string;

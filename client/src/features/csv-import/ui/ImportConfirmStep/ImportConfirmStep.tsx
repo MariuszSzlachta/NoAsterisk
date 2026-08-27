@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
+import { useImportSubmit } from '#features/csv-import/ui/hooks/useImportSubmit';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Progress } from '#shared/ui/Progress';
 
-import { useImportSubmit } from '#features/csv-import/ui/hooks/useImportSubmit';
-import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
-
 export const ImportConfirmStep = (): React.JSX.Element => {
   const { t } = useTranslation();
-  const { progress, handleSubmit, canSubmit, importableCount } = useImportSubmit();
+  const { progress, handleSubmit, canSubmit, importableCount } =
+    useImportSubmit();
   const { handlePrevStep } = useImportWizard();
 
   const percentComplete =
@@ -19,7 +19,8 @@ export const ImportConfirmStep = (): React.JSX.Element => {
       : 0;
 
   // terminalnym stanem i starym progress zamiast nowej sesji importu.
-  const isInProgress = progress.status === 'submitting' || progress.status === 'completed';
+  const isInProgress =
+    progress.status === 'submitting' || progress.status === 'completed';
 
   return (
     <div className="flex flex-col gap-4 pb-8">
@@ -103,7 +104,11 @@ export const ImportConfirmStep = (): React.JSX.Element => {
 
       {/* Navigation */}
       <div className="flex justify-between">
-        <Button variant="secondary" onClick={handlePrevStep} disabled={isInProgress}>
+        <Button
+          variant="secondary"
+          onClick={handlePrevStep}
+          disabled={isInProgress}
+        >
           {t('import.nav.back')}
         </Button>
         {(progress.status === 'idle' || progress.status === 'failed') && (

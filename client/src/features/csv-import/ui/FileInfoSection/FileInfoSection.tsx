@@ -1,10 +1,10 @@
-import { File, Hash, Landmark, List, Type } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { File, Hash, Landmark, List, Type } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 
-import { DetectionChip } from '../DetectionChip';
 import { BankProfileBar } from '../BankProfileBar';
+import { DetectionChip } from '../DetectionChip';
 
 import { useFileInfoSection } from './useFileInfoSection';
 

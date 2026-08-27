@@ -1,12 +1,12 @@
-import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 
 import { DataPreviewTable } from '../DataPreviewTable';
 import { FieldAssignmentRow } from '../FieldAssignmentRow';
-import { SaveProfileBar } from '../SaveProfileBar';
 import { useColumnMappingStep } from '../hooks/useColumnMappingStep';
+import { SaveProfileBar } from '../SaveProfileBar';
 
 export const ColumnMappingStep = (): React.JSX.Element => {
   const { t } = useTranslation();

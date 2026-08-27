@@ -26,7 +26,10 @@ const INITIAL_FILTERS: PreviewFilters = {
   dateTo: '',
 };
 
-const matchesTypeFilter = (row: TransactionRow, type: TransactionTypeFilter): boolean => {
+const matchesTypeFilter = (
+  row: TransactionRow,
+  type: TransactionTypeFilter,
+): boolean => {
   if (type === 'all') {
     return true;
   }
@@ -36,7 +39,11 @@ const matchesTypeFilter = (row: TransactionRow, type: TransactionTypeFilter): bo
   return row.amount < 0;
 };
 
-const matchesDateRange = (row: TransactionRow, dateFrom: string, dateTo: string): boolean => {
+const matchesDateRange = (
+  row: TransactionRow,
+  dateFrom: string,
+  dateTo: string,
+): boolean => {
   if (!dateFrom && !dateTo) {
     return true;
   }

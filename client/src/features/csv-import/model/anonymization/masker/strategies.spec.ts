@@ -1,17 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  maskAddress,
-  maskBirthDate,
-  maskCard,
-  maskEmail,
-  maskIban,
-  maskName,
-  maskNationalId,
-  maskNip,
-  maskPesel,
-  maskPhone,
-} from './strategies';
+import { maskAddress } from './mask-address';
+import { maskBirthDate } from './mask-birth-date';
+import { maskCard } from './mask-card';
+import { maskEmail } from './mask-email';
+import { maskIban } from './mask-iban';
+import { maskName } from './mask-name';
+import { maskNationalId } from './mask-national-id';
+import { maskNip } from './mask-nip';
+import { maskPesel } from './mask-pesel';
+import { maskPhone } from './mask-phone';
 
 describe('maskIban', () => {
   it('shows first 4 + last 4 chars of spaced IBAN', () => {

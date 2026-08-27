@@ -25,19 +25,29 @@ vi.mock('react-i18next', () => ({
 // - `selected` = { from?: Date; to?: Date } displayed when present
 // - `onSelect(range | undefined)` called on user action (apply/clear)
 vi.mock('#shared/ui/DateRangePicker', () => ({
-  DateRangePicker: ({ placeholder, onSelect, selected }: {
+  DateRangePicker: ({
+    placeholder,
+    onSelect,
+    selected,
+  }: {
     placeholder?: string;
     onSelect: (range: unknown) => void;
     selected?: { from?: Date; to?: Date };
   }) => (
     <div data-testid="date-range-picker">
       <span>{placeholder}</span>
-      {selected?.from && <span data-testid="date-from">{selected.from.toISOString()}</span>}
-      {selected?.to && <span data-testid="date-to">{selected.to.toISOString()}</span>}
+      {selected?.from && (
+        <span data-testid="date-from">{selected.from.toISOString()}</span>
+      )}
+      {selected?.to && (
+        <span data-testid="date-to">{selected.to.toISOString()}</span>
+      )}
       <button
         type="button"
         data-testid="apply-range"
-        onClick={() => onSelect({ from: new Date('2026-03-01'), to: new Date('2026-03-31') })}
+        onClick={() =>
+          onSelect({ from: new Date('2026-03-01'), to: new Date('2026-03-31') })
+        }
       >
         Apply
       </button>

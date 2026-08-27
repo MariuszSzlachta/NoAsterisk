@@ -1,5 +1,5 @@
-import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { detectBankFromHeaders } from '#features/csv-import/model/column-mapping/bank-profiles/detect-bank-from-headers';
+import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
 import { formatFileSize, formatSeparator } from './format-helpers';
 
@@ -43,7 +43,9 @@ export const useFileInfoSection = (): FileInfoSectionResult => {
     fileSize: file ? formatFileSize(file.size) : '',
     rowCount: parsedData?.rowCount ?? 0,
     encoding: parsedData?.encoding ?? '',
-    separator: parsedData?.separator ? formatSeparator(parsedData.separator) : '',
+    separator: parsedData?.separator
+      ? formatSeparator(parsedData.separator)
+      : '',
     detectedBank,
     handleReset,
     handleUseProfile,

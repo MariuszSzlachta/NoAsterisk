@@ -1,14 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 
-
-
-import type { ImportChunkPayload, ImportChunkResult } from '#features/csv-import/model/types';
+import type {
+  ImportChunkPayload,
+  ImportChunkResult,
+} from '#features/csv-import/model/types';
 import { apiClient } from '#shared/api';
-
-
-
-
 
 const importChunkResultSchema = z.object({
   status: z.enum(['accepted', 'partial', 'rejected']),
@@ -20,12 +17,16 @@ const importChunkResultSchema = z.object({
 });
 
 interface UseImportMutationResult {
-  readonly submitChunk: (chunk: ImportChunkPayload) => Promise<ImportChunkResult>;
+  readonly submitChunk: (
+    chunk: ImportChunkPayload,
+  ) => Promise<ImportChunkResult>;
 }
 
 export const useImportMutation = (): UseImportMutationResult => {
   const mutation = useMutation({
-    mutationFn: async (chunk: ImportChunkPayload): Promise<ImportChunkResult> => {
+    mutationFn: async (
+      chunk: ImportChunkPayload,
+    ): Promise<ImportChunkResult> => {
       // Serialize payload — HttpClient expects Record<string, unknown>
       const body: Record<string, unknown> = {
         batchId: chunk.batchId,
@@ -46,7 +47,9 @@ export const useImportMutation = (): UseImportMutationResult => {
     },
   });
 
-  const submitChunk = async (chunk: ImportChunkPayload): Promise<ImportChunkResult> => {
+  const submitChunk = async (
+    chunk: ImportChunkPayload,
+  ): Promise<ImportChunkResult> => {
     return mutation.mutateAsync(chunk);
   };
 

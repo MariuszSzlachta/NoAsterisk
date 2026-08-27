@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  collapseWhitespace,
-  stripBom,
-  stripLeadingHash,
-  stripParenthetical,
-  stripSurroundingQuotes,
-  toLower,
-} from './steps';
+import { collapseWhitespace } from './collapse-whitespace';
+import { stripBom } from './strip-bom-step';
+import { stripLeadingHash } from './strip-leading-hash';
+import { stripParenthetical } from './strip-parenthetical';
+import { stripSurroundingQuotes } from './strip-surrounding-quotes';
+import { toLower } from './to-lower';
 
 describe('stripBom', () => {
   it('removes BOM from start', () => {

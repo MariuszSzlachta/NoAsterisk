@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 
-import { applyMasking, maskSpan } from './pii.masker';
+import { applyMasking } from './apply-masking';
+import { maskSpan } from './mask-span';
 
 const makeSpan = (
   overrides: Partial<DetectionSpan> & {

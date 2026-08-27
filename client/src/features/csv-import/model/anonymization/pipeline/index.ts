@@ -1,1 +1,2 @@
-export { anonymizeTitle, processRows } from './anonymization.pipeline';
+export { anonymizeTitle } from './anonymize-title';
+export { processRows } from './process-rows';

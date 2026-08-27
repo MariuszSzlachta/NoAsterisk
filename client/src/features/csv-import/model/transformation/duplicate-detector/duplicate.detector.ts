@@ -1,4 +1,4 @@
-import type { TransactionRow } from '../types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types';
 
 /**
  * Hash for dedup: date + amount + title.

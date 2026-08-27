@@ -1,24 +1,22 @@
 export { padToLength } from './pad-to-length';
 export { splitRespectingQuotes } from './split-respecting-quotes';
-export { NBSP, BOM, REPLACEMENT_CHAR } from './constants';
-export {
-  stripBom,
-  normalizeCrlf,
-  normalizeNbsp,
-  normalizeWhitespace,
-} from './text-normalizers';
-export {
-  CRLF_PATTERN,
-  LINE_SPLIT_PATTERN,
-  LEADING_HASH_PATTERN,
-  LEADING_HASH_GLOBAL_PATTERN,
-  SURROUNDING_QUOTES_PATTERN,
-  DATE_DELIMITER_PATTERN,
-  ENCODING_SEPARATOR_PATTERN,
-  DIGITS_ONLY_PATTERN,
-  DIGIT_SPACE_DIGIT_PATTERN,
-  AMOUNT_PREFIX_SUFFIX_PATTERN,
-  PL_THOUSANDS_PATTERN,
-  EN_THOUSANDS_PATTERN,
-  CURRENCY_SUFFIX_PATTERN,
-} from './patterns';
+export { NBSP } from './nbsp';
+export { BOM } from './bom';
+export { REPLACEMENT_CHAR } from './replacement-char';
+export { stripBom } from './strip-bom';
+export { normalizeCrlf } from './normalize-crlf';
+export { normalizeNbsp } from './normalize-nbsp';
+export { normalizeWhitespace } from './normalize-whitespace';
+export { CRLF_PATTERN } from './crlf-pattern';
+export { LINE_SPLIT_PATTERN } from './line-split-pattern';
+export { LEADING_HASH_PATTERN } from './leading-hash-pattern';
+export { LEADING_HASH_GLOBAL_PATTERN } from './leading-hash-global-pattern';
+export { SURROUNDING_QUOTES_PATTERN } from './surrounding-quotes-pattern';
+export { DATE_DELIMITER_PATTERN } from './date-delimiter-pattern';
+export { ENCODING_SEPARATOR_PATTERN } from './encoding-separator-pattern';
+export { DIGITS_ONLY_PATTERN } from './digits-only-pattern';
+export { DIGIT_SPACE_DIGIT_PATTERN } from './digit-space-digit-pattern';
+export { AMOUNT_PREFIX_SUFFIX_PATTERN } from './amount-prefix-suffix-pattern';
+export { PL_THOUSANDS_PATTERN } from './pl-thousands-pattern';
+export { EN_THOUSANDS_PATTERN } from './en-thousands-pattern';
+export { CURRENCY_SUFFIX_PATTERN } from './currency-suffix-pattern';

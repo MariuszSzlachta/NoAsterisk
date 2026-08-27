@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  BARE_PL_COMPACT,
-  BARE_PL_IBAN,
-  IBAN_COMPACT,
-  IBAN_PATTERN,
-} from './patterns';
+import { BARE_PL_COMPACT } from './bare-pl-compact-pattern';
+import { BARE_PL_IBAN } from './bare-pl-iban-pattern';
+import { IBAN_COMPACT } from './iban-compact-pattern';
+import { IBAN_PATTERN } from './iban-pattern';
 
 describe('iban patterns', () => {
   describe('IBAN_PATTERN', () => {

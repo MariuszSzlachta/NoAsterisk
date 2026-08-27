@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 
-import type { GridColumn } from '#shared/adapters/grid';
 import type { TransactionRow } from '#features/csv-import/model/types';
+import type { GridColumn } from '#shared/adapters/grid';
 
 export const createImportGridColumns = (
   t: TFunction,
@@ -13,11 +13,23 @@ export const createImportGridColumns = (
     sortable: false,
     cellRenderer: ({ value }) => {
       const status = value as TransactionRow['status'];
-      const indicators: Record<TransactionRow['status'], { color: string; label: string }> = {
+      const indicators: Record<
+        TransactionRow['status'],
+        { color: string; label: string }
+      > = {
         ok: { color: 'bg-income', label: 'OK' },
-        warning: { color: 'bg-warning', label: t('import.preview.warnings', { count: 1 }) },
-        duplicate: { color: 'bg-muted-foreground', label: t('import.preview.duplicates', { count: 1 }) },
-        error: { color: 'bg-expense', label: t('import.preview.errors', { count: 1 }) },
+        warning: {
+          color: 'bg-warning',
+          label: t('import.preview.warnings', { count: 1 }),
+        },
+        duplicate: {
+          color: 'bg-muted-foreground',
+          label: t('import.preview.duplicates', { count: 1 }),
+        },
+        error: {
+          color: 'bg-expense',
+          label: t('import.preview.errors', { count: 1 }),
+        },
       };
       const { color, label } = indicators[status];
       return (
@@ -61,10 +73,12 @@ export const createImportGridColumns = (
     },
     cellRenderer: ({ value }) => {
       const amount = value as number;
-      if (typeof amount !== 'number' || Number.isNaN(amount) || !Number.isFinite(amount)) {
-        return (
-          <span className="text-xs text-expense">—</span>
-        );
+      if (
+        typeof amount !== 'number' ||
+        Number.isNaN(amount) ||
+        !Number.isFinite(amount)
+      ) {
+        return <span className="text-xs text-expense">—</span>;
       }
       const isNegative = amount < 0;
       const formatted = new Intl.NumberFormat('pl-PL', {

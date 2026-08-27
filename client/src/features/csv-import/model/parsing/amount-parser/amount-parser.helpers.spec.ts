@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { scoreSample } from './detect-amount-locale';
+import { scoreSample } from './index';
 
 describe('scoreSample', () => {
   describe('PL format', () => {

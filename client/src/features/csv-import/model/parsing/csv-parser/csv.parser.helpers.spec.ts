@@ -8,7 +8,7 @@ import {
   normalizeTrailingSeparator,
   tokensToRow,
   validateFile,
-} from './csv.parser';
+} from '.';
 
 const createFile = (content: string, name: string, size?: number): File => {
   const file = new File([content], name, { type: 'text/csv' });

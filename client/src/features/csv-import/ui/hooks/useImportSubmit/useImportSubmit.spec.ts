@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ApiError } from '#shared/api';
-import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { TransactionRow } from '#features/csv-import/model/types';
+import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
+import { ApiError } from '#shared/api';
 
 import { useImportSubmit } from './useImportSubmit';
 
@@ -18,12 +18,24 @@ vi.mock('#features/csv-import/api/useImportMutation', () => ({
 vi.mock('#features/csv-import/model/submission/import-chunks', () => ({
   createImportChunks: vi.fn(async (rows: TransactionRow[]) => {
     // Return simple canned chunks — 1 chunk per 50 rows
-    const count = rows.filter((r) => r.status === 'ok' || r.status === 'warning').length;
+    const count = rows.filter(
+      (r) => r.status === 'ok' || r.status === 'warning',
+    ).length;
     const chunkCount = Math.max(1, Math.ceil(count / 50));
     return Array.from({ length: chunkCount }, (_, i) => ({
       batchId: 'test-batch-id',
       batchHash: `hash-${i}`,
-      rows: [{ amount: -100, currency: 'PLN', type: 'expense', description: 'test', date: '2026-01-01', categoryIds: [], contentHash: `h-${i}` }],
+      rows: [
+        {
+          amount: -100,
+          currency: 'PLN',
+          type: 'expense',
+          description: 'test',
+          date: '2026-01-01',
+          categoryIds: [],
+          contentHash: `h-${i}`,
+        },
+      ],
     }));
   }),
 }));
@@ -303,7 +315,10 @@ describe('useImportSubmit', () => {
 
       // Retry — should only submit chunk 1
       submitChunkMock.mockClear();
-      submitChunkMock.mockResolvedValueOnce({ saved: 50, duplicatesSkipped: 0 });
+      submitChunkMock.mockResolvedValueOnce({
+        saved: 50,
+        duplicatesSkipped: 0,
+      });
 
       await act(async () => {
         await result.current.handleSubmit();

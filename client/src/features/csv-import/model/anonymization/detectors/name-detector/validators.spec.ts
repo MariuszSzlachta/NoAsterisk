@@ -2,13 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
 
-import {
-  computeConfidence,
-  findAllCapsNames,
-  hasCompanyContext,
-  hasNameContext,
-  isWhitelisted,
-} from './validators';
+import { computeConfidence } from './compute-confidence';
+import { findAllCapsNames } from './find-all-caps-names';
+import { hasCompanyContext } from './has-company-context';
+import { hasNameContext } from './has-name-context';
+import { isWhitelisted } from './is-whitelisted';
 
 const DICTS: DictionarySet = {
   firstNames: new Set(['jan', 'anna', 'piotr']),

@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { useImportWizardStore } from './useImportWizardStore';
 
@@ -62,13 +62,19 @@ describe('useImportWizardStore', () => {
     });
 
     it('updateColumnMapping adds a field mapping', () => {
-      useImportWizardStore.getState().updateColumnMapping('col1', 'date' as never);
+      useImportWizardStore
+        .getState()
+        .updateColumnMapping('col1', 'date' as never);
 
-      expect(useImportWizardStore.getState().columnMapping).toEqual({ col1: 'date' });
+      expect(useImportWizardStore.getState().columnMapping).toEqual({
+        col1: 'date',
+      });
     });
 
     it('updateColumnMapping removes a field when undefined', () => {
-      useImportWizardStore.setState({ columnMapping: { col1: 'date' } as never });
+      useImportWizardStore.setState({
+        columnMapping: { col1: 'date' } as never,
+      });
 
       useImportWizardStore.getState().updateColumnMapping('col1', undefined);
 
@@ -80,48 +86,98 @@ describe('useImportWizardStore', () => {
     it('updates title of existing row', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'OLD', amount: -50, currency: 'PLN', status: 'ok' },
-          { id: 'r2', date: '2026-01-02', title: 'OTHER', amount: -30, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'OLD',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+          },
+          {
+            id: 'r2',
+            date: '2026-01-02',
+            title: 'OTHER',
+            amount: -30,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
       });
 
       useImportWizardStore.getState().updateRow('r1', { title: 'NEW TITLE' });
 
-      const row = useImportWizardStore.getState().rows.find((r) => r.id === 'r1');
+      const row = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r1');
       expect(row?.title).toBe('NEW TITLE');
     });
 
     it('updates category of existing row', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'Test', amount: -50, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'Test',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
       });
 
-      useImportWizardStore.getState().updateRow('r1', { category: 'Groceries' });
+      useImportWizardStore
+        .getState()
+        .updateRow('r1', { category: 'Groceries' });
 
-      const row = useImportWizardStore.getState().rows.find((r) => r.id === 'r1');
+      const row = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r1');
       expect(row?.category).toBe('Groceries');
     });
 
     it('does not modify other rows', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'A', amount: -50, currency: 'PLN', status: 'ok' },
-          { id: 'r2', date: '2026-01-02', title: 'B', amount: -30, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'A',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+          },
+          {
+            id: 'r2',
+            date: '2026-01-02',
+            title: 'B',
+            amount: -30,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
       });
 
       useImportWizardStore.getState().updateRow('r1', { title: 'CHANGED' });
 
-      const r2 = useImportWizardStore.getState().rows.find((r) => r.id === 'r2');
+      const r2 = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r2');
       expect(r2?.title).toBe('B');
     });
 
     it('does nothing for non-existing row id', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'A', amount: -50, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'A',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
       });
 
@@ -173,10 +229,39 @@ describe('useImportWizardStore', () => {
     it('applyBatchEdit updates all similar rows with new value', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'A', amount: -50, currency: 'PLN', status: 'ok', category: 'New' },
-          { id: 'r2', date: '2026-01-02', title: 'B', amount: -30, currency: 'PLN', status: 'ok' },
-          { id: 'r3', date: '2026-01-03', title: 'C', amount: -20, currency: 'PLN', status: 'ok' },
-          { id: 'r4', date: '2026-01-04', title: 'D', amount: -10, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'A',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+            category: 'New',
+          },
+          {
+            id: 'r2',
+            date: '2026-01-02',
+            title: 'B',
+            amount: -30,
+            currency: 'PLN',
+            status: 'ok',
+          },
+          {
+            id: 'r3',
+            date: '2026-01-03',
+            title: 'C',
+            amount: -20,
+            currency: 'PLN',
+            status: 'ok',
+          },
+          {
+            id: 'r4',
+            date: '2026-01-04',
+            title: 'D',
+            amount: -10,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
         batchEditPanel: {
           isOpen: true,
@@ -202,7 +287,14 @@ describe('useImportWizardStore', () => {
     it('applyBatchEdit does nothing when no pending edit', () => {
       useImportWizardStore.setState({
         rows: [
-          { id: 'r1', date: '2026-01-01', title: 'A', amount: -50, currency: 'PLN', status: 'ok' },
+          {
+            id: 'r1',
+            date: '2026-01-01',
+            title: 'A',
+            amount: -50,
+            currency: 'PLN',
+            status: 'ok',
+          },
         ],
         batchEditPanel: { isOpen: false, pendingEdit: undefined },
       });
@@ -218,14 +310,34 @@ describe('useImportWizardStore', () => {
       useImportWizardStore.setState({
         step: 3,
         file: new File([''], 'test.csv'),
-        parsedData: { headers: ['a'], rows: [{ a: '1' }], separator: ',', encoding: 'utf-8' },
-        rows: [{ id: 'r1', date: '', title: '', amount: 0, currency: '', status: 'ok' }],
+        parsedData: {
+          headers: ['a'],
+          rows: [{ a: '1' }],
+          separator: ',',
+          encoding: 'utf-8',
+        },
+        rows: [
+          {
+            id: 'r1',
+            date: '',
+            title: '',
+            amount: 0,
+            currency: '',
+            status: 'ok',
+          },
+        ],
         columnMapping: { a: 'date' },
         isSubmitting: true,
         selectedRowIds: ['r1'],
         batchEditPanel: {
           isOpen: true,
-          pendingEdit: { editedRowId: 'r1', field: 'title', originalValue: '', newValue: 'X', similarRowIds: [] },
+          pendingEdit: {
+            editedRowId: 'r1',
+            field: 'title',
+            originalValue: '',
+            newValue: 'X',
+            similarRowIds: [],
+          },
         },
       } as never);
 

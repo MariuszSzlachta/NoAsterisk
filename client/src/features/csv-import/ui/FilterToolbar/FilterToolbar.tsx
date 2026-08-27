@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
 import type { DateRange } from 'react-day-picker';
-
-import { DateRangePicker } from '#shared/ui/DateRangePicker';
-import { FilterTabs, type FilterTab } from '#shared/ui/FilterTabs';
+import { useTranslation } from 'react-i18next';
 
 import type { TransactionTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters';
+import { DateRangePicker } from '#shared/ui/DateRangePicker';
+import { FilterTabs, type FilterTab } from '#shared/ui/FilterTabs';
 
 interface FilterToolbarProps {
   readonly typeFilter: TransactionTypeFilter;
@@ -64,7 +63,11 @@ export const FilterToolbar = ({
 
   return (
     <div className="flex items-center gap-4">
-      <FilterTabs tabs={tabs} activeTab={typeFilter} onTabChange={handleTabChange} />
+      <FilterTabs
+        tabs={tabs}
+        activeTab={typeFilter}
+        onTabChange={handleTabChange}
+      />
 
       <DateRangePicker
         selected={selectedRange}

@@ -2,8 +2,8 @@
 // CSV Import — API: Fetch Dictionaries from Backend
 // ═══════════════════════════════════════════════════════════════════
 
-import { apiClient } from '#shared/api';
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import { apiClient } from '#shared/api';
 
 interface DictionaryApiResponse {
   readonly firstNames: readonly string[];
@@ -23,11 +23,19 @@ const validateResponse = (data: unknown): DictionaryApiResponse => {
   }
 
   const obj = data as Record<string, unknown>;
-  const requiredFields = ['firstNames', 'surnames', 'merchants', 'cities', 'phrases'] as const;
+  const requiredFields = [
+    'firstNames',
+    'surnames',
+    'merchants',
+    'cities',
+    'phrases',
+  ] as const;
 
   for (const field of requiredFields) {
     if (!Array.isArray(obj[field])) {
-      throw new Error(`[fetchDictionaries] Invalid response: '${field}' is not an array`);
+      throw new Error(
+        `[fetchDictionaries] Invalid response: '${field}' is not an array`,
+      );
     }
   }
 

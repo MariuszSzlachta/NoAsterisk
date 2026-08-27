@@ -1,9 +1,9 @@
 import {
   CURRENCY_SUFFIX_PATTERN,
   EN_THOUSANDS_PATTERN,
+  normalizeWhitespace,
   PL_THOUSANDS_PATTERN,
-} from '#features/csv-import/model/parsing/shared/patterns';
-import { normalizeWhitespace } from '#features/csv-import/model/parsing/shared/text-normalizers';
+} from '#features/csv-import/model/parsing/shared';
 import type { AmountLocale } from '#features/csv-import/model/parsing/types';
 
 /**

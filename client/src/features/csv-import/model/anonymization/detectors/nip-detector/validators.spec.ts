@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasNipContext, validateNip } from './validators';
+import { hasNipContext } from './has-nip-context';
+import { validateNip } from './validate-nip';
 
 describe('validateNip', () => {
   it('returns true for valid NIP 1234563218', () => {

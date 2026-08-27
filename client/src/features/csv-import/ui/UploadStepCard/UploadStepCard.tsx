@@ -1,11 +1,11 @@
-import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 import { Dropzone } from '#shared/ui/Dropzone';
 
-import { useImportWizard } from '../hooks/useImportWizard';
 import { FileInfoSection } from '../FileInfoSection';
+import { useImportWizard } from '../hooks/useImportWizard';
 
 export const UploadStepCard = (): React.JSX.Element => {
   const { t } = useTranslation();

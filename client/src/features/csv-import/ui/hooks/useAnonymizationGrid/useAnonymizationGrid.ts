@@ -1,9 +1,14 @@
-import type { ReactNode } from 'react';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { AnonymizationEntry, AnonymizationStatus, ColumnMapping, DomainField, TransactionRow } from '#features/csv-import/model/types';
+import type {
+  AnonymizationEntry,
+  AnonymizationStatus,
+  ColumnMapping,
+  DomainField,
+  TransactionRow,
+} from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { CellRendererParams, GridColumn } from '#shared/adapters/grid';
 
@@ -32,7 +37,9 @@ interface AnonymizationGridResult {
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const DOMAIN_FIELD_TO_GRID_FIELD: Partial<Record<DomainField, keyof AnonymizationGridRow>> = {
+const DOMAIN_FIELD_TO_GRID_FIELD: Partial<
+  Record<DomainField, keyof AnonymizationGridRow>
+> = {
   date: 'date',
   title: 'title',
   amount: 'amount',
@@ -40,7 +47,6 @@ const DOMAIN_FIELD_TO_GRID_FIELD: Partial<Record<DomainField, keyof Anonymizatio
   balance: 'balance',
   category: 'category',
 };
-
 
 const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
   date: 'import.grid.date',
@@ -71,7 +77,12 @@ const COLUMN_MIN_WIDTHS: Partial<Record<DomainField, number>> = {
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-type CellRendererMap = Partial<Record<DomainField, (params: CellRendererParams<AnonymizationGridRow>) => ReactNode>>;
+type CellRendererMap = Partial<
+  Record<
+    DomainField,
+    (params: CellRendererParams<AnonymizationGridRow>) => ReactNode
+  >
+>;
 
 const buildColumnsFromMapping = (
   columnMapping: ColumnMapping,
@@ -96,9 +107,15 @@ const buildColumnsFromMapping = (
       field: gridField,
       headerName: t(DOMAIN_FIELD_HEADER_I18N[domainField]),
       sortable: true,
-      ...(COLUMN_WIDTHS[domainField] ? { width: COLUMN_WIDTHS[domainField] } : { flex: 1 }),
-      ...(COLUMN_MIN_WIDTHS[domainField] ? { minWidth: COLUMN_MIN_WIDTHS[domainField] } : {}),
-      ...(cellRenderers?.[domainField] ? { cellRenderer: cellRenderers[domainField] } : {}),
+      ...(COLUMN_WIDTHS[domainField]
+        ? { width: COLUMN_WIDTHS[domainField] }
+        : { flex: 1 }),
+      ...(COLUMN_MIN_WIDTHS[domainField]
+        ? { minWidth: COLUMN_MIN_WIDTHS[domainField] }
+        : {}),
+      ...(cellRenderers?.[domainField]
+        ? { cellRenderer: cellRenderers[domainField] }
+        : {}),
     };
 
     columns.push(column);
@@ -108,7 +125,10 @@ const buildColumnsFromMapping = (
 };
 
 const buildGridRows = (
-  rows: readonly Pick<TransactionRow, 'id' | 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'category'>[],
+  rows: readonly Pick<
+    TransactionRow,
+    'id' | 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'category'
+  >[],
   entries: readonly AnonymizationEntry[],
 ): AnonymizationGridRow[] =>
   rows.map((row, idx) => {
@@ -139,7 +159,10 @@ const getRowClass = (row: AnonymizationGridRow): string | undefined =>
 
 // ─── Hook ────────────────────────────────────────────────────────
 
-export const useAnonymizationGrid = (cellRenderers?: CellRendererMap, statusFilter?: StatusFilter): AnonymizationGridResult => {
+export const useAnonymizationGrid = (
+  cellRenderers?: CellRendererMap,
+  statusFilter?: StatusFilter,
+): AnonymizationGridResult => {
   const { t } = useTranslation();
 
   const { columnMapping, rows, entries } = useImportWizardStore(

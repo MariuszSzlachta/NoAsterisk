@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
 
-import { anonymizeTitle, processRows } from './anonymization.pipeline';
+import { anonymizeTitle } from './anonymize-title';
+import { processRows } from './process-rows';
 
 const DICTS: DictionarySet = {
   firstNames: new Set([

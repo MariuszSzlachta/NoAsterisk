@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { validateBarePl, validateMod97 } from './validators';
+import { validateBarePl } from './validate-bare-pl';
+import { validateMod97 } from './validate-mod97';
 
 describe('validateMod97', () => {
   describe('valid IBANs', () => {

@@ -5,13 +5,13 @@ import type {
   PiiDetector,
 } from '#features/csv-import/model/anonymization/types';
 
-import {
-  COMPACT_WITH_CONTEXT_CONFIDENCE,
-  DASHED_NO_CONTEXT_CONFIDENCE,
-  DASHED_WITH_CONTEXT_CONFIDENCE,
-} from './constants';
-import { createNipCompactPattern, createNipDashedPattern } from './patterns';
-import { hasNipContext, validateNip } from './validators';
+import { COMPACT_WITH_CONTEXT_CONFIDENCE } from './compact-with-context-confidence';
+import { createNipCompactPattern } from './create-nip-compact-pattern';
+import { createNipDashedPattern } from './create-nip-dashed-pattern';
+import { DASHED_NO_CONTEXT_CONFIDENCE } from './dashed-no-context-confidence';
+import { DASHED_WITH_CONTEXT_CONFIDENCE } from './dashed-with-context-confidence';
+import { hasNipContext } from './has-nip-context';
+import { validateNip } from './validate-nip';
 
 export const nipDetector: PiiDetector = {
   id: 'nip',

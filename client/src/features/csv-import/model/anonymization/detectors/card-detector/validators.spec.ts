@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasCardPrefix, validateLuhn } from './validators';
+import { hasCardPrefix } from './has-card-prefix';
+import { validateLuhn } from './validate-luhn';
 
 describe('validateLuhn', () => {
   describe('valid card numbers', () => {

@@ -4,7 +4,7 @@ import {
   detectOverflowColumnIndex,
   hasAnchorPattern,
   hasOverflowRows,
-} from './resolve.strategy';
+} from '.';
 
 describe('detectOverflowColumnIndex', () => {
   it('returns index when header matches keyword', () => {

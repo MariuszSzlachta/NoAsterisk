@@ -96,7 +96,9 @@ describe('usePreviewFilters', () => {
       });
 
       expect(result.current.filteredRows).toHaveLength(3);
-      expect(result.current.filteredRows.every((r) => r.date >= '2026-01-20')).toBe(true);
+      expect(
+        result.current.filteredRows.every((r) => r.date >= '2026-01-20'),
+      ).toBe(true);
     });
 
     it('filters rows before dateTo', () => {
@@ -108,7 +110,9 @@ describe('usePreviewFilters', () => {
       });
 
       expect(result.current.filteredRows).toHaveLength(2);
-      expect(result.current.filteredRows.every((r) => r.date <= '2026-01-15')).toBe(true);
+      expect(
+        result.current.filteredRows.every((r) => r.date <= '2026-01-15'),
+      ).toBe(true);
     });
 
     it('filters rows within date range (from + to)', () => {
@@ -153,7 +157,9 @@ describe('usePreviewFilters', () => {
       // Expenses on or after 2026-01-15: Rent(-200), Netflix(-30)
       expect(result.current.filteredRows).toHaveLength(2);
       expect(result.current.filteredRows.every((r) => r.amount < 0)).toBe(true);
-      expect(result.current.filteredRows.every((r) => r.date >= '2026-01-15')).toBe(true);
+      expect(
+        result.current.filteredRows.every((r) => r.date >= '2026-01-15'),
+      ).toBe(true);
     });
   });
 
@@ -238,7 +244,12 @@ describe('usePreviewFilters', () => {
       // Add another income row
       const updatedRows = [
         ...initialRows,
-        buildRow({ id: 'r6', amount: 1000, date: '2026-03-01', title: 'Bonus' }),
+        buildRow({
+          id: 'r6',
+          amount: 1000,
+          date: '2026-03-01',
+          title: 'Bonus',
+        }),
       ];
       rerender({ rows: updatedRows });
 

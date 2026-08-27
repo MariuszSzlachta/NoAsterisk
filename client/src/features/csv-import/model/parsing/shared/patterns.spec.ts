@@ -14,7 +14,7 @@ import {
   LINE_SPLIT_PATTERN,
   PL_THOUSANDS_PATTERN,
   SURROUNDING_QUOTES_PATTERN,
-} from './patterns';
+} from './index';
 
 describe('CRLF_PATTERN', () => {
   it('matches \\r\\n', () => {

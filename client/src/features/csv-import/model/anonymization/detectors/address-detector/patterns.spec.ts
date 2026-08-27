@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createAddressPattern, createPostalCodePattern } from './patterns';
+import { createAddressPattern } from './create-address-pattern';
+import { createPostalCodePattern } from './create-postal-code-pattern';
 
 describe('createAddressPattern', () => {
   it.each([

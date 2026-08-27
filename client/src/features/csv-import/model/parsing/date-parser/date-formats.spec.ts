@@ -7,7 +7,7 @@ import {
   parseMonthName,
   resolveYear,
   toIsoDateString,
-} from './date-formats';
+} from './index';
 
 describe('resolveYear', () => {
   it('returns 4-digit year as-is', () => {

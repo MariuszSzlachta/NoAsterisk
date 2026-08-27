@@ -30,14 +30,21 @@ export const TitleCellRenderer = ({
   const text = String(value);
 
   return (
-    <div className={`flex h-full min-w-0 items-center gap-2 rounded-sm px-2 ${bgColor}`}>
-      <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
+    <div
+      className={`flex h-full min-w-0 items-center gap-2 rounded-sm px-2 ${bgColor}`}
+    >
+      <span
+        className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`}
+      />
       <span className="min-w-0 flex-1 overflow-hidden">
         {/* Tooltip text-base (16px) is intentionally larger than cell text-[13px] for readability of long transaction titles */}
-        <Tooltip content={text} placement="bottom" maxWidth={600} className="font-mono text-base">
-          <span className="block truncate font-mono text-[13px]">
-            {text}
-          </span>
+        <Tooltip
+          content={text}
+          placement="bottom"
+          maxWidth={600}
+          className="font-mono text-base"
+        >
+          <span className="block truncate font-mono text-[13px]">{text}</span>
         </Tooltip>
       </span>
     </div>

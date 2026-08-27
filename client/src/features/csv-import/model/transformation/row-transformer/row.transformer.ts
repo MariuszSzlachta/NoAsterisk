@@ -2,15 +2,15 @@ import {
   MERGEABLE_FIELDS,
   type ColumnMapping,
   type DomainField,
-} from '../../column-mapping/types';
-import { detectAmountLocale, parseAmount } from '../../parsing/amount-parser';
+} from '#features/csv-import/model/column-mapping/types';
+import { detectAmountLocale, parseAmount } from '#features/csv-import/model/parsing/amount-parser';
 import {
   detectDateFormat,
   parseDate,
   parseDateFlexible,
-} from '../../parsing/date-parser';
-import type { CsvRow } from '../../parsing/types';
-import type { RowStatus, TransactionRow } from '../types';
+} from '#features/csv-import/model/parsing/date-parser';
+import type { CsvRow } from '#features/csv-import/model/parsing/types';
+import type { RowStatus, TransactionRow } from '#features/csv-import/model/transformation/types';
 
 const MIN_DATE_YEAR = 2000;
 const MAX_DATE_YEAR = 2030;

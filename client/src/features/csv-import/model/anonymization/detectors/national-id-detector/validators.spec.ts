@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasIdContext, validateNationalId } from './validators';
+import { hasIdContext } from './has-id-context';
+import { validateNationalId } from './validate-national-id';
 
 describe('validateNationalId', () => {
   it('returns true for valid checksum (ABS 847291)', () => {

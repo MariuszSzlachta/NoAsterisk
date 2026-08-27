@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { AnonymizationEntry, AnonymizationStatus } from '#features/csv-import/model/types';
+import type {
+  AnonymizationEntry,
+  AnonymizationStatus,
+} from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -32,24 +35,29 @@ export interface AnonymizationStepResult {
   readonly handleEdit: (rowIndex: number, newTitle: string) => void;
   readonly handleRestoreSelected: () => void;
   readonly handleStartEdit: () => void;
-  readonly handleEditValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly handleEditValueChange: (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => void;
   readonly handleEditSave: () => void;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnonymizationStep = (): AnonymizationStepResult => {
-  const { entries, rows, setAnonymizationEntries, setRows } = useImportWizardStore(
-    useShallow((s) => ({
-      entries: s.anonymizationEntries,
-      rows: s.rows,
-      setAnonymizationEntries: s.setAnonymizationEntries,
-      setRows: s.setRows,
-    })),
-  );
+  const { entries, rows, setAnonymizationEntries, setRows } =
+    useImportWizardStore(
+      useShallow((s) => ({
+        entries: s.anonymizationEntries,
+        rows: s.rows,
+        setAnonymizationEntries: s.setAnonymizationEntries,
+        setRows: s.setRows,
+      })),
+    );
 
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('all');
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number | undefined>(undefined);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number | undefined>(
+    undefined,
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
@@ -58,11 +66,18 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
   const stats = entries.reduce<AnonymizationStats>(
     (acc, e) => ({
       totalScanned: acc.totalScanned,
-      anonymizedCount: acc.anonymizedCount + (e.status === 'anonymized' ? 1 : 0),
-      needsReviewCount: acc.needsReviewCount + (e.status === 'needs_review' ? 1 : 0),
+      anonymizedCount:
+        acc.anonymizedCount + (e.status === 'anonymized' ? 1 : 0),
+      needsReviewCount:
+        acc.needsReviewCount + (e.status === 'needs_review' ? 1 : 0),
       safeCount: acc.safeCount + (e.status === 'safe' ? 1 : 0),
     }),
-    { totalScanned: entries.length, anonymizedCount: 0, needsReviewCount: 0, safeCount: 0 },
+    {
+      totalScanned: entries.length,
+      anonymizedCount: 0,
+      needsReviewCount: 0,
+      safeCount: 0,
+    },
   );
 
   // ─── Derived: Filtered Entries ───────────────────────────────
@@ -74,9 +89,10 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
 
   // ─── Derived: Selected Entry ─────────────────────────────────
 
-  const selectedEntry = selectedRowIndex !== undefined
-    ? entries.find((e) => e.rowIndex === selectedRowIndex)
-    : undefined;
+  const selectedEntry =
+    selectedRowIndex !== undefined
+      ? entries.find((e) => e.rowIndex === selectedRowIndex)
+      : undefined;
 
   // ─── Popover State Reset ─────────────────────────────────────
 
@@ -89,7 +105,10 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
   // ─── Handlers ────────────────────────────────────────────────
 
   const isValidFilter = (value: string): value is StatusFilter =>
-    value === 'all' || value === 'safe' || value === 'needs_review' || value === 'anonymized';
+    value === 'all' ||
+    value === 'safe' ||
+    value === 'needs_review' ||
+    value === 'anonymized';
 
   const handleFilterChange = (filter: string): void => {
     if (isValidFilter(filter)) {
@@ -184,7 +203,9 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     }
   };
 
-  const handleEditValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleEditValueChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     setEditValue(e.target.value);
   };
 

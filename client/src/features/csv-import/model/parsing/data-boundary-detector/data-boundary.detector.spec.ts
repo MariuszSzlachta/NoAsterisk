@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectDataBoundaries } from './data-boundary.detector';
+import { detectDataBoundaries } from './detect-data-boundaries';
 
 describe('detectDataBoundaries', () => {
   describe('header detection', () => {
