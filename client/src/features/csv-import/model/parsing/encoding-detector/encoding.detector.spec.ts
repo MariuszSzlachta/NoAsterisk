@@ -5,7 +5,7 @@ import {
   decodeBuffer,
   decodeBufferWithWarning,
   detectEncoding,
-} from './encoding.detector';
+} from './';
 
 const toBuffer = (bytes: number[]): ArrayBuffer => new Uint8Array(bytes).buffer;
 

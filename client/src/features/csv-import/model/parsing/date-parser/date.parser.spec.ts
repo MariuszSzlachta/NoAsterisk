@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectDateFormat, parseDate, parseDateFlexible } from './date.parser';
+import { detectDateFormat, parseDate, parseDateFlexible } from './';
 
 describe('detectDateFormat', () => {
   it('detects YYYY-MM-DD (ISO)', () => {

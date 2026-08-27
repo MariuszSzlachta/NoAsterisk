@@ -1,8 +1,4 @@
-export {
-  detectEncoding,
-  decodeBuffer,
-  decodeBufferWithWarning,
-  countReplacementChars,
-  SUPPORTED_ENCODINGS,
-} from './encoding.detector';
-export type { DecodeWarning } from './encoding.detector';
+export { detectEncoding, SUPPORTED_ENCODINGS } from './detect-encoding';
+export { decodeBuffer } from './decode-buffer';
+export { countReplacementChars } from './count-replacement-chars';
+export { decodeBufferWithWarning } from './decode-buffer-with-warning';

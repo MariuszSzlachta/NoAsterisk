@@ -11,7 +11,7 @@ export {
   decodeBufferWithWarning,
   countReplacementChars,
 } from './parsing/encoding-detector';
-export type { DecodeWarning } from './parsing/encoding-detector';
+export type { DecodeWarning } from './parsing/types';
 export { detectSeparator } from './parsing/separator-detector';
 export { detectDataBoundaries } from './parsing/data-boundary-detector';
 

@@ -1,103 +1,67 @@
-import type { ReassemblyConfig, ReassemblyStrategy } from '../types';
+import type { ReassemblyConfig, ReassemblyStrategy, ResolvedStrategy } from '../types';
 import { anchorStrategy } from './anchor.strategy';
 import { directStrategy } from './direct.strategy';
 import { overflowMergeStrategy } from './overflow-merge.strategy';
 import { AMOUNT_PATTERN, DATE_PATTERN } from './patterns';
 
-/**
- * Known header keywords that indicate a description/overflow column.
- * Matched case-insensitively.
- */
 const OVERFLOW_COLUMN_KEYWORDS = [
-  'opis operacji',
-  'opis',
-  'description',
-  'tytuł',
-  'title',
-  'szczegóły',
-  'details',
-  'treść',
+  'opis operacji', 'opis', 'description', 'tytuł', 'title', 'szczegóły', 'details', 'treść',
 ];
 
-/**
- * Detect which column index is likely to contain overflow (unescaped separators).
- * Returns undefined if no overflow column identified.
- */
-const detectOverflowColumnIndex = (headers: readonly string[]): number | undefined => {
-  for (let i = 0; i < headers.length; i++) {
-    const normalized = (headers[i] ?? '').toLowerCase().replace(/^#/, '').trim();
-    if (OVERFLOW_COLUMN_KEYWORDS.some((kw) => normalized.includes(kw))) {
-      return i;
-    }
-  }
-  return undefined;
-};
+const DEFAULT_SAMPLE_SIZE = 10;
+const ANCHOR_THRESHOLD = 0.8;
+const MIN_ROW_LENGTH_FOR_ANCHOR = 4;
 
-/**
- * Sample first N data rows to check if overflow occurs.
- * If any row has more tokens than expected → overflow is happening.
- */
+const detectOverflowColumnIndex = (headers: readonly string[]): number | undefined =>
+  headers.findIndex((h) => {
+    const normalized = h.toLowerCase().replace(/^#/, '').trim();
+    return OVERFLOW_COLUMN_KEYWORDS.some((kw) => normalized.includes(kw));
+  }) === -1
+    ? undefined
+    : headers.findIndex((h) => {
+        const normalized = h.toLowerCase().replace(/^#/, '').trim();
+        return OVERFLOW_COLUMN_KEYWORDS.some((kw) => normalized.includes(kw));
+      });
+
 const hasOverflowRows = (
   dataRows: readonly (readonly string[])[],
   expectedColumnCount: number,
-  sampleSize = 10,
-): boolean => {
-  const sample = dataRows.slice(0, sampleSize);
-  return sample.some((row) => row.length > expectedColumnCount);
-};
+  sampleSize = DEFAULT_SAMPLE_SIZE,
+): boolean =>
+  dataRows.slice(0, sampleSize).some((row) => row.length > expectedColumnCount);
 
-/**
- * Detect if data rows have consistent date anchors at start and amount anchors at end.
- * This indicates the anchor strategy is appropriate.
- */
 const hasAnchorPattern = (
   dataRows: readonly (readonly string[])[],
-  sampleSize = 10,
+  sampleSize = DEFAULT_SAMPLE_SIZE,
 ): boolean => {
   const sample = dataRows.slice(0, sampleSize);
-  if (sample.length === 0) {
-    return false;
-  }
+  if (sample.length === 0) return false;
 
-  let dateStartCount = 0;
-  let amountEndCount = 0;
+  const scores = sample
+    .filter((row) => row.length >= MIN_ROW_LENGTH_FOR_ANCHOR)
+    .reduce(
+      (acc, row) => {
+        const hasDateStart = DATE_PATTERN.test((row[0] ?? '').trim());
+        const hasAmountEnd = row
+          .slice(Math.max(0, row.length - 3))
+          .some((t) => AMOUNT_PATTERN.test(t.trim()));
+        return {
+          dateStart: acc.dateStart + (hasDateStart ? 1 : 0),
+          amountEnd: acc.amountEnd + (hasAmountEnd ? 1 : 0),
+        };
+      },
+      { dateStart: 0, amountEnd: 0 },
+    );
 
-  for (const row of sample) {
-    if (row.length < 4) {
-      continue;
-    }
-    // Check if first token is a date
-    if (DATE_PATTERN.test((row[0] ?? '').trim())) {
-      dateStartCount++;
-    }
-    // Check if last or second-to-last token is an amount
-    const lastIdx = row.length - 1;
-    for (let i = lastIdx; i >= Math.max(0, lastIdx - 2); i--) {
-      if (AMOUNT_PATTERN.test((row[i] ?? '').trim())) {
-        amountEndCount++;
-        break;
-      }
-    }
-  }
-
-  // ≥80% of rows should have date at start AND amount at end
-  const threshold = sample.length * 0.8;
-  return dateStartCount >= threshold && amountEndCount >= threshold;
+  const threshold = sample.length * ANCHOR_THRESHOLD;
+  return scores.dateStart >= threshold && scores.amountEnd >= threshold;
 };
 
-export interface ResolvedStrategy {
-  readonly strategy: ReassemblyStrategy;
-  readonly config: ReassemblyConfig;
-}
-
 /**
- * Resolve which reassembly strategy to use based on header analysis and data sampling.
- *
  * Decision logic:
- * 1. If anchor pattern detected (dates at start, amounts at end) → Anchor
- *    (handles both overflow AND equal-count cases via pass-through)
- * 2. If no overflow rows → Direct (clean CSV)
- * 3. If overflow AND identifiable single overflow column → OverflowMerge (legacy)
+ * 1. Anchor pattern (dates start, amounts end) → Anchor
+ * 2. No overflow rows → Direct
+ * 3. Overflow + identifiable overflow column → OverflowMerge
  * 4. Otherwise → Direct (safe fallback)
  */
 export const resolveStrategy = (
@@ -107,39 +71,24 @@ export const resolveStrategy = (
 ): ResolvedStrategy => {
   const expectedColumnCount = headers.length;
 
-  // Check anchor FIRST — it handles both overflow and equal-count cases correctly
   if (hasAnchorPattern(dataRows)) {
-    return {
-      strategy: anchorStrategy,
-      config: { expectedColumnCount, separator },
-    };
+    return { strategy: anchorStrategy, config: { expectedColumnCount, separator } };
   }
 
   if (!hasOverflowRows(dataRows, expectedColumnCount)) {
-    return {
-      strategy: directStrategy,
-      config: { expectedColumnCount, separator },
-    };
+    return { strategy: directStrategy, config: { expectedColumnCount, separator } };
   }
 
   const overflowColumnIndex = detectOverflowColumnIndex(headers);
 
   if (overflowColumnIndex === undefined) {
-    return {
-      strategy: directStrategy,
-      config: { expectedColumnCount, separator },
-    };
+    return { strategy: directStrategy, config: { expectedColumnCount, separator } };
   }
 
   const fixedTailColumns = expectedColumnCount - overflowColumnIndex - 1;
 
   return {
     strategy: overflowMergeStrategy,
-    config: {
-      expectedColumnCount,
-      separator,
-      overflowColumnIndex,
-      fixedTailColumns,
-    },
+    config: { expectedColumnCount, separator, overflowColumnIndex, fixedTailColumns },
   };
 };

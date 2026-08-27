@@ -1,1 +1,2 @@
-export { detectAmountLocale, parseAmount } from './amount.parser';
+export { detectAmountLocale } from './detect-amount-locale';
+export { parseAmount } from './parse-amount';

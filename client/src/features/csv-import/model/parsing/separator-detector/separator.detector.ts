@@ -1,16 +1,12 @@
 const CANDIDATES = [';', ',', '\t', '|'] as const;
 const MAX_SAMPLE_LINES = 30;
+const DEFAULT_SEPARATOR = ';';
 
 /**
  * Detect CSV separator by statistical analysis.
  *
- * Strategy combines two approaches:
- * 1. Streak-based: find longest consecutive run of lines with same separator count
- *    (handles metadata headers/footers where separator is absent)
- * 2. Mode-based: find the most common non-zero count across all lines
- *    (handles files with occasional broken quoting that varies count by ±1-2)
- *
- * The candidate with the best combined score wins.
+ * Combines streak-based (longest consecutive run of lines with same count)
+ * and mode-based (most common non-zero count) scoring.
  */
 export const detectSeparator = (text: string): string => {
   const lines = text
@@ -18,77 +14,63 @@ export const detectSeparator = (text: string): string => {
     .filter((l) => l.trim().length > 0)
     .slice(0, MAX_SAMPLE_LINES);
 
-  if (lines.length === 0) {
-    return ';';
-  }
+  if (lines.length === 0) return DEFAULT_SEPARATOR;
 
-  let bestSep = ';';
-  let bestScore = -1;
+  const scored = CANDIDATES.map((sep) => ({
+    sep,
+    score: scoreSeparator(lines, sep),
+  }));
 
-  for (const sep of CANDIDATES) {
-    const counts = lines.map((line) => countUnquoted(line, sep));
-    const nonZeroCounts = counts.filter((c) => c > 0);
-
-    if (nonZeroCounts.length === 0) {
-      continue;
-    }
-
-    // Mode: most common non-zero count
-    const freq = new Map<number, number>();
-    for (const c of nonZeroCounts) {
-      freq.set(c, (freq.get(c) ?? 0) + 1);
-    }
-    let modeCount = 0;
-    let modeFreq = 0;
-    for (const [count, frequency] of freq.entries()) {
-      if (frequency > modeFreq || (frequency === modeFreq && count > modeCount)) {
-        modeCount = count;
-        modeFreq = frequency;
-      }
-    }
-
-    // Streak: longest consecutive run of lines with the mode count (±1 tolerance)
-    let maxStreak = 0;
-    let currentStreak = 0;
-    for (const count of counts) {
-      if (count >= modeCount - 1 && count > 0) {
-        currentStreak++;
-        if (currentStreak > maxStreak) {
-          maxStreak = currentStreak;
-        }
-      } else {
-        currentStreak = 0;
-      }
-    }
-
-    // Score: lines matching mode × average count × streak bonus
-    const matchRatio = modeFreq / lines.length;
-    const streakBonus = maxStreak / lines.length;
-    const score = modeCount * (matchRatio + streakBonus);
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestSep = sep;
-    }
-  }
-
-  return bestSep;
+  const best = scored.reduce((a, b) => (b.score > a.score ? b : a));
+  return best.score > 0 ? best.sep : DEFAULT_SEPARATOR;
 };
 
-/**
- * Count occurrences of char in string, ignoring occurrences inside quoted fields.
- */
-const countUnquoted = (line: string, char: string): number => {
-  let count = 0;
-  let inQuotes = false;
+const scoreSeparator = (lines: readonly string[], sep: string): number => {
+  const counts = lines.map((line) => countUnquoted(line, sep));
+  const nonZeroCounts = counts.filter((c) => c > 0);
 
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === '"') {
-      inQuotes = !inQuotes;
-    } else if (!inQuotes && line[i] === char) {
-      count++;
-    }
-  }
+  if (nonZeroCounts.length === 0) return 0;
 
-  return count;
+  const { count: modeCount, frequency: modeFreq } = findMode(nonZeroCounts);
+  const maxStreak = longestStreak(counts, modeCount);
+  const matchRatio = modeFreq / lines.length;
+  const streakBonus = maxStreak / lines.length;
+
+  return modeCount * (matchRatio + streakBonus);
 };
+
+const findMode = (values: readonly number[]): { count: number; frequency: number } => {
+  const freq = values.reduce<ReadonlyMap<number, number>>(
+    (map, c) => new Map([...map, [c, (map.get(c) ?? 0) + 1]]),
+    new Map(),
+  );
+
+  return Array.from(freq.entries()).reduce(
+    (best, [count, frequency]) =>
+      frequency > best.frequency || (frequency === best.frequency && count > best.count)
+        ? { count, frequency }
+        : best,
+    { count: 0, frequency: 0 },
+  );
+};
+
+const longestStreak = (counts: readonly number[], modeCount: number): number =>
+  counts.reduce<{ max: number; current: number }>(
+    (state, count) => {
+      const next = count >= modeCount - 1 && count > 0
+        ? state.current + 1
+        : 0;
+      return { max: Math.max(state.max, next), current: next };
+    },
+    { max: 0, current: 0 },
+  ).max;
+
+const countUnquoted = (line: string, char: string): number =>
+  Array.from(line).reduce<{ count: number; inQuotes: boolean }>(
+    (state, c) => {
+      if (c === '"') return { ...state, inQuotes: !state.inQuotes };
+      if (!state.inQuotes && c === char) return { ...state, count: state.count + 1 };
+      return state;
+    },
+    { count: 0, inQuotes: false },
+  ).count;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectAmountLocale, parseAmount } from './amount.parser';
+import { detectAmountLocale, parseAmount } from './';
 
 describe('detectAmountLocale', () => {
   it('detects PL locale (comma decimal)', () => {
