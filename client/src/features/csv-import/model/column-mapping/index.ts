@@ -1,6 +1,10 @@
-// Column Mapping — public API
-export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './column-mapper';
+export { normalizeHeader } from './normalize-header';
+export { autoDetectMapping } from './auto-detect';
+export { isDomainField } from './validators/is-domain-field';
+export { hasRequiredFields } from './validators/has-required-fields';
 export { MERGEABLE_FIELDS } from './types';
-export { HeaderHeuristicRegistry, defaultHeaderHeuristicRegistry } from './heuristics';
-export type { HeaderHeuristic } from './heuristics';
-export { BankProfileRegistry, defaultBankProfileRegistry, detectBankFromHeaders } from './bank-profiles';
+export { createHeuristicRegistry } from './heuristics/create-heuristic-registry';
+export { defaultHeuristicRegistry } from './heuristics/default-heuristic-registry';
+export { createBankProfileRegistry } from './bank-profiles/create-bank-profile-registry';
+export { defaultBankProfileRegistry } from './bank-profiles/default-bank-profile-registry';
+export { detectBankFromHeaders } from './bank-profiles/detect-bank-from-headers';

@@ -68,9 +68,6 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
         </div>
       )}
 
-          destructive`, których Badge design system nie posiada (kontrakt to
-          soft/solid/outline + color). To jest compile blocker i sygnał, że UI
-          omija centralny model komponentu zamiast używać jego publicznego API. */}
       <div className="flex items-center gap-3">
         <Badge variant="default">
           {t('import.preview.rows', { count: stats.total })}

@@ -1,10 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
-// Column Mapping Types — Mapping, Bank Profiles
-// ═══════════════════════════════════════════════════════════════════
-
 import type { AmountLocale, DateFormat } from '../parsing/types';
-
-// ─── Column Mapping ──────────────────────────────────────────────
 
 export type DomainField =
   | 'date'
@@ -20,7 +14,6 @@ export type DomainField =
   | 'counterpart'
   | 'reference';
 
-/** Fields that accept multiple CSV columns — values are concatenated in CSV column order. */
 export const MERGEABLE_FIELDS: ReadonlySet<DomainField> = new Set([
   'title',
   'source',
@@ -38,8 +31,6 @@ export interface MappingProfile {
   readonly createdAt: string;
 }
 
-// ─── Bank Profiles ───────────────────────────────────────────────
-
 export interface BankProfile {
   readonly id: string;
   readonly bankName: string;
@@ -50,4 +41,29 @@ export interface BankProfile {
   readonly encoding?: string;
   readonly separator?: string;
   readonly skipRows?: number;
+}
+
+export interface HeaderHeuristic {
+  readonly normalized: string;
+  readonly field: DomainField;
+  readonly source: 'builtin' | 'user';
+}
+
+export interface BankSignature {
+  readonly displayName: string;
+  readonly headerPatterns: readonly (readonly string[])[];
+}
+
+export type NormalizeStep = (s: string) => string;
+
+export interface HeuristicRegistry {
+  readonly match: (normalizedHeader: string) => DomainField | undefined;
+  readonly register: (heuristic: HeaderHeuristic) => HeuristicRegistry;
+  readonly getAll: () => readonly HeaderHeuristic[];
+}
+
+export interface BankProfileRegistry {
+  readonly detect: (headers: readonly string[]) => string | undefined;
+  readonly register: (signature: BankSignature) => BankProfileRegistry;
+  readonly getAll: () => readonly BankSignature[];
 }

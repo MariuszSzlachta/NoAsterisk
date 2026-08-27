@@ -18,7 +18,7 @@ vi.mock('#features/csv-import/model/parsing/csv-parser', () => ({
   parseCsvFile: (...args: unknown[]) => mockParseCsvFile(...args),
 }));
 
-vi.mock('#features/csv-import/model/column-mapping/column-mapper', () => ({
+vi.mock('#features/csv-import/model/column-mapping/auto-detect', () => ({
   autoDetectMapping: (...args: unknown[]) => mockAutoDetectMapping(...args),
   hasRequiredFields: (mapping: Record<string, unknown>) =>
     'date' in mapping && 'title' in mapping && 'amount' in mapping,

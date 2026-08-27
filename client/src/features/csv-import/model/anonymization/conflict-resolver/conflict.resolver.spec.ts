@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DetectionSpan } from '../types';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 import { resolveConflicts } from './conflict.resolver';
 
 const makeSpan = (

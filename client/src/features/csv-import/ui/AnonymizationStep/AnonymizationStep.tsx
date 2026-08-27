@@ -54,7 +54,6 @@ export const AnonymizationStep = (): React.JSX.Element => {
               {t('import.anonymization.description')}
             </p>
           </div>
-              handler ustawia tylko accepted i nie synchronizuje rows z masked text. */}
           <Button onClick={handleBulkAccept}>
             <CheckCircle2 size={16} />
             {t('import.anonymization.acceptAll')}

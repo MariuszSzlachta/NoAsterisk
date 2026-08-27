@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
-import { isDomainField } from '#features/csv-import/model/column-mapping/column-mapper';
+import { isDomainField } from '#features/csv-import/model/column-mapping/validators/is-domain-field';
 import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping';
 import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import type { SelectOption } from '#shared/ui/Select';

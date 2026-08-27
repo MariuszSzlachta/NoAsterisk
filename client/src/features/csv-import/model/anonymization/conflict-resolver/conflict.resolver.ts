@@ -1,4 +1,4 @@
-import type { DetectionSpan } from '../types';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
 
 /**
  * Resolve overlapping detection spans using priority-based strategy.

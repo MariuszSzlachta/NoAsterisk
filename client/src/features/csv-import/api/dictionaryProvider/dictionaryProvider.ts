@@ -3,11 +3,8 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
-import {
-  buildFromStubs,
-  createDictionaryProvider,
-} from '#features/csv-import/model/anonymization/dictionaries/dictionary.provider';
-
+import { createDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary-provider.factory';
+import { buildFromStubs } from '#features/csv-import/model/anonymization/dictionaries/stub-builder';
 import { fetchDictionaries } from '../fetchDictionaries';
 
 /**

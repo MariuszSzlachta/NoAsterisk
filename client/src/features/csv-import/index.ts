@@ -11,7 +11,10 @@ export {
   decodeBufferWithWarning,
   countReplacementChars,
 } from './model/parsing/encoding-detector';
-export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapping/column-mapper';
+export { autoDetectMapping } from './model/column-mapping/auto-detect';
+export { normalizeHeader } from './model/column-mapping/normalize-header';
+export { isDomainField } from './model/column-mapping/validators/is-domain-field';
+export { hasRequiredFields } from './model/column-mapping/validators/has-required-fields';
 export { transformRows } from './model/transformation/row-transformer';
 export { findSimilarRows } from './model/transformation/find-similar-rows';
 export { createImportChunks, computeContentHash, computeBatchHash } from './model/submission/import-chunks';
@@ -20,12 +23,10 @@ export {
   detectDuplicatesAgainstExisting,
 } from './model/transformation/duplicate-detector';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
-export {
-  buildFromStubs,
-  createDictionaryProvider,
-  devDictionaryProvider,
-} from './model/anonymization/dictionaries/dictionary.provider';
-export { detectBankFromHeaders } from './model/column-mapping/bank-profiles';
+export { buildFromStubs } from './model/anonymization/dictionaries/stub-builder';
+export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider.factory';
+export { devDictionaryProvider } from './model/anonymization/dictionaries/dev-provider';
+export { detectBankFromHeaders } from './model/column-mapping/bank-profiles/detect-bank-from-headers';
 
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
