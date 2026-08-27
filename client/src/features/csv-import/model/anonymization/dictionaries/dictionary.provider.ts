@@ -34,7 +34,9 @@ export const createDictionaryProvider = (
 
   return {
     loadAll: async (): Promise<DictionarySet> => {
-      if (cache) return cache;
+      if (cache) {
+        return cache;
+      }
       if (!inflight) {
         inflight = loader()
           .then((result) => {

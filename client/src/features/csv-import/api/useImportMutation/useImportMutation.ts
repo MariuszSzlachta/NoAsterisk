@@ -1,8 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { apiClient } from '#shared/api';
+
+
 import type { ImportChunkPayload, ImportChunkResult } from '#features/csv-import/model/types';
+import { apiClient } from '#shared/api';
+
+
+
+
 
 const importChunkResultSchema = z.object({
   status: z.enum(['accepted', 'partial', 'rejected']),
@@ -36,8 +42,7 @@ export const useImportMutation = (): UseImportMutationResult => {
       >('/imports', body);
 
       // Validate response shape
-      const parsed = importChunkResultSchema.parse(response);
-      return parsed;
+      return importChunkResultSchema.parse(response);
     },
   });
 
