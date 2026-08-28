@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { RegisterForm } from './RegisterForm';
+import { RegisterForm } from '#features/auth/ui/RegisterForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
 

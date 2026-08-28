@@ -1,25 +1,7 @@
 import { create } from 'zustand';
 
-interface AuthMutationState {
-  readonly serverError: string | undefined;
-  readonly isSubmitting: boolean;
-}
-
-interface AuthStoreState {
-  readonly login: AuthMutationState;
-  readonly register: AuthMutationState;
-  readonly setLoginSubmitting: (isSubmitting: boolean) => void;
-  readonly setLoginError: (error: string | undefined) => void;
-  readonly resetLogin: () => void;
-  readonly setRegisterSubmitting: (isSubmitting: boolean) => void;
-  readonly setRegisterError: (error: string | undefined) => void;
-  readonly resetRegister: () => void;
-}
-
-const INITIAL_MUTATION_STATE: AuthMutationState = {
-  serverError: undefined,
-  isSubmitting: false,
-};
+import { INITIAL_MUTATION_STATE } from '#features/auth/store/useAuthStore/initial-mutation-state';
+import type { AuthStoreState } from '#features/auth/store/useAuthStore/auth-store-state';
 
 export const useAuthStore = create<AuthStoreState>((set) => ({
   login: INITIAL_MUTATION_STATE,
