@@ -11,14 +11,10 @@ import { Input } from '#shared/ui/Input';
 import { Select } from '#shared/ui/Select';
 import type { SelectOption } from '#shared/ui/Select';
 
-// ─── Props ───────────────────────────────────────────────────────
-
 interface RuleFormModalProps {
   readonly editingRule?: RuleRecord;
   readonly onClose: () => void;
 }
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const RuleFormModal = ({
   editingRule,

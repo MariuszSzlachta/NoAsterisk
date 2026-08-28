@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — RulesTable Component
-// ═══════════════════════════════════════════════════════════════════
-
 import { useTranslation } from 'react-i18next';
 
 import type { RuleViewModel } from '#features/admin-rules/model/types';
@@ -9,13 +5,9 @@ import { buildRulesColumns } from '#features/admin-rules/ui/constants/rules-colu
 import { useRulesTable } from '#features/admin-rules/ui/hooks/useRulesTable';
 import { DataTable } from '#shared/ui/DataTable';
 
-// ─── Props ───────────────────────────────────────────────────────
-
 interface RulesTableProps {
   readonly onEdit: (ruleId: string) => void;
 }
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const RulesTable = ({ onEdit }: RulesTableProps): React.JSX.Element => {
   const { t } = useTranslation();

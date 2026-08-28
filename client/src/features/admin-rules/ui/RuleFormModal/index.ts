@@ -1,1 +1,1 @@
-export { RuleFormModal } from './RuleFormModal';
+export { RuleFormModal } from '#features/admin-rules/ui/RuleFormModal/RuleFormModal';

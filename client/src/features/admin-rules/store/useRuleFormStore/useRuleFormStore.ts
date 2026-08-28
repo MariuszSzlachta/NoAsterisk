@@ -1,7 +1,5 @@
 import { create } from 'zustand';
 
-// ─── State Interface ─────────────────────────────────────────────
-
 interface RuleFormState {
   readonly showForm: boolean;
   readonly editingRuleId: string | undefined;
@@ -9,8 +7,6 @@ interface RuleFormState {
   readonly openEditForm: (id: string) => void;
   readonly closeForm: () => void;
 }
-
-// ─── Store ───────────────────────────────────────────────────────
 
 export const useRuleFormStore = create<RuleFormState>((set) => ({
   showForm: false,

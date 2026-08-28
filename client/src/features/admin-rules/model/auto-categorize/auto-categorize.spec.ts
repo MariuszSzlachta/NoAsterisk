@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  autoCategorize,
-  filterUncategorized,
-  findMatchingRule,
-  matchesRule,
-  sortRulesByPriority,
-} from './auto-categorize';
+import { autoCategorize } from '#features/admin-rules/model/auto-categorize/auto-categorize';
+import { filterUncategorized } from '#features/admin-rules/model/auto-categorize/filter-uncategorized';
+import { findMatchingRule } from '#features/admin-rules/model/auto-categorize/find-matching-rule';
+import { matchesRule } from '#features/admin-rules/model/auto-categorize/matches-rule';
+import { sortRulesByPriority } from '#features/admin-rules/model/auto-categorize/sort-rules-by-priority';
 import type { RuleRecord, UncategorizedTransaction } from '#features/admin-rules/model/types';
-
-// ─── Test Builders ───────────────────────────────────────────────
 
 const buildRule = (overrides: Partial<RuleRecord> = {}): RuleRecord => ({
   id: 'rule-1',
@@ -29,8 +25,6 @@ const buildTransaction = (
   categoryId: undefined,
   ...overrides,
 });
-
-// ─── matchesRule ─────────────────────────────────────────────────
 
 describe('matchesRule', () => {
   it('returns true when Contains rule matches substring', () => {
@@ -57,9 +51,22 @@ describe('matchesRule', () => {
     const rule = buildRule({ matcherType: 'Contains', keyword: 'biedronka' });
     expect(matchesRule('BIEDRONKA WARSZAWA', rule)).toBe(true);
   });
-});
 
-// ─── sortRulesByPriority ─────────────────────────────────────────
+  it('returns false for invalid rule (empty keyword)', () => {
+    const rule = buildRule({ keyword: '   ' });
+    expect(matchesRule('BIEDRONKA WARSZAWA', rule)).toBe(false);
+  });
+
+  it('returns false for invalid rule (priority below minimum)', () => {
+    const rule = buildRule({ priority: 0 });
+    expect(matchesRule('BIEDRONKA WARSZAWA', rule)).toBe(false);
+  });
+
+  it('returns false for unknown matcher type', () => {
+    const rule = buildRule({ matcherType: 'Unknown' as 'Contains' });
+    expect(matchesRule('BIEDRONKA WARSZAWA', rule)).toBe(false);
+  });
+});
 
 describe('sortRulesByPriority', () => {
   it('sorts rules by priority descending', () => {
@@ -90,8 +97,6 @@ describe('sortRulesByPriority', () => {
     expect(sortRulesByPriority([])).toEqual([]);
   });
 });
-
-// ─── filterUncategorized ─────────────────────────────────────────
 
 describe('filterUncategorized', () => {
   it('returns only transactions without categoryId', () => {
@@ -124,8 +129,6 @@ describe('filterUncategorized', () => {
   });
 });
 
-// ─── findMatchingRule ────────────────────────────────────────────
-
 describe('findMatchingRule', () => {
   it('returns the first matching rule from sorted list', () => {
     const rules = [
@@ -150,8 +153,6 @@ describe('findMatchingRule', () => {
     expect(findMatchingRule('BIEDRONKA', [])).toBeUndefined();
   });
 });
-
-// ─── autoCategorize (orchestrator) ───────────────────────────────
 
 describe('autoCategorize', () => {
   it('returns assignment when Contains rule matches substring', () => {

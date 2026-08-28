@@ -4,8 +4,7 @@ import type { MatcherType, RuleRecord } from '#features/admin-rules/model/types'
 import type { RuleFormErrors } from '#features/admin-rules/model/validators';
 import { hasRuleFormErrors, validateRuleForm } from '#features/admin-rules/model/validators';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-
-// ─── Types ───────────────────────────────────────────────────────
+import { DEFAULT_FORM_VALUES } from '#features/admin-rules/ui/hooks/useRuleForm/default-form-values';
 
 interface FormValues {
   readonly keyword: string;
@@ -25,17 +24,6 @@ interface UseRuleFormResult {
   readonly handleSubmit: () => void;
   readonly handleCancel: () => void;
 }
-
-// ─── Constants ───────────────────────────────────────────────────
-
-const DEFAULT_FORM_VALUES: FormValues = {
-  keyword: '',
-  matcherType: 'Contains',
-  categoryId: '',
-  priority: 1,
-};
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 /**
  * Manages rule form state with validation.
@@ -85,10 +73,11 @@ export const useRuleForm = (
 
     if (editingRule) {
       updateRule(editingRule.id, payload);
-    } else {
-      addRule(payload);
+      onClose();
+      return;
     }
 
+    addRule(payload);
     onClose();
   };
 

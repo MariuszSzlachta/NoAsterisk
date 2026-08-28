@@ -4,8 +4,6 @@ import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 import type { ApplyResult } from '#features/admin-rules/ui/hooks/useApplyRules';
 import { useApplyRules } from '#features/admin-rules/ui/hooks/useApplyRules';
 
-// ─── Types ───────────────────────────────────────────────────────
-
 interface UseAdminRulesPageResult {
   readonly showForm: boolean;
   readonly editingRule: RuleRecord | undefined;
@@ -15,8 +13,6 @@ interface UseAdminRulesPageResult {
   readonly handleCloseForm: () => void;
   readonly handleApplyRules: () => void;
 }
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAdminRulesPage = (): UseAdminRulesPageResult => {
   const rules = useRulesStore((s) => s.rules);
