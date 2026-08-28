@@ -1,4 +1,4 @@
-import type { BankSignature } from '#features/csv-import/model/column-mapping/types';
+import type { BankSignature } from '#features/csv-import/model/column-mapping/bank-signature';
 
 export const PKO_BP_SIGNATURE: BankSignature = {
   displayName: 'PKO BP',

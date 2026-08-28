@@ -1,4 +1,4 @@
-import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/types';
+import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/header-heuristic';
 import { AMOUNT_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/amount';
 import { BALANCE_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/balance';
 import { CATEGORY_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/category';

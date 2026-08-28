@@ -1,8 +1,6 @@
-import type {
-  DomainField,
-  HeaderHeuristic,
-  HeuristicRegistry,
-} from '#features/csv-import/model/column-mapping/types';
+import type { DomainField } from '#features/csv-import/model/column-mapping/domain-field';
+import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/header-heuristic';
+import type { HeuristicRegistry } from '#features/csv-import/model/column-mapping/heuristic-registry';
 
 import { BUILTIN_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/builtin-heuristics';
 

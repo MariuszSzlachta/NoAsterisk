@@ -1,4 +1,4 @@
-import type { NormalizeStep } from '#features/csv-import/model/column-mapping/types';
+import type { NormalizeStep } from '#features/csv-import/model/column-mapping/normalize-step';
 import { collapseWhitespace } from '#features/csv-import/model/column-mapping/normalize-header/collapse-whitespace';
 import { stripBom } from '#features/csv-import/model/column-mapping/normalize-header/strip-bom-step';
 import { stripLeadingHash } from '#features/csv-import/model/column-mapping/normalize-header/strip-leading-hash';

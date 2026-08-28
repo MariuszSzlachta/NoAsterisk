@@ -3,10 +3,8 @@ import { EMPTY_ACCUMULATOR_STATE } from '#features/csv-import/model/column-mappi
 import { defaultHeuristicRegistry } from '#features/csv-import/model/column-mapping/heuristics/default-heuristic-registry';
 import { normalizeHeader } from '#features/csv-import/model/column-mapping/normalize-header';
 import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping/mergeable-fields';
-import type {
-  ColumnMapping,
-  HeuristicRegistry,
-} from '#features/csv-import/model/column-mapping/types';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/column-mapping-type';
+import type { HeuristicRegistry } from '#features/csv-import/model/column-mapping/heuristic-registry';
 
 export const autoDetectMapping = (
   headers: readonly string[],

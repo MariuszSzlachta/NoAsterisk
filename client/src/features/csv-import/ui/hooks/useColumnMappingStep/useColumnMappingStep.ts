@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping';
+import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping/mergeable-fields';
 import { isDomainField } from '#features/csv-import/model/column-mapping/validators/is-domain-field';
 import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ColumnMapping } from '#features/csv-import/model/column-mapping/types';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/column-mapping-type';
 import { hasRequiredFields } from '#features/csv-import/model/column-mapping/validators/has-required-fields';
 
 describe('hasRequiredFields', () => {
