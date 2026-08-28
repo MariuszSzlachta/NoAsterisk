@@ -2,30 +2,26 @@
 // Only these exports are available to pages and other features.
 
 // Model — parsers & transformers
-export { parseCsvFile, CsvParseError } from './model/parsing/csv-parser';
-export {
-  detectDateFormat,
-  parseDate,
-  parseDateFlexible,
-} from './model/parsing/date-parser';
-export { detectAmountLocale, parseAmount } from './model/parsing/amount-parser';
-export {
-  detectEncoding,
-  decodeBuffer,
-  decodeBufferWithWarning,
-  countReplacementChars,
-} from './model/parsing/encoding-detector';
+export { parseCsvFile } from './model/parsing/csv-parser/parse-csv-file';
+export { CsvParseError } from './model/parsing/csv-parser/helpers/csv-parse-error';
+export { detectDateFormat } from './model/parsing/date-parser/detect-date-format';
+export { parseDate } from './model/parsing/date-parser/parse-date';
+export { parseDateFlexible } from './model/parsing/date-parser/parse-date-flexible';
+export { detectAmountLocale } from './model/parsing/amount-parser/detect-amount-locale';
+export { parseAmount } from './model/parsing/amount-parser/parse-amount';
+export { detectEncoding } from './model/parsing/encoding-detector/detect-encoding';
+export { decodeBuffer } from './model/parsing/encoding-detector/decode-buffer';
+export { decodeBufferWithWarning } from './model/parsing/encoding-detector/decode-buffer-with-warning';
+export { countReplacementChars } from './model/parsing/encoding-detector/helpers/count-replacement-chars';
 export { autoDetectMapping } from './model/column-mapping/auto-detect';
 export { normalizeHeader } from './model/column-mapping/normalize-header';
 export { isDomainField } from './model/column-mapping/validators/is-domain-field';
 export { hasRequiredFields } from './model/column-mapping/validators/has-required-fields';
 export { transformRows } from './model/transformation/row-transformer';
 export { findSimilarRows } from './model/transformation/find-similar-rows';
-export {
-  createImportChunks,
-  computeContentHash,
-  computeBatchHash,
-} from './model/submission/import-chunks';
+export { createImportChunks } from './model/submission/import-chunks/create-import-chunks';
+export { computeContentHash } from './model/submission/import-chunks/compute-content-hash';
+export { computeBatchHash } from './model/submission/import-chunks/compute-batch-hash';
 export {
   detectDuplicatesInBatch,
   detectDuplicatesAgainstExisting,
@@ -79,4 +75,4 @@ export type {
   ImportProgress,
 } from './model/types';
 
-export type { DecodeWarning } from './model/parsing/encoding-detector';
+export type { DecodeWarning } from './model/parsing/types/decode-warning';

@@ -2,16 +2,14 @@
 // CSV Import Types — Barrel (re-exports from per-group modules)
 // ═══════════════════════════════════════════════════════════════════
 
-export type {
-  CsvRow,
-  ParsedCsvData,
-  DateFormat,
-  AmountLocale,
-  ParserConfig,
-  ReassemblyStrategyType,
-  ReassemblyConfig,
-  ReassemblyStrategy,
-} from './parsing/types';
+export type { CsvRow } from './parsing/types/csv-row';
+export type { ParsedCsvData } from './parsing/types/parsed-csv-data';
+export type { DateFormat } from './parsing/types/date-format';
+export type { AmountLocale } from './parsing/types/amount-locale';
+export type { ParserConfig } from './parsing/types/parser-config';
+export type { ReassemblyStrategyType } from './parsing/types/reassembly-strategy-type';
+export type { ReassemblyConfig } from './parsing/types/reassembly-config';
+export type { ReassemblyStrategy } from './parsing/types/reassembly-strategy';
 
 export type {
   DomainField,
@@ -37,10 +35,8 @@ export type { DictionaryProvider } from './anonymization/types/dictionary-provid
 export type { AnonymizationStatus } from './anonymization/types/anonymization-status';
 export type { AnonymizationEntry } from './anonymization/types/anonymization-entry';
 
-export type {
-  TransactionType,
-  ImportRowPayload,
-  ImportChunkPayload,
-  ImportChunkResult,
-  ImportProgress,
-} from './submission/types';
+export type { TransactionType } from './submission/transaction-type';
+export type { ImportRowPayload } from './submission/import-row-payload';
+export type { ImportChunkPayload } from './submission/import-chunk-payload';
+export type { ImportChunkResult } from './submission/import-chunk-result';
+export type { ImportProgress } from './submission/import-progress';

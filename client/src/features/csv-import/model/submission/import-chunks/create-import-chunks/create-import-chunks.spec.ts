@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { TransactionRow } from '#features/csv-import/model/transformation/types';
-import { computeContentHash } from './compute-content-hash';
-import { computeBatchHash } from './compute-batch-hash';
-import { createImportChunks } from './create-import-chunks';
+import { createImportChunks } from '#features/csv-import/model/submission/import-chunks/create-import-chunks';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: crypto.randomUUID(),
@@ -13,49 +11,6 @@ const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   currency: 'PLN',
   status: 'ok',
   ...overrides,
-});
-
-describe('computeContentHash', () => {
-  it('produces 64-char hex hash', async () => {
-    const hash = await computeContentHash(makeRow());
-    expect(hash).toMatch(/^[a-f0-9]{64}$/);
-  });
-
-  it('produces same hash for same data', async () => {
-    const row = makeRow({ date: '2026-06-26', amount: -87.43, title: 'TEST' });
-    const hash1 = await computeContentHash(row);
-    const hash2 = await computeContentHash(row);
-    expect(hash1).toBe(hash2);
-  });
-
-  it('produces different hash for different amounts', async () => {
-    const row1 = makeRow({ amount: -87.43 });
-    const row2 = makeRow({ amount: -100.0 });
-    const hash1 = await computeContentHash(row1);
-    const hash2 = await computeContentHash(row2);
-    expect(hash1).not.toBe(hash2);
-  });
-
-  it('is case-insensitive on title', async () => {
-    const row1 = makeRow({ title: 'BIEDRONKA' });
-    const row2 = makeRow({ title: 'biedronka' });
-    const hash1 = await computeContentHash(row1);
-    const hash2 = await computeContentHash(row2);
-    expect(hash1).toBe(hash2);
-  });
-});
-
-describe('computeBatchHash', () => {
-  it('produces 64-char hex hash', async () => {
-    const hash = await computeBatchHash([makeRow()]);
-    expect(hash).toMatch(/^[a-f0-9]{64}$/);
-  });
-
-  it('produces different hash for different row sets', async () => {
-    const hash1 = await computeBatchHash([makeRow({ amount: -10 })]);
-    const hash2 = await computeBatchHash([makeRow({ amount: -20 })]);
-    expect(hash1).not.toBe(hash2);
-  });
 });
 
 describe('createImportChunks', () => {
@@ -80,7 +35,7 @@ describe('createImportChunks', () => {
 
     const chunks = await createImportChunks(rows, defaultOptions);
 
-    expect(chunks).toHaveLength(3); // 200 + 200 + 50
+    expect(chunks).toHaveLength(3);
     expect(chunks[0].rows).toHaveLength(200);
     expect(chunks[1].rows).toHaveLength(200);
     expect(chunks[2].rows).toHaveLength(50);
@@ -109,7 +64,6 @@ describe('createImportChunks', () => {
     expect(chunks[0].rows).toHaveLength(1);
   });
 
-  // transformacji.
   it('includes warning rows', async () => {
     const rows = [
       makeRow({ id: 'ok', status: 'ok' }),

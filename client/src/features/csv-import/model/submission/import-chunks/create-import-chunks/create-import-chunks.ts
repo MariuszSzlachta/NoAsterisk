@@ -1,38 +1,12 @@
 import type { TransactionRow } from '#features/csv-import/model/transformation/types';
-import type {
-  ImportChunkPayload,
-  ImportRowPayload,
-  TransactionType,
-} from '#features/csv-import/model/submission/types';
+import type { ImportChunkPayload } from '#features/csv-import/model/submission/import-chunk-payload';
+import { computeContentHash } from '#features/csv-import/model/submission/import-chunks/compute-content-hash';
+import { computeBatchHash } from '#features/csv-import/model/submission/import-chunks/compute-batch-hash';
+import { mapRowToPayload } from '#features/csv-import/model/submission/import-chunks/map-row-to-payload';
+import { MAX_ROWS_PER_CHUNK } from '#features/csv-import/model/submission/import-chunks/max-rows-per-chunk';
+import { isImportableRow } from '#features/csv-import/model/submission/import-chunks/is-importable-row';
+import { sliceIntoChunks } from '#features/csv-import/model/submission/import-chunks/slice-into-chunks';
 
-import { computeContentHash } from '../compute-content-hash';
-import { computeBatchHash } from '../compute-batch-hash';
-
-export const MAX_ROWS_PER_CHUNK = 200;
-
-/**
- * Map a TransactionRow to the API payload format.
- */
-export const mapRowToPayload = (
-  row: TransactionRow,
-  contentHash: string,
-): ImportRowPayload => ({
-  amount: Math.abs(row.amount),
-  currency: row.currency,
-  type: (row.amount >= 0 ? 'income' : 'expense') as TransactionType,
-  description: row.title,
-  date: row.date,
-  categoryIds: [],
-  contentHash,
-});
-
-/**
- * Split transaction rows into chunks of max 200 rows each,
- * ready for sequential POST /imports calls.
- *
- * Filters out error and duplicate rows before chunking.
- * Computes contentHash per row and batchHash for the whole submission.
- */
 export const createImportChunks = async (
   rows: ReadonlyArray<TransactionRow>,
   options: {
@@ -41,39 +15,29 @@ export const createImportChunks = async (
     readonly profileId?: string;
   },
 ): Promise<ReadonlyArray<ImportChunkPayload>> => {
-  // Filter to importable rows only (ok + warning, skip errors + duplicates)
-  const importableRows = rows.filter(
-    (r) => r.status === 'ok' || r.status === 'warning',
-  );
+  const importableRows = rows.filter(isImportableRow);
 
   if (importableRows.length === 0) {
     return [];
   }
 
-  // Compute hashes
-  const contentHashes = await Promise.all(
-    importableRows.map((row) => computeContentHash(row)),
-  );
-  const batchHash = await computeBatchHash(importableRows);
+  const [contentHashes, batchHash] = await Promise.all([
+    Promise.all(importableRows.map((row) => computeContentHash(row))),
+    computeBatchHash(importableRows),
+  ]);
 
-  // Split into chunks of MAX_ROWS_PER_CHUNK
-  const chunks: ImportChunkPayload[] = [];
-  for (let i = 0; i < importableRows.length; i += MAX_ROWS_PER_CHUNK) {
-    const chunkRows = importableRows.slice(i, i + MAX_ROWS_PER_CHUNK);
-    const chunkHashes = contentHashes.slice(i, i + MAX_ROWS_PER_CHUNK);
-
-    const payloadRows = chunkRows.map((row, idx) =>
-      mapRowToPayload(row, chunkHashes[idx]),
-    );
-
-    chunks.push({
+  return sliceIntoChunks(importableRows, MAX_ROWS_PER_CHUNK).map(
+    (chunkRows, chunkIndex) => ({
       batchId: options.batchId,
       batchHash,
       sourceFilename: options.sourceFilename,
       profileId: options.profileId,
-      rows: payloadRows,
-    });
-  }
-
-  return chunks;
+      rows: chunkRows.map((row, rowIndex) =>
+        mapRowToPayload(
+          row,
+          contentHashes[chunkIndex * MAX_ROWS_PER_CHUNK + rowIndex],
+        ),
+      ),
+    }),
+  );
 };
