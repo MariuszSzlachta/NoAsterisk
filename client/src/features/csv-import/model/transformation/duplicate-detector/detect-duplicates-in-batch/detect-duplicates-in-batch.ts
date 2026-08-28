@@ -1,22 +1,15 @@
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
+import { hashTransaction } from '#features/csv-import/model/transformation/duplicate-detector/hash-transaction';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
 
-import { hashTransaction } from '../hash-transaction';
+import { FIRST_OCCURRENCE_COUNT } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch/constants/first-occurrence-count';
+import { NEAR_DUPLICATE_THRESHOLD } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch/constants/near-duplicate-threshold';
+import { STATUS_REASON_NEAR_DUPLICATE } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch/constants/status-reason-near-duplicate';
+import { STATUS_REASON_TRUE_DUPLICATE } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch/constants/status-reason-true-duplicate';
 
 /**
- * Detect duplicate and near-duplicate rows within a batch.
- *
- * Strategy:
- * - First occurrence of a hash: passes as-is
- * - Second occurrence: marked as 'warning' (near-duplicate) — likely a legitimate
- *   repeat purchase (e.g. two trips to Biedronka for 87.43 PLN same day)
- * - Third+ occurrence: marked as 'duplicate' — very unlikely to be legitimate
- *
- * Rationale (CR-6): same amount + same store + same day happens in real life
- * (morning coffee + afternoon coffee at same chain). Hard-flagging as 'duplicate'
- * causes data loss. Warning lets the user decide.
- *
- * Cross-file dedup (detectDuplicatesAgainstExisting) remains strict — if the hash
- * already exists in backend, it's a true duplicate (same import run twice).
+ * Second occurrence = warning (same amount + same store + same day happens in real life).
+ * Third+ occurrence = duplicate (very unlikely to be legitimate).
+ * Cross-file dedup (detectDuplicatesAgainstExisting) remains strict.
  */
 export const detectDuplicatesInBatch = (
   rows: readonly TransactionRow[],
@@ -29,29 +22,26 @@ export const detectDuplicatesInBatch = (
     }
 
     const hash = hashTransaction(row);
-    const count = seen.get(hash) ?? 0;
+    const count = seen.get(hash) ?? FIRST_OCCURRENCE_COUNT;
     seen.set(hash, count + 1);
 
-    if (count === 0) {
-      // First occurrence — pass through
+    if (count === FIRST_OCCURRENCE_COUNT) {
       return { ...row, duplicateHash: hash };
     }
 
-    if (count === 1) {
-      // Second occurrence — near-duplicate (warning, user decides)
+    if (count === NEAR_DUPLICATE_THRESHOLD) {
       return {
         ...row,
-        status: 'warning' as const,
-        statusReason: 'Near-duplicate: same date, amount, and title',
+        status: 'warning',
+        statusReason: STATUS_REASON_NEAR_DUPLICATE,
         duplicateHash: hash,
       };
     }
 
-    // Third+ occurrence — likely true duplicate
     return {
       ...row,
-      status: 'duplicate' as const,
-      statusReason: 'Duplicate in file (3+ identical rows)',
+      status: 'duplicate',
+      statusReason: STATUS_REASON_TRUE_DUPLICATE,
       duplicateHash: hash,
     };
   });

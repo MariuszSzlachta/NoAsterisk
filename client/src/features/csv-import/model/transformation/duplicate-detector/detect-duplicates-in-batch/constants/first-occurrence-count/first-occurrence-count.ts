@@ -1,0 +1,1 @@
+export const FIRST_OCCURRENCE_COUNT = 0;

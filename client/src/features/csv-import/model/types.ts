@@ -16,13 +16,11 @@ export type { ColumnMapping } from './column-mapping/column-mapping-type';
 export type { MappingProfile } from './column-mapping/mapping-profile';
 export type { BankProfile } from './column-mapping/bank-profile';
 
-export type {
-  RowStatus,
-  TransactionRow,
-  WizardStep,
-  ImportStats,
-  UserCorrection,
-} from './transformation/types';
+export type { RowStatus } from './transformation/types/row-status';
+export type { TransactionRow } from './transformation/types/transaction-row';
+export type { WizardStep } from './transformation/types/wizard-step';
+export type { ImportStats } from './transformation/types/import-stats';
+export type { UserCorrection } from './transformation/types/user-correction';
 
 export type { PiiType } from './anonymization/types/pii-type';
 export type { DetectionSpan } from './anonymization/types/detection-span';

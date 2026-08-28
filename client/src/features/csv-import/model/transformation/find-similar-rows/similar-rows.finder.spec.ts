@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
-import { findSimilarRows } from './similar-rows.finder';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
+import { findSimilarRows } from '#features/csv-import/model/transformation/find-similar-rows/similar-rows.finder';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: crypto.randomUUID(),

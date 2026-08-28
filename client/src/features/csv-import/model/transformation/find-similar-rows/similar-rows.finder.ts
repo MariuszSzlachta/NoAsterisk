@@ -1,15 +1,6 @@
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
 
-/**
- * Find rows with the same original title as the edited row.
- * Used for batch edit propagation — when user renames one transaction,
- * offer to rename all similar ones.
- *
- * Matching logic:
- * - Case-insensitive, trimmed comparison on `title` field
- * - Excludes the edited row itself
- * - Excludes error rows (can't propagate to broken data)
- */
+/** Excludes error rows — can't propagate corrections to broken data */
 export const findSimilarRows = (
   rows: ReadonlyArray<TransactionRow>,
   editedRowId: string,

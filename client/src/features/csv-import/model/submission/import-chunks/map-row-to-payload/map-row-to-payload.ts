@@ -1,4 +1,4 @@
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
 import type { ImportRowPayload } from '#features/csv-import/model/submission/import-row-payload';
 
 export const mapRowToPayload = (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
 import { isImportableRow } from '#features/csv-import/model/submission/import-chunks/is-importable-row';
 
 const makeRow = (status: TransactionRow['status']): TransactionRow => ({

@@ -22,10 +22,8 @@ export { findSimilarRows } from './model/transformation/find-similar-rows';
 export { createImportChunks } from './model/submission/import-chunks/create-import-chunks';
 export { computeContentHash } from './model/submission/import-chunks/compute-content-hash';
 export { computeBatchHash } from './model/submission/import-chunks/compute-batch-hash';
-export {
-  detectDuplicatesInBatch,
-  detectDuplicatesAgainstExisting,
-} from './model/transformation/duplicate-detector';
+export { detectDuplicatesInBatch } from './model/transformation/duplicate-detector/detect-duplicates-in-batch';
+export { detectDuplicatesAgainstExisting } from './model/transformation/duplicate-detector/detect-duplicates-against-existing';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
 export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
 export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider-factory';

@@ -14,7 +14,7 @@ const mockProcessRows = vi.fn();
 const mockLoadAll = vi.fn();
 const mockDetectDuplicatesInBatch = vi.fn();
 
-vi.mock('#features/csv-import/model/parsing/csv-parser', () => ({
+vi.mock('#features/csv-import/model/parsing/csv-parser/parse-csv-file', () => ({
   parseCsvFile: (...args: unknown[]) => mockParseCsvFile(...args),
 }));
 
@@ -36,7 +36,7 @@ vi.mock('#features/csv-import/api/dictionaryProvider', () => ({
   dictionaryProvider: { loadAll: (...args: unknown[]) => mockLoadAll(...args) },
 }));
 
-vi.mock('#features/csv-import/model/transformation/duplicate-detector', () => ({
+vi.mock('#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch', () => ({
   detectDuplicatesInBatch: (...args: unknown[]) =>
     mockDetectDuplicatesInBatch(...args),
 }));

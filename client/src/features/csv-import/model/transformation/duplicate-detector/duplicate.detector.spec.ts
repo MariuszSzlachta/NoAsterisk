@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TransactionRow } from '#features/csv-import/model/transformation/types';
-import { hashTransaction } from './hash-transaction';
-import { detectDuplicatesInBatch } from './detect-duplicates-in-batch';
-import { detectDuplicatesAgainstExisting } from './detect-duplicates-against-existing';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
+import { hashTransaction } from '#features/csv-import/model/transformation/duplicate-detector/hash-transaction';
+import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch';
+import { detectDuplicatesAgainstExisting } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-against-existing';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: '0',

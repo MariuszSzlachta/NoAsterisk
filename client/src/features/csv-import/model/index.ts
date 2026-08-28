@@ -33,10 +33,8 @@ export { detectBankFromHeaders } from './column-mapping/bank-profiles/detect-ban
 
 // Transformation
 export { transformRows } from './transformation/row-transformer';
-export {
-  detectDuplicatesInBatch,
-  detectDuplicatesAgainstExisting,
-} from './transformation/duplicate-detector';
+export { detectDuplicatesInBatch } from './transformation/duplicate-detector/detect-duplicates-in-batch';
+export { detectDuplicatesAgainstExisting } from './transformation/duplicate-detector/detect-duplicates-against-existing';
 export { findSimilarRows } from './transformation/find-similar-rows';
 
 // Submission
