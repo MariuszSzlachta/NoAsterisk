@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { usePeriodHistoryStore } from './usePeriodHistoryStore';
-import type { PeriodHistoryRecord } from '#features/budgets/model/period-history';
+import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
 
 // ─── Helpers ─────────────────────────────────────────────────────
 

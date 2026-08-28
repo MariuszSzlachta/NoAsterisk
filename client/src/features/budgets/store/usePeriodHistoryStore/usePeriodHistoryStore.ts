@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { PeriodHistoryRecord } from '#features/budgets/model/period-history';
-import { isDuplicateClosure } from '#features/budgets/model/period-history';
+import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
+import { isDuplicateClosure } from '#features/budgets/model/is-duplicate-closure';
 
 // ─── State Interface ─────────────────────────────────────────────
 

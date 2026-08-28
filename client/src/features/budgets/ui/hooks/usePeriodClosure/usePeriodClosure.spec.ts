@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
-import type { BudgetViewModel } from '#features/budgets/model/types';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 import { usePeriodClosure } from './usePeriodClosure';
 
 // ─── Helpers ─────────────────────────────────────────────────────

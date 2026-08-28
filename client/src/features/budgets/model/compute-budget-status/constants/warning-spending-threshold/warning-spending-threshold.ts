@@ -1,0 +1,1 @@
+export const WARNING_SPENDING_THRESHOLD = 0.7;

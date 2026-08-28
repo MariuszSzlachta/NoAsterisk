@@ -1,0 +1,1 @@
+export const SURPLUS_TIME_THRESHOLD = 0.5;

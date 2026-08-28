@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
-import { computeNextPeriod, getPeriodRange } from '#features/budgets/model/transformers';
-import type { BudgetViewModel, RolloverOption } from '#features/budgets/model/types';
+import { computeNextPeriod } from '#features/budgets/model/compute-next-period';
+import { getPeriodRange } from '#features/budgets/model/get-period-range';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
+import type { RolloverOption } from '#features/budgets/model/types/rollover-option';
 import type { SelectOption } from '#shared/ui/Select';
 
 // ─── Types ───────────────────────────────────────────────────────

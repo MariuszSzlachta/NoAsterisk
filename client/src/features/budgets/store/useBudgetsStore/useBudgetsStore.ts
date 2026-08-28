@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { BudgetPeriodRecord, BudgetRecord, BudgetType, CloseBudgetPeriodParams } from '#features/budgets/model/types';
-import type { PeriodHistoryRecord } from '#features/budgets/model/period-history';
+import type { BudgetPeriodRecord } from '#features/budgets/model/types/budget-period-record';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetType } from '#features/budgets/model/types/budget-type';
+import type { CloseBudgetPeriodParams } from '#features/budgets/model/types/close-budget-period-params';
+import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
 
 // ─── Validation ──────────────────────────────────────────────────

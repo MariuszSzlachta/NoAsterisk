@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeBudgetStatus } from './budget-status';
+import { computeBudgetStatus } from '#features/budgets/model/compute-budget-status';
 
 describe('computeBudgetStatus', () => {
   describe('awaitingClosure', () => {

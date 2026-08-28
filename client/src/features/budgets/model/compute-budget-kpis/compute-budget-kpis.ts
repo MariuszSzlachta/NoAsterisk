@@ -1,12 +1,6 @@
-import type { BudgetKpiVM, BudgetViewModel } from './types';
+import type { BudgetKpiVM } from '#features/budgets/model/types/budget-kpi-vm';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 
-/**
- * Computes aggregate KPI stats from a list of budget view models.
- * Used by the KPI row at the top of BudgetsPage.
- *
- * Throws if budgets have mixed currencies — caller must pre-filter by currency
- * or this is a data integrity issue.
- */
 export const computeBudgetKpis = (
   budgets: readonly BudgetViewModel[],
   defaultCurrency: string,
@@ -21,7 +15,18 @@ export const computeBudgetKpis = (
     };
   }
 
-  const currency = budgets[0]!.currency;
+  const firstBudget = budgets[0];
+  if (!firstBudget) {
+    return {
+      totalPlanned: 0,
+      totalSpent: 0,
+      totalRemaining: 0,
+      needsAttentionCount: 0,
+      currency: defaultCurrency,
+    };
+  }
+
+  const currency = firstBudget.currency;
   const hasMixedCurrencies = budgets.some((b) => b.currency !== currency);
 
   if (hasMixedCurrencies) {

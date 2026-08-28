@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 
-import type { BudgetRecord } from './types';
-import type { PeriodHistoryRecord } from './period-history';
-import { computeSavingsBalance, getLastInflow, getInflowHistory } from './period-history';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
+import { computeSavingsBalance } from '#features/budgets/model/compute-savings-balance';
+import { getInflowHistory } from '#features/budgets/model/get-inflow-history';
+import { getLastInflow } from '#features/budgets/model/get-last-inflow';
 
 // ─── Test Builders ───────────────────────────────────────────────
 

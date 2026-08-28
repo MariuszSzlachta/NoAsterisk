@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
-import { mapBudgetRecordToViewModel, mapSavingsBudgetToViewModel, computeNextPeriod } from './transformers';
-import type { PeriodHistoryRecord } from './period-history';
-import type { BudgetRecord, BudgetTransactionInput } from './types';
+import { computeNextPeriod } from '#features/budgets/model/compute-next-period';
+import { mapBudgetRecordToViewModel } from '#features/budgets/model/map-budget-record-to-view-model';
+import { mapSavingsBudgetToViewModel } from '#features/budgets/model/map-savings-budget-to-view-model';
+import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetTransactionInput } from '#features/budgets/model/types/budget-transaction-input';
 
 const buildBudgetRecord = (overrides?: Partial<BudgetRecord>): BudgetRecord => ({
   id: 'budget-1',

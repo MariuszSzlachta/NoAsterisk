@@ -1,0 +1,1 @@
+export const SURPLUS_SPENDING_THRESHOLD = 0.5;

@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
-import { mapSavingsBudgetToViewModel } from '#features/budgets/model/transformers';
-import { getInflowHistory } from '#features/budgets/model/period-history';
-import type { SavingsBudgetViewModel } from '#features/budgets/model/types';
+import { mapSavingsBudgetToViewModel } from '#features/budgets/model/map-savings-budget-to-view-model';
+import { getInflowHistory } from '#features/budgets/model/get-inflow-history';
+import type { SavingsBudgetViewModel } from '#features/budgets/model/types/savings-budget-view-model';
 
 // ─── Types ───────────────────────────────────────────────────────
 
