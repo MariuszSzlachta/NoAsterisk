@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
 
 import { applyMasking } from '#features/csv-import/model/anonymization/masker/apply-masking';
 import { maskSpan } from '#features/csv-import/model/anonymization/masker/mask-span';

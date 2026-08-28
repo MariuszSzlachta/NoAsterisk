@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { createDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary-provider-factory';
 

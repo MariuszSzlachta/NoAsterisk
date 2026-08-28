@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { isWhitelisted } from '#features/csv-import/model/anonymization/detectors/name-detector/is-whitelisted';
 

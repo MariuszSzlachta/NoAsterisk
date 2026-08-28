@@ -1,12 +1,6 @@
-import type {
-  AnonymizationEntry,
-  AnonymizationSubmitEntry,
-} from '#features/csv-import/model/anonymization/types';
+import type { AnonymizationEntry } from '#features/csv-import/model/anonymization/types/anonymization-entry';
+import type { AnonymizationSubmitEntry } from '#features/csv-import/model/anonymization/types/anonymization-submit-entry';
 
-/**
- * Strip raw PII from entry before persistence/submission.
- * MUST be used before any entry leaves the browser.
- */
 export const toSubmitEntry = (
   entry: AnonymizationEntry,
 ): AnonymizationSubmitEntry => ({

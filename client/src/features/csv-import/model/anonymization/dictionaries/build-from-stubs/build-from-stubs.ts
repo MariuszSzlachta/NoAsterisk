@@ -1,4 +1,4 @@
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import citiesPl from '#features/csv-import/model/anonymization/dictionaries/stubs/cities-pl.json';
 import merchants from '#features/csv-import/model/anonymization/dictionaries/stubs/merchants.json';

@@ -9,7 +9,7 @@
 
 import { createDictionaryProvider } from '#features/csv-import/model/anonymization/dictionaries/dictionary-provider-factory';
 import { buildFromStubs } from '#features/csv-import/model/anonymization/dictionaries/build-from-stubs';
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { fetchDictionaries } from '#features/csv-import/api/fetchDictionaries';
 

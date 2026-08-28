@@ -1,10 +1,7 @@
 import { createAllCapsWordPattern } from '#features/csv-import/model/anonymization/detectors/name-detector/create-all-caps-word-pattern';
+import { CAPS_SEPARATOR_PATTERN } from '#features/csv-import/model/anonymization/detectors/name-detector/constants/caps-separator-pattern';
 import type { MatchCandidate } from '#features/csv-import/model/anonymization/detectors/name-detector/match-candidate';
-
-interface CapsWord {
-  readonly word: string;
-  readonly start: number;
-}
+import type { CapsWord } from '#features/csv-import/model/anonymization/detectors/name-detector/find-all-caps-names/caps-word';
 
 export const findAllCapsNames = (text: string): MatchCandidate[] => {
   const words: readonly CapsWord[] = Array.from(
@@ -19,7 +16,7 @@ export const findAllCapsNames = (text: string): MatchCandidate[] => {
     }
 
     const betweenAB = text.slice(a.start + a.word.length, b.start);
-    if (!/^[\s-]+$/.test(betweenAB)) {
+    if (!CAPS_SEPARATOR_PATTERN.test(betweenAB)) {
       return acc;
     }
 
@@ -31,7 +28,7 @@ export const findAllCapsNames = (text: string): MatchCandidate[] => {
     const c = words[i + 2];
     const threeWordCandidates: MatchCandidate[] =
       c !== undefined &&
-      /^[\s-]+$/.test(text.slice(b.start + b.word.length, c.start))
+      CAPS_SEPARATOR_PATTERN.test(text.slice(b.start + b.word.length, c.start))
         ? [
             {
               original: text.slice(a.start, c.start + c.word.length),

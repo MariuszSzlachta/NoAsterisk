@@ -1,12 +1,7 @@
-import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
-
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
 import { maskSpan } from '#features/csv-import/model/anonymization/masker/mask-span';
 import { validateSpanInvariants } from '#features/csv-import/model/anonymization/masker/validate-spans';
 
-/**
- * Apply masking to all resolved spans in a text string.
- * Validates that spans are sorted and non-overlapping before proceeding.
- */
 export const applyMasking = (
   text: string,
   spans: readonly DetectionSpan[],

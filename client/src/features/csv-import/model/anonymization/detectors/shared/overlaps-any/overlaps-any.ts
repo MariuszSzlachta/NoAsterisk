@@ -1,4 +1,4 @@
-import type { DetectionSpan } from '#features/csv-import/model/anonymization/types';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
 
 export const overlapsAny = (
   spans: readonly DetectionSpan[],

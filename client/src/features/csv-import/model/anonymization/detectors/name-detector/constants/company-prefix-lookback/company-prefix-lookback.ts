@@ -1,0 +1,1 @@
+export const COMPANY_PREFIX_LOOKBACK = 20;

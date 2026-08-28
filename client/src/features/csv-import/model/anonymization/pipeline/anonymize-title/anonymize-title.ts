@@ -1,12 +1,9 @@
-import { resolveConflicts } from '#features/csv-import/model/anonymization/conflict-resolver/conflict.resolver';
+import { resolveConflicts } from '#features/csv-import/model/anonymization/conflict-resolver';
 import { applyMasking } from '#features/csv-import/model/anonymization/masker/apply-masking';
-import type {
-  AnonymizationStatus,
-  DetectionSpan,
-  DictionarySet,
-  PiiDetector,
-} from '#features/csv-import/model/anonymization/types';
-
+import type { AnonymizationStatus } from '#features/csv-import/model/anonymization/types/anonymization-status';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
+import type { PiiDetector } from '#features/csv-import/model/anonymization/types/pii-detector';
 import { buildPriorityMap } from '#features/csv-import/model/anonymization/pipeline/build-priority-map';
 import { DEFAULT_DETECTORS } from '#features/csv-import/model/anonymization/pipeline/default-detectors';
 import { applyConfidenceGate } from '#features/csv-import/model/anonymization/pipeline/steps/confidence-gate';
@@ -14,17 +11,6 @@ import { determineStatus } from '#features/csv-import/model/anonymization/pipeli
 import { normalizeWhitespace } from '#features/csv-import/model/anonymization/pipeline/steps/normalize-whitespace';
 import { filterByWhitelist } from '#features/csv-import/model/anonymization/pipeline/steps/whitelist-filter';
 
-/**
- * Run full anonymization pipeline on a single title.
- *
- * Pipeline steps (per architecture doc § 4):
- * 1. Run all detectors
- * 2. Whitelist filter (merchants/cities/phrases)
- * 3. Confidence gate (separate by threshold)
- * 4. Conflict resolution (priority > confidence)
- * 5. Masking + whitespace normalization
- * 6. Status determination
- */
 export const anonymizeTitle = (
   text: string,
   dictionaries: DictionarySet,

@@ -1,10 +1,4 @@
-/**
- * Polish business entity abbreviations/forms.
- * Used by:
- * - name-detector: lookbehind context to suppress PII detection for company names
- * - phrases dictionary: whitelist filter to prevent flagging abbreviations themselves
- */
-export const COMPANY_FORM_VARIANTS = [
+export const COMPANY_FORM_VARIANTS: readonly string[] = [
   'p.h.u',
   'p.h.u.',
   'phu',
@@ -32,4 +26,4 @@ export const COMPANY_FORM_VARIANTS = [
   'z.p.h.u.',
   'zakład',
   'przedsiębiorstwo',
-] as const;
+];

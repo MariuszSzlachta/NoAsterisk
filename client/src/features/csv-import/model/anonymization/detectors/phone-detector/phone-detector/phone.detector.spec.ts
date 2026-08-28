@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { phoneDetector } from '#features/csv-import/model/anonymization/detectors/phone-detector/phone-detector';
 

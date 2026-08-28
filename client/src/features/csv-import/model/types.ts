@@ -28,16 +28,14 @@ export type {
   UserCorrection,
 } from './transformation/types';
 
-export type {
-  PiiType,
-  DetectionSpan,
-  PiiDetector,
-  DictionaryType,
-  DictionarySet,
-  DictionaryProvider,
-  AnonymizationStatus,
-  AnonymizationEntry,
-} from './anonymization/types';
+export type { PiiType } from './anonymization/types/pii-type';
+export type { DetectionSpan } from './anonymization/types/detection-span';
+export type { PiiDetector } from './anonymization/types/pii-detector';
+export type { DictionaryType } from './anonymization/types/dictionary-type';
+export type { DictionarySet } from './anonymization/types/dictionary-set';
+export type { DictionaryProvider } from './anonymization/types/dictionary-provider';
+export type { AnonymizationStatus } from './anonymization/types/anonymization-status';
+export type { AnonymizationEntry } from './anonymization/types/anonymization-entry';
 
 export type {
   TransactionType,

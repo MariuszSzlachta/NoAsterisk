@@ -1,53 +1,20 @@
-import type {
-  DetectionSpan,
-  DictionarySet,
-  PiiDetector,
-} from '#features/csv-import/model/anonymization/types';
-
-import { computeConfidence } from '#features/csv-import/model/anonymization/detectors/name-detector/compute-confidence';
-import { MIN_CONFIDENCE } from '#features/csv-import/model/anonymization/detectors/name-detector/constants';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
+import type { PiiDetector } from '#features/csv-import/model/anonymization/types/pii-detector';
+import { MIN_CONFIDENCE } from '#features/csv-import/model/anonymization/detectors/name-detector/constants/min-confidence';
+import { NAME_DETECTOR_ID } from '#features/csv-import/model/anonymization/detectors/name-detector/constants/name-detector-id';
+import { NAME_PRIORITY } from '#features/csv-import/model/anonymization/detectors/name-detector/constants/name-priority';
 import { createMixedCaseNamePattern } from '#features/csv-import/model/anonymization/detectors/name-detector/create-mixed-case-name-pattern';
 import { findAllCapsNames } from '#features/csv-import/model/anonymization/detectors/name-detector/find-all-caps-names';
 import { hasCompanyContext } from '#features/csv-import/model/anonymization/detectors/name-detector/has-company-context';
-import { hasNameContext } from '#features/csv-import/model/anonymization/detectors/name-detector/has-name-context';
 import { isWhitelisted } from '#features/csv-import/model/anonymization/detectors/name-detector/is-whitelisted';
+import { candidateKey } from '#features/csv-import/model/anonymization/detectors/name-detector/candidate-key';
+import { toDetectionSpan } from '#features/csv-import/model/anonymization/detectors/name-detector/to-detection-span';
 import type { MatchCandidate } from '#features/csv-import/model/anonymization/detectors/name-detector/match-candidate';
 
-export const candidateKey = (c: MatchCandidate): string =>
-  `${c.index}:${c.original.length}`;
-
-export const toDetectionSpan = (
-  candidate: MatchCandidate,
-  text: string,
-  dictionaries: DictionarySet,
-): DetectionSpan => {
-  const { original, index: start } = candidate;
-  const words = original.split(/[\s-]+/);
-  const hasContext = hasNameContext(text, start);
-  const confidence = computeConfidence(words, dictionaries, hasContext);
-
-  return {
-    start,
-    end: start + original.length,
-    type: 'name',
-    confidence,
-    original,
-    detectorId: 'name',
-    metadata: {
-      anyFirstNameInDict: words.some((w) =>
-        dictionaries.firstNames.has(w.toLowerCase()),
-      ),
-      anySurnameInDict: words.some((w) =>
-        dictionaries.surnames.has(w.toLowerCase()),
-      ),
-      hasContext,
-    },
-  };
-};
-
 export const nameDetector: PiiDetector = {
-  id: 'name',
-  priority: 50,
+  id: NAME_DETECTOR_ID,
+  priority: NAME_PRIORITY,
 
   detect(text: string, dictionaries: DictionarySet): readonly DetectionSpan[] {
     const mixedCaseCandidates: readonly MatchCandidate[] = Array.from(

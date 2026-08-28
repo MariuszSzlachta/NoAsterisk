@@ -1,17 +1,7 @@
 import { AUTO_ACCEPT_THRESHOLD } from '#features/csv-import/model/anonymization/pipeline/constants/auto-accept-threshold';
-import type {
-  AnonymizationStatus,
-  DetectionSpan,
-} from '#features/csv-import/model/anonymization/types';
+import type { AnonymizationStatus } from '#features/csv-import/model/anonymization/types/anonymization-status';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
 
-/**
- * Determine anonymization status from resolved spans and below-threshold presence.
- *
- * - Any below-threshold detections → needs_review (uncertain PII detected)
- * - No spans at all → safe
- * - All spans ≥ AUTO_ACCEPT_THRESHOLD → anonymized (high confidence, auto-accepted)
- * - Otherwise → needs_review (some spans below auto-accept)
- */
 export const determineStatus = (
   spans: readonly DetectionSpan[],
   hasBelowThreshold: boolean,

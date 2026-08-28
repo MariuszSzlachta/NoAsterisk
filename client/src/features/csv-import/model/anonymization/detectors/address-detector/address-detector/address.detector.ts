@@ -1,35 +1,20 @@
-import type {
-  DetectionSpan,
-  DictionarySet,
-  PiiDetector,
-} from '#features/csv-import/model/anonymization/types';
-
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
+import type { PiiDetector } from '#features/csv-import/model/anonymization/types/pii-detector';
 import { createAddressPattern } from '#features/csv-import/model/anonymization/detectors/address-detector/create-address-pattern';
 import { createPostalCodePattern } from '#features/csv-import/model/anonymization/detectors/address-detector/create-postal-code-pattern';
-import {
-  POSTAL_CODE_CONFIDENCE,
-  STREET_CONFIDENCE,
-} from '#features/csv-import/model/anonymization/detectors/address-detector/constants';
-
-export const toSpan = (
-  match: RegExpMatchArray,
-  confidence: number,
-): DetectionSpan => ({
-  start: match.index ?? 0,
-  end: (match.index ?? 0) + match[0].length,
-  type: 'address',
-  confidence,
-  original: match[0],
-  detectorId: 'address',
-});
+import { POSTAL_CODE_CONFIDENCE } from '#features/csv-import/model/anonymization/detectors/address-detector/constants/postal-code-confidence';
+import { STREET_CONFIDENCE } from '#features/csv-import/model/anonymization/detectors/address-detector/constants/street-confidence';
+import { ADDRESS_PRIORITY } from '#features/csv-import/model/anonymization/detectors/address-detector/constants/address-priority';
+import { ADDRESS_DETECTOR_ID } from '#features/csv-import/model/anonymization/detectors/address-detector/constants/address-detector-id';
+import { toAddressSpan } from '#features/csv-import/model/anonymization/detectors/address-detector/to-span';
 
 export const addressDetector: PiiDetector = {
-  id: 'address',
-  priority: 40,
+  id: ADDRESS_DETECTOR_ID,
+  priority: ADDRESS_PRIORITY,
 
-  detect(text: string, _dictionaries: DictionarySet): readonly DetectionSpan[] {
+  detect(text: string): readonly DetectionSpan[] {
     const streetSpans = Array.from(text.matchAll(createAddressPattern()), (m) =>
-      toSpan(m, STREET_CONFIDENCE),
+      toAddressSpan(m, STREET_CONFIDENCE),
     );
 
     const postalSpans = Array.from(text.matchAll(createPostalCodePattern()))
@@ -38,7 +23,7 @@ export const addressDetector: PiiDetector = {
         const end = start + m[0].length;
         return !streetSpans.some((s) => start < s.end && end > s.start);
       })
-      .map((m) => toSpan(m, POSTAL_CODE_CONFIDENCE));
+      .map((m) => toAddressSpan(m, POSTAL_CODE_CONFIDENCE));
 
     return [...streetSpans, ...postalSpans];
   },

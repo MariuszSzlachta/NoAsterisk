@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { anonymizeTitle } from '#features/csv-import/model/anonymization/pipeline/anonymize-title';
 import { processRows } from '#features/csv-import/model/anonymization/pipeline/process-rows';

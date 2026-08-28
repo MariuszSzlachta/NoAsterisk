@@ -1,17 +1,13 @@
+import { PHONE_LOOKBACK } from '#features/csv-import/model/anonymization/detectors/phone-detector/constants/phone-lookback';
+import { EXCLUSION_PATTERNS } from '#features/csv-import/model/anonymization/detectors/phone-detector/constants/exclusion-patterns';
+import { ALPHA_TRAILING_PATTERN } from '#features/csv-import/model/anonymization/detectors/phone-detector/constants/alpha-trailing-pattern';
+
 export const isLikelyNotPhone = (text: string, start: number): boolean => {
-  const prefix = text.slice(Math.max(0, start - 20), start).toLowerCase();
+  const prefix = text.slice(Math.max(0, start - PHONE_LOOKBACK), start).toLowerCase();
 
-  const exclusionPatterns: readonly RegExp[] = [
-    /(?:fv|faktura|nr|numer|zamówienie|id|ref)[/\s:-]*$/i,
-    /blk\d*$/i,
-    /(?:polis[ya]|polisy)\b/i,
-    /ref[/\s:-]*$/i,
-    /(?:autoryzacja|auth)[/\s:-]*$/i,
-  ];
-
-  if (exclusionPatterns.some((pattern) => pattern.test(prefix))) {
+  if (EXCLUSION_PATTERNS.some((pattern) => pattern.test(prefix))) {
     return true;
   }
 
-  return start > 0 && /[A-Za-z/]$/.test(text.slice(start - 1, start));
+  return start > 0 && ALPHA_TRAILING_PATTERN.test(text.slice(start - 1, start));
 };

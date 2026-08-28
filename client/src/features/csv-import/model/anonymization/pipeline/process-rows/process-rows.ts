@@ -1,16 +1,7 @@
-import type {
-  AnonymizationEntry,
-  DictionarySet,
-} from '#features/csv-import/model/anonymization/types';
-
+import type { AnonymizationEntry } from '#features/csv-import/model/anonymization/types/anonymization-entry';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 import { anonymizeTitle } from '#features/csv-import/model/anonymization/pipeline/anonymize-title';
 
-/**
- * Process all rows through the anonymization pipeline.
- *
- * ⚠️ Security: returned entries contain originalTitle for review UI only.
- * MUST be stripped before persisting in store or sending to backend.
- */
 export const processRows = (
   titles: readonly string[],
   dictionaries: DictionarySet,

@@ -1,0 +1,1 @@
+export const MAX_ABBREVIATION_LENGTH = 12;

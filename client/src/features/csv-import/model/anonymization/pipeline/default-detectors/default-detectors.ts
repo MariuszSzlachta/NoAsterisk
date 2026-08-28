@@ -8,7 +8,7 @@ import { nationalIdDetector } from '#features/csv-import/model/anonymization/det
 import { nipDetector } from '#features/csv-import/model/anonymization/detectors/nip-detector';
 import { peselDetector } from '#features/csv-import/model/anonymization/detectors/pesel-detector';
 import { phoneDetector } from '#features/csv-import/model/anonymization/detectors/phone-detector';
-import type { PiiDetector } from '#features/csv-import/model/anonymization/types';
+import type { PiiDetector } from '#features/csv-import/model/anonymization/types/pii-detector';
 
 export const DEFAULT_DETECTORS: readonly PiiDetector[] = [
   peselDetector,

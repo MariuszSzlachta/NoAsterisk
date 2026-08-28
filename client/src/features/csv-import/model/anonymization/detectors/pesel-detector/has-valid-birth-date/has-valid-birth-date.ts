@@ -1,18 +1,19 @@
-/**
- * Validate that PESEL encodes a plausible birth date.
- * Month encoding: 01-12 (1900s), 21-32 (2000s), 41-52 (2100s).
- */
+import { PESEL_MONTH_RANGES } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/pesel-month-ranges';
+import { RADIX } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/radix';
+import { PESEL_MONTH_START } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/pesel-month-start';
+import { PESEL_MONTH_END } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/pesel-month-end';
+import { PESEL_DAY_START } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/pesel-day-start';
+import { PESEL_DAY_END } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/pesel-day-end';
+import { MIN_MONTH } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/min-month';
+import { MAX_MONTH } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/max-month';
+import { MIN_DAY } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/min-day';
+import { MAX_DAY } from '#features/csv-import/model/anonymization/detectors/pesel-detector/constants/max-day';
+
 export const hasValidBirthDate = (digits: string): boolean => {
-  const monthRaw = parseInt(digits.slice(2, 4), 10);
-  const day = parseInt(digits.slice(4, 6), 10);
+  const monthRaw = parseInt(digits.slice(PESEL_MONTH_START, PESEL_MONTH_END), RADIX);
+  const day = parseInt(digits.slice(PESEL_DAY_START, PESEL_DAY_END), RADIX);
 
-  const MONTH_RANGES: readonly (readonly [number, number, number])[] = [
-    [1, 12, 0],
-    [21, 32, 20],
-    [41, 52, 40],
-  ];
-
-  const range = MONTH_RANGES.find(
+  const range = PESEL_MONTH_RANGES.find(
     ([min, max]) => monthRaw >= min && monthRaw <= max,
   );
 
@@ -21,5 +22,5 @@ export const hasValidBirthDate = (digits: string): boolean => {
   }
 
   const month = monthRaw - range[2];
-  return month >= 1 && month <= 12 && day >= 1 && day <= 31;
+  return month >= MIN_MONTH && month <= MAX_MONTH && day >= MIN_DAY && day <= MAX_DAY;
 };

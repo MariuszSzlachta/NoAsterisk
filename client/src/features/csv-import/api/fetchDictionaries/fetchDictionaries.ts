@@ -2,7 +2,7 @@
 // CSV Import — API: Fetch Dictionaries from Backend
 // ═══════════════════════════════════════════════════════════════════
 
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 import { apiClient } from '#shared/api';
 
 interface DictionaryApiResponse {

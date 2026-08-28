@@ -1,4 +1,4 @@
-import type { PiiType } from '#features/csv-import/model/anonymization/types';
+import type { PiiType } from '#features/csv-import/model/anonymization/types/pii-type';
 
 import { maskAddress } from '#features/csv-import/model/anonymization/masker/mask-address';
 import { maskBirthDate } from '#features/csv-import/model/anonymization/masker/mask-birth-date';

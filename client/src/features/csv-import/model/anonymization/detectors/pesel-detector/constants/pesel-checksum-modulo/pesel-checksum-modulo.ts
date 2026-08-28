@@ -1,0 +1,1 @@
+export const PESEL_CHECKSUM_MODULO = 10;

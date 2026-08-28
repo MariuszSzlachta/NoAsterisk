@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type {
-  DetectionSpan,
-  DictionarySet,
-} from '#features/csv-import/model/anonymization/types';
+import type { DetectionSpan } from '#features/csv-import/model/anonymization/types/detection-span';
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 
 import { filterByWhitelist } from '#features/csv-import/model/anonymization/pipeline/steps/whitelist-filter';
 

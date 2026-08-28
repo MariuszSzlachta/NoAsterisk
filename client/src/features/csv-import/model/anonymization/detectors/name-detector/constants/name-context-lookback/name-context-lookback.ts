@@ -1,0 +1,1 @@
+export const NAME_CONTEXT_LOOKBACK = 30;

@@ -1,0 +1,1 @@
+export const NATIONAL_ID_PREFIX_LENGTH = 3;
