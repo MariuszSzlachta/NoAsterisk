@@ -1,1 +1,1 @@
-export { ibanDetector } from './iban.detector';
+export { ibanDetector } from './iban-detector';

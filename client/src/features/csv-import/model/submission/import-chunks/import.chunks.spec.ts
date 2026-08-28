@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import type { TransactionRow } from '#features/csv-import/model/transformation/types';
-import {
-  computeBatchHash,
-  computeContentHash,
-  createImportChunks,
-} from './import.chunks';
+import { computeContentHash } from './compute-content-hash';
+import { computeBatchHash } from './compute-batch-hash';
+import { createImportChunks } from './create-import-chunks';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: crypto.randomUUID(),

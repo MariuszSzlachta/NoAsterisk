@@ -1,1 +1,1 @@
-export { nameDetector } from './name.detector';
+export { nameDetector } from './name-detector';

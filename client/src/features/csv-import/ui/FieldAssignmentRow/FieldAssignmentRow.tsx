@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '#shared/ui/Badge';
 import { Select, type SelectOption } from '#shared/ui/Select';
 
-import { useFieldAssignmentRow } from './useFieldAssignmentRow';
+import { useFieldAssignmentRow } from '#features/csv-import/ui/FieldAssignmentRow/useFieldAssignmentRow';
 
 interface FieldAssignmentRowProps {
   readonly header: string;

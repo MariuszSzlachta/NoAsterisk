@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types';
 
-import { anchorStrategy } from './anchor.strategy';
-import { directStrategy } from './direct.strategy';
-import { overflowMergeStrategy } from './overflow-merge.strategy';
+import { anchorStrategy } from '#features/csv-import/model/parsing/strategies/anchor-strategy';
+import { directStrategy } from '#features/csv-import/model/parsing/strategies/direct-strategy';
+import { overflowMergeStrategy } from '#features/csv-import/model/parsing/strategies/overflow-merge-strategy';
 
 const config = (
   overrides: Partial<ReassemblyConfig> = {},

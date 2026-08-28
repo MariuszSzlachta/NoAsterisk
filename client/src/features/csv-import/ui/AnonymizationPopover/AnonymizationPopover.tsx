@@ -7,13 +7,13 @@ import { Button } from '#shared/ui/Button';
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
+export const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
   safe: 'bg-income',
   needs_review: 'bg-warning',
   anonymized: 'bg-expense',
 };
 
-const STATUS_LABELS: Record<AnonymizationStatus, string> = {
+export const STATUS_LABELS: Record<AnonymizationStatus, string> = {
   safe: 'import.anonymization.legend.safe',
   needs_review: 'import.anonymization.legend.needsReview',
   anonymized: 'import.anonymization.legend.anonymized',

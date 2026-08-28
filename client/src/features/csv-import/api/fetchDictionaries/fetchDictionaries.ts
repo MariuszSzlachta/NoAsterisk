@@ -17,7 +17,7 @@ interface DictionaryApiResponse {
  * Runtime validation for dictionary API response.
  * Ensures the contract is intact before creating Sets.
  */
-const validateResponse = (data: unknown): DictionaryApiResponse => {
+export const validateResponse = (data: unknown): DictionaryApiResponse => {
   if (typeof data !== 'object' || data === null) {
     throw new Error('[fetchDictionaries] Invalid response: not an object');
   }

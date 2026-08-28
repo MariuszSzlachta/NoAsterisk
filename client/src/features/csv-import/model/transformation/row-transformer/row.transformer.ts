@@ -12,13 +12,13 @@ import {
 import type { CsvRow } from '#features/csv-import/model/parsing/types';
 import type { RowStatus, TransactionRow } from '#features/csv-import/model/transformation/types';
 
-const MIN_DATE_YEAR = 2000;
-const MAX_DATE_YEAR = 2030;
-const SAMPLE_SIZE = 10;
-const MERGE_SEPARATOR = ' ';
-const ZERO_AMOUNT_VALUES: ReadonlySet<string> = new Set(['0', '0,00', '0.00']);
+export const MIN_DATE_YEAR = 2000;
+export const MAX_DATE_YEAR = 2030;
+export const SAMPLE_SIZE = 10;
+export const MERGE_SEPARATOR = ' ';
+export const ZERO_AMOUNT_VALUES: ReadonlySet<string> = new Set(['0', '0,00', '0.00']);
 
-const isDateInRange = (isoDate: string): boolean => {
+export const isDateInRange = (isoDate: string): boolean => {
   const year = parseInt(isoDate.slice(0, 4), 10);
   return year >= MIN_DATE_YEAR && year <= MAX_DATE_YEAR;
 };
@@ -27,7 +27,7 @@ const isDateInRange = (isoDate: string): boolean => {
  * Merge multiple column values into a single string.
  * Trims each value, filters blanks, joins with separator.
  */
-const mergeColumns = (row: CsvRow, columns: readonly string[]): string =>
+export const mergeColumns = (row: CsvRow, columns: readonly string[]): string =>
   columns
     .map((col) => (row[col] ?? '').trim())
     .filter(Boolean)
@@ -38,7 +38,7 @@ const mergeColumns = (row: CsvRow, columns: readonly string[]): string =>
  * For MERGEABLE_FIELDS, multiple columns accumulate in order.
  * For non-mergeable fields, only the first mapped column is kept.
  */
-const buildFieldToColumns = (
+export const buildFieldToColumns = (
   mapping: ColumnMapping,
 ): Partial<Record<DomainField, readonly string[]>> => {
   const result: Partial<Record<DomainField, string[]>> = {};
@@ -70,7 +70,7 @@ const buildFieldToColumns = (
  *    - Debit (Wn) = expenses (negative)
  *    - Credit (Ma) = income (positive)
  */
-const resolveAmount = (
+export const resolveAmount = (
   row: CsvRow,
   amountCol: string | undefined,
   debitCol: string | undefined,

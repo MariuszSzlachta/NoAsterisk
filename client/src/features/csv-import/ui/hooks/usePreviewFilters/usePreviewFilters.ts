@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import type { TransactionRow } from '#features/csv-import/model/types';
 
-export type TransactionTypeFilter = 'all' | 'income' | 'expense';
+import type { TransactionTypeFilter } from './types';
 
 interface PreviewFilters {
   readonly type: TransactionTypeFilter;
@@ -20,13 +20,13 @@ interface PreviewFiltersResult {
   readonly resetFilters: () => void;
 }
 
-const INITIAL_FILTERS: PreviewFilters = {
+export const INITIAL_FILTERS: PreviewFilters = {
   type: 'all',
   dateFrom: '',
   dateTo: '',
 };
 
-const matchesTypeFilter = (
+export const matchesTypeFilter = (
   row: TransactionRow,
   type: TransactionTypeFilter,
 ): boolean => {
@@ -39,7 +39,7 @@ const matchesTypeFilter = (
   return row.amount < 0;
 };
 
-const matchesDateRange = (
+export const matchesDateRange = (
   row: TransactionRow,
   dateFrom: string,
   dateTo: string,

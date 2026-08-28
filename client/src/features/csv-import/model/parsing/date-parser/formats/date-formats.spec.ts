@@ -7,7 +7,7 @@ import {
   parseMonthName,
   resolveYear,
   toIsoDateString,
-} from '../index';
+} from '#features/csv-import/model/parsing/date-parser';
 
 describe('resolveYear', () => {
   it('returns 4-digit year as-is', () => {

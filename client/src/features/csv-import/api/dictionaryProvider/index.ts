@@ -1,1 +1,1 @@
-export { dictionaryProvider } from './dictionaryProvider';
+export { dictionaryProvider, isDictionaryStubFallback } from './dictionaryProvider';

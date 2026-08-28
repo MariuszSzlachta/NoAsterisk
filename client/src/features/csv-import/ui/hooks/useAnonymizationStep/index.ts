@@ -3,4 +3,4 @@ export type {
   AnonymizationStepResult,
   AnonymizationStats,
   StatusFilter,
-} from './useAnonymizationStep';
+} from './types';

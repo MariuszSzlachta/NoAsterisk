@@ -32,7 +32,7 @@ export {
 } from './model/transformation/duplicate-detector';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
 export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
-export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider.factory';
+export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider-factory';
 export { devDictionaryProvider } from './model/anonymization/dictionaries/dev-provider';
 export { detectBankFromHeaders } from './model/column-mapping/bank-profiles/detect-bank-from-headers';
 

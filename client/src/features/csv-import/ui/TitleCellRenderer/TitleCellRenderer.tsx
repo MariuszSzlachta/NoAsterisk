@@ -2,17 +2,17 @@ import type { AnonymizationStatus } from '#features/csv-import/model/types';
 import type { CellRendererParams } from '#shared/adapters/grid';
 import { Tooltip } from '#shared/ui/Tooltip';
 
-import type { AnonymizationGridRow } from '../hooks/useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
+export const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
   safe: 'bg-income',
   needs_review: 'bg-warning',
   anonymized: 'bg-expense',
 };
 
-const STATUS_BG_COLORS: Record<AnonymizationStatus, string> = {
+export const STATUS_BG_COLORS: Record<AnonymizationStatus, string> = {
   safe: '',
   needs_review: 'bg-warning-soft',
   anonymized: 'bg-expense-soft',

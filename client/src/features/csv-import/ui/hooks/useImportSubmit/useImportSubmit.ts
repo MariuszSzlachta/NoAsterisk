@@ -9,8 +9,8 @@ import type {
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { ApiError } from '#shared/api';
 
-const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1500;
+export const MAX_RETRIES = 2;
+export const RETRY_DELAY_MS = 1500;
 
 interface UseImportSubmitResult {
   readonly progress: ImportProgress;
@@ -19,7 +19,7 @@ interface UseImportSubmitResult {
   readonly importableCount: number;
 }
 
-const sleep = (ms: number): Promise<void> =>
+export const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useImportSubmit = (): UseImportSubmitResult => {

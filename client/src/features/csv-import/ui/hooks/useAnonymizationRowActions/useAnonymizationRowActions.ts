@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { RowAction } from '#shared/adapters/grid';
 
-import type { AnonymizationGridRow } from '../useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
 
 // ─── Types ───────────────────────────────────────────────────────
 

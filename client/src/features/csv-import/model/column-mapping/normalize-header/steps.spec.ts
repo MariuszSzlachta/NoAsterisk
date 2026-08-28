@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { collapseWhitespace } from './collapse-whitespace';
-import { stripBom } from './strip-bom-step';
-import { stripLeadingHash } from './strip-leading-hash';
-import { stripParenthetical } from './strip-parenthetical';
-import { stripSurroundingQuotes } from './strip-surrounding-quotes';
-import { toLower } from './to-lower';
+import { collapseWhitespace } from '#features/csv-import/model/column-mapping/normalize-header/collapse-whitespace';
+import { stripBom } from '#features/csv-import/model/column-mapping/normalize-header/strip-bom-step';
+import { stripLeadingHash } from '#features/csv-import/model/column-mapping/normalize-header/strip-leading-hash';
+import { stripParenthetical } from '#features/csv-import/model/column-mapping/normalize-header/strip-parenthetical';
+import { stripSurroundingQuotes } from '#features/csv-import/model/column-mapping/normalize-header/strip-surrounding-quotes';
+import { toLower } from '#features/csv-import/model/column-mapping/normalize-header/to-lower';
 
 describe('stripBom', () => {
   it('removes BOM from start', () => {

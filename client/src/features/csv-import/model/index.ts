@@ -49,7 +49,7 @@ export {
 // Anonymization
 export { anonymizeTitle, processRows } from './anonymization/pipeline';
 export { buildFromStubs } from './anonymization/dictionaries/build-from-stubs';
-export { createDictionaryProvider } from './anonymization/dictionaries/dictionary-provider.factory';
+export { createDictionaryProvider } from './anonymization/dictionaries/dictionary-provider-factory';
 export { devDictionaryProvider } from './anonymization/dictionaries/dev-provider';
 
 // Types (re-export from barrel)

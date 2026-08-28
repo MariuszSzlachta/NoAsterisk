@@ -1,1 +1,1 @@
-export { addressDetector } from './address.detector';
+export { addressDetector } from './address-detector';

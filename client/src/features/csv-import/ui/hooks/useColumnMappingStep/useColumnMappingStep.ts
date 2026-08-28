@@ -8,7 +8,7 @@ import { useImportWizardStore } from '#features/csv-import/store/useImportWizard
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import type { SelectOption } from '#shared/ui/Select';
 
-const MAX_PREVIEW_ROWS = 5;
+export const MAX_PREVIEW_ROWS = 5;
 
 interface ColumnMappingStepResult {
   readonly headers: readonly string[];

@@ -1,0 +1,1 @@
+export { useFileInfoSection } from './useFileInfoSection';

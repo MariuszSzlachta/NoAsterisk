@@ -7,7 +7,7 @@ import type {
 } from '#features/csv-import/model/types';
 import { apiClient } from '#shared/api';
 
-const importChunkResultSchema = z.object({
+export const importChunkResultSchema = z.object({
   status: z.enum(['accepted', 'partial', 'rejected']),
   saved: z.number(),
   duplicatesSkipped: z.number(),

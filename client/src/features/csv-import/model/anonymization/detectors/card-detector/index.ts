@@ -1,1 +1,1 @@
-export { cardDetector } from './card.detector';
+export { cardDetector } from './card-detector';

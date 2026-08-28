@@ -1,1 +1,1 @@
-export { nationalIdDetector } from './national-id.detector';
+export { nationalIdDetector } from './national-id-detector';

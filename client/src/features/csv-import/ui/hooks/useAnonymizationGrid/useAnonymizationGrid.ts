@@ -12,21 +12,11 @@ import type {
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { CellRendererParams, GridColumn } from '#shared/adapters/grid';
 
-import type { StatusFilter } from '../useAnonymizationStep';
+import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep';
+
+import type { AnonymizationGridRow } from './types';
 
 // ─── Types ───────────────────────────────────────────────────────
-
-export interface AnonymizationGridRow {
-  readonly id: string;
-  readonly date: string;
-  readonly title: string;
-  readonly amount: number;
-  readonly currency: string;
-  readonly balance?: number;
-  readonly category?: string;
-  readonly anonymizationStatus: AnonymizationStatus;
-  readonly rowIndex: number;
-}
 
 interface AnonymizationGridResult {
   readonly columns: GridColumn<AnonymizationGridRow>[];
@@ -37,7 +27,7 @@ interface AnonymizationGridResult {
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const DOMAIN_FIELD_TO_GRID_FIELD: Partial<
+export const DOMAIN_FIELD_TO_GRID_FIELD: Partial<
   Record<DomainField, keyof AnonymizationGridRow>
 > = {
   date: 'date',
@@ -48,7 +38,7 @@ const DOMAIN_FIELD_TO_GRID_FIELD: Partial<
   category: 'category',
 };
 
-const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
+export const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
   date: 'import.grid.date',
   title: 'import.grid.title',
   amount: 'import.grid.amount',
@@ -63,7 +53,7 @@ const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
   counterpart: 'import.grid.counterpart',
 };
 
-const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {
+export const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {
   date: 100,
   amount: 120,
   currency: 80,
@@ -71,20 +61,20 @@ const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {
   category: 140,
 };
 
-const COLUMN_MIN_WIDTHS: Partial<Record<DomainField, number>> = {
+export const COLUMN_MIN_WIDTHS: Partial<Record<DomainField, number>> = {
   title: 400,
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-type CellRendererMap = Partial<
+export type CellRendererMap = Partial<
   Record<
     DomainField,
     (params: CellRendererParams<AnonymizationGridRow>) => ReactNode
   >
 >;
 
-const buildColumnsFromMapping = (
+export const buildColumnsFromMapping = (
   columnMapping: ColumnMapping,
   t: (key: string) => string,
   cellRenderers?: CellRendererMap,
@@ -124,7 +114,7 @@ const buildColumnsFromMapping = (
   return columns;
 };
 
-const buildGridRows = (
+export const buildGridRows = (
   rows: readonly Pick<
     TransactionRow,
     'id' | 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'category'
@@ -146,15 +136,15 @@ const buildGridRows = (
     };
   });
 
-const getRowId = (row: AnonymizationGridRow): string => row.id;
+export const getRowId = (row: AnonymizationGridRow): string => row.id;
 
-const ROW_STATUS_CLASSES: Record<AnonymizationStatus, string> = {
+export const ROW_STATUS_CLASSES: Record<AnonymizationStatus, string> = {
   safe: 'anonymization-row-safe',
   needs_review: 'anonymization-row-needs-review',
   anonymized: 'anonymization-row-anonymized',
 };
 
-const getRowClass = (row: AnonymizationGridRow): string | undefined =>
+export const getRowClass = (row: AnonymizationGridRow): string | undefined =>
   ROW_STATUS_CLASSES[row.anonymizationStatus];
 
 // ─── Hook ────────────────────────────────────────────────────────

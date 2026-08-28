@@ -92,7 +92,7 @@ interface ImportWizardState {
 
 // ─── Initial State ───────────────────────────────────────────────
 
-const INITIAL_STATE: Omit<
+export const INITIAL_STATE: Omit<
   ImportWizardState,
   | 'setStep'
   | 'nextStep'

@@ -1,1 +1,1 @@
-export { birthDateDetector } from './birth-date.detector';
+export { birthDateDetector } from './birth-date-detector';

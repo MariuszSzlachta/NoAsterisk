@@ -1,1 +1,1 @@
-export { phoneDetector } from './phone.detector';
+export { phoneDetector } from './phone-detector';

@@ -1,1 +1,1 @@
-export { nipDetector } from './nip.detector';
+export { nipDetector } from './nip-detector';

@@ -1,1 +1,1 @@
-export { emailDetector } from './email.detector';
+export { emailDetector } from './email-detector';

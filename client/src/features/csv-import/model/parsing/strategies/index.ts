@@ -1,9 +1,9 @@
-export { AMOUNT_PATTERN } from './constants/amount-pattern';
-export { anchorStrategy } from './anchor.strategy';
-export { DATE_PATTERN } from './constants/date-pattern';
+export { AMOUNT_PATTERN } from './constants/amount.pattern';
+export { anchorStrategy } from './anchor-strategy';
+export { DATE_PATTERN } from './constants/date.pattern';
 export { detectOverflowColumnIndex } from './helpers/detect-overflow-column-index';
-export { directStrategy } from './direct.strategy';
+export { directStrategy } from './direct-strategy';
 export { hasAnchorPattern } from './helpers/has-anchor-pattern';
 export { hasOverflowRows } from './helpers/has-overflow-rows';
-export { overflowMergeStrategy } from './overflow-merge.strategy';
-export { resolveStrategy } from './resolve.strategy';
+export { overflowMergeStrategy } from './overflow-merge-strategy';
+export { resolveStrategy } from './resolve-strategy';

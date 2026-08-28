@@ -1,1 +1,1 @@
-export { peselDetector } from './pesel.detector';
+export { peselDetector } from './pesel-detector';

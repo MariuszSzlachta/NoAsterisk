@@ -3,10 +3,10 @@ import { File, Hash, Landmark, List, Type } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 
-import { BankProfileBar } from '../BankProfileBar';
-import { DetectionChip } from '../DetectionChip';
+import { BankProfileBar } from '#features/csv-import/ui/BankProfileBar';
+import { DetectionChip } from '#features/csv-import/ui/DetectionChip';
 
-import { useFileInfoSection } from './useFileInfoSection';
+import { useFileInfoSection } from '#features/csv-import/ui/FileInfoSection/useFileInfoSection';
 
 export const FileInfoSection = (): React.JSX.Element => {
   const { t } = useTranslation();

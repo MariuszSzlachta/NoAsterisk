@@ -5,12 +5,13 @@ import { DataGrid } from '#shared/adapters/grid';
 import { Button } from '#shared/ui/Button';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 
-import { AnonymizationPopover } from '../AnonymizationPopover';
-import { useAnonymizationGrid } from '../hooks/useAnonymizationGrid';
-import { useAnonymizationRowActions } from '../hooks/useAnonymizationRowActions';
-import { useAnonymizationStep } from '../hooks/useAnonymizationStep';
-import { useImportWizard } from '../hooks/useImportWizard';
-import { CELL_RENDERERS, LEGEND_ITEMS } from './constants';
+import { AnonymizationPopover } from '#features/csv-import/ui/AnonymizationPopover';
+import { useAnonymizationGrid } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
+import { useAnonymizationRowActions } from '#features/csv-import/ui/hooks/useAnonymizationRowActions';
+import { useAnonymizationStep } from '#features/csv-import/ui/hooks/useAnonymizationStep';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
+import { CELL_RENDERERS } from '#features/csv-import/ui/AnonymizationStep/cell-renderers';
+import { LEGEND_ITEMS } from '#features/csv-import/ui/AnonymizationStep/legend-items';
 
 // ─── Component ───────────────────────────────────────────────────
 
