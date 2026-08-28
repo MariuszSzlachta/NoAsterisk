@@ -1,26 +1,12 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — usePreferencesSection Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useState } from 'react';
 import i18n from 'i18next';
 
 import { useUpdatePreferencesMutation } from '#features/user-settings/api/useUpdatePreferencesMutation';
-import type { PreferencesValues } from '#features/user-settings/model/types';
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
 import { usePreferencesStore } from '#features/user-settings/store/usePreferencesStore';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UsePreferencesSectionResult {
-  readonly preferences: PreferencesValues;
-  readonly draft: PreferencesValues;
-  readonly isDirty: boolean;
-  readonly handleDraftChange: (field: keyof PreferencesValues, value: string) => void;
-  readonly handleSave: () => void;
-  readonly handleCancel: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { UsePreferencesSectionResult } from '#features/user-settings/ui/hooks/usePreferencesSection/use-preferences-section-result';
 
 export const usePreferencesSection = (): UsePreferencesSectionResult => {
   const currency = usePreferencesStore((s) => s.currency);

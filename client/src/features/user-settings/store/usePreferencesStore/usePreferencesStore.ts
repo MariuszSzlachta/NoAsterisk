@@ -1,34 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings Feature — Preferences Store
-// ═══════════════════════════════════════════════════════════════════
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { PreferencesValues } from '#features/user-settings/model/types';
-
-// ─── State Interface ─────────────────────────────────────────────
-
-interface PreferencesState extends PreferencesValues {
-  readonly setCurrency: (value: string) => void;
-  readonly setDateFormat: (value: string) => void;
-  readonly setLanguage: (value: string) => void;
-  readonly setTheme: (value: string) => void;
-  readonly setHomePage: (value: string) => void;
-  readonly hydrate: (prefs: Partial<PreferencesValues>) => void;
-}
-
-// ─── Defaults ────────────────────────────────────────────────────
-
-const DEFAULT_PREFERENCES: PreferencesValues = {
-  currency: 'PLN',
-  dateFormat: 'DD.MM.YYYY',
-  language: 'pl',
-  theme: 'dark',
-  homePage: 'dashboard',
-};
-
-// ─── Store ───────────────────────────────────────────────────────
+import { DEFAULT_PREFERENCES } from '#features/user-settings/store/usePreferencesStore/default-preferences';
+import type { PreferencesState } from '#features/user-settings/store/usePreferencesStore/preferences-state';
 
 export const usePreferencesStore = create<PreferencesState>()(
   persist(

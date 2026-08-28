@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — RestoreDialog Component
-// ═══════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useState } from 'react';
 import { RotateCcw } from 'lucide-react';
@@ -8,18 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
-
-// ─── Props ───────────────────────────────────────────────────────
-
-interface RestoreDialogProps {
-  readonly backupDate: string;
-  readonly isLoading?: boolean;
-  readonly error?: string;
-  readonly onRestore: (password: string) => void;
-  readonly onCancel: () => void;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { RestoreDialogProps } from '#features/user-settings/ui/RestoreDialog/restore-dialog-props';
 
 export const RestoreDialog = ({
   backupDate,

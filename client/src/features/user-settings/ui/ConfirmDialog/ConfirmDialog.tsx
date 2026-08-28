@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — ConfirmDialog Component
-// ═══════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
@@ -8,28 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface ConfirmDialogField {
-  readonly label: string;
-  readonly type: 'text' | 'password';
-  readonly placeholder: string;
-  readonly value: string;
-  readonly onChange: (value: string) => void;
-}
-
-interface ConfirmDialogProps {
-  readonly title: string;
-  readonly description: string;
-  readonly confirmText: string;
-  readonly confirmButtonLabel: string;
-  readonly onConfirm: () => void;
-  readonly onCancel: () => void;
-  readonly extraFields?: ReadonlyArray<ConfirmDialogField>;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { ConfirmDialogField } from '#features/user-settings/ui/ConfirmDialog/confirm-dialog-field';
+import type { ConfirmDialogProps } from '#features/user-settings/ui/ConfirmDialog/confirm-dialog-props';
 
 export const ConfirmDialog = ({
   title,

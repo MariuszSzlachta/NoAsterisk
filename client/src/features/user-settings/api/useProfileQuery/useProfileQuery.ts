@@ -1,28 +1,12 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings — Profile Query
-// ═══════════════════════════════════════════════════════════════════
+import { USERS_ME_PATH } from '#features/user-settings/api/constants/users-me-path';
+import type { ProfileResponse } from '#features/user-settings/api/useProfileQuery/profile-response';
+import type { UseProfileQueryResult } from '#features/user-settings/api/useProfileQuery/use-profile-query-result';
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { PreferencesValues, ProfileData } from '#features/user-settings/model/types';
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
+import type { ProfileData } from '#features/user-settings/model/types/profile-data';
 import { apiClient } from '#shared/api';
-
-// ─── Response Type ───────────────────────────────────────────────
-
-interface ProfileResponse extends ProfileData {
-  readonly preferences: PreferencesValues;
-}
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseProfileQueryResult {
-  readonly data: ProfileResponse | undefined;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-  readonly refetch: () => Promise<void>;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useProfileQuery = (): UseProfileQueryResult => {
   const [data, setData] = useState<ProfileResponse | undefined>(undefined);
@@ -34,7 +18,7 @@ export const useProfileQuery = (): UseProfileQueryResult => {
     setError(undefined);
 
     try {
-      const response = await apiClient.get<ProfileResponse>('/users/me', { signal });
+      const response = await apiClient.get<ProfileResponse>(USERS_ME_PATH, { signal });
       setData(response);
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {

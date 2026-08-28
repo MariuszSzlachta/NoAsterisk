@@ -1,30 +1,13 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — useProfileSection Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
 
 import { useProfileQuery } from '#features/user-settings/api/useProfileQuery';
 import { useUpdateProfileMutation } from '#features/user-settings/api/useUpdateProfileMutation';
-import type { ProfileData } from '#features/user-settings/model/types';
-import { validateDisplayName } from '#features/user-settings/model/validators';
-import type { DisplayNameError } from '#features/user-settings/model/validators';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseProfileSectionResult {
-  readonly profile: ProfileData | undefined;
-  readonly isLoading: boolean;
-  readonly editedName: string;
-  readonly nameError: DisplayNameError | undefined;
-  readonly isDirty: boolean;
-  readonly isSaving: boolean;
-  readonly handleNameChange: (value: string) => void;
-  readonly handleSave: () => Promise<boolean>;
-  readonly handleCancel: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { ProfileData } from '#features/user-settings/model/types/profile-data';
+import { validateDisplayName } from '#features/user-settings/model/validate-display-name';
+import type { DisplayNameError } from '#features/user-settings/model/validate-display-name/display-name-error';
+import type { UseProfileSectionResult } from '#features/user-settings/ui/hooks/useProfileSection/use-profile-section-result';
 
 export const useProfileSection = (): UseProfileSectionResult => {
   const { data, isLoading, refetch } = useProfileQuery();

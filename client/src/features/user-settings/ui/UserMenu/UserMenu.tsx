@@ -1,13 +1,10 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — UserMenu Component (dropdown for sidebar)
-// ═══════════════════════════════════════════════════════════════════
 
 import { LogOut, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useUserMenu } from '#features/user-settings/ui/hooks/useUserMenu';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const UserMenu = (): React.JSX.Element | null => {
   const { t } = useTranslation();

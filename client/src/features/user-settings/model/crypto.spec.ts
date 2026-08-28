@@ -4,7 +4,10 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { decryptVault, decryptVaultPayload, encryptVault, VaultDecryptionError } from './crypto';
+import { decryptVault } from '#features/user-settings/model/decrypt-vault';
+import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
+import { encryptVault } from '#features/user-settings/model/encrypt-vault';
+import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
 
 describe('vault crypto', () => {
   describe('encryptVault + decryptVault roundtrip', () => {
@@ -123,7 +126,7 @@ describe('vault crypto', () => {
       try {
         await decryptVault(encrypted, 'wrongAttempt');
       } catch (err) {
-        const message = (err as Error).message;
+        const message = err instanceof Error ? err.message : String(err);
         expect(message).not.toContain('supersecret');
         expect(message).not.toContain('mypassword');
         expect(message).not.toContain('wrongAttempt');

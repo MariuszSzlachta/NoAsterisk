@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — DangerSection Component
-// ═══════════════════════════════════════════════════════════════════
 
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +8,6 @@ import { useDangerSection } from '#features/user-settings/ui/hooks/useDangerSect
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const DangerSection = (): React.JSX.Element => {
   const { t } = useTranslation();

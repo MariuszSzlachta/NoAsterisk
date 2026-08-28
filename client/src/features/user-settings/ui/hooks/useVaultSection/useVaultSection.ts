@@ -1,53 +1,30 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — useVaultSection Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useUploadVaultMutation } from '#features/user-settings/api/useUploadVaultMutation';
 import { useVaultQuery } from '#features/user-settings/api/useVaultQuery';
-import {
-  encryptVault,
-  VaultDecryptionError,
-  decryptVaultPayload,
-} from '#features/user-settings/model/crypto';
-import type { DataStats, VaultInfo } from '#features/user-settings/model/types';
-import {
-  computeVaultStatus,
-  estimateSizeKb,
-  formatSyncDate,
-} from '#features/user-settings/model/vault-helpers';
+import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
+import { isValidVaultItem } from '#features/user-settings/model/decrypt-vault-payload/is-valid-vault-item';
+import { encryptVault } from '#features/user-settings/model/encrypt-vault';
+import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
+import type { VaultPayload } from '#features/user-settings/model/vault-payload';
+import type { DataStats } from '#features/user-settings/model/types/data-stats';
+import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
+import { computeVaultStatus } from '#features/user-settings/model/compute-vault-status';
+import { estimateSizeKb } from '#features/user-settings/model/estimate-size-kb';
+import { formatSyncDate } from '#features/user-settings/model/format-sync-date';
 import type { VaultPasswordMode } from '#features/user-settings/ui/VaultPasswordDialog';
 // ARCH-EXCEPTION: cross-feature import — vault needs to read all stores for data stats.
 // Planned resolution: centralized data layer (post-MVP)
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-import type { RuleRecord } from '#features/admin-rules/model/types';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
-import type { StoredTransaction } from '#features/transactions/model/types';
 import { useToast } from '#shared/hooks/useToast';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseVaultSectionResult {
-  readonly vaultInfo: VaultInfo;
-  readonly dataStats: DataStats;
-  readonly isSyncing: boolean;
-  readonly importError: string | undefined;
-  readonly fileInputRef: React.RefObject<HTMLInputElement | null>;
-  readonly showPasswordDialog: boolean;
-  readonly passwordDialogMode: VaultPasswordMode;
-  readonly passwordError: string | undefined;
-  readonly handleSync: () => void;
-  readonly handleRestore: () => void;
-  readonly handleExport: () => void;
-  readonly handleTriggerImport: () => void;
-  readonly handleFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  readonly handlePasswordSubmit: (password: string) => void;
-  readonly handlePasswordCancel: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { isRecord } from '#features/user-settings/ui/hooks/useVaultSection/is-record';
+import { isRuleRecordArray } from '#features/user-settings/ui/hooks/useVaultSection/is-rule-record-array';
+import { isStoredTransactionArray } from '#features/user-settings/ui/hooks/useVaultSection/is-stored-transaction-array';
+import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
 
 export const useVaultSection = (): UseVaultSectionResult => {
   const { t } = useTranslation();
@@ -96,9 +73,9 @@ export const useVaultSection = (): UseVaultSectionResult => {
   const handlePasswordSubmit = (password: string): void => {
     if (passwordDialogMode === 'encrypt') {
       void performEncryptAndUpload(password);
-    } else {
-      void performDecryptAndRestore(password);
+      return;
     }
+    void performDecryptAndRestore(password);
   };
 
   const handlePasswordCancel = (): void => {
@@ -136,15 +113,14 @@ export const useVaultSection = (): UseVaultSectionResult => {
 
       const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
 
-      // Boundary cast: items validated at runtime (have 'id' field), cast to store types
-      if (payload.transactions.length > 0) {
+      if (payload.transactions.length > 0 && isStoredTransactionArray(payload.transactions)) {
         useTransactionsStore.setState({
-          transactions: payload.transactions as unknown as ReadonlyArray<StoredTransaction>,
+          transactions: payload.transactions,
         });
       }
-      if (payload.rules.length > 0) {
+      if (payload.rules.length > 0 && isRuleRecordArray(payload.rules)) {
         useRulesStore.setState({
-          rules: payload.rules as unknown as ReadonlyArray<RuleRecord>,
+          rules: payload.rules,
         });
       }
 
@@ -153,9 +129,9 @@ export const useVaultSection = (): UseVaultSectionResult => {
     } catch (err) {
       if (err instanceof VaultDecryptionError) {
         setPasswordError(t('settings.vault.wrongPassword'));
-      } else {
-        setPasswordError(t('settings.vault.restoreError'));
+        return;
       }
+      setPasswordError(t('settings.vault.restoreError'));
     } finally {
       setIsSyncing(false);
     }
@@ -185,28 +161,29 @@ export const useVaultSection = (): UseVaultSectionResult => {
     setImportError(undefined);
     void file.text().then((text) => {
       try {
-        const parsed = JSON.parse(text) as Record<string, unknown>;
+        const parsed: unknown = JSON.parse(text);
 
-        if (!Array.isArray(parsed.transactions) && !Array.isArray(parsed.rules)) {
+        if (!isRecord(parsed)) {
           setImportError(t('settings.vault.importInvalidFormat'));
           return;
         }
 
-        const isValidItem = (item: unknown): item is Record<string, unknown> =>
-          typeof item === 'object' && item !== null && 'id' in item;
-
-        // Boundary cast: items validated at runtime (have 'id' field), cast to store types
-        if (Array.isArray(parsed.transactions)) {
-          const validTransactions = (parsed.transactions as unknown[]).filter(isValidItem);
-          useTransactionsStore.setState({
-            transactions: validTransactions as unknown as ReadonlyArray<StoredTransaction>,
-          });
+        if (!Array.isArray(parsed['transactions']) && !Array.isArray(parsed['rules'])) {
+          setImportError(t('settings.vault.importInvalidFormat'));
+          return;
         }
-        if (Array.isArray(parsed.rules)) {
-          const validRules = (parsed.rules as unknown[]).filter(isValidItem);
-          useRulesStore.setState({
-            rules: validRules as unknown as ReadonlyArray<RuleRecord>,
-          });
+
+        if (Array.isArray(parsed['transactions'])) {
+          const validTransactions = parsed['transactions'].filter(isValidVaultItem);
+          if (isStoredTransactionArray(validTransactions)) {
+            useTransactionsStore.setState({ transactions: validTransactions });
+          }
+        }
+        if (Array.isArray(parsed['rules'])) {
+          const validRules = parsed['rules'].filter(isValidVaultItem);
+          if (isRuleRecordArray(validRules)) {
+            useRulesStore.setState({ rules: validRules });
+          }
         }
 
         addToast(t('settings.vault.importSuccess'), 'success');
