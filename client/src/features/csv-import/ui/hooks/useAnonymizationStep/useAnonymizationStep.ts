@@ -3,13 +3,10 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
-import type {
-  AnonymizationStats,
-  AnonymizationStepResult,
-  StatusFilter,
-} from './types';
+import type { AnonymizationStepResult } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-step-result';
+import type { AnonymizationStats } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-stats';
+import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep/status-filter';
 
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnonymizationStep = (): AnonymizationStepResult => {
   const { entries, rows, setAnonymizationEntries, setRows } =
@@ -29,7 +26,6 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
-  // ─── Derived: Stats (single-pass reduce) ─────────────────────
 
   const stats = entries.reduce<AnonymizationStats>(
     (acc, e) => ({
@@ -48,21 +44,18 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     },
   );
 
-  // ─── Derived: Filtered Entries ───────────────────────────────
 
   const filteredEntries =
     activeFilter === 'all'
       ? entries
       : entries.filter((e) => e.status === activeFilter);
 
-  // ─── Derived: Selected Entry ─────────────────────────────────
 
   const selectedEntry =
     selectedRowIndex !== undefined
       ? entries.find((e) => e.rowIndex === selectedRowIndex)
       : undefined;
 
-  // ─── Popover State Reset ─────────────────────────────────────
 
   const resetPopoverState = (): void => {
     setSelectedRowIndex(undefined);
@@ -70,7 +63,6 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     setEditValue('');
   };
 
-  // ─── Handlers ────────────────────────────────────────────────
 
   const isValidFilter = (value: string): value is StatusFilter =>
     value === 'all' ||

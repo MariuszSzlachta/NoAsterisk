@@ -6,9 +6,8 @@ import { isDomainField } from '#features/csv-import/model/column-mapping/validat
 import type { ColumnMapping, CsvRow } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
+import { MAX_PREVIEW_ROWS } from '#features/csv-import/ui/hooks/useColumnMappingStep/max-preview-rows';
 import type { SelectOption } from '#shared/ui/Select';
-
-export const MAX_PREVIEW_ROWS = 5;
 
 interface ColumnMappingStepResult {
   readonly headers: readonly string[];
@@ -56,7 +55,6 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
       rows,
     });
 
-    // Extract unique categories if #Kategoria column exists
     const categoryHeader = headers.find(
       (h) =>
         h.toLowerCase().includes('kategoria') ||
@@ -133,7 +131,6 @@ export const useColumnMappingStep = (): ColumnMappingStepResult => {
 
   // TODO: implement save profile dialog
   const handleSaveProfile = (): void => {
-    // Will open a dialog to name and save the current mapping
   };
 
   return {

@@ -2,24 +2,11 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { AnonymizationEntry, AnonymizationStatus } from '#features/csv-import/model/types';
+import type { AnonymizationEntry } from '#features/csv-import/model/types';
 import { Button } from '#shared/ui/Button';
+import { STATUS_DOT_COLORS } from '#features/csv-import/ui/AnonymizationPopover/status-dot-colors';
+import { STATUS_LABELS } from '#features/csv-import/ui/AnonymizationPopover/status-labels';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-export const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
-  safe: 'bg-income',
-  needs_review: 'bg-warning',
-  anonymized: 'bg-expense',
-};
-
-export const STATUS_LABELS: Record<AnonymizationStatus, string> = {
-  safe: 'import.anonymization.legend.safe',
-  needs_review: 'import.anonymization.legend.needsReview',
-  anonymized: 'import.anonymization.legend.anonymized',
-};
-
-// ─── Props ───────────────────────────────────────────────────────
 
 interface AnonymizationPopoverProps {
   readonly entry: AnonymizationEntry;
@@ -32,7 +19,6 @@ interface AnonymizationPopoverProps {
   readonly onEditSave: () => void;
 }
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const AnonymizationPopover = ({
   entry,
@@ -48,7 +34,6 @@ export const AnonymizationPopover = ({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
-  // Escape key to dismiss
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {

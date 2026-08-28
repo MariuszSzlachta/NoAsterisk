@@ -1,1 +1,1 @@
-export { useBatchEditPanel } from './useBatchEditPanel';
+export { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel/useBatchEditPanel';

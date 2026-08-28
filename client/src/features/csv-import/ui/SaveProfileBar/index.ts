@@ -1,1 +1,1 @@
-export { SaveProfileBar } from './SaveProfileBar';
+export { SaveProfileBar } from '#features/csv-import/ui/SaveProfileBar/SaveProfileBar';

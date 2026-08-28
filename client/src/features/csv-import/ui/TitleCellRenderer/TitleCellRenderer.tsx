@@ -1,24 +1,10 @@
-import type { AnonymizationStatus } from '#features/csv-import/model/types';
 import type { CellRendererParams } from '#shared/adapters/grid';
 import { Tooltip } from '#shared/ui/Tooltip';
 
-import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid/types';
+import { STATUS_DOT_COLORS } from '#features/csv-import/ui/TitleCellRenderer/status-dot-colors';
+import { STATUS_BG_COLORS } from '#features/csv-import/ui/TitleCellRenderer/status-bg-colors';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-export const STATUS_DOT_COLORS: Record<AnonymizationStatus, string> = {
-  safe: 'bg-income',
-  needs_review: 'bg-warning',
-  anonymized: 'bg-expense',
-};
-
-export const STATUS_BG_COLORS: Record<AnonymizationStatus, string> = {
-  safe: '',
-  needs_review: 'bg-warning-soft',
-  anonymized: 'bg-expense-soft',
-};
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const TitleCellRenderer = ({
   value,

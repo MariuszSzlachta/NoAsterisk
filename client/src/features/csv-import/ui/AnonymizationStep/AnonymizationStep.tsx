@@ -13,7 +13,6 @@ import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
 import { CELL_RENDERERS } from '#features/csv-import/ui/AnonymizationStep/cell-renderers';
 import { LEGEND_ITEMS } from '#features/csv-import/ui/AnonymizationStep/legend-items';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const AnonymizationStep = (): React.JSX.Element => {
   const { t } = useTranslation();

@@ -1,1 +1,1 @@
-export { useFieldAssignmentRow } from './useFieldAssignmentRow';
+export { useFieldAssignmentRow } from '#features/csv-import/ui/FieldAssignmentRow/useFieldAssignmentRow/useFieldAssignmentRow';

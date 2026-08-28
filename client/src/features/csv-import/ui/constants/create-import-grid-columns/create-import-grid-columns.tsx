@@ -11,8 +11,7 @@ export const createImportGridColumns = (
     headerName: t('import.grid.status'),
     width: 44,
     sortable: false,
-    cellRenderer: ({ value }) => {
-      const status = value as TransactionRow['status'];
+    cellRenderer: ({ data }) => {
       const indicators: Record<
         TransactionRow['status'],
         { color: string; label: string }
@@ -31,7 +30,7 @@ export const createImportGridColumns = (
           label: t('import.preview.errors', { count: 1 }),
         },
       };
-      const { color, label } = indicators[status];
+      const { color, label } = indicators[data.status];
       return (
         <div className="flex h-full items-center justify-center" title={label}>
           <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
@@ -71,8 +70,8 @@ export const createImportGridColumns = (
       }
       return valueA - valueB;
     },
-    cellRenderer: ({ value }) => {
-      const amount = value as number;
+    cellRenderer: ({ data }) => {
+      const amount = data.amount;
       if (
         typeof amount !== 'number' ||
         Number.isNaN(amount) ||
@@ -106,16 +105,15 @@ export const createImportGridColumns = (
     width: 140,
     editable: true,
     sortable: true,
-    cellRenderer: ({ value }) => {
-      const category = value as string | undefined;
-      if (!category) {
+    cellRenderer: ({ data }) => {
+      if (!data.category) {
         return (
           <span className="text-xs text-muted-foreground italic">
             {t('import.preview.noCategory')}
           </span>
         );
       }
-      return <span className="text-sm">{category}</span>;
+      return <span className="text-sm">{data.category}</span>;
     },
   },
   {
@@ -123,12 +121,11 @@ export const createImportGridColumns = (
     headerName: t('import.grid.info'),
     flex: 1,
     sortable: false,
-    cellRenderer: ({ value }) => {
-      const reason = value as string | undefined;
-      if (!reason) {
+    cellRenderer: ({ data }) => {
+      if (!data.statusReason) {
         return null;
       }
-      return <span className="text-xs text-muted-foreground">{reason}</span>;
+      return <span className="text-xs text-muted-foreground">{data.statusReason}</span>;
     },
   },
 ];

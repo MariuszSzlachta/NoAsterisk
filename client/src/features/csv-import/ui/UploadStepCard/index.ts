@@ -1,1 +1,1 @@
-export { UploadStepCard } from './UploadStepCard';
+export { UploadStepCard } from '#features/csv-import/ui/UploadStepCard/UploadStepCard';

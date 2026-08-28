@@ -1,1 +1,1 @@
-export { useImportPreviewGrid } from './useImportPreviewGrid';
+export { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid/useImportPreviewGrid';

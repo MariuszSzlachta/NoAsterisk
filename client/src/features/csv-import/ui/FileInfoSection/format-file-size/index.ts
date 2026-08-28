@@ -1,1 +1,1 @@
-export { formatFileSize } from './format-file-size';
+export { formatFileSize } from '#features/csv-import/ui/FileInfoSection/format-file-size/format-file-size';

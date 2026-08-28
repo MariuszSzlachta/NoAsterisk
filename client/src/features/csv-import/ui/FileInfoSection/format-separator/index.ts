@@ -1,1 +1,1 @@
-export { formatSeparator } from './format-separator';
+export { formatSeparator } from '#features/csv-import/ui/FileInfoSection/format-separator/format-separator';

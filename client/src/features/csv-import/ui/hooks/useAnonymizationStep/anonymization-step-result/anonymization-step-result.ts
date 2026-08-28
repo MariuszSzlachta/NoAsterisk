@@ -1,13 +1,6 @@
-import type { AnonymizationEntry, AnonymizationStatus } from '#features/csv-import/model/types';
-
-export type StatusFilter = 'all' | AnonymizationStatus;
-
-export interface AnonymizationStats {
-  readonly totalScanned: number;
-  readonly anonymizedCount: number;
-  readonly needsReviewCount: number;
-  readonly safeCount: number;
-}
+import type { AnonymizationEntry } from '#features/csv-import/model/types';
+import type { AnonymizationStats } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-stats';
+import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep/status-filter';
 
 export interface AnonymizationStepResult {
   readonly entries: readonly AnonymizationEntry[];

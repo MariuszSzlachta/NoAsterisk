@@ -2,10 +2,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { TransactionRow } from '#features/csv-import/model/types';
 import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
-import {
-  createImportGridColumns,
-  IMPORT_GRID_ROW_HEIGHT,
-} from '#features/csv-import/ui/constants';
+import { createImportGridColumns } from '#features/csv-import/ui/constants/create-import-grid-columns';
+import { IMPORT_GRID_ROW_HEIGHT } from '#features/csv-import/ui/constants/import-grid-row-height';
 import { FilterToolbar } from '#features/csv-import/ui/FilterToolbar';
 import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
 import { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid';
@@ -15,8 +13,7 @@ import { DataGrid } from '#shared/adapters/grid';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
-
-export const getRowId = (row: TransactionRow): string => row.id;
+import { getRowId } from '#features/csv-import/ui/ImportPreviewGrid/get-row-id';
 
 export const ImportPreviewGrid = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -43,9 +40,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
     (r) => r.status === 'ok' || r.status === 'warning',
   ).length;
 
-  // przypadki anonimizacji, nie tylko statusy transformacji CSV.
 
-  // Total error count across ALL rows (not filtered)
   const totalErrors = rows.filter((r) => r.status === 'error').length;
   const hasErrors = totalErrors > 0;
 
@@ -107,7 +102,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
 
       <Card className="max-h-[60vh] overflow-auto p-0">
         <DataGrid
-          rows={filteredRows as TransactionRow[]}
+          rows={[...filteredRows]}
           columns={columns}
           getRowId={getRowId}
           onCellEdit={handleCellEdit}

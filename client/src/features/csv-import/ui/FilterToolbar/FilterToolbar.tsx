@@ -1,9 +1,10 @@
 import type { DateRange } from 'react-day-picker';
 import { useTranslation } from 'react-i18next';
 
-import type { TransactionTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters';
+import type { TransactionTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters/transaction-type-filter';
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs, type FilterTab } from '#shared/ui/FilterTabs';
+import { formatDateToString } from '#features/csv-import/ui/FilterToolbar/format-date-to-string';
 
 interface FilterToolbarProps {
   readonly typeFilter: TransactionTypeFilter;
@@ -16,13 +17,6 @@ interface FilterToolbarProps {
   readonly expenseCount: number;
   readonly totalCount: number;
 }
-
-export const formatDateToString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
 
 export const FilterToolbar = ({
   typeFilter,
@@ -43,8 +37,13 @@ export const FilterToolbar = ({
     { id: 'expense', label: t('import.filter.expense'), count: expenseCount },
   ];
 
+  const isTransactionTypeFilter = (id: string): id is TransactionTypeFilter =>
+    id === 'all' || id === 'income' || id === 'expense';
+
   const handleTabChange = (id: string): void => {
-    onTypeChange(id as TransactionTypeFilter);
+    if (isTransactionTypeFilter(id)) {
+      onTypeChange(id);
+    }
   };
 
   // przez getFullYear/getMonth/getDate jako lokalne. W strefach ujemnych granica

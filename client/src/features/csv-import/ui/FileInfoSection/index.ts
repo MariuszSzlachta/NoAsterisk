@@ -1,1 +1,1 @@
-export { FileInfoSection } from './FileInfoSection';
+export { FileInfoSection } from '#features/csv-import/ui/FileInfoSection/FileInfoSection';

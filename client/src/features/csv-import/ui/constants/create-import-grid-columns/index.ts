@@ -1,1 +1,1 @@
-export { createImportGridColumns } from './create-import-grid-columns';
+export { createImportGridColumns } from '#features/csv-import/ui/constants/create-import-grid-columns/create-import-grid-columns';

@@ -1,6 +1,6 @@
 import type { CellRendererParams } from '#shared/adapters/grid';
 
-import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid/types';
 
 export const AmountCellRenderer = ({
   value,

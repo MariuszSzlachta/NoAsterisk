@@ -2,16 +2,14 @@ import { useTranslation } from 'react-i18next';
 
 import type { RowAction } from '#shared/adapters/grid';
 
-import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid/types';
 
-// ─── Types ───────────────────────────────────────────────────────
 
 interface UseAnonymizationRowActionsParams {
   readonly onEdit: (rowIndex: number) => void;
   readonly onRestore: (rowIndex: number) => void;
 }
 
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnonymizationRowActions = ({
   onEdit,
