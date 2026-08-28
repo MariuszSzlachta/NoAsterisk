@@ -2,36 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '#shared/api';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const ADMIN_USERS_PATH = '/admin/users' as const;
-const ADMIN_USERS_QUERY_KEY = ['admin', 'users'] as const;
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface BlockUserRequest {
-  readonly block: boolean;
-}
-
-interface BlockUserResponse {
-  readonly id: string;
-  readonly blocked: boolean;
-}
-
-interface BlockUserParams {
-  readonly userId: string;
-  readonly block: boolean;
-}
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseBlockUserMutationResult {
-  readonly toggleBlock: (userId: string, block: boolean) => Promise<BlockUserResponse>;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { ADMIN_USERS_PATH } from '#features/admin/api/constants/admin-users-path';
+import { ADMIN_USERS_QUERY_KEY } from '#features/admin/api/constants/admin-users-query-key';
+import { getErrorMessage } from '#features/admin/api/constants/get-error-message';
+import type { BlockUserParams } from '#features/admin/api/useBlockUserMutation/block-user-params';
+import type { BlockUserRequest } from '#features/admin/api/useBlockUserMutation/block-user-request';
+import type { BlockUserResponse } from '#features/admin/api/useBlockUserMutation/block-user-response';
+import type { UseBlockUserMutationResult } from '#features/admin/api/useBlockUserMutation/use-block-user-mutation-result';
 
 export const useBlockUserMutation = (): UseBlockUserMutationResult => {
   const queryClient = useQueryClient();
@@ -50,7 +27,5 @@ export const useBlockUserMutation = (): UseBlockUserMutationResult => {
   const toggleBlock = (userId: string, block: boolean): Promise<BlockUserResponse> =>
     mutation.mutateAsync({ userId, block });
 
-  const error = mutation.error ? (mutation.error as Error).message : undefined;
-
-  return { toggleBlock, isLoading: mutation.isPending, error };
+  return { toggleBlock, isLoading: mutation.isPending, error: getErrorMessage(mutation.error) };
 };

@@ -2,27 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '#shared/api';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const ADMIN_USERS_PATH = '/admin/users' as const;
-const ADMIN_USERS_QUERY_KEY = ['admin', 'users'] as const;
-
-// ─── Response Type ───────────────────────────────────────────────
-
-interface DeleteUserResponse {
-  readonly id: string;
-  readonly deleted: boolean;
-}
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseDeleteUserMutationResult {
-  readonly deleteUser: (userId: string) => Promise<DeleteUserResponse>;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { ADMIN_USERS_PATH } from '#features/admin/api/constants/admin-users-path';
+import { ADMIN_USERS_QUERY_KEY } from '#features/admin/api/constants/admin-users-query-key';
+import { getErrorMessage } from '#features/admin/api/constants/get-error-message';
+import type { DeleteUserResponse } from '#features/admin/api/useDeleteUserMutation/delete-user-response';
+import type { UseDeleteUserMutationResult } from '#features/admin/api/useDeleteUserMutation/use-delete-user-mutation-result';
 
 export const useDeleteUserMutation = (): UseDeleteUserMutationResult => {
   const queryClient = useQueryClient();
@@ -38,7 +22,5 @@ export const useDeleteUserMutation = (): UseDeleteUserMutationResult => {
   const deleteUser = (userId: string): Promise<DeleteUserResponse> =>
     mutation.mutateAsync(userId);
 
-  const error = mutation.error ? (mutation.error as Error).message : undefined;
-
-  return { deleteUser, isLoading: mutation.isPending, error };
+  return { deleteUser, isLoading: mutation.isPending, error: getErrorMessage(mutation.error) };
 };

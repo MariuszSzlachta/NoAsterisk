@@ -8,7 +8,6 @@ import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
 import { Skeleton } from '#shared/ui/Skeleton';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const InviteCodesTab = (): React.JSX.Element => {
   const { t } = useTranslation();

@@ -7,7 +7,6 @@ import { Button } from '#shared/ui/Button';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import { Input } from '#shared/ui/Input';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const DictionariesTab = (): React.JSX.Element => {
   const { t } = useTranslation();

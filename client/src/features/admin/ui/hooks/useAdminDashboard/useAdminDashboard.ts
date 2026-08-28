@@ -2,32 +2,12 @@ import { useTranslation } from 'react-i18next';
 
 import { useAdminUsersQuery } from '#features/admin/api/useAdminUsersQuery';
 import { useInviteCodesQuery } from '#features/admin/api/useInviteCodesQuery';
-import type {
-  AdminDashboardStats,
-  AdminUserViewModel,
-  InviteCodeViewModel,
-} from '#features/admin/model/types';
+import type { AdminDashboardStats } from '#features/admin/model/types/admin-dashboard-stats';
+import type { AdminUserViewModel } from '#features/admin/model/types/admin-user-view-model';
+import type { InviteCodeViewModel } from '#features/admin/model/types/invite-code-view-model';
 
-// ─── Types ───────────────────────────────────────────────────────
-
-interface DictionaryDisplayItem {
-  readonly label: string;
-  readonly count: number;
-  readonly lastUpdated: string;
-}
-
-type UseAdminDashboardResult =
-  | { readonly status: 'loading' }
-  | { readonly status: 'error'; readonly error: string }
-  | {
-      readonly status: 'loaded';
-      readonly stats: AdminDashboardStats;
-      readonly recentUsers: readonly AdminUserViewModel[];
-      readonly recentCodes: readonly InviteCodeViewModel[];
-      readonly dictionaryItems: readonly DictionaryDisplayItem[];
-    };
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { DictionaryDisplayItem } from '#features/admin/ui/hooks/useAdminDashboard/dictionary-display-item';
+import type { UseAdminDashboardResult } from '#features/admin/ui/hooks/useAdminDashboard/use-admin-dashboard-result';
 
 export const useAdminDashboard = (): UseAdminDashboardResult => {
   const { t } = useTranslation();
@@ -70,7 +50,7 @@ export const useAdminDashboard = (): UseAdminDashboardResult => {
   const recentUsers = users.slice(0, 5);
   const recentCodes = codes.slice(0, 5);
 
-  // TODO: Fetch real dictionary stats from API when backend endpoint is available
+  /** TODO: Fetch real dictionary stats from API when backend endpoint is available */
   const dictionaryItems: readonly DictionaryDisplayItem[] = [
     { label: t('admin.dictTypes.firstNames'), count: 2000, lastUpdated: '2 godz. temu' },
     { label: t('admin.dictTypes.surnames'), count: 5000, lastUpdated: '2 godz. temu' },

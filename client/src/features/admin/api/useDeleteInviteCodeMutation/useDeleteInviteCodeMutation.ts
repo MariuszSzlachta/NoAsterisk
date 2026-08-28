@@ -2,27 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '#shared/api';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const INVITE_CODES_PATH = '/admin/invite-codes' as const;
-const INVITE_CODES_QUERY_KEY = ['admin', 'invite-codes'] as const;
-
-// ─── Response Type ───────────────────────────────────────────────
-
-interface DeleteInviteCodeResponse {
-  readonly id: string;
-  readonly deleted: boolean;
-}
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseDeleteInviteCodeMutationResult {
-  readonly deleteCode: (codeId: string) => Promise<DeleteInviteCodeResponse>;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { INVITE_CODES_PATH } from '#features/admin/api/constants/invite-codes-path';
+import { INVITE_CODES_QUERY_KEY } from '#features/admin/api/constants/invite-codes-query-key';
+import { getErrorMessage } from '#features/admin/api/constants/get-error-message';
+import type { DeleteInviteCodeResponse } from '#features/admin/api/useDeleteInviteCodeMutation/delete-invite-code-response';
+import type { UseDeleteInviteCodeMutationResult } from '#features/admin/api/useDeleteInviteCodeMutation/use-delete-invite-code-mutation-result';
 
 export const useDeleteInviteCodeMutation = (): UseDeleteInviteCodeMutationResult => {
   const queryClient = useQueryClient();
@@ -38,7 +22,5 @@ export const useDeleteInviteCodeMutation = (): UseDeleteInviteCodeMutationResult
   const deleteCode = (codeId: string): Promise<DeleteInviteCodeResponse> =>
     mutation.mutateAsync(codeId);
 
-  const error = mutation.error ? (mutation.error as Error).message : undefined;
-
-  return { deleteCode, isLoading: mutation.isPending, error };
+  return { deleteCode, isLoading: mutation.isPending, error: getErrorMessage(mutation.error) };
 };

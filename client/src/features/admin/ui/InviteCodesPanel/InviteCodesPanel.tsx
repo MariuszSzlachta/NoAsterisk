@@ -1,28 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
-import type { AdminDashboardStats, InviteCodeViewModel } from '#features/admin';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 import { Card, CardHeader } from '#shared/ui/Card';
 
-// ─── Props ───────────────────────────────────────────────────────
-
-interface InviteCodesPanelProps {
-  readonly stats: AdminDashboardStats;
-  readonly recentCodes: readonly InviteCodeViewModel[];
-  readonly onGenerate: (tabId: string) => void;
-  readonly targetTab: string;
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-const STATUS_BADGE_COLOR = {
-  Available: 'income',
-  Used: 'neutral',
-  Expired: 'warning',
-} as const;
-
-// ─── Component ───────────────────────────────────────────────────
+import type { InviteCodesPanelProps } from '#features/admin/ui/InviteCodesPanel/invite-codes-panel-props';
+import { STATUS_BADGE_COLOR } from '#features/admin/ui/InviteCodesPanel/status-badge-color';
 
 export const InviteCodesPanel = ({
   stats,

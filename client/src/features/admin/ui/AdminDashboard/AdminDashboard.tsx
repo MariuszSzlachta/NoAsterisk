@@ -6,13 +6,7 @@ import { InviteCodesPanel } from '#features/admin/ui/InviteCodesPanel';
 import { UsersOverviewPanel } from '#features/admin/ui/UsersOverviewPanel';
 import { Skeleton } from '#shared/ui/Skeleton';
 
-// ─── Props ───────────────────────────────────────────────────────
-
-interface AdminDashboardProps {
-  readonly onNavigateToTab: (tabId: string) => void;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { AdminDashboardProps } from '#features/admin/ui/AdminDashboard/admin-dashboard-props';
 
 export const AdminDashboard = ({ onNavigateToTab }: AdminDashboardProps): React.JSX.Element => {
   const { t } = useTranslation();
@@ -40,23 +34,9 @@ export const AdminDashboard = ({ onNavigateToTab }: AdminDashboardProps): React.
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <UsersOverviewPanel
-        stats={stats}
-        recentUsers={recentUsers}
-        onViewAll={onNavigateToTab}
-        targetTab="users"
-      />
-      <InviteCodesPanel
-        stats={stats}
-        recentCodes={recentCodes}
-        onGenerate={onNavigateToTab}
-        targetTab="codes"
-      />
-      <DictionariesPanel
-        items={dictionaryItems}
-        onManage={onNavigateToTab}
-        targetTab="dictionaries"
-      />
+      <UsersOverviewPanel stats={stats} recentUsers={recentUsers} onViewAll={onNavigateToTab} targetTab="users" />
+      <InviteCodesPanel stats={stats} recentCodes={recentCodes} onGenerate={onNavigateToTab} targetTab="codes" />
+      <DictionariesPanel items={dictionaryItems} onManage={onNavigateToTab} targetTab="dictionaries" />
     </div>
   );
 };

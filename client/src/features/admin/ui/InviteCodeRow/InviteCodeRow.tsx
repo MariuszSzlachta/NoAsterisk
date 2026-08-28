@@ -1,26 +1,11 @@
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { InviteCodeStatus, InviteCodeViewModel } from '#features/admin';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const STATUS_BADGE_COLOR: Record<InviteCodeStatus, 'income' | 'neutral' | 'warning'> = {
-  Available: 'income',
-  Used: 'neutral',
-  Expired: 'warning',
-};
-
-// ─── Props ───────────────────────────────────────────────────────
-
-interface InviteCodeRowProps {
-  readonly code: InviteCodeViewModel;
-  readonly onDelete: (codeId: string) => void;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { InviteCodeRowProps } from '#features/admin/ui/InviteCodeRow/invite-code-row-props';
+import { STATUS_BADGE_COLOR } from '#features/admin/ui/InviteCodeRow/status-badge-color';
 
 export const InviteCodeRow = ({ code, onDelete }: InviteCodeRowProps): React.JSX.Element => {
   const { t } = useTranslation();
