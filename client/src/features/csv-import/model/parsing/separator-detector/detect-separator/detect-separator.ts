@@ -1,17 +1,10 @@
-import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared';
+import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/line-split.pattern';
 
+import { CANDIDATES } from '#features/csv-import/model/parsing/separator-detector/constants/candidates';
+import { DEFAULT_SEPARATOR } from '#features/csv-import/model/parsing/separator-detector/constants/default-separator';
+import { MAX_SAMPLE_LINES } from '#features/csv-import/model/parsing/separator-detector/constants/max-sample-lines';
 import { scoreSeparator } from '#features/csv-import/model/parsing/separator-detector/helpers/score-separator';
 
-export const CANDIDATES = [';', ',', '\t', '|'] as const;
-export const MAX_SAMPLE_LINES = 30;
-export const DEFAULT_SEPARATOR = ';';
-
-/**
- * Detect CSV separator by statistical analysis.
- *
- * Combines streak-based (longest consecutive run of lines with same count)
- * and mode-based (most common non-zero count) scoring.
- */
 export const detectSeparator = (text: string): string => {
   const lines = text
     .split(LINE_SPLIT_PATTERN)

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectDateFormat, parseDate, parseDateFlexible } from './';
+import { detectDateFormat } from '#features/csv-import/model/parsing/date-parser/detect-date-format';
+import { parseDate } from '#features/csv-import/model/parsing/date-parser/parse-date';
+import { parseDateFlexible } from '#features/csv-import/model/parsing/date-parser/parse-date-flexible';
 
 describe('detectDateFormat', () => {
   it('detects YYYY-MM-DD (ISO)', () => {

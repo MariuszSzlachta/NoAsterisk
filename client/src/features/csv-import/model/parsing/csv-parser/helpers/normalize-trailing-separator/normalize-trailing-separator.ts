@@ -1,15 +1,10 @@
-import type { TrailingNormalized } from '#features/csv-import/model/parsing/types';
+import type { TrailingNormalized } from '#features/csv-import/model/parsing/types/trailing-normalized';
 
 import { countTrailingEmpties } from '#features/csv-import/model/parsing/csv-parser/helpers/count-trailing-empties';
 import { countTrailingEmptiesInRow } from '#features/csv-import/model/parsing/csv-parser/helpers/count-trailing-empties-in-row';
+import { MAX_TRAILING_SAMPLE_SIZE } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator/constants/max-trailing-sample-size';
+import { TRAILING_CONSISTENCY_THRESHOLD } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator/constants/trailing-consistency-threshold';
 
-export const TRAILING_CONSISTENCY_THRESHOLD = 0.8;
-export const MAX_TRAILING_SAMPLE_SIZE = 20;
-
-/**
- * Strip consistent trailing empty tokens caused by bank CSVs ending each line with separator.
- * Safe: real data columns are never consistently empty across ALL rows.
- */
 export const normalizeTrailingSeparator = (
   headers: readonly string[],
   dataRows: readonly (readonly string[])[],

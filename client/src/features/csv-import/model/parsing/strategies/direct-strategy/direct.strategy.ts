@@ -1,8 +1,6 @@
 import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
-import type {
-  ReassemblyConfig,
-  ReassemblyStrategy,
-} from '#features/csv-import/model/parsing/types';
+import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types/reassembly-config';
+import type { ReassemblyStrategy } from '#features/csv-import/model/parsing/types/reassembly-strategy';
 
 export const directStrategy: ReassemblyStrategy = {
   type: 'direct',

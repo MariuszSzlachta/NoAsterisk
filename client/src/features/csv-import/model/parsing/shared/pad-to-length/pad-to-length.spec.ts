@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { padToLength } from './pad-to-length';
+import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
 
 describe('padToLength', () => {
   it('pads shorter array with empty strings', () => {

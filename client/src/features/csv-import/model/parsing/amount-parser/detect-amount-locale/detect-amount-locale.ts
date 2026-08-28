@@ -1,4 +1,4 @@
-import type { AmountLocale } from '#features/csv-import/model/parsing/types';
+import type { AmountLocale } from '#features/csv-import/model/parsing/types/amount-locale';
 
 import { scoreSample } from '#features/csv-import/model/parsing/amount-parser/score-sample';
 

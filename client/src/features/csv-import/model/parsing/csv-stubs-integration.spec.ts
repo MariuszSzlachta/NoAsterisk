@@ -2,11 +2,13 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { detectAmountLocale, parseAmount } from './amount-parser';
-import { detectDataBoundaries } from './data-boundary-detector';
-import { parseDateFlexible } from './date-parser';
-import { decodeBuffer, detectEncoding } from './encoding-detector';
-import { detectSeparator } from './separator-detector';
+import { detectAmountLocale } from '#features/csv-import/model/parsing/amount-parser/detect-amount-locale';
+import { parseAmount } from '#features/csv-import/model/parsing/amount-parser/parse-amount';
+import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector/detect-data-boundaries';
+import { parseDateFlexible } from '#features/csv-import/model/parsing/date-parser/parse-date-flexible';
+import { decodeBuffer } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer';
+import { detectEncoding } from '#features/csv-import/model/parsing/encoding-detector/detect-encoding';
+import { detectSeparator } from '#features/csv-import/model/parsing/separator-detector/detect-separator';
 
 const STUBS_DIR = resolve(__dirname, '../../../../../../stubs/csv');
 

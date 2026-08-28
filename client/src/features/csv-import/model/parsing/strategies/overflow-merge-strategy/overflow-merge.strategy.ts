@@ -1,14 +1,7 @@
 import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
-import type {
-  ReassemblyConfig,
-  ReassemblyStrategy,
-} from '#features/csv-import/model/parsing/types';
+import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types/reassembly-config';
+import type { ReassemblyStrategy } from '#features/csv-import/model/parsing/types/reassembly-strategy';
 
-/**
- * For CSVs where a known column (e.g. description) contains unescaped separators.
- * "Parse from end" — last N columns are fixed position, everything between
- * head and tail columns is merged back into the overflow column.
- */
 export const overflowMergeStrategy: ReassemblyStrategy = {
   type: 'overflow-merge',
 

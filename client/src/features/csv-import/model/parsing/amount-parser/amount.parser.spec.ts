@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectAmountLocale, parseAmount } from './';
+import { detectAmountLocale } from '#features/csv-import/model/parsing/amount-parser/detect-amount-locale';
+import { parseAmount } from '#features/csv-import/model/parsing/amount-parser/parse-amount';
 
 describe('detectAmountLocale', () => {
   it('detects PL locale (comma decimal)', () => {

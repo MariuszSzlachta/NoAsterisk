@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveStrategy } from '.';
+import { resolveStrategy } from '#features/csv-import/model/parsing/strategies/resolve-strategy';
 
 describe('resolveStrategy (integration)', () => {
   it('returns anchor when data has date-start + amount-end pattern', () => {

@@ -1,15 +1,9 @@
-import {
-  CURRENCY_SUFFIX_PATTERN,
-  EN_THOUSANDS_PATTERN,
-  normalizeWhitespace,
-  PL_THOUSANDS_PATTERN,
-} from '#features/csv-import/model/parsing/shared';
-import type { AmountLocale } from '#features/csv-import/model/parsing/types';
+import { CURRENCY_SUFFIX_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/currency-suffix.pattern';
+import { EN_THOUSANDS_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/en-thousands.pattern';
+import { PL_THOUSANDS_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/pl-thousands.pattern';
+import { normalizeWhitespace } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-whitespace';
+import type { AmountLocale } from '#features/csv-import/model/parsing/types/amount-locale';
 
-/**
- * Handles NBSP thousands separator, parentheses-negative, leading +/−,
- * Polish/English formats, leading single-quote, currency suffixes.
- */
 export const parseAmount = (
   value: string,
   locale: AmountLocale,

@@ -1,10 +1,5 @@
-interface SplitState {
-  readonly fields: readonly string[];
-  readonly current: string;
-  readonly inQuotes: boolean;
-}
-
-const INITIAL_STATE: SplitState = { fields: [], current: '', inQuotes: false };
+import type { SplitState } from '#features/csv-import/model/parsing/shared/split-respecting-quotes/split-state';
+import { INITIAL_STATE } from '#features/csv-import/model/parsing/shared/split-respecting-quotes/constants/initial-state';
 
 export const splitRespectingQuotes = (
   line: string,

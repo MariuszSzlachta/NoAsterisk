@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  normalizeCrlf,
-  normalizeNbsp,
-  normalizeWhitespace,
-  stripBom,
-} from './index';
+import { normalizeCrlf } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-crlf';
+import { normalizeNbsp } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-nbsp';
+import { normalizeWhitespace } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-whitespace';
+import { stripBom } from '#features/csv-import/model/parsing/shared/text-normalizers/strip-bom';
 
 describe('stripBom', () => {
   it('strips BOM from start', () => {

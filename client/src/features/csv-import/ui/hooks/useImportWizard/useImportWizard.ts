@@ -4,7 +4,7 @@ import { dictionaryProvider } from '#features/csv-import/api/dictionaryProvider'
 import { processRows } from '#features/csv-import/model/anonymization/pipeline';
 import { autoDetectMapping } from '#features/csv-import/model/column-mapping/auto-detect';
 import { hasRequiredFields } from '#features/csv-import/model/column-mapping/validators/has-required-fields';
-import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser';
+import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file';
 import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector';
 import { transformRows } from '#features/csv-import/model/transformation/row-transformer';
 import type { WizardStep } from '#features/csv-import/model/types';

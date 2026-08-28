@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { detectEncoding } from './detect-encoding';
+import { detectEncoding } from '#features/csv-import/model/parsing/encoding-detector/detect-encoding';
 
 vi.mock('#shared/adapters/encoding', () => ({
   detectCharset: vi.fn(() => ({ encoding: 'ascii', confidence: 0.1 })),

@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  classifyHeader,
-  fallbackKeywordDetection,
-  findFirstDataRow,
-  isDataLine,
-  isDateValue,
-  isHeaderLine,
-  walkBackToCandidate,
-} from '.';
+import { classifyHeader } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/classify-header';
+import { fallbackKeywordDetection } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/fallback-keyword-detection';
+import { findFirstDataRow } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/find-first-data-row';
+import { isDataLine } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/is-data-line';
+import { isDateValue } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/is-date-value';
+import { isHeaderLine } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/is-header-line';
+import { walkBackToCandidate } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/walk-back-to-candidate';
 
 describe('isDateValue', () => {
   describe('valid dates', () => {

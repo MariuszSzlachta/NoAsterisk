@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { CsvParseError, parseCsvFile } from '.';
+import { CsvParseError } from '#features/csv-import/model/parsing/csv-parser/helpers/csv-parse-error';
+import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file';
 
 const createCsvFile = (content: string, name = 'test.csv'): File =>
   new File([content], name, { type: 'text/csv' });

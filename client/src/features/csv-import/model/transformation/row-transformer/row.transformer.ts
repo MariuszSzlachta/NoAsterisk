@@ -1,15 +1,12 @@
 import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping/mergeable-fields';
-import type {
-  ColumnMapping,
-  DomainField,
-} from '#features/csv-import/model/column-mapping/types';
-import { detectAmountLocale, parseAmount } from '#features/csv-import/model/parsing/amount-parser';
-import {
-  detectDateFormat,
-  parseDate,
-  parseDateFlexible,
-} from '#features/csv-import/model/parsing/date-parser';
-import type { CsvRow } from '#features/csv-import/model/parsing/types';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/column-mapping-type';
+import type { DomainField } from '#features/csv-import/model/column-mapping/domain-field';
+import { detectAmountLocale } from '#features/csv-import/model/parsing/amount-parser/detect-amount-locale';
+import { parseAmount } from '#features/csv-import/model/parsing/amount-parser/parse-amount';
+import { detectDateFormat } from '#features/csv-import/model/parsing/date-parser/detect-date-format';
+import { parseDate } from '#features/csv-import/model/parsing/date-parser/parse-date';
+import { parseDateFlexible } from '#features/csv-import/model/parsing/date-parser/parse-date-flexible';
+import type { CsvRow } from '#features/csv-import/model/parsing/types/csv-row';
 import type { RowStatus, TransactionRow } from '#features/csv-import/model/transformation/types';
 
 export const MIN_DATE_YEAR = 2000;

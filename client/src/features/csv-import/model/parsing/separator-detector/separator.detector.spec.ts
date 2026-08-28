@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectSeparator } from './index';
+import { detectSeparator } from '#features/csv-import/model/parsing/separator-detector/detect-separator';
 
 describe('detectSeparator', () => {
   it('detects semicolons (most PL banks)', () => {

@@ -1,9 +1,9 @@
 import { AMOUNT_PATTERN } from '#features/csv-import/model/parsing/strategies/constants/amount.pattern';
 import { DATE_PATTERN } from '#features/csv-import/model/parsing/strategies/constants/date.pattern';
-
-export const DEFAULT_SAMPLE_SIZE = 10;
-export const ANCHOR_THRESHOLD = 0.8;
-export const MIN_ROW_LENGTH_FOR_ANCHOR = 4;
+import { AMOUNT_END_CHECK_FIELDS } from '#features/csv-import/model/parsing/strategies/helpers/has-anchor-pattern/constants/amount-end-check-fields';
+import { ANCHOR_THRESHOLD } from '#features/csv-import/model/parsing/strategies/helpers/has-anchor-pattern/constants/anchor-threshold';
+import { DEFAULT_SAMPLE_SIZE } from '#features/csv-import/model/parsing/strategies/helpers/has-anchor-pattern/constants/default-sample-size';
+import { MIN_ROW_LENGTH_FOR_ANCHOR } from '#features/csv-import/model/parsing/strategies/helpers/has-anchor-pattern/constants/min-row-length-for-anchor';
 
 export const hasAnchorPattern = (
   dataRows: readonly (readonly string[])[],
@@ -20,7 +20,7 @@ export const hasAnchorPattern = (
       (acc, row) => {
         const hasDateStart = DATE_PATTERN.test((row[0] ?? '').trim());
         const hasAmountEnd = row
-          .slice(Math.max(0, row.length - 3))
+          .slice(Math.max(0, row.length - AMOUNT_END_CHECK_FIELDS))
           .some((t) => AMOUNT_PATTERN.test(t.trim()));
         return {
           dateStart: acc.dateStart + (hasDateStart ? 1 : 0),

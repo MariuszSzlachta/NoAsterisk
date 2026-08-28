@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { scoreSample } from './index';
+import { scoreSample } from '#features/csv-import/model/parsing/amount-parser/score-sample';
 
 describe('scoreSample', () => {
   describe('PL format', () => {

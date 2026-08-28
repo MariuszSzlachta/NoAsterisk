@@ -1,7 +1,5 @@
-import type {
-  NumericFormatDef,
-  ParseableDateFormat,
-} from '#features/csv-import/model/parsing/types';
+import type { NumericFormatDef } from '#features/csv-import/model/parsing/types/numeric-format-def';
+import type { ParseableDateFormat } from '#features/csv-import/model/parsing/types/parseable-date-format';
 
 export const createNumericParser = (
   def: NumericFormatDef,

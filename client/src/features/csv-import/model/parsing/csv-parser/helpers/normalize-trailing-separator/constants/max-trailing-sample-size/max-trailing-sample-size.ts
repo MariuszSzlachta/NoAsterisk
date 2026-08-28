@@ -1,0 +1,1 @@
+export const MAX_TRAILING_SAMPLE_SIZE = 20;

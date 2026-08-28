@@ -1,4 +1,4 @@
-import type { CsvRow } from '#features/csv-import/model/parsing/types';
+import type { CsvRow } from '#features/csv-import/model/parsing/types/csv-row';
 
 export const tokensToRow = (
   headers: readonly string[],

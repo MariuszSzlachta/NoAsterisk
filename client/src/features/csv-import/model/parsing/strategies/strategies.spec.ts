@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types';
+import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types/reassembly-config';
 
 import { anchorStrategy } from '#features/csv-import/model/parsing/strategies/anchor-strategy';
 import { directStrategy } from '#features/csv-import/model/parsing/strategies/direct-strategy';

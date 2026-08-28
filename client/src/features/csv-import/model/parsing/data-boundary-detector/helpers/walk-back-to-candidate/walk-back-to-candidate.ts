@@ -7,7 +7,6 @@ export const walkBackToCandidate = (
     .map((line, i) => ({ line, index: i }))
     .filter(({ line }) => line.trim().length > 0);
 
-  return candidates.length > 0
-    ? candidates[candidates.length - 1]!.index
-    : null;
+  const last = candidates[candidates.length - 1];
+  return last !== undefined ? last.index : null;
 };

@@ -11,12 +11,10 @@ export type { ReassemblyStrategyType } from './parsing/types/reassembly-strategy
 export type { ReassemblyConfig } from './parsing/types/reassembly-config';
 export type { ReassemblyStrategy } from './parsing/types/reassembly-strategy';
 
-export type {
-  DomainField,
-  ColumnMapping,
-  MappingProfile,
-  BankProfile,
-} from './column-mapping/types';
+export type { DomainField } from './column-mapping/domain-field';
+export type { ColumnMapping } from './column-mapping/column-mapping-type';
+export type { MappingProfile } from './column-mapping/mapping-profile';
+export type { BankProfile } from './column-mapping/bank-profile';
 
 export type {
   RowStatus,

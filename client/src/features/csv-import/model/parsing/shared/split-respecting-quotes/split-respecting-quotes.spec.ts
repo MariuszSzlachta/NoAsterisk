@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { splitRespectingQuotes } from './split-respecting-quotes';
+import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
 
 describe('splitRespectingQuotes', () => {
   it('splits simple comma-separated line', () => {

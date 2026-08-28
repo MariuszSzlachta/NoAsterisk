@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  countUnquoted,
-  findMode,
-  longestStreak,
-  scoreSeparator,
-} from './index';
+import { countUnquoted } from '#features/csv-import/model/parsing/separator-detector/helpers/count-unquoted';
+import { findMode } from '#features/csv-import/model/parsing/separator-detector/helpers/find-mode';
+import { longestStreak } from '#features/csv-import/model/parsing/separator-detector/helpers/longest-streak';
+import { scoreSeparator } from '#features/csv-import/model/parsing/separator-detector/helpers/score-separator';
 
 describe('countUnquoted', () => {
   it('counts simple unquoted occurrences', () => {

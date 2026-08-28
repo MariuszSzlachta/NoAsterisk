@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  ALL_FORMATS,
-  createNumericParser,
-  isValidDate,
-  parseMonthName,
-  resolveYear,
-  toIsoDateString,
-} from '#features/csv-import/model/parsing/date-parser';
+import { ALL_FORMATS } from '#features/csv-import/model/parsing/date-parser/formats/all-formats';
+import { createNumericParser } from '#features/csv-import/model/parsing/date-parser/formats/create-numeric-parser';
+import { isValidDate } from '#features/csv-import/model/parsing/date-parser/formats/is-valid-date';
+import { resolveYear } from '#features/csv-import/model/parsing/date-parser/formats/resolve-year';
+import { toIsoDateString } from '#features/csv-import/model/parsing/date-parser/formats/to-iso-date-string';
+import { parseMonthName } from '#features/csv-import/model/parsing/date-parser/locales/parse-month-name';
 
 describe('resolveYear', () => {
   it('returns 4-digit year as-is', () => {

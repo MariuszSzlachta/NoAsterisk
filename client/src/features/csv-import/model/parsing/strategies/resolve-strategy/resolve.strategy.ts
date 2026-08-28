@@ -1,4 +1,4 @@
-import type { ResolvedStrategy } from '#features/csv-import/model/parsing/types';
+import type { ResolvedStrategy } from '#features/csv-import/model/parsing/types/resolved-strategy';
 
 import { anchorStrategy } from '#features/csv-import/model/parsing/strategies/anchor-strategy';
 import { detectOverflowColumnIndex } from '#features/csv-import/model/parsing/strategies/helpers/detect-overflow-column-index';
@@ -7,13 +7,6 @@ import { hasAnchorPattern } from '#features/csv-import/model/parsing/strategies/
 import { hasOverflowRows } from '#features/csv-import/model/parsing/strategies/helpers/has-overflow-rows';
 import { overflowMergeStrategy } from '#features/csv-import/model/parsing/strategies/overflow-merge-strategy';
 
-/**
- * Decision logic:
- * 1. Anchor pattern (dates start, amounts end) → Anchor
- * 2. No overflow rows → Direct
- * 3. Overflow + identifiable overflow column → OverflowMerge
- * 4. Otherwise → Direct (safe fallback)
- */
 export const resolveStrategy = (
   headers: readonly string[],
   dataRows: readonly (readonly string[])[],

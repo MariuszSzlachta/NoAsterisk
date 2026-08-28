@@ -21,7 +21,6 @@ export const classifyHeader = (
       ({ line }) => line.trim().length > 0 && isHeaderLine(line, separator),
     );
 
-  return deeperSearch.length > 0
-    ? deeperSearch[deeperSearch.length - 1]!.index
-    : null;
+  const last = deeperSearch[deeperSearch.length - 1];
+  return last !== undefined ? last.index : null;
 };

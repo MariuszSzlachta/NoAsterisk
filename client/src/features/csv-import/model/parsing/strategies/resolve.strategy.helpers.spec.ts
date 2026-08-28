@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  detectOverflowColumnIndex,
-  hasAnchorPattern,
-  hasOverflowRows,
-} from '.';
+import { detectOverflowColumnIndex } from '#features/csv-import/model/parsing/strategies/helpers/detect-overflow-column-index';
+import { hasAnchorPattern } from '#features/csv-import/model/parsing/strategies/helpers/has-anchor-pattern';
+import { hasOverflowRows } from '#features/csv-import/model/parsing/strategies/helpers/has-overflow-rows';
 
 describe('detectOverflowColumnIndex', () => {
   it('returns index when header matches keyword', () => {

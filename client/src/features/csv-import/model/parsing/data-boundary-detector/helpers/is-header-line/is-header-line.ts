@@ -1,4 +1,4 @@
-import { LEADING_HASH_GLOBAL_PATTERN } from '#features/csv-import/model/parsing/shared';
+import { LEADING_HASH_GLOBAL_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/leading-hash-global.pattern';
 import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
 
 import { HEADER_KEYWORDS } from '#features/csv-import/model/parsing/data-boundary-detector/constants/header-keywords';

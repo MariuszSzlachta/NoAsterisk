@@ -1,5 +1,5 @@
 import { splitRespectingQuotes } from '#features/csv-import/model/parsing/shared/split-respecting-quotes';
-import type { DataBoundaries } from '#features/csv-import/model/parsing/types';
+import type { DataBoundaries } from '#features/csv-import/model/parsing/types/data-boundaries';
 
 import { HEADER_KEYWORDS } from '#features/csv-import/model/parsing/data-boundary-detector/constants/header-keywords';
 import { MAX_SCAN_LINES } from '#features/csv-import/model/parsing/data-boundary-detector/constants/max-scan-lines';

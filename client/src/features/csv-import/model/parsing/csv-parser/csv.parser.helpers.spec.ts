@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  countTrailingEmpties,
-  countTrailingEmptiesInRow,
-  CsvParseError,
-  generatePositionalHeaders,
-  normalizeTrailingSeparator,
-  tokensToRow,
-  validateFile,
-} from '.';
+import { countTrailingEmpties } from '#features/csv-import/model/parsing/csv-parser/helpers/count-trailing-empties';
+import { countTrailingEmptiesInRow } from '#features/csv-import/model/parsing/csv-parser/helpers/count-trailing-empties-in-row';
+import { CsvParseError } from '#features/csv-import/model/parsing/csv-parser/helpers/csv-parse-error';
+import { generatePositionalHeaders } from '#features/csv-import/model/parsing/csv-parser/helpers/generate-positional-headers';
+import { normalizeTrailingSeparator } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator';
+import { tokensToRow } from '#features/csv-import/model/parsing/csv-parser/helpers/tokens-to-row';
+import { validateFile } from '#features/csv-import/model/parsing/csv-parser/helpers/validate-file';
 
 const createFile = (content: string, name: string, size?: number): File => {
   const file = new File([content], name, { type: 'text/csv' });

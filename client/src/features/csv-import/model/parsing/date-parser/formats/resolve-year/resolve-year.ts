@@ -1,5 +1,5 @@
-export const TWO_DIGIT_YEAR_THRESHOLD = 100;
-export const TWO_DIGIT_YEAR_BASE = 2000;
+import { TWO_DIGIT_YEAR_BASE } from '#features/csv-import/model/parsing/date-parser/formats/resolve-year/constants/two-digit-year-base';
+import { TWO_DIGIT_YEAR_THRESHOLD } from '#features/csv-import/model/parsing/date-parser/formats/resolve-year/constants/two-digit-year-threshold';
 
 export const resolveYear = (yearStr: string): number | null => {
   const num = parseInt(yearStr, 10);

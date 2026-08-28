@@ -1,20 +1,10 @@
 import { padToLength } from '#features/csv-import/model/parsing/shared/pad-to-length';
-import type {
-  ReassemblyConfig,
-  ReassemblyStrategy,
-} from '#features/csv-import/model/parsing/types';
+import type { ReassemblyConfig } from '#features/csv-import/model/parsing/types/reassembly-config';
+import type { ReassemblyStrategy } from '#features/csv-import/model/parsing/types/reassembly-strategy';
 
 import { AMOUNT_PATTERN } from '#features/csv-import/model/parsing/strategies/constants/amount.pattern';
 import { DATE_PATTERN } from '#features/csv-import/model/parsing/strategies/constants/date.pattern';
 
-/**
- * For CSVs where middle columns have unpredictable overflow but START (dates)
- * and END (amounts) columns have recognizable patterns.
- *
- * 1. Match start anchors left-to-right (dates)
- * 2. Match end anchors right-to-left (amounts)
- * 3. Everything in between merged into first middle slot, rest padded empty
- */
 export const anchorStrategy: ReassemblyStrategy = {
   type: 'overflow-merge',
 

@@ -1,21 +1,16 @@
-import type { DataBoundaries } from '#features/csv-import/model/parsing/types';
+import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/line-split.pattern';
+import type { DataBoundaries } from '#features/csv-import/model/parsing/types/data-boundaries';
 
 import { classifyHeader } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/classify-header';
 import { fallbackKeywordDetection } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/fallback-keyword-detection';
 import { findFirstDataRow } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/find-first-data-row';
 import { walkBackToCandidate } from '#features/csv-import/model/parsing/data-boundary-detector/helpers/walk-back-to-candidate';
 
-/**
- * 3-Phase boundary detection:
- * 1. Find First Data Row — line with date in field[0..1]
- * 2. Walk back from FDR to find header candidate
- * 3. Classify candidate with keyword heuristic
- */
 export const detectDataBoundaries = (
   text: string,
   separator: string,
 ): DataBoundaries => {
-  const allLines = text.split(/\r?\n/);
+  const allLines = text.split(LINE_SPLIT_PATTERN);
 
   const firstDataRow = findFirstDataRow(allLines, separator);
   if (firstDataRow === -1) {

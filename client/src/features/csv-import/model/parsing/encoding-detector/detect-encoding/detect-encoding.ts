@@ -1,33 +1,31 @@
 import { detectCharset } from '#shared/adapters/encoding';
 
+import { CONFIDENCE_THRESHOLD } from '#features/csv-import/model/parsing/encoding-detector/constants/confidence-threshold';
+import { ENCODING_UTF16BE } from '#features/csv-import/model/parsing/encoding-detector/constants/encoding-utf16be';
+import { ENCODING_UTF16LE } from '#features/csv-import/model/parsing/encoding-detector/constants/encoding-utf16le';
+import { ENCODING_UTF8 } from '#features/csv-import/model/parsing/encoding-detector/constants/encoding-utf8';
+import { ENCODING_WINDOWS_1250 } from '#features/csv-import/model/parsing/encoding-detector/constants/encoding-windows-1250';
+import { FALLBACK_ENCODING } from '#features/csv-import/model/parsing/encoding-detector/constants/fallback-encoding';
+import { SAMPLE_SIZE } from '#features/csv-import/model/parsing/encoding-detector/constants/sample-size';
+import { UTF16BE_BOM } from '#features/csv-import/model/parsing/encoding-detector/constants/utf16be-bom';
+import { UTF16LE_BOM } from '#features/csv-import/model/parsing/encoding-detector/constants/utf16le-bom';
+import { UTF8_BOM } from '#features/csv-import/model/parsing/encoding-detector/constants/utf8-bom';
+import { WINDOWS_1250_INDICATOR_BYTES } from '#features/csv-import/model/parsing/encoding-detector/constants/windows-1250-indicator-bytes';
 import { matchesBom } from '#features/csv-import/model/parsing/encoding-detector/helpers/matches-bom';
 import { normalizeEncoding } from '#features/csv-import/model/parsing/encoding-detector/helpers/normalize-encoding';
-
-export const SAMPLE_SIZE = 4096;
-export const CONFIDENCE_THRESHOLD = 0.8;
-export const FALLBACK_ENCODING = 'utf-8';
-
-export const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;
-export const UTF16LE_BOM = [0xff, 0xfe] as const;
-export const UTF16BE_BOM = [0xfe, 0xff] as const;
-
-/** Byte values typical for Windows-1250 encoded Polish text (ą, ę, ć, ł, ń, ó, ś, ź, ż) */
-export const WINDOWS_1250_INDICATOR_BYTES = [
-  0xb9, 0xe6, 0xea, 0xb3, 0xf1, 0xf3, 0x9c, 0x9f, 0xbf,
-] as const;
 
 export const detectEncoding = (buffer: ArrayBuffer): string => {
   const sample = buffer.slice(0, Math.min(buffer.byteLength, SAMPLE_SIZE));
   const bytes = new Uint8Array(sample);
 
   if (matchesBom(bytes, UTF8_BOM)) {
-    return 'utf-8';
+    return ENCODING_UTF8;
   }
   if (matchesBom(bytes, UTF16LE_BOM)) {
-    return 'utf-16le';
+    return ENCODING_UTF16LE;
   }
   if (matchesBom(bytes, UTF16BE_BOM)) {
-    return 'utf-16be';
+    return ENCODING_UTF16BE;
   }
 
   const binaryStr = Array.from(bytes)
@@ -39,12 +37,8 @@ export const detectEncoding = (buffer: ArrayBuffer): string => {
     return normalizeEncoding(result.encoding);
   }
 
-  if (
-    bytes.some((b) =>
-      (WINDOWS_1250_INDICATOR_BYTES as readonly number[]).includes(b),
-    )
-  ) {
-    return 'windows-1250';
+  if (bytes.some((b) => WINDOWS_1250_INDICATOR_BYTES.includes(b))) {
+    return ENCODING_WINDOWS_1250;
   }
 
   return FALLBACK_ENCODING;

@@ -1,4 +1,4 @@
-import type { DecodeWarning } from '#features/csv-import/model/parsing/types';
+import type { DecodeWarning } from '#features/csv-import/model/parsing/types/decode-warning';
 
 import { countReplacementChars } from '#features/csv-import/model/parsing/encoding-detector/helpers/count-replacement-chars';
 import { decodeBuffer } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer';

@@ -1,20 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  AMOUNT_PREFIX_SUFFIX_PATTERN,
-  CRLF_PATTERN,
-  CURRENCY_SUFFIX_PATTERN,
-  DATE_DELIMITER_PATTERN,
-  DIGIT_SPACE_DIGIT_PATTERN,
-  DIGITS_ONLY_PATTERN,
-  EN_THOUSANDS_PATTERN,
-  ENCODING_SEPARATOR_PATTERN,
-  LEADING_HASH_GLOBAL_PATTERN,
-  LEADING_HASH_PATTERN,
-  LINE_SPLIT_PATTERN,
-  PL_THOUSANDS_PATTERN,
-  SURROUNDING_QUOTES_PATTERN,
-} from './index';
+import { AMOUNT_PREFIX_SUFFIX_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/amount-prefix-suffix.pattern';
+import { CRLF_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/crlf.pattern';
+import { CURRENCY_SUFFIX_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/currency-suffix.pattern';
+import { DATE_DELIMITER_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/date-delimiter.pattern';
+import { DIGIT_SPACE_DIGIT_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/digit-space-digit.pattern';
+import { DIGITS_ONLY_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/digits-only.pattern';
+import { EN_THOUSANDS_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/en-thousands.pattern';
+import { ENCODING_SEPARATOR_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/encoding-separator.pattern';
+import { LEADING_HASH_GLOBAL_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/leading-hash-global.pattern';
+import { LEADING_HASH_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/leading-hash.pattern';
+import { LINE_SPLIT_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/line-split.pattern';
+import { PL_THOUSANDS_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/pl-thousands.pattern';
+import { SURROUNDING_QUOTES_PATTERN } from '#features/csv-import/model/parsing/shared/patterns/surrounding-quotes.pattern';
 
 describe('CRLF_PATTERN', () => {
   it('matches \\r\\n', () => {

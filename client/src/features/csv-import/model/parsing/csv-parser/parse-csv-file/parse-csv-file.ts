@@ -1,19 +1,13 @@
-import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector';
-import {
-  decodeBuffer,
-  detectEncoding,
-} from '#features/csv-import/model/parsing/encoding-detector';
-import { detectSeparator } from '#features/csv-import/model/parsing/separator-detector';
-import {
-  normalizeCrlf,
-  normalizeNbsp,
-  stripBom,
-} from '#features/csv-import/model/parsing/shared';
-import { resolveStrategy } from '#features/csv-import/model/parsing/strategies';
-import type {
-  CsvRow,
-  ParsedCsvData,
-} from '#features/csv-import/model/parsing/types';
+import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector/detect-data-boundaries';
+import { decodeBuffer } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer';
+import { detectEncoding } from '#features/csv-import/model/parsing/encoding-detector/detect-encoding';
+import { detectSeparator } from '#features/csv-import/model/parsing/separator-detector/detect-separator';
+import { normalizeCrlf } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-crlf';
+import { normalizeNbsp } from '#features/csv-import/model/parsing/shared/text-normalizers/normalize-nbsp';
+import { stripBom } from '#features/csv-import/model/parsing/shared/text-normalizers/strip-bom';
+import { resolveStrategy } from '#features/csv-import/model/parsing/strategies/resolve-strategy';
+import type { CsvRow } from '#features/csv-import/model/parsing/types/csv-row';
+import type { ParsedCsvData } from '#features/csv-import/model/parsing/types/parsed-csv-data';
 import { parseCsv } from '#shared/adapters/csv';
 
 import { CsvParseError } from '#features/csv-import/model/parsing/csv-parser/helpers/csv-parse-error';
@@ -21,13 +15,9 @@ import { generatePositionalHeaders } from '#features/csv-import/model/parsing/cs
 import { normalizeTrailingSeparator } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator';
 import { tokensToRow } from '#features/csv-import/model/parsing/csv-parser/helpers/tokens-to-row';
 import { validateFile } from '#features/csv-import/model/parsing/csv-parser/helpers/validate-file';
+import { ERROR_CODE_NO_DATA } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-data';
+import { ERROR_CODE_NO_HEADERS } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-headers';
 
-/**
- * Full CSV parsing pipeline:
- * validate → read → detect encoding → decode → normalize →
- * detect boundaries → detect separator → parse → resolve strategy →
- * normalize trailing → reassemble rows
- */
 export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
   Promise.resolve()
     .then(() => {
@@ -51,7 +41,7 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
       });
 
       if (result.data.length === 0) {
-        throw new CsvParseError('CSV contains no data rows', 'NO_DATA');
+        throw new CsvParseError('CSV contains no data rows', ERROR_CODE_NO_DATA);
       }
 
       const { headers: rawHeaders, dataRows: rawDataRows } =
@@ -61,22 +51,22 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
               if (!headerTokens || headerTokens.length === 0) {
                 throw new CsvParseError(
                   'No headers detected in CSV',
-                  'NO_HEADERS',
+                  ERROR_CODE_NO_HEADERS,
                 );
               }
               return {
-                headers: headerTokens as readonly string[],
-                dataRows: rest as readonly (readonly string[])[],
+                headers: [...headerTokens],
+                dataRows: rest.map((row) => [...row]),
               };
             })()
           : (() => {
               const firstRow = result.data[0];
               if (!firstRow || firstRow.length === 0) {
-                throw new CsvParseError('No data detected in CSV', 'NO_DATA');
+                throw new CsvParseError('No data detected in CSV', ERROR_CODE_NO_DATA);
               }
               return {
                 headers: generatePositionalHeaders(firstRow),
-                dataRows: result.data as readonly (readonly string[])[],
+                dataRows: result.data.map((row) => [...row]),
               };
             })();
 
@@ -95,7 +85,7 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
       );
 
       if (rows.length === 0) {
-        throw new CsvParseError('CSV contains no data rows', 'NO_DATA');
+        throw new CsvParseError('CSV contains no data rows', ERROR_CODE_NO_DATA);
       }
 
       return {

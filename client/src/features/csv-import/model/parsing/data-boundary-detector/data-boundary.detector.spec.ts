@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { detectDataBoundaries } from './detect-data-boundaries';
+import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector/detect-data-boundaries';
 
 describe('detectDataBoundaries', () => {
   describe('header detection', () => {

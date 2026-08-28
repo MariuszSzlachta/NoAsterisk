@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { matchesBom, normalizeEncoding } from './index';
+import { matchesBom } from '#features/csv-import/model/parsing/encoding-detector/helpers/matches-bom';
+import { normalizeEncoding } from '#features/csv-import/model/parsing/encoding-detector/helpers/normalize-encoding';
 
 describe('normalizeEncoding', () => {
   it.each([
