@@ -8,14 +8,10 @@ import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 // Accepted per devplan. Alternative (entities/) is overkill at this stage.
 import { useTransactionsStore } from '#features/transactions';
 
-// ─── Types ───────────────────────────────────────────────────────
-
 interface UseApplyRulesResult {
   readonly handleApplyRules: () => void;
   readonly lastResult: ApplyResult | undefined;
 }
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useApplyRules = (): UseApplyRulesResult => {
   const rules = useRulesStore((s) => s.rules);
@@ -29,9 +25,9 @@ export const useApplyRules = (): UseApplyRulesResult => {
     const results = autoCategorize(rules, transactions);
     const grouped = groupByCategoryId(results);
 
-    for (const [categoryId, ids] of grouped) {
+    grouped.forEach((ids, categoryId) => {
       bulkUpdateCategory([...ids], categoryId);
-    }
+    });
 
     setLastResult(buildApplyResult(results.length, uncategorizedCount));
   };

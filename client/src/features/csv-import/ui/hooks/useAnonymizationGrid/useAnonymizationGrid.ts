@@ -1,27 +1,16 @@
-import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { AnonymizationEntry, AnonymizationStatus, ColumnMapping, DomainField, TransactionRow } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
-import type { CellRendererParams, GridColumn } from '#shared/adapters/grid';
-
-import type { StatusFilter } from '../useAnonymizationStep';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-export interface AnonymizationGridRow {
-  readonly id: string;
-  readonly date: string;
-  readonly title: string;
-  readonly amount: number;
-  readonly currency: string;
-  readonly balance?: number;
-  readonly category?: string;
-  readonly anonymizationStatus: AnonymizationStatus;
-  readonly rowIndex: number;
-}
+import type { GridColumn } from '#shared/adapters/grid';
+import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep/status-filter';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid/types';
+import type { CellRendererMap } from '#features/csv-import/ui/hooks/useAnonymizationGrid/cell-renderer-map';
+import { buildColumnsFromMapping } from '#features/csv-import/ui/hooks/useAnonymizationGrid/build-columns-from-mapping';
+import { buildGridRows } from '#features/csv-import/ui/hooks/useAnonymizationGrid/build-grid-rows';
+import { getRowId } from '#features/csv-import/ui/hooks/useAnonymizationGrid/get-row-id';
+import { getRowClass } from '#features/csv-import/ui/hooks/useAnonymizationGrid/get-row-class';
 
 interface AnonymizationGridResult {
   readonly columns: GridColumn<AnonymizationGridRow>[];
@@ -30,116 +19,10 @@ interface AnonymizationGridResult {
   readonly getRowClass: (row: AnonymizationGridRow) => string | undefined;
 }
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const DOMAIN_FIELD_TO_GRID_FIELD: Partial<Record<DomainField, keyof AnonymizationGridRow>> = {
-  date: 'date',
-  title: 'title',
-  amount: 'amount',
-  currency: 'currency',
-  balance: 'balance',
-  category: 'category',
-};
-
-
-const DOMAIN_FIELD_HEADER_I18N: Record<DomainField, string> = {
-  date: 'import.grid.date',
-  title: 'import.grid.title',
-  amount: 'import.grid.amount',
-  currency: 'import.grid.currency',
-  balance: 'import.grid.balance',
-  category: 'import.grid.category',
-  debit: 'import.grid.debit',
-  credit: 'import.grid.credit',
-  source: 'import.grid.source',
-  recipient: 'import.grid.recipient',
-  reference: 'import.grid.reference',
-  counterpart: 'import.grid.counterpart',
-};
-
-const COLUMN_WIDTHS: Partial<Record<DomainField, number>> = {
-  date: 100,
-  amount: 120,
-  currency: 80,
-  balance: 120,
-  category: 140,
-};
-
-const COLUMN_MIN_WIDTHS: Partial<Record<DomainField, number>> = {
-  title: 400,
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-type CellRendererMap = Partial<Record<DomainField, (params: CellRendererParams<AnonymizationGridRow>) => ReactNode>>;
-
-const buildColumnsFromMapping = (
-  columnMapping: ColumnMapping,
-  t: (key: string) => string,
+export const useAnonymizationGrid = (
   cellRenderers?: CellRendererMap,
-): GridColumn<AnonymizationGridRow>[] => {
-  const seenFields = new Set<DomainField>();
-  const columns: GridColumn<AnonymizationGridRow>[] = [];
-
-  for (const [, domainField] of Object.entries(columnMapping)) {
-    if (!domainField || seenFields.has(domainField)) {
-      continue;
-    }
-    seenFields.add(domainField);
-
-    const gridField = DOMAIN_FIELD_TO_GRID_FIELD[domainField];
-    if (!gridField) {
-      continue;
-    }
-
-    const column: GridColumn<AnonymizationGridRow> = {
-      field: gridField,
-      headerName: t(DOMAIN_FIELD_HEADER_I18N[domainField]),
-      sortable: true,
-      ...(COLUMN_WIDTHS[domainField] ? { width: COLUMN_WIDTHS[domainField] } : { flex: 1 }),
-      ...(COLUMN_MIN_WIDTHS[domainField] ? { minWidth: COLUMN_MIN_WIDTHS[domainField] } : {}),
-      ...(cellRenderers?.[domainField] ? { cellRenderer: cellRenderers[domainField] } : {}),
-    };
-
-    columns.push(column);
-  }
-
-  return columns;
-};
-
-const buildGridRows = (
-  rows: readonly Pick<TransactionRow, 'id' | 'date' | 'title' | 'amount' | 'currency' | 'balance' | 'category'>[],
-  entries: readonly AnonymizationEntry[],
-): AnonymizationGridRow[] =>
-  rows.map((row, idx) => {
-    const entry = entries[idx];
-    return {
-      id: row.id,
-      date: row.date,
-      title: entry ? entry.anonymizedTitle : row.title,
-      amount: row.amount,
-      currency: row.currency,
-      balance: row.balance,
-      category: row.category,
-      anonymizationStatus: entry ? entry.status : 'safe',
-      rowIndex: idx,
-    };
-  });
-
-const getRowId = (row: AnonymizationGridRow): string => row.id;
-
-const ROW_STATUS_CLASSES: Record<AnonymizationStatus, string> = {
-  safe: 'anonymization-row-safe',
-  needs_review: 'anonymization-row-needs-review',
-  anonymized: 'anonymization-row-anonymized',
-};
-
-const getRowClass = (row: AnonymizationGridRow): string | undefined =>
-  ROW_STATUS_CLASSES[row.anonymizationStatus];
-
-// ─── Hook ────────────────────────────────────────────────────────
-
-export const useAnonymizationGrid = (cellRenderers?: CellRendererMap, statusFilter?: StatusFilter): AnonymizationGridResult => {
+  statusFilter?: StatusFilter,
+): AnonymizationGridResult => {
   const { t } = useTranslation();
 
   const { columnMapping, rows, entries } = useImportWizardStore(
@@ -150,13 +33,11 @@ export const useAnonymizationGrid = (cellRenderers?: CellRendererMap, statusFilt
     })),
   );
 
-  // Columns only change when mapping changes (rare after step 1)
   const columns = useMemo(
     () => buildColumnsFromMapping(columnMapping, t, cellRenderers),
     [columnMapping, t, cellRenderers],
   );
 
-  // Grid rows join TransactionRow + AnonymizationEntry by positional index
   // INVARIANT: rows and entries arrays maintain same positional mapping (see bullet 1 comment)
   const gridRows = useMemo(() => {
     const allRows = buildGridRows(rows, entries);

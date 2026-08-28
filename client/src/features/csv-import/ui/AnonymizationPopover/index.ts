@@ -1,1 +1,1 @@
-export { AnonymizationPopover } from './AnonymizationPopover';
+export { AnonymizationPopover } from '#features/csv-import/ui/AnonymizationPopover/AnonymizationPopover';

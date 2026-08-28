@@ -1,34 +1,11 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings — Change Password Mutation
-// ═══════════════════════════════════════════════════════════════════
+import { USERS_ME_CHANGE_PASSWORD_PATH } from '#features/user-settings/api/constants/users-me-change-password-path';
+import type { ChangePasswordBody } from '#features/user-settings/api/useChangePasswordMutation/change-password-body';
+import type { MutationState } from '#features/user-settings/api/useChangePasswordMutation/mutation-state';
+import type { UseChangePasswordMutationResult } from '#features/user-settings/api/useChangePasswordMutation/use-change-password-mutation-result';
 
 import { useState } from 'react';
 
 import { ApiError, apiClient } from '#shared/api';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface ChangePasswordBody {
-  readonly currentPassword: string;
-  readonly newPassword: string;
-}
-
-interface ChangePasswordResponse {
-  readonly success: boolean;
-}
-
-interface MutationState {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-interface UseChangePasswordMutationResult {
-  readonly state: MutationState;
-  readonly mutateAsync: (body: ChangePasswordBody) => Promise<boolean>;
-  readonly reset: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useChangePasswordMutation = (): UseChangePasswordMutationResult => {
   const [state, setState] = useState<MutationState>({
@@ -41,7 +18,7 @@ export const useChangePasswordMutation = (): UseChangePasswordMutationResult => 
 
     try {
       await apiClient.post<ChangePasswordResponse, ChangePasswordBody>(
-        '/users/me/change-password',
+        USERS_ME_CHANGE_PASSWORD_PATH,
         body,
       );
       setState({ isLoading: false, error: undefined });

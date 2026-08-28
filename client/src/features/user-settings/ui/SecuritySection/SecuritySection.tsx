@@ -1,49 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — SecuritySection Component
-// ═══════════════════════════════════════════════════════════════════
 
-import { CheckCircle, Circle, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { PasswordValidationRules } from '#features/user-settings/model/types';
 import { useSecuritySection } from '#features/user-settings/ui/hooks/useSecuritySection';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
-
-// ─── Validation Rule Display ─────────────────────────────────────
-
-interface RuleItemProps {
-  readonly label: string;
-  readonly passed: boolean;
-}
-
-const RuleItem = ({ label, passed }: RuleItemProps): React.JSX.Element => (
-  <div className="flex items-center gap-2">
-    {passed ? (
-      <CheckCircle size={14} className="text-income" aria-hidden="true" />
-    ) : (
-      <Circle size={14} className="text-subtle" aria-hidden="true" />
-    )}
-    <span className={`text-xs ${passed ? 'text-income' : 'text-muted-foreground'}`}>
-      {label}
-    </span>
-  </div>
-);
-
-// ─── Rule Keys ───────────────────────────────────────────────────
-
-const RULE_KEYS: ReadonlyArray<{ key: keyof PasswordValidationRules; i18nKey: string }> = [
-  { key: 'minLength', i18nKey: 'settings.security.rules.minLength' },
-  { key: 'hasUppercase', i18nKey: 'settings.security.rules.hasUppercase' },
-  { key: 'hasLowercase', i18nKey: 'settings.security.rules.hasLowercase' },
-  { key: 'hasDigit', i18nKey: 'settings.security.rules.hasDigit' },
-  { key: 'hasSpecialChar', i18nKey: 'settings.security.rules.hasSpecialChar' },
-  { key: 'differentFromCurrent', i18nKey: 'settings.security.rules.differentFromCurrent' },
-  { key: 'confirmationMatch', i18nKey: 'settings.security.rules.confirmationMatch' },
-];
-
-// ─── Component ───────────────────────────────────────────────────
+import { RuleItem } from '#features/user-settings/ui/SecuritySection/RuleItem';
+import { RULE_KEYS } from '#features/user-settings/ui/SecuritySection/constants/rule-keys';
 
 export const SecuritySection = (): React.JSX.Element => {
   const { t } = useTranslation();

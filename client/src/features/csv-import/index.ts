@@ -2,30 +2,33 @@
 // Only these exports are available to pages and other features.
 
 // Model — parsers & transformers
-export { parseCsvFile, CsvParseError } from './model/parsing/csv-parser';
-export { detectDateFormat, parseDate, parseDateFlexible } from './model/parsing/date-parser';
-export { detectAmountLocale, parseAmount } from './model/parsing/amount-parser';
-export {
-  detectEncoding,
-  decodeBuffer,
-  decodeBufferWithWarning,
-  countReplacementChars,
-} from './model/parsing/encoding-detector';
-export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './model/column-mapping/column-mapper';
+export { parseCsvFile } from './model/parsing/csv-parser/parse-csv-file';
+export { CsvParseError } from './model/parsing/csv-parser/helpers/csv-parse-error';
+export { detectDateFormat } from './model/parsing/date-parser/detect-date-format';
+export { parseDate } from './model/parsing/date-parser/parse-date';
+export { parseDateFlexible } from './model/parsing/date-parser/parse-date-flexible';
+export { detectAmountLocale } from './model/parsing/amount-parser/detect-amount-locale';
+export { parseAmount } from './model/parsing/amount-parser/parse-amount';
+export { detectEncoding } from './model/parsing/encoding-detector/detect-encoding';
+export { decodeBuffer } from './model/parsing/encoding-detector/decode-buffer';
+export { decodeBufferWithWarning } from './model/parsing/encoding-detector/decode-buffer-with-warning';
+export { countReplacementChars } from './model/parsing/encoding-detector/helpers/count-replacement-chars';
+export { autoDetectMapping } from './model/column-mapping/auto-detect';
+export { normalizeHeader } from './model/column-mapping/normalize-header';
+export { isDomainField } from './model/column-mapping/validators/is-domain-field';
+export { hasRequiredFields } from './model/column-mapping/validators/has-required-fields';
 export { transformRows } from './model/transformation/row-transformer';
 export { findSimilarRows } from './model/transformation/find-similar-rows';
-export { createImportChunks, computeContentHash, computeBatchHash } from './model/submission/import-chunks';
-export {
-  detectDuplicatesInBatch,
-  detectDuplicatesAgainstExisting,
-} from './model/transformation/duplicate-detector';
+export { createImportChunks } from './model/submission/import-chunks/create-import-chunks';
+export { computeContentHash } from './model/submission/import-chunks/compute-content-hash';
+export { computeBatchHash } from './model/submission/import-chunks/compute-batch-hash';
+export { detectDuplicatesInBatch } from './model/transformation/duplicate-detector/detect-duplicates-in-batch';
+export { detectDuplicatesAgainstExisting } from './model/transformation/duplicate-detector/detect-duplicates-against-existing';
 export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
-export {
-  buildFromStubs,
-  createDictionaryProvider,
-  devDictionaryProvider,
-} from './model/anonymization/dictionaries/dictionary.provider';
-export { detectBankFromHeaders } from './model/column-mapping/bank-profiles';
+export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
+export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider-factory';
+export { devDictionaryProvider } from './model/anonymization/dictionaries/dev-provider';
+export { detectBankFromHeaders } from './model/column-mapping/bank-profiles/detect-bank-from-headers';
 
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
@@ -70,4 +73,4 @@ export type {
   ImportProgress,
 } from './model/types';
 
-export type { DecodeWarning } from './model/parsing/encoding-detector';
+export type { DecodeWarning } from './model/parsing/types/decode-warning';

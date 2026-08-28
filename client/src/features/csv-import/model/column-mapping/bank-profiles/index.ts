@@ -1,1 +1,1 @@
-export { BankProfileRegistry, defaultBankProfileRegistry, detectBankFromHeaders } from './bank-profile.registry';
+export { createBankProfileRegistry } from '#features/csv-import/model/column-mapping/bank-profiles/create-bank-profile-registry';

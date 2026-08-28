@@ -1,0 +1,1 @@
+export const PESEL_CHECK_DIGIT_INDEX = 10;

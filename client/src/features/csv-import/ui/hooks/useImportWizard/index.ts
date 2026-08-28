@@ -1,1 +1,1 @@
-export { useImportWizard } from './useImportWizard';
+export { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard/useImportWizard';

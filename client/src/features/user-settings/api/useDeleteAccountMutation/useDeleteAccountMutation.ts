@@ -1,29 +1,11 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings — Delete Account Mutation
-// ═══════════════════════════════════════════════════════════════════
+import { USERS_ME_DELETE_PATH } from '#features/user-settings/api/constants/users-me-delete-path';
+import type { DeleteAccountBody } from '#features/user-settings/api/useDeleteAccountMutation/delete-account-body';
+import type { MutationState } from '#features/user-settings/api/useDeleteAccountMutation/mutation-state';
+import type { UseDeleteAccountMutationResult } from '#features/user-settings/api/useDeleteAccountMutation/use-delete-account-mutation-result';
 
 import { useState } from 'react';
 
 import { ApiError, apiClient } from '#shared/api';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface DeleteAccountBody {
-  readonly password: string;
-}
-
-interface MutationState {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-interface UseDeleteAccountMutationResult {
-  readonly state: MutationState;
-  readonly mutateAsync: (body: DeleteAccountBody) => Promise<boolean>;
-  readonly reset: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useDeleteAccountMutation = (): UseDeleteAccountMutationResult => {
   const [state, setState] = useState<MutationState>({
@@ -38,7 +20,7 @@ export const useDeleteAccountMutation = (): UseDeleteAccountMutationResult => {
       // Uses POST because HttpClient.delete() does not accept a body.
       // Backend endpoint: POST /users/me/delete (requires password confirmation)
       await apiClient.post<Record<string, never>, DeleteAccountBody>(
-        '/users/me/delete',
+        USERS_ME_DELETE_PATH,
         body,
       );
       setState({ isLoading: false, error: undefined });

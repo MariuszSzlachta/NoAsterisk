@@ -1,2 +1,1 @@
-export { HeaderHeuristicRegistry, defaultHeaderHeuristicRegistry } from './header-heuristic.registry';
-export type { HeaderHeuristic } from './header-heuristic.registry';
+export { createHeuristicRegistry } from '#features/csv-import/model/column-mapping/heuristics/create-heuristic-registry';

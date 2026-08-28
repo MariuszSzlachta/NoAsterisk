@@ -1,56 +1,15 @@
 import { useState } from 'react';
 
-import type { AuthResponse, RegisterRequestBody } from '#features/auth/model/types';
-import { parseAuthResponse } from '#features/auth/model/parseAuthResponse';
+import type { AuthResponse } from '#features/auth/model/types/auth-response';
+import type { RegisterRequestBody } from '#features/auth/model/types/register-request-body';
+import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
 import { useAuthStore } from '#features/auth/store/useAuthStore';
-import { ApiError, apiClient } from '#shared/api';
+import { apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
-import { AUTH_ENDPOINTS } from '../constants';
-
-interface UseRegisterMutationResult {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-  readonly mutateAsync: (body: RegisterRequestBody) => Promise<AuthResponse>;
-  readonly reset: () => void;
-}
-
-/**
- * Maps backend error response to i18n key.
- * Backend returns 400 for both DomainError and Zod validation.
- * DomainError body: { statusCode: 400, message: string }
- * Zod body: { statusCode: 400, message: 'Validation failed', fields: string[] }
- */
-const mapRegisterError = (err: unknown): string => {
-  if (!(err instanceof ApiError)) {
-    return 'auth.register.genericError';
-  }
-
-  if (err.status !== 400) {
-    return 'auth.register.genericError';
-  }
-
-  const body = err.body as Record<string, unknown> | undefined;
-  if (!body || typeof body['message'] !== 'string') {
-    return 'auth.register.genericError';
-  }
-
-  const message = body['message'];
-
-  if (message === 'Registration failed') {
-    return 'auth.register.emailConflict';
-  }
-
-  if (message === 'Invite code is required' || message === 'Invalid invite code') {
-    return 'auth.register.invalidInviteCode';
-  }
-
-  if (message === 'Validation failed') {
-    return 'auth.register.validationFailed';
-  }
-
-  return 'auth.register.genericError';
-};
+import { REGISTER_ENDPOINT } from '#features/auth/api/constants/register-endpoint';
+import { mapRegisterError } from '#features/auth/api/useRegisterMutation/map-register-error';
+import type { UseRegisterMutationResult } from '#features/auth/api/useRegisterMutation/use-register-mutation-result';
 
 export const useRegisterMutation = (): UseRegisterMutationResult => {
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +23,7 @@ export const useRegisterMutation = (): UseRegisterMutationResult => {
 
     try {
       const raw = await apiClient.post<unknown, RegisterRequestBody>(
-        AUTH_ENDPOINTS.REGISTER,
+        REGISTER_ENDPOINT,
         body,
         { skipAuth: true },
       );

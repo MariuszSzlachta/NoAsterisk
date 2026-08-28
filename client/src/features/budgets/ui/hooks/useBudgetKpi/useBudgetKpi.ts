@@ -4,9 +4,9 @@ import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryS
 // Transactions feature exports useTransactionsStore via its public API (index.ts).
 import { useTransactionsStore } from '#features/transactions';
 
-import { computeBudgetKpis } from '#features/budgets/model/budget-kpi';
-import { mapBudgetRecordToViewModel } from '#features/budgets/model/transformers';
-import type { BudgetKpiVM } from '#features/budgets/model/types';
+import { computeBudgetKpis } from '#features/budgets/model/compute-budget-kpis';
+import { mapBudgetRecordToViewModel } from '#features/budgets/model/map-budget-record-to-view-model';
+import type { BudgetKpiVM } from '#features/budgets/model/types/budget-kpi-vm';
 
 const DEFAULT_CURRENCY = 'PLN';
 

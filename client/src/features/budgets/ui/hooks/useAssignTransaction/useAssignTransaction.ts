@@ -7,8 +7,8 @@ import { parseISO } from 'date-fns';
 import { useTransactionsStore } from '#features/transactions';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
-import { getPeriodRange } from '#features/budgets/model/transformers';
-import type { BudgetTransactionInput } from '#features/budgets/model/types';
+import { getPeriodRange } from '#features/budgets/model/get-period-range';
+import type { BudgetTransactionInput } from '#features/budgets/model/types/budget-transaction-input';
 
 // ─── Hook Interface ──────────────────────────────────────────────
 

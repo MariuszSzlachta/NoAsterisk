@@ -1,0 +1,1 @@
+export const ERROR_CODE_FILE_TOO_LARGE = 'FILE_TOO_LARGE';

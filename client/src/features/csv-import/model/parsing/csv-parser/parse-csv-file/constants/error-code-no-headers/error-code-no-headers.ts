@@ -1,0 +1,1 @@
+export const ERROR_CODE_NO_HEADERS = 'NO_HEADERS';

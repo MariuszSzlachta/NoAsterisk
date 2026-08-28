@@ -5,14 +5,10 @@ import { mapRuleToViewModel } from '#features/admin-rules/model';
 import type { RuleViewModel } from '#features/admin-rules/model/types';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 
-// ─── Result Interface ────────────────────────────────────────────
-
 interface UseRulesTableResult {
   readonly rules: ReadonlyArray<RuleViewModel>;
   readonly handleDelete: (id: string) => void;
 }
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useRulesTable = (): UseRulesTableResult => {
   const { t } = useTranslation();

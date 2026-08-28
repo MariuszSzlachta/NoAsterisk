@@ -1,1 +1,1 @@
-export { AnonymizationStep } from './AnonymizationStep';
+export { AnonymizationStep } from '#features/csv-import/ui/AnonymizationStep/AnonymizationStep';

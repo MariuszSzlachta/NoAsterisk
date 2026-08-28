@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — ProfileSection Component
-// ═══════════════════════════════════════════════════════════════════
 
 import { Copy, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +8,6 @@ import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const ProfileSection = (): React.JSX.Element => {
   const { t } = useTranslation();

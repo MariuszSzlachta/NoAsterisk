@@ -1,22 +1,11 @@
 import type { CategoryInfo } from '#entities/category';
 
-import type { MatcherType, RuleRecord, RuleViewModel } from '#features/admin-rules/model/types';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-type TranslationFn = (key: string) => string;
-
-// ─── Constants ───────────────────────────────────────────────────
-
-const MATCHER_LABEL_KEYS: Record<MatcherType, string> = {
-  Contains: 'rules.form.matcherContains',
-  Exact: 'rules.form.matcherExact',
-};
-
-const FALLBACK_CATEGORY_KEY = 'rules.fallbackCategory';
-const FALLBACK_CATEGORY_COLOR = '#94a3b8'; // matches slate-400 — used as JS value for dynamic rendering
-
-// ─── Transformer ─────────────────────────────────────────────────
+import type { RuleRecord } from '#features/admin-rules/model/rule-record';
+import type { RuleViewModel } from '#features/admin-rules/model/rule-view-model';
+import { FALLBACK_CATEGORY_COLOR } from '#features/admin-rules/model/transformers/fallback-category-color';
+import { FALLBACK_CATEGORY_KEY } from '#features/admin-rules/model/transformers/fallback-category-key';
+import { MATCHER_LABEL_KEYS } from '#features/admin-rules/model/transformers/matcher-label-keys';
+import type { TranslationFn } from '#features/admin-rules/model/transformers/translation-fn';
 
 export const mapRuleToViewModel = (
   record: RuleRecord,

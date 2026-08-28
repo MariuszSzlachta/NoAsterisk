@@ -1,0 +1,1 @@
+export const CONTEXT_ONLY_CONFIDENCE = 0.65;

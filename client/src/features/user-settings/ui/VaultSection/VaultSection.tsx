@@ -1,39 +1,18 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — VaultSection Component
-// ═══════════════════════════════════════════════════════════════════
 
-import { CheckCircle, Download, Lock, RefreshCw, RotateCcw, Upload, XCircle } from 'lucide-react';
+import { Download, Lock, RotateCcw, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { VaultSyncStatus } from '#features/user-settings/model/types';
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
 import { VaultPasswordDialog } from '#features/user-settings/ui/VaultPasswordDialog';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 
-import { StatCard } from './StatCard';
+import { StatCard } from '#features/user-settings/ui/VaultSection/StatCard';
+import { STATUS_COLORS } from '#features/user-settings/ui/VaultSection/constants/status-colors';
+import { STATUS_I18N } from '#features/user-settings/ui/VaultSection/constants/status-i18n';
+import { STATUS_ICONS } from '#features/user-settings/ui/VaultSection/constants/status-icons';
 
-// ─── Status Config ───────────────────────────────────────────────
-
-const STATUS_ICONS: Record<VaultSyncStatus, React.ReactNode> = {
-  synced: <CheckCircle size={20} className="text-income" />,
-  unsynced: <RefreshCw size={20} className="text-warning" />,
-  'no-backup': <XCircle size={20} className="text-expense" />,
-};
-
-const STATUS_COLORS: Record<VaultSyncStatus, string> = {
-  synced: 'border-income/30 bg-income/5',
-  unsynced: 'border-warning/30 bg-warning/5',
-  'no-backup': 'border-expense/30 bg-expense/5',
-};
-
-const STATUS_I18N: Record<VaultSyncStatus, string> = {
-  synced: 'settings.vault.statusSynced',
-  unsynced: 'settings.vault.statusUnsynced',
-  'no-backup': 'settings.vault.statusNoBackup',
-};
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const VaultSection = (): React.JSX.Element => {
   const { t } = useTranslation();

@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  countReplacementChars,
-  decodeBuffer,
-  decodeBufferWithWarning,
-  detectEncoding,
-} from './encoding.detector';
+import { countReplacementChars } from '#features/csv-import/model/parsing/encoding-detector/helpers/count-replacement-chars';
+import { decodeBuffer } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer';
+import { decodeBufferWithWarning } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer-with-warning';
+import { detectEncoding } from '#features/csv-import/model/parsing/encoding-detector/detect-encoding';
 
 const toBuffer = (bytes: number[]): ArrayBuffer => new Uint8Array(bytes).buffer;
 

@@ -1,11 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════
 // VaultSection — StatCard Sub-component
-// ═══════════════════════════════════════════════════════════════════
-
-interface StatCardProps {
-  readonly label: string;
-  readonly value: number | string;
-}
 
 export const StatCard = ({ label, value }: StatCardProps): React.JSX.Element => (
   <div className="flex flex-col items-center rounded-md border border-border bg-surface-2 px-3 py-2">

@@ -2,32 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '#shared/api';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const INVITE_CODES_PATH = '/admin/invite-codes' as const;
-const INVITE_CODES_QUERY_KEY = ['admin', 'invite-codes'] as const;
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface GenerateCodeRequest {
-  readonly expiresAt?: string;
-}
-
-interface GenerateCodeResponse {
-  readonly id: string;
-  readonly code: string;
-  readonly expiresAt: string | undefined;
-}
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseGenerateCodeMutationResult {
-  readonly generate: (expiresAt?: string) => Promise<GenerateCodeResponse>;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { INVITE_CODES_PATH } from '#features/admin/api/constants/invite-codes-path';
+import { INVITE_CODES_QUERY_KEY } from '#features/admin/api/constants/invite-codes-query-key';
+import { getErrorMessage } from '#features/admin/api/constants/get-error-message';
+import type { GenerateCodeRequest } from '#features/admin/api/useGenerateCodeMutation/generate-code-request';
+import type { GenerateCodeResponse } from '#features/admin/api/useGenerateCodeMutation/generate-code-response';
+import type { UseGenerateCodeMutationResult } from '#features/admin/api/useGenerateCodeMutation/use-generate-code-mutation-result';
 
 export const useGenerateCodeMutation = (): UseGenerateCodeMutationResult => {
   const queryClient = useQueryClient();
@@ -48,7 +28,5 @@ export const useGenerateCodeMutation = (): UseGenerateCodeMutationResult => {
   const generate = (expiresAt?: string): Promise<GenerateCodeResponse> =>
     mutation.mutateAsync(expiresAt);
 
-  const error = mutation.error ? (mutation.error as Error).message : undefined;
-
-  return { generate, isLoading: mutation.isPending, error };
+  return { generate, isLoading: mutation.isPending, error: getErrorMessage(mutation.error) };
 };

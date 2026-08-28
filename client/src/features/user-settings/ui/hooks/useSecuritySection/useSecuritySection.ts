@@ -1,36 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — useSecuritySection Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useState } from 'react';
 
 import { useChangePasswordMutation } from '#features/user-settings/api/useChangePasswordMutation';
-import type { PasswordFormValues, PasswordValidationRules } from '#features/user-settings/model/types';
-import { isPasswordFormValid, validatePasswordForm } from '#features/user-settings/model/validators';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseSecuritySectionResult {
-  readonly formValues: PasswordFormValues;
-  readonly showPasswords: boolean;
-  readonly validationRules: PasswordValidationRules;
-  readonly isValid: boolean;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-  readonly handleFieldChange: (field: keyof PasswordFormValues, value: string) => void;
-  readonly handleToggleShowPasswords: () => void;
-  readonly handleSubmit: () => Promise<boolean>;
-}
-
-// ─── Initial State ───────────────────────────────────────────────
-
-const INITIAL_FORM: PasswordFormValues = {
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: '',
-};
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { PasswordFormValues } from '#features/user-settings/model/types/password-form-values';
+import type { PasswordValidationRules } from '#features/user-settings/model/types/password-validation-rules';
+import { isPasswordFormValid } from '#features/user-settings/model/is-password-form-valid';
+import { validatePasswordForm } from '#features/user-settings/model/validate-password-form';
+import { INITIAL_FORM } from '#features/user-settings/ui/hooks/useSecuritySection/constants/initial-form';
+import type { UseSecuritySectionResult } from '#features/user-settings/ui/hooks/useSecuritySection/use-security-section-result';
 
 export const useSecuritySection = (): UseSecuritySectionResult => {
   const { state, mutateAsync } = useChangePasswordMutation();

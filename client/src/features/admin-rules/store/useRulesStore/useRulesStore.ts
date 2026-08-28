@@ -1,31 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { RuleRecord } from '#features/admin-rules/model/types';
-import { isMatcherType } from '#features/admin-rules/model/types';
-
-// ─── Validation ──────────────────────────────────────────────────
-
-const isValidRulePayload = (
-  rule: Omit<RuleRecord, 'id' | 'createdAt'>,
-): boolean =>
-  rule.keyword.trim().length > 0 &&
-  rule.categoryId.trim().length > 0 &&
-  isMatcherType(rule.matcherType) &&
-  Number.isFinite(rule.priority) &&
-  rule.priority >= 1;
-
-const isValidRuleUpdate = (
-  updates: Partial<Pick<RuleRecord, 'keyword' | 'matcherType' | 'categoryId' | 'priority'>>,
-): boolean => {
-  if (updates.keyword !== undefined && updates.keyword.trim().length === 0) return false;
-  if (updates.matcherType !== undefined && !isMatcherType(updates.matcherType)) return false;
-  if (updates.categoryId !== undefined && updates.categoryId.trim().length === 0) return false;
-  if (updates.priority !== undefined && (!Number.isFinite(updates.priority) || updates.priority < 1)) return false;
-  return true;
-};
-
-// ─── State Interface ─────────────────────────────────────────────
+import type { RuleRecord } from '#features/admin-rules/model/rule-record';
+import { isValidRulePayload } from '#features/admin-rules/store/useRulesStore/is-valid-rule-payload';
+import { isValidRuleUpdate } from '#features/admin-rules/store/useRulesStore/is-valid-rule-update';
 
 interface RulesState {
   readonly rules: ReadonlyArray<RuleRecord>;
@@ -36,8 +14,6 @@ interface RulesState {
   ) => void;
   readonly deleteRule: (id: string) => void;
 }
-
-// ─── Store ───────────────────────────────────────────────────────
 
 export const useRulesStore = create<RulesState>()(
   persist(

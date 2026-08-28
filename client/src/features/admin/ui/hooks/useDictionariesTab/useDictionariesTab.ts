@@ -1,63 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { DictionaryEntryViewModel, DictionaryType } from '#features/admin/model/types';
+import type { DictionaryEntryViewModel } from '#features/admin/model/types/dictionary-entry-view-model';
+import type { DictionaryType } from '#features/admin/model/types/dictionary-type';
 
-// ─── Constants ───────────────────────────────────────────────────
-
-const DICTIONARY_TYPES: readonly DictionaryType[] = [
-  'firstNames',
-  'surnames',
-  'cities',
-  'merchants',
-  'phrases',
-];
-
-const isDictionaryType = (value: string): value is DictionaryType =>
-  (DICTIONARY_TYPES as readonly string[]).includes(value);
-
-// ─── Mock Data (will be replaced by API query when backend ready) ───
-
-const MOCK_COUNTS: Record<DictionaryType, number> = {
-  firstNames: 2000,
-  surnames: 5000,
-  cities: 950,
-  merchants: 500,
-  phrases: 200,
-};
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface DictionarySubTab {
-  readonly id: DictionaryType;
-  readonly label: string;
-  readonly count: number;
-}
-
-interface UseDictionariesTabResult {
-  readonly subTabs: readonly DictionarySubTab[];
-  readonly activeType: DictionaryType;
-  readonly entries: readonly DictionaryEntryViewModel[];
-  readonly totalEntries: number;
-  readonly displayRange: string;
-  readonly searchQuery: string;
-  readonly currentPage: number;
-  readonly totalPages: number;
-  readonly showAddModal: boolean;
-  readonly showBulkModal: boolean;
-  readonly handleSubTabChange: (id: string) => void;
-  readonly handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  readonly handlePrevPage: () => void;
-  readonly handleNextPage: () => void;
-  readonly handleOpenAdd: () => void;
-  readonly handleCloseAdd: () => void;
-  readonly handleOpenBulk: () => void;
-  readonly handleCloseBulk: () => void;
-}
-
-const PAGE_SIZE = 21; // 3 columns × 7 rows
-
-// ─── Hook ────────────────────────────────────────────────────────
+import { DICTIONARY_TYPES } from '#features/admin/ui/hooks/useDictionariesTab/constants/dictionary-types';
+import { MOCK_COUNTS } from '#features/admin/ui/hooks/useDictionariesTab/constants/mock-counts';
+import { PAGE_SIZE } from '#features/admin/ui/hooks/useDictionariesTab/constants/page-size';
+import { isDictionaryType } from '#features/admin/ui/hooks/useDictionariesTab/is-dictionary-type';
+import type { UseDictionariesTabResult } from '#features/admin/ui/hooks/useDictionariesTab/use-dictionaries-tab-result';
 
 export const useDictionariesTab = (): UseDictionariesTabResult => {
   const { t } = useTranslation();
@@ -68,17 +19,15 @@ export const useDictionariesTab = (): UseDictionariesTabResult => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
 
-  const subTabs: readonly DictionarySubTab[] = DICTIONARY_TYPES.map((type) => ({
+  const subTabs = DICTIONARY_TYPES.map((type) => ({
     id: type,
     label: t(`admin.dictTypes.${type}`),
     count: MOCK_COUNTS[type],
   }));
 
-  // TODO: Replace with real API query — currently mock data
   const totalEntries = MOCK_COUNTS[activeType];
   const totalPages = Math.max(1, Math.ceil(totalEntries / PAGE_SIZE));
 
-  // Generate mock entries for current page
   const entries: readonly DictionaryEntryViewModel[] = Array.from(
     { length: Math.min(PAGE_SIZE, totalEntries - (currentPage - 1) * PAGE_SIZE) },
     (_, i) => {

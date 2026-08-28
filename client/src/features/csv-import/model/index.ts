@@ -3,7 +3,11 @@
 
 // Parsing
 export { parseCsvFile, CsvParseError } from './parsing/csv-parser';
-export { detectDateFormat, parseDate, parseDateFlexible } from './parsing/date-parser';
+export {
+  detectDateFormat,
+  parseDate,
+  parseDateFlexible,
+} from './parsing/date-parser';
 export { detectAmountLocale, parseAmount } from './parsing/amount-parser';
 export {
   detectEncoding,
@@ -11,28 +15,40 @@ export {
   decodeBufferWithWarning,
   countReplacementChars,
 } from './parsing/encoding-detector';
-export type { DecodeWarning } from './parsing/encoding-detector';
+export type { DecodeWarning } from './parsing/types';
 export { detectSeparator } from './parsing/separator-detector';
 export { detectDataBoundaries } from './parsing/data-boundary-detector';
 
 // Column Mapping
-export { autoDetectMapping, normalizeHeader, isDomainField, hasRequiredFields } from './column-mapping/column-mapper';
+export { autoDetectMapping } from './column-mapping/auto-detect';
+export { normalizeHeader } from './column-mapping/normalize-header';
+export { isDomainField } from './column-mapping/validators/is-domain-field';
+export { hasRequiredFields } from './column-mapping/validators/has-required-fields';
 export { MERGEABLE_FIELDS } from './column-mapping';
-export { HeaderHeuristicRegistry, defaultHeaderHeuristicRegistry } from './column-mapping/heuristics';
-export type { HeaderHeuristic } from './column-mapping/heuristics';
-export { BankProfileRegistry, defaultBankProfileRegistry, detectBankFromHeaders } from './column-mapping/bank-profiles';
+export { createHeuristicRegistry } from './column-mapping/heuristics/create-heuristic-registry';
+export { defaultHeuristicRegistry } from './column-mapping/heuristics/default-heuristic-registry';
+export { createBankProfileRegistry } from './column-mapping/bank-profiles/create-bank-profile-registry';
+export { defaultBankProfileRegistry } from './column-mapping/bank-profiles/default-bank-profile-registry';
+export { detectBankFromHeaders } from './column-mapping/bank-profiles/detect-bank-from-headers';
 
 // Transformation
 export { transformRows } from './transformation/row-transformer';
-export { detectDuplicatesInBatch, detectDuplicatesAgainstExisting } from './transformation/duplicate-detector';
+export { detectDuplicatesInBatch } from './transformation/duplicate-detector/detect-duplicates-in-batch';
+export { detectDuplicatesAgainstExisting } from './transformation/duplicate-detector/detect-duplicates-against-existing';
 export { findSimilarRows } from './transformation/find-similar-rows';
 
 // Submission
-export { createImportChunks, computeContentHash, computeBatchHash } from './submission/import-chunks';
+export {
+  createImportChunks,
+  computeContentHash,
+  computeBatchHash,
+} from './submission/import-chunks';
 
 // Anonymization
 export { anonymizeTitle, processRows } from './anonymization/pipeline';
-export { buildFromStubs, createDictionaryProvider, devDictionaryProvider } from './anonymization/dictionaries/dictionary.provider';
+export { buildFromStubs } from './anonymization/dictionaries/build-from-stubs';
+export { createDictionaryProvider } from './anonymization/dictionaries/dictionary-provider-factory';
+export { devDictionaryProvider } from './anonymization/dictionaries/dev-provider';
 
 // Types (re-export from barrel)
 export type {

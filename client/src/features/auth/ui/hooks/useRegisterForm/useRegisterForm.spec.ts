@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useRegisterForm } from './useRegisterForm';
+import { useRegisterForm } from '#features/auth/ui/hooks/useRegisterForm';
 
 // ─── Mock Setup ──────────────────────────────────────────────────
 

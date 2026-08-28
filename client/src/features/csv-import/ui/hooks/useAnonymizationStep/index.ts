@@ -1,2 +1,1 @@
-export { useAnonymizationStep } from './useAnonymizationStep';
-export type { AnonymizationStepResult, AnonymizationStats, StatusFilter } from './useAnonymizationStep';
+export { useAnonymizationStep } from '#features/csv-import/ui/hooks/useAnonymizationStep/useAnonymizationStep';

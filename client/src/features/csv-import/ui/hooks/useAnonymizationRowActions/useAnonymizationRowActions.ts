@@ -2,24 +2,26 @@ import { useTranslation } from 'react-i18next';
 
 import type { RowAction } from '#shared/adapters/grid';
 
-import type { AnonymizationGridRow } from '../useAnonymizationGrid';
+import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnonymizationGrid/types';
 
-// ─── Types ───────────────────────────────────────────────────────
 
 interface UseAnonymizationRowActionsParams {
   readonly onEdit: (rowIndex: number) => void;
   readonly onRestore: (rowIndex: number) => void;
 }
 
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnonymizationRowActions = ({
   onEdit,
   onRestore,
-}: UseAnonymizationRowActionsParams): ((row: AnonymizationGridRow) => RowAction<AnonymizationGridRow>[]) => {
+}: UseAnonymizationRowActionsParams): ((
+  row: AnonymizationGridRow,
+) => RowAction<AnonymizationGridRow>[]) => {
   const { t } = useTranslation();
 
-  const getRowActions = (row: AnonymizationGridRow): RowAction<AnonymizationGridRow>[] => {
+  const getRowActions = (
+    row: AnonymizationGridRow,
+  ): RowAction<AnonymizationGridRow>[] => {
     const editAction: RowAction<AnonymizationGridRow> = {
       label: t('import.anonymization.popover.edit'),
       onClick: (r) => onEdit(r.rowIndex),

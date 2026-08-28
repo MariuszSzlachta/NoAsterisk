@@ -1,36 +1,27 @@
 import { useTranslation } from 'react-i18next';
 
+import type { TransactionRow } from '#features/csv-import/model/types';
+import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
+import { createImportGridColumns } from '#features/csv-import/ui/constants/create-import-grid-columns';
+import { IMPORT_GRID_ROW_HEIGHT } from '#features/csv-import/ui/constants/import-grid-row-height';
+import { FilterToolbar } from '#features/csv-import/ui/FilterToolbar';
+import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
+import { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid';
+import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
+import { usePreviewFilters } from '#features/csv-import/ui/hooks/usePreviewFilters';
 import { DataGrid } from '#shared/adapters/grid';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
-
-import type { TransactionRow } from '#features/csv-import/model/types';
-import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
-import { FilterToolbar } from '#features/csv-import/ui/FilterToolbar';
-import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
-import { useImportPreviewGrid } from '#features/csv-import/ui/hooks/useImportPreviewGrid';
-import { usePreviewFilters } from '#features/csv-import/ui/hooks/usePreviewFilters';
-import { useImportWizard } from '#features/csv-import/ui/hooks/useImportWizard';
-import {
-  createImportGridColumns,
-  IMPORT_GRID_ROW_HEIGHT,
-} from '#features/csv-import/ui/constants/grid-columns';
-
-const getRowId = (row: TransactionRow): string => row.id;
+import { getRowId } from '#features/csv-import/ui/ImportPreviewGrid/get-row-id';
 
 export const ImportPreviewGrid = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { rows, handleSelectionChange } = useImportPreviewGrid();
   const { handleCellEdit } = useBatchEditPanel();
   const { handleNextStep, handlePrevStep } = useImportWizard();
-  const {
-    filters,
-    filteredRows,
-    setTypeFilter,
-    setDateFrom,
-    setDateTo,
-  } = usePreviewFilters(rows);
+  const { filters, filteredRows, setTypeFilter, setDateFrom, setDateTo } =
+    usePreviewFilters(rows);
 
   const columns = createImportGridColumns(t);
 
@@ -49,9 +40,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
     (r) => r.status === 'ok' || r.status === 'warning',
   ).length;
 
-  // przypadki anonimizacji, nie tylko statusy transformacji CSV.
 
-  // Total error count across ALL rows (not filtered)
   const totalErrors = rows.filter((r) => r.status === 'error').length;
   const hasErrors = totalErrors > 0;
 
@@ -60,7 +49,10 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
       {hasErrors && (
         <div className="flex items-center gap-3 rounded-lg border border-expense/30 bg-expense/5 px-4 py-3">
           <span className="text-sm text-expense">
-            {t('import.preview.errorBanner', { count: totalErrors, total: rows.length })}
+            {t('import.preview.errorBanner', {
+              count: totalErrors,
+              total: rows.length,
+            })}
           </span>
           <Button variant="secondary" size="sm" onClick={handlePrevStep}>
             {t('import.preview.backToMapping')}
@@ -68,9 +60,6 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
         </div>
       )}
 
-          destructive`, których Badge design system nie posiada (kontrakt to
-          soft/solid/outline + color). To jest compile blocker i sygnał, że UI
-          omija centralny model komponentu zamiast używać jego publicznego API. */}
       <div className="flex items-center gap-3">
         <Badge variant="default">
           {t('import.preview.rows', { count: stats.total })}
@@ -113,7 +102,7 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
 
       <Card className="max-h-[60vh] overflow-auto p-0">
         <DataGrid
-          rows={filteredRows as TransactionRow[]}
+          rows={[...filteredRows]}
           columns={columns}
           getRowId={getRowId}
           onCellEdit={handleCellEdit}
@@ -127,7 +116,10 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
         <Button variant="secondary" onClick={handlePrevStep}>
           {t('import.nav.back')}
         </Button>
-        <Button onClick={handleNextStep} disabled={importableCount === 0 || hasErrors}>
+        <Button
+          onClick={handleNextStep}
+          disabled={importableCount === 0 || hasErrors}
+        >
           {t('import.nav.continue', { count: importableCount })}
         </Button>
       </div>

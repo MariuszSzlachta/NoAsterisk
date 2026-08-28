@@ -1,2 +1,1 @@
-export { useAnonymizationGrid } from './useAnonymizationGrid';
-export type { AnonymizationGridRow } from './useAnonymizationGrid';
+export { useAnonymizationGrid } from '#features/csv-import/ui/hooks/useAnonymizationGrid/useAnonymizationGrid';

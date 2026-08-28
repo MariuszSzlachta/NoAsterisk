@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { transformRows } from './row.transformer';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/column-mapping-type';
+
+import { transformRows } from '#features/csv-import/model/transformation/row-transformer/transform-rows';
 
 describe('transformRows', () => {
   it('transforms valid rows to TransactionRow', () => {
     const rows = [
       { Data: '2026-06-26', Opis: 'BIEDRONKA', Kwota: '-87,43', Waluta: 'PLN' },
     ];
-    const mapping = {
-      Data: 'date' as const,
-      Opis: 'title' as const,
-      Kwota: 'amount' as const,
-      Waluta: 'currency' as const,
+    const mapping: ColumnMapping = {
+      Data: 'date',
+      Opis: 'title',
+      Kwota: 'amount',
+      Waluta: 'currency',
     };
 
     const result = transformRows(rows, mapping);
@@ -25,10 +27,10 @@ describe('transformRows', () => {
 
   it('marks rows with invalid amount as error', () => {
     const rows = [{ D: '2026-06-26', T: 'TEST', K: 'abc' }];
-    const mapping = {
-      D: 'date' as const,
-      T: 'title' as const,
-      K: 'amount' as const,
+    const mapping: ColumnMapping = {
+      D: 'date',
+      T: 'title',
+      K: 'amount',
     };
 
     const result = transformRows(rows, mapping);
@@ -39,10 +41,10 @@ describe('transformRows', () => {
 
   it('marks rows with empty title as error', () => {
     const rows = [{ D: '2026-06-26', T: '', K: '100' }];
-    const mapping = {
-      D: 'date' as const,
-      T: 'title' as const,
-      K: 'amount' as const,
+    const mapping: ColumnMapping = {
+      D: 'date',
+      T: 'title',
+      K: 'amount',
     };
 
     const result = transformRows(rows, mapping);
@@ -56,10 +58,10 @@ describe('transformRows', () => {
       { D: '2026-06-26', T: 'OK', K: '100' },
       { D: 'invalid', T: 'BAD DATE', K: '50' },
     ];
-    const mapping = {
-      D: 'date' as const,
-      T: 'title' as const,
-      K: 'amount' as const,
+    const mapping: ColumnMapping = {
+      D: 'date',
+      T: 'title',
+      K: 'amount',
     };
 
     const result = transformRows(rows, mapping);
@@ -70,24 +72,24 @@ describe('transformRows', () => {
 
   it('throws when required fields not mapped', () => {
     const rows = [{ X: 'data' }];
-    const mapping = { X: 'currency' as const };
+    const mapping: ColumnMapping = { X: 'currency' };
 
     expect(() => transformRows(rows, mapping)).toThrow('Required fields');
   });
 
   it('throws when neither amount nor debit/credit mapped', () => {
     const rows = [{ D: '2026-06-26', T: 'TEST' }];
-    const mapping = { D: 'date' as const, T: 'title' as const };
+    const mapping: ColumnMapping = { D: 'date', T: 'title' };
 
     expect(() => transformRows(rows, mapping)).toThrow('Required fields');
   });
 
   it('defaults currency to PLN when not mapped', () => {
     const rows = [{ D: '2026-06-26', T: 'TEST', K: '100' }];
-    const mapping = {
-      D: 'date' as const,
-      T: 'title' as const,
-      K: 'amount' as const,
+    const mapping: ColumnMapping = {
+      D: 'date',
+      T: 'title',
+      K: 'amount',
     };
 
     const result = transformRows(rows, mapping);
@@ -100,11 +102,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'PRZELEW PRZYCHODZĄCY', Wn: '', Ma: '8 500,00' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -117,11 +119,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'ZAKUP KARTĄ', Wn: '234,87', Ma: '' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -131,13 +133,11 @@ describe('transformRows', () => {
     });
 
     it('handles debit with only one column mapped', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'OPŁATA', Wn: '100,00' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
+      const rows = [{ D: '2026-06-26', T: 'OPŁATA', Wn: '100,00' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
       };
 
       const result = transformRows(rows, mapping);
@@ -150,11 +150,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'WPŁYW', Wn: '0,00', Ma: '1 200,00' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -163,14 +163,12 @@ describe('transformRows', () => {
     });
 
     it('marks row as error when both debit and credit are empty', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'DZIWNA OPERACJA', Wn: '', Ma: '' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const rows = [{ D: '2026-06-26', T: 'DZIWNA OPERACJA', Wn: '', Ma: '' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -180,14 +178,12 @@ describe('transformRows', () => {
     });
 
     it('makes debit always negative even if value has sign', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'PRZELEW', Wn: '-500,00', Ma: '' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const rows = [{ D: '2026-06-26', T: 'PRZELEW', Wn: '-500,00', Ma: '' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -196,14 +192,12 @@ describe('transformRows', () => {
     });
 
     it('makes credit always positive even if value has sign', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'WPŁYW', Wn: '', Ma: '+3 000,00' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        Wn: 'debit' as const,
-        Ma: 'credit' as const,
+      const rows = [{ D: '2026-06-26', T: 'WPŁYW', Wn: '', Ma: '+3 000,00' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        Wn: 'debit',
+        Ma: 'credit',
       };
 
       const result = transformRows(rows, mapping);
@@ -217,11 +211,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T1: 'PRZELEW', T2: 'WYNAGRODZENIE', K: '8500' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T1: 'title' as const,
-        T2: 'title' as const,
-        K: 'amount' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T1: 'title',
+        T2: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -234,12 +228,12 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', A: 'Część 1', B: 'Część 2', C: 'Część 3', K: '100' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        A: 'title' as const,
-        B: 'title' as const,
-        C: 'title' as const,
-        K: 'amount' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        A: 'title',
+        B: 'title',
+        C: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -248,14 +242,12 @@ describe('transformRows', () => {
     });
 
     it('filters blank values during merge', () => {
-      const rows = [
-        { D: '2026-06-26', T1: 'BIEDRONKA', T2: '', K: '-50' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T1: 'title' as const,
-        T2: 'title' as const,
-        K: 'amount' as const,
+      const rows = [{ D: '2026-06-26', T1: 'BIEDRONKA', T2: '', K: '-50' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T1: 'title',
+        T2: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -267,11 +259,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T1: '  PRZELEW  ', T2: '  NA KONTO  ', K: '100' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T1: 'title' as const,
-        T2: 'title' as const,
-        K: 'amount' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T1: 'title',
+        T2: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -280,14 +272,12 @@ describe('transformRows', () => {
     });
 
     it('reports error when all merged title columns are blank', () => {
-      const rows = [
-        { D: '2026-06-26', T1: '', T2: '   ', K: '100' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T1: 'title' as const,
-        T2: 'title' as const,
-        K: 'amount' as const,
+      const rows = [{ D: '2026-06-26', T1: '', T2: '   ', K: '100' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T1: 'title',
+        T2: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -297,13 +287,11 @@ describe('transformRows', () => {
     });
 
     it('works with single column for mergeable field (backward compat)', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'SINGLE TITLE', K: '100' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
+      const rows = [{ D: '2026-06-26', T: 'SINGLE TITLE', K: '100' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -317,11 +305,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'PRZELEW', K: '100', S: 'Jan Kowalski' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        S: 'source' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        S: 'source',
       };
 
       const result = transformRows(rows, mapping);
@@ -333,11 +321,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'PRZELEW', K: '-500', R: 'BIEDRONKA SP ZOO' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        R: 'recipient' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        R: 'recipient',
       };
 
       const result = transformRows(rows, mapping);
@@ -349,11 +337,11 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'PRZELEW', K: '100', REF: 'OP-2026-001234' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        REF: 'reference' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        REF: 'reference',
       };
 
       const result = transformRows(rows, mapping);
@@ -362,13 +350,11 @@ describe('transformRows', () => {
     });
 
     it('returns undefined for unmapped optional fields', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'TEST', K: '100' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
+      const rows = [{ D: '2026-06-26', T: 'TEST', K: '100' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
       };
 
       const result = transformRows(rows, mapping);
@@ -379,14 +365,12 @@ describe('transformRows', () => {
     });
 
     it('returns undefined when source column is empty', () => {
-      const rows = [
-        { D: '2026-06-26', T: 'TEST', K: '100', S: '' },
-      ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        S: 'source' as const,
+      const rows = [{ D: '2026-06-26', T: 'TEST', K: '100', S: '' }];
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        S: 'source',
       };
 
       const result = transformRows(rows, mapping);
@@ -398,12 +382,12 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'PRZELEW', K: '100', S1: 'Jan', S2: 'Kowalski' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        S1: 'source' as const,
-        S2: 'source' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        S1: 'source',
+        S2: 'source',
       };
 
       const result = transformRows(rows, mapping);
@@ -415,12 +399,12 @@ describe('transformRows', () => {
       const rows = [
         { D: '2026-06-26', T: 'TEST', K: '100', R1: 'REF-001', R2: 'REF-002' },
       ];
-      const mapping = {
-        D: 'date' as const,
-        T: 'title' as const,
-        K: 'amount' as const,
-        R1: 'reference' as const,
-        R2: 'reference' as const,
+      const mapping: ColumnMapping = {
+        D: 'date',
+        T: 'title',
+        K: 'amount',
+        R1: 'reference',
+        R2: 'reference',
       };
 
       const result = transformRows(rows, mapping);

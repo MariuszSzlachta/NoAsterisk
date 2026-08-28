@@ -1,0 +1,1 @@
+export const TRAILING_CONSISTENCY_THRESHOLD = 0.8;

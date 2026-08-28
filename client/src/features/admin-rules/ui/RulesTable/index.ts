@@ -1,1 +1,1 @@
-export { RulesTable } from './RulesTable';
+export { RulesTable } from '#features/admin-rules/ui/RulesTable/RulesTable';

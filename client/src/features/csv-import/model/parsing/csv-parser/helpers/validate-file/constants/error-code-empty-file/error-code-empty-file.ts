@@ -1,0 +1,1 @@
+export const ERROR_CODE_EMPTY_FILE = 'EMPTY_FILE';

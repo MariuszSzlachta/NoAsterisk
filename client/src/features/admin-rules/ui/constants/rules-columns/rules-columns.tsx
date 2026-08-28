@@ -1,15 +1,9 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin Rules — Rules Table Column Definitions
-// ═══════════════════════════════════════════════════════════════════
-
 import { Pencil, Trash2 } from 'lucide-react';
 import type { TFunction } from 'i18next';
 
 import type { RuleViewModel } from '#features/admin-rules/model/types';
 import { Button } from '#shared/ui/Button';
 import type { DataTableColumn } from '#shared/ui/DataTable';
-
-// ─── Column Builder ──────────────────────────────────────────────
 
 export const buildRulesColumns = (
   handleDelete: (id: string) => void,

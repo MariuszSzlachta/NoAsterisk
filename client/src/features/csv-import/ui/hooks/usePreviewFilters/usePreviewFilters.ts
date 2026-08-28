@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 
 import type { TransactionRow } from '#features/csv-import/model/types';
-
-export type TransactionTypeFilter = 'all' | 'income' | 'expense';
+import type { TransactionTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters/transaction-type-filter';
+import { INITIAL_FILTERS } from '#features/csv-import/ui/hooks/usePreviewFilters/initial-filters';
+import { matchesTypeFilter } from '#features/csv-import/ui/hooks/usePreviewFilters/matches-type-filter';
+import { matchesDateRange } from '#features/csv-import/ui/hooks/usePreviewFilters/matches-date-range';
 
 interface PreviewFilters {
   readonly type: TransactionTypeFilter;
@@ -19,36 +21,6 @@ interface PreviewFiltersResult {
   readonly setDateTo: (date: string) => void;
   readonly resetFilters: () => void;
 }
-
-const INITIAL_FILTERS: PreviewFilters = {
-  type: 'all',
-  dateFrom: '',
-  dateTo: '',
-};
-
-const matchesTypeFilter = (row: TransactionRow, type: TransactionTypeFilter): boolean => {
-  if (type === 'all') {
-    return true;
-  }
-  if (type === 'income') {
-    return row.amount > 0;
-  }
-  return row.amount < 0;
-};
-
-const matchesDateRange = (row: TransactionRow, dateFrom: string, dateTo: string): boolean => {
-  if (!dateFrom && !dateTo) {
-    return true;
-  }
-  const rowDate = row.date;
-  if (dateFrom && rowDate < dateFrom) {
-    return false;
-  }
-  if (dateTo && rowDate > dateTo) {
-    return false;
-  }
-  return true;
-};
 
 export const usePreviewFilters = (
   rows: ReadonlyArray<TransactionRow>,

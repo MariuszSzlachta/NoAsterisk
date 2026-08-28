@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import type { Draft } from 'immer';
 
+import type { PendingBatchEdit } from '#features/csv-import/store/useImportWizardStore/pending-batch-edit';
+import type { ImportWizardData } from '#features/csv-import/store/useImportWizardStore/import-wizard-data';
+import { INITIAL_STATE } from '#features/csv-import/store/useImportWizardStore/initial-state';
+import { nextWizardStep } from '#features/csv-import/store/useImportWizardStore/next-wizard-step';
+import { prevWizardStep } from '#features/csv-import/store/useImportWizardStore/prev-wizard-step';
 import type {
   AnonymizationEntry,
   ColumnMapping,
@@ -10,50 +16,7 @@ import type {
   WizardStep,
 } from '#features/csv-import/model/types';
 
-// ─── Batch Edit Panel ────────────────────────────────────────────
-
-interface PendingBatchEdit {
-  readonly editedRowId: string;
-  readonly field: 'title' | 'category';
-  readonly originalValue: string;
-  readonly newValue: string;
-  readonly similarRowIds: ReadonlyArray<string>;
-}
-
-// ─── State Interface ─────────────────────────────────────────────
-
-interface ImportWizardState {
-  // Wizard navigation
-  readonly step: WizardStep;
-
-  // Step 0: Upload
-  readonly file: File | undefined;
-  readonly parsedData: ParsedCsvData | undefined;
-  readonly parseError: string | undefined;
-
-  // Step 1: Column Mapping
-  readonly columnMapping: ColumnMapping;
-  readonly detectedMapping: ColumnMapping;
-
-  // Step 2: Preview + Edit
-  readonly rows: ReadonlyArray<TransactionRow>;
-  readonly anonymizationEntries: ReadonlyArray<AnonymizationEntry>;
-
-  // Step 3: Confirmation
-  readonly isSubmitting: boolean;
-  readonly submitError: string | undefined;
-  readonly batchId: string | undefined;
-
-  // UI state
-  readonly selectedRowIds: ReadonlyArray<string>;
-
-  // Batch edit panel
-  readonly batchEditPanel: {
-    readonly isOpen: boolean;
-    readonly pendingEdit: PendingBatchEdit | undefined;
-  };
-
-  // Actions
+interface ImportWizardState extends ImportWizardData {
   readonly setStep: (step: WizardStep) => void;
   readonly nextStep: () => void;
   readonly prevStep: () => void;
@@ -63,18 +26,25 @@ interface ImportWizardState {
   readonly setParseError: (error: string) => void;
 
   readonly setDetectedMapping: (mapping: ColumnMapping) => void;
-  readonly updateColumnMapping: (column: string, field: DomainField | undefined) => void;
+  readonly updateColumnMapping: (
+    column: string,
+    field: DomainField | undefined,
+  ) => void;
   readonly confirmMapping: (mapping: ColumnMapping) => void;
 
   readonly setRows: (rows: ReadonlyArray<TransactionRow>) => void;
-  readonly updateRow: (id: string, updates: Partial<Pick<TransactionRow, 'title' | 'category'>>) => void;
-  readonly setAnonymizationEntries: (entries: ReadonlyArray<AnonymizationEntry>) => void;
+  readonly updateRow: (
+    id: string,
+    updates: Partial<Pick<TransactionRow, 'title' | 'category'>>,
+  ) => void;
+  readonly setAnonymizationEntries: (
+    entries: ReadonlyArray<AnonymizationEntry>,
+  ) => void;
 
   readonly setSelectedRowIds: (ids: ReadonlyArray<string>) => void;
   readonly setSubmitting: (submitting: boolean) => void;
   readonly setSubmitError: (error: string | undefined) => void;
 
-  // Batch edit actions
   readonly openBatchEditPanel: (pendingEdit: PendingBatchEdit) => void;
   readonly closeBatchEditPanel: () => void;
   readonly applyBatchEdit: () => void;
@@ -82,111 +52,96 @@ interface ImportWizardState {
   readonly reset: () => void;
 }
 
-// ─── Initial State ───────────────────────────────────────────────
-
-const INITIAL_STATE: Omit<ImportWizardState, 'setStep' | 'nextStep' | 'prevStep' | 'setFile' | 'setParsedData' | 'setParseError' | 'setDetectedMapping' | 'updateColumnMapping' | 'confirmMapping' | 'setRows' | 'updateRow' | 'setAnonymizationEntries' | 'setSelectedRowIds' | 'setSubmitting' | 'setSubmitError' | 'openBatchEditPanel' | 'closeBatchEditPanel' | 'applyBatchEdit' | 'reset'> = {
-  step: 0,
-  file: undefined,
-  parsedData: undefined,
-  parseError: undefined,
-  columnMapping: {},
-  detectedMapping: {},
-  rows: [],
-  anonymizationEntries: [],
-  isSubmitting: false,
-  submitError: undefined,
-  batchId: undefined,
-  selectedRowIds: [],
-  batchEditPanel: {
-    isOpen: false,
-    pendingEdit: undefined,
-  },
-};
-
-// ─── Store ───────────────────────────────────────────────────────
-
 export const useImportWizardStore = create<ImportWizardState>()(
   immer((set) => ({
     ...INITIAL_STATE,
 
-    // Navigation
     setStep: (step) => set({ step }),
     nextStep: () =>
       set((state) => {
-        if (state.step < 4) {
-          state.step = (state.step + 1) as WizardStep;
-        }
+        state.step = nextWizardStep(state.step);
       }),
     prevStep: () =>
       set((state) => {
-        if (state.step > 0) {
-          state.step = (state.step - 1) as WizardStep;
-        }
+        state.step = prevWizardStep(state.step);
       }),
 
-    // Step 0: Upload
-    setFile: (file) => set({
-      file,
-      parseError: undefined,
-      parsedData: undefined,
-      rows: [],
-      anonymizationEntries: [],
-      columnMapping: {},
-      detectedMapping: {},
-      batchId: undefined,
-      isSubmitting: false,
-      submitError: undefined,
-      selectedRowIds: [],
-      batchEditPanel: { isOpen: false, pendingEdit: undefined },
-    }),
-    setParsedData: (data) => set({ parsedData: data, parseError: undefined, rows: [], anonymizationEntries: [] }),
+    setFile: (file) =>
+      set({
+        file,
+        parseError: undefined,
+        parsedData: undefined,
+        rows: [],
+        anonymizationEntries: [],
+        columnMapping: {},
+        detectedMapping: {},
+        batchId: undefined,
+        isSubmitting: false,
+        submitError: undefined,
+        selectedRowIds: [],
+        batchEditPanel: { isOpen: false, pendingEdit: undefined },
+      }),
+    setParsedData: (data) =>
+      set({
+        parsedData: data,
+        parseError: undefined,
+        rows: [],
+        anonymizationEntries: [],
+      }),
     setParseError: (error) => set({ parseError: error, parsedData: undefined }),
 
-    // Step 1: Column Mapping
     setDetectedMapping: (mapping) =>
       set({ detectedMapping: mapping, columnMapping: mapping }),
     updateColumnMapping: (column, field) =>
       set((state) => {
+        const draft = state.columnMapping as Draft<
+          Record<string, DomainField | undefined>
+        >;
         if (field === undefined) {
-          delete (state.columnMapping as Record<string, DomainField | undefined>)[column];
-        } else {
-          (state.columnMapping as Record<string, DomainField | undefined>)[column] = field;
+          delete draft[column];
+          return;
         }
+        draft[column] = field;
       }),
     confirmMapping: (mapping) => set({ columnMapping: mapping }),
 
-    // Step 2: Preview — rows and entries are a relational pair
     setRows: (rows) => set({ rows }),
     updateRow: (id, updates) =>
       set((state) => {
-        const rows = state.rows as TransactionRow[];
-        const idx = rows.findIndex((r) => r.id === id);
-        if (idx !== -1) {
-          rows[idx] = { ...rows[idx], ...updates };
-          // SECURITY: title change invalidates anonymization entry at this index.
-          // Caller (anonymization step hook) MUST re-run detection after updating.
-          if (updates.title !== undefined && import.meta.env.DEV) {
-            console.warn('[ImportWizardStore] Row title changed — anonymization entry at index may be stale');
-          }
+        const draft = state.rows as Draft<TransactionRow[]>;
+        const idx = draft.findIndex((r) => r.id === id);
+        if (idx === -1) {
+          return;
+        }
+        draft[idx] = { ...draft[idx], ...updates };
+        // SECURITY: title change invalidates anonymization entry at this index.
+        // Caller (anonymization step hook) MUST re-run detection after updating.
+        if (updates.title !== undefined && import.meta.env.DEV) {
+          console.warn(
+            '[ImportWizardStore] Row title changed — anonymization entry at index may be stale',
+          );
         }
       }),
     setAnonymizationEntries: (entries) => {
-      // Validate row-entry index alignment
       const currentRows = useImportWizardStore.getState().rows;
-      if (entries.length > 0 && currentRows.length > 0 && entries.length !== currentRows.length) {
+      if (
+        entries.length > 0 &&
+        currentRows.length > 0 &&
+        entries.length !== currentRows.length
+      ) {
         if (import.meta.env.DEV) {
-          console.error(`[ImportWizardStore] entries.length (${entries.length}) !== rows.length (${currentRows.length})`);
+          console.error(
+            `[ImportWizardStore] entries.length (${entries.length}) !== rows.length (${currentRows.length})`,
+          );
         }
       }
       set({ anonymizationEntries: entries });
     },
 
-    // UI
     setSelectedRowIds: (ids) => set({ selectedRowIds: ids }),
     setSubmitting: (submitting) => set({ isSubmitting: submitting }),
     setSubmitError: (error) => set({ submitError: error }),
 
-    // Batch edit panel
     openBatchEditPanel: (pendingEdit) =>
       set({ batchEditPanel: { isOpen: true, pendingEdit } }),
     closeBatchEditPanel: () =>
@@ -199,15 +154,18 @@ export const useImportWizardStore = create<ImportWizardState>()(
         }
         // SECURITY: Batch title edits require re-anonymization by the calling hook.
         if (pending.field === 'title' && import.meta.env.DEV) {
-          console.warn('[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows');
+          console.warn(
+            '[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows',
+          );
         }
-        const rows = state.rows as TransactionRow[];
-        for (const rowId of pending.similarRowIds) {
-          const idx = rows.findIndex((r) => r.id === rowId);
-          if (idx !== -1) {
-            rows[idx] = { ...rows[idx], [pending.field]: pending.newValue };
+        const draft = state.rows as Draft<TransactionRow[]>;
+        pending.similarRowIds.forEach((rowId) => {
+          const idx = draft.findIndex((r) => r.id === rowId);
+          if (idx === -1) {
+            return;
           }
-        }
+          draft[idx] = { ...draft[idx], [pending.field]: pending.newValue };
+        });
         state.batchEditPanel = { isOpen: false, pendingEdit: undefined };
       }),
 

@@ -2,8 +2,8 @@
 // CSV Import — API: Fetch Dictionaries from Backend
 // ═══════════════════════════════════════════════════════════════════
 
+import type { DictionarySet } from '#features/csv-import/model/anonymization/types/dictionary-set';
 import { apiClient } from '#shared/api';
-import type { DictionarySet } from '#features/csv-import/model/anonymization/types';
 
 interface DictionaryApiResponse {
   readonly firstNames: readonly string[];
@@ -17,17 +17,25 @@ interface DictionaryApiResponse {
  * Runtime validation for dictionary API response.
  * Ensures the contract is intact before creating Sets.
  */
-const validateResponse = (data: unknown): DictionaryApiResponse => {
+export const validateResponse = (data: unknown): DictionaryApiResponse => {
   if (typeof data !== 'object' || data === null) {
     throw new Error('[fetchDictionaries] Invalid response: not an object');
   }
 
   const obj = data as Record<string, unknown>;
-  const requiredFields = ['firstNames', 'surnames', 'merchants', 'cities', 'phrases'] as const;
+  const requiredFields = [
+    'firstNames',
+    'surnames',
+    'merchants',
+    'cities',
+    'phrases',
+  ] as const;
 
   for (const field of requiredFields) {
     if (!Array.isArray(obj[field])) {
-      throw new Error(`[fetchDictionaries] Invalid response: '${field}' is not an array`);
+      throw new Error(
+        `[fetchDictionaries] Invalid response: '${field}' is not an array`,
+      );
     }
   }
 

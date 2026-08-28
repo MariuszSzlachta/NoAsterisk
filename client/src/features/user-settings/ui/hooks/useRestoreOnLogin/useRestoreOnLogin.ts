@@ -1,33 +1,20 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — useRestoreOnLogin Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useVaultQuery } from '#features/user-settings/api/useVaultQuery';
-import { decryptVaultPayload, VaultDecryptionError } from '#features/user-settings/model/crypto';
-import { formatSyncDate } from '#features/user-settings/model/vault-helpers';
+import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
+import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
+import { formatSyncDate } from '#features/user-settings/model/format-sync-date';
 // ARCH-EXCEPTION: cross-feature import — vault restore needs to write all stores.
 // Planned resolution: centralized data layer (post-MVP)
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-import type { RuleRecord } from '#features/admin-rules/model/types';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import { isRuleRecordArray } from '#features/user-settings/ui/hooks/useVaultSection/is-rule-record-array';
+import { isStoredTransactionArray } from '#features/user-settings/ui/hooks/useVaultSection/is-stored-transaction-array';
 import { useToast } from '#shared/hooks/useToast';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseRestoreOnLoginResult {
-  readonly showDialog: boolean;
-  readonly backupDate: string;
-  readonly isRestoring: boolean;
-  readonly error: string | undefined;
-  readonly handleRestore: (password: string) => void;
-  readonly handleDismiss: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { UseRestoreOnLoginResult } from '#features/user-settings/ui/hooks/useRestoreOnLogin/use-restore-on-login-result';
 
 export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
   const { t } = useTranslation();
@@ -66,15 +53,14 @@ export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
     try {
       const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
 
-      // Boundary cast: items validated at runtime (have 'id' field), cast to store types
-      if (payload.transactions.length > 0) {
+      if (payload.transactions.length > 0 && isStoredTransactionArray(payload.transactions)) {
         useTransactionsStore.setState({
-          transactions: payload.transactions as unknown as ReadonlyArray<StoredTransaction>,
+          transactions: payload.transactions,
         });
       }
-      if (payload.rules.length > 0) {
+      if (payload.rules.length > 0 && isRuleRecordArray(payload.rules)) {
         useRulesStore.setState({
-          rules: payload.rules as unknown as ReadonlyArray<RuleRecord>,
+          rules: payload.rules,
         });
       }
 
@@ -83,9 +69,9 @@ export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
     } catch (err) {
       if (err instanceof VaultDecryptionError) {
         setError(t('settings.vault.wrongPassword'));
-      } else {
-        setError(t('settings.vault.restoreError'));
+        return;
       }
+      setError(t('settings.vault.restoreError'));
     } finally {
       setIsRestoring(false);
     }

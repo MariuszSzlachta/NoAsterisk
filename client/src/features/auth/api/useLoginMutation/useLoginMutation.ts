@@ -1,19 +1,17 @@
 import { useState } from 'react';
 
-import type { AuthResponse, LoginRequestBody } from '#features/auth/model/types';
-import { parseAuthResponse } from '#features/auth/model/parseAuthResponse';
+import type { AuthResponse } from '#features/auth/model/types/auth-response';
+import type { LoginRequestBody } from '#features/auth/model/types/login-request-body';
+import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
 import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { ApiError, apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
-import { AUTH_ENDPOINTS } from '../constants';
-
-interface UseLoginMutationResult {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-  readonly mutateAsync: (body: LoginRequestBody) => Promise<AuthResponse>;
-  readonly reset: () => void;
-}
+import { GENERIC_LOGIN_ERROR } from '#features/auth/api/useLoginMutation/constants/generic-login-error';
+import { HTTP_UNAUTHORIZED } from '#features/auth/api/useLoginMutation/constants/http-unauthorized';
+import { INVALID_CREDENTIALS_ERROR } from '#features/auth/api/useLoginMutation/constants/invalid-credentials-error';
+import { LOGIN_ENDPOINT } from '#features/auth/api/constants/login-endpoint';
+import type { UseLoginMutationResult } from '#features/auth/api/useLoginMutation/use-login-mutation-result';
 
 export const useLoginMutation = (): UseLoginMutationResult => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +25,7 @@ export const useLoginMutation = (): UseLoginMutationResult => {
 
     try {
       const raw = await apiClient.post<unknown, LoginRequestBody>(
-        AUTH_ENDPOINTS.LOGIN,
+        LOGIN_ENDPOINT,
         body,
         { skipAuth: true },
       );
@@ -40,9 +38,9 @@ export const useLoginMutation = (): UseLoginMutationResult => {
       return response;
     } catch (err) {
       const message =
-        err instanceof ApiError && err.status === 401
-          ? 'auth.login.invalidCredentials'
-          : 'auth.login.genericError';
+        err instanceof ApiError && err.status === HTTP_UNAUTHORIZED
+          ? INVALID_CREDENTIALS_ERROR
+          : GENERIC_LOGIN_ERROR;
       setError(message);
       setIsLoading(false);
       setLoginSubmitting(false);

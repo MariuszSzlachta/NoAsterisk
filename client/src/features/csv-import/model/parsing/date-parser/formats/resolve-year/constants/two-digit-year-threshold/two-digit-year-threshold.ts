@@ -1,0 +1,1 @@
+export const TWO_DIGIT_YEAR_THRESHOLD = 100;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { BudgetStatus } from '#features/budgets/model/types';
+import type { BudgetStatus } from '#features/budgets/model/types/budget-status';
 
 interface UseBudgetCardProps {
   readonly budgetId: string;

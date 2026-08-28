@@ -95,6 +95,8 @@ describe('fetchDictionaries', () => {
   it('propagates API errors', async () => {
     mockGet.mockRejectedValue(new Error('HTTP 500: Internal Server Error'));
 
-    await expect(fetchDictionaries()).rejects.toThrow('HTTP 500: Internal Server Error');
+    await expect(fetchDictionaries()).rejects.toThrow(
+      'HTTP 500: Internal Server Error',
+    );
   });
 });

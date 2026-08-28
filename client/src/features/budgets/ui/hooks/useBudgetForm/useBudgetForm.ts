@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
-import type { BudgetPeriodRecord, BudgetRecord, BudgetType } from '#features/budgets/model/types';
+import type { BudgetPeriodRecord } from '#features/budgets/model/types/budget-period-record';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetType } from '#features/budgets/model/types/budget-type';
 
 // ─── Form State ──────────────────────────────────────────────────
 

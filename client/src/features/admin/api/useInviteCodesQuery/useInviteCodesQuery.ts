@@ -1,28 +1,12 @@
 import { apiClient, useApiQuery } from '#shared/api';
 import type { QueryState } from '#shared/api';
 
-// ─── Response Types ──────────────────────────────────────────────
+import { INVITE_CODES_PATH } from '#features/admin/api/constants/invite-codes-path';
+import { INVITE_CODES_QUERY_KEY } from '#features/admin/api/constants/invite-codes-query-key';
+import type { InviteCodesResponse } from '#features/admin/api/useInviteCodesQuery/invite-codes-response';
 
-interface InviteCodeDto {
-  readonly id: string;
-  readonly code: string;
-  readonly status: 'Available' | 'Used' | 'Expired';
-  readonly createdAt: string;
-  readonly expiresAt: string | null;
-  readonly usedBy: string | null;
-  readonly usedAt: string | null;
-}
-
-interface InviteCodesResponse {
-  readonly codes: readonly InviteCodeDto[];
-  readonly total: number;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
-
-export const useInviteCodesQuery = (): QueryState<InviteCodesResponse> => {
-  return useApiQuery<InviteCodesResponse>({
-    queryKey: ['admin', 'invite-codes'],
-    queryFn: () => apiClient.get<InviteCodesResponse>('/admin/invite-codes'),
+export const useInviteCodesQuery = (): QueryState<InviteCodesResponse> =>
+  useApiQuery<InviteCodesResponse>({
+    queryKey: [...INVITE_CODES_QUERY_KEY],
+    queryFn: () => apiClient.get<InviteCodesResponse>(INVITE_CODES_PATH),
   });
-};

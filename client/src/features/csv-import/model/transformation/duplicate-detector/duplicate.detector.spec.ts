@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  detectDuplicatesAgainstExisting,
-  detectDuplicatesInBatch,
-  hashTransaction,
-} from './duplicate.detector';
-import type { TransactionRow } from '../types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
+import { hashTransaction } from '#features/csv-import/model/transformation/duplicate-detector/hash-transaction';
+import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch';
+import { detectDuplicatesAgainstExisting } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-against-existing';
 
 const makeRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
   id: '0',
@@ -136,14 +134,19 @@ describe('detectDuplicatesAgainstExisting', () => {
 
   it('does not override existing duplicate status', () => {
     const rows = [
-      makeRow({ status: 'duplicate', statusReason: 'Duplicate in file (3+ identical rows)' }),
+      makeRow({
+        status: 'duplicate',
+        statusReason: 'Duplicate in file (3+ identical rows)',
+      }),
     ];
     const existing = new Set([hashTransaction(makeRow())]);
 
     const result = detectDuplicatesAgainstExisting(rows, existing);
 
     expect(result[0].status).toBe('duplicate');
-    expect(result[0].statusReason).toBe('Duplicate in file (3+ identical rows)');
+    expect(result[0].statusReason).toBe(
+      'Duplicate in file (3+ identical rows)',
+    );
   });
 
   it('overrides warning status with cross-file duplicate', () => {

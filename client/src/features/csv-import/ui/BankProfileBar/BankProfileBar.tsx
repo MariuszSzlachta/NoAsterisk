@@ -1,5 +1,5 @@
-import { Landmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Landmark } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 

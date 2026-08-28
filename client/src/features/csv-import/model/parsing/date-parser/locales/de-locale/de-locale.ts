@@ -1,0 +1,32 @@
+import type { MonthLocale } from '#features/csv-import/model/parsing/types/month-locale';
+
+export const DE_LOCALE: MonthLocale = {
+  id: 'de',
+  months: {
+    jan: 1,
+    feb: 2,
+    mär: 3,
+    mar: 3,
+    apr: 4,
+    mai: 5,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    okt: 10,
+    nov: 11,
+    dez: 12,
+    januar: 1,
+    februar: 2,
+    märz: 3,
+    marz: 3,
+    april: 4,
+    juni: 6,
+    juli: 7,
+    august: 8,
+    september: 9,
+    oktober: 10,
+    november: 11,
+    dezember: 12,
+  },
+};

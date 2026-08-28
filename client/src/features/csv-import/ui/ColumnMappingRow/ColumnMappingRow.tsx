@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Select } from '#shared/ui/Select';
-import type { SelectOption } from '#shared/ui/Select';
+import { FIELD_OPTIONS } from '#features/csv-import/ui/ColumnMappingRow/field-options';
 
 interface ColumnMappingRowProps {
   readonly header: string;
@@ -35,15 +35,3 @@ export const ColumnMappingRow = ({
     </div>
   );
 };
-
-// useColumnMappingStep. Brakuje category/source/recipient/counterpart/reference,
-const FIELD_OPTIONS = (t: (key: string) => string): SelectOption[] => [
-  { value: '', label: t('import.mapping.skip') },
-  { value: 'date', label: t('import.mapping.fields.date') },
-  { value: 'title', label: t('import.mapping.fields.title') },
-  { value: 'amount', label: t('import.mapping.fields.amount') },
-  { value: 'currency', label: t('import.mapping.fields.currency') },
-  { value: 'balance', label: t('import.mapping.fields.balance') },
-  { value: 'debit', label: t('import.mapping.fields.debit') },
-  { value: 'credit', label: t('import.mapping.fields.credit') },
-];

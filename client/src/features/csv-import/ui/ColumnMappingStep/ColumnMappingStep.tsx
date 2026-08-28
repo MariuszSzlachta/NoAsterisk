@@ -1,12 +1,12 @@
-import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 
-import { DataPreviewTable } from '../DataPreviewTable';
-import { FieldAssignmentRow } from '../FieldAssignmentRow';
-import { SaveProfileBar } from '../SaveProfileBar';
-import { useColumnMappingStep } from '../hooks/useColumnMappingStep';
+import { DataPreviewTable } from '#features/csv-import/ui/DataPreviewTable';
+import { FieldAssignmentRow } from '#features/csv-import/ui/FieldAssignmentRow';
+import { useColumnMappingStep } from '#features/csv-import/ui/hooks/useColumnMappingStep';
+import { SaveProfileBar } from '#features/csv-import/ui/SaveProfileBar';
 
 export const ColumnMappingStep = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -68,8 +68,6 @@ export const ColumnMappingStep = (): React.JSX.Element => {
           ))}
         </div>
 
-            funkcję, której feature nie implementuje, więc użytkownik traci zaufanie
-            do zapisanej konfiguracji importu. */}
         {/* Save profile bar */}
         <div className="mt-5">
           <SaveProfileBar onSave={handleSaveProfile} />

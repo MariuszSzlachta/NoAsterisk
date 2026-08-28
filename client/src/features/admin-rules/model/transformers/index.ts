@@ -1,1 +1,1 @@
-export { mapRuleToViewModel } from './transformers';
+export { mapRuleToViewModel } from '#features/admin-rules/model/transformers/transformers';

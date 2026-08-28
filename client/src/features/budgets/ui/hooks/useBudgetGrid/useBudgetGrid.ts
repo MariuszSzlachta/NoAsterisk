@@ -6,8 +6,12 @@ import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryS
 // Transactions feature exports useTransactionsStore via its public API (index.ts).
 import { useTransactionsStore } from '#features/transactions';
 
-import { mapBudgetRecordToViewModel, getPeriodRange } from '#features/budgets/model/transformers';
-import type { BudgetFilterTab, BudgetPeriodFilter, BudgetRecord, BudgetViewModel } from '#features/budgets/model/types';
+import { getPeriodRange } from '#features/budgets/model/get-period-range';
+import { mapBudgetRecordToViewModel } from '#features/budgets/model/map-budget-record-to-view-model';
+import type { BudgetFilterTab } from '#features/budgets/model/types/budget-filter-tab';
+import type { BudgetPeriodFilter } from '#features/budgets/model/types/budget-period-filter';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 
 interface UseBudgetGridReturn {
   readonly budgets: readonly BudgetViewModel[];

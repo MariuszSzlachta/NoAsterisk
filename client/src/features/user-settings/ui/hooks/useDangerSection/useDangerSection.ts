@@ -1,30 +1,10 @@
-// ═══════════════════════════════════════════════════════════════════
 // User Settings — useDangerSection Hook
-// ═══════════════════════════════════════════════════════════════════
 
 import { useState } from 'react';
 
 import { useDeleteAccountMutation } from '#features/user-settings/api/useDeleteAccountMutation';
 import { useLogoutMutation } from '#features/user-settings/api/useLogoutMutation';
-
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseDangerSectionResult {
-  readonly showClearDialog: boolean;
-  readonly showDeleteDialog: boolean;
-  readonly isDeleting: boolean;
-  readonly deleteError: string | undefined;
-  readonly deletePassword: string;
-  readonly handleOpenClearDialog: () => void;
-  readonly handleCloseClearDialog: () => void;
-  readonly handleConfirmClear: () => void;
-  readonly handleOpenDeleteDialog: () => void;
-  readonly handleCloseDeleteDialog: () => void;
-  readonly handleDeletePasswordChange: (value: string) => void;
-  readonly handleConfirmDelete: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { UseDangerSectionResult } from '#features/user-settings/ui/hooks/useDangerSection/use-danger-section-result';
 
 export const useDangerSection = (): UseDangerSectionResult => {
   const { state: deleteState, mutateAsync: deleteAccount } = useDeleteAccountMutation();

@@ -1,1 +1,1 @@
-export { FilterToolbar } from './FilterToolbar';
+export { FilterToolbar } from '#features/csv-import/ui/FilterToolbar/FilterToolbar';

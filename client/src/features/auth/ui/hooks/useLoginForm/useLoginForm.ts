@@ -3,27 +3,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '#features/auth/api/useLoginMutation';
-import { canonicalizeEmail } from '#features/auth/model/canonicalizeEmail';
-import type { FieldErrors, LoginFormValues } from '#features/auth/model/types';
-import { hasErrors, validateLoginForm } from '#features/auth/model/validators';
+import { canonicalizeEmail } from '#features/auth/model/canonicalize-email';
+import type { FieldErrors } from '#features/auth/model/types/field-errors';
+import type { LoginFormValues } from '#features/auth/model/types/login-form-values';
+import { hasErrors } from '#features/auth/model/has-errors';
+import { validateLoginForm } from '#features/auth/model/validate-login-form';
 
-interface UseLoginFormResult {
-  readonly values: LoginFormValues;
-  readonly errors: FieldErrors;
-  readonly serverError: string | undefined;
-  readonly isSubmitting: boolean;
-  readonly handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  readonly handlePasswordChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  readonly handleSubmit: (e: FormEvent) => void;
-}
-
-const INITIAL_VALUES: LoginFormValues = { email: '', password: '' };
+import { DASHBOARD_ROUTE } from '#features/auth/ui/hooks/useLoginForm/constants/dashboard-route';
+import { INITIAL_LOGIN_VALUES } from '#features/auth/ui/hooks/useLoginForm/initial-login-values';
+import type { UseLoginFormResult } from '#features/auth/ui/hooks/useLoginForm/use-login-form-result';
 
 export const useLoginForm = (): UseLoginFormResult => {
   const navigate = useNavigate();
   const { isLoading, error, mutateAsync } = useLoginMutation();
 
-  const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
+  const [values, setValues] = useState<LoginFormValues>(INITIAL_LOGIN_VALUES);
   const [errors, setErrors] = useState<FieldErrors>({});
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -39,7 +33,9 @@ export const useLoginForm = (): UseLoginFormResult => {
   const handleSubmit = (e: FormEvent): void => {
     e.preventDefault();
 
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     const validationErrors = validateLoginForm(values);
     setErrors(validationErrors);
@@ -53,12 +49,10 @@ export const useLoginForm = (): UseLoginFormResult => {
       password: values.password,
     })
       .then(() => {
-        setValues(INITIAL_VALUES);
-        navigate('/dashboard');
+        setValues(INITIAL_LOGIN_VALUES);
+        navigate(DASHBOARD_ROUTE);
       })
-      .catch(() => {
-        // Error is captured in mutation hook state
-      });
+      .catch(() => undefined);
   };
 
   return {

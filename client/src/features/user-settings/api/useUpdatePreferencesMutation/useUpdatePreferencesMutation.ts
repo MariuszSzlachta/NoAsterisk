@@ -1,26 +1,12 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings — Update Preferences Mutation
-// ═══════════════════════════════════════════════════════════════════
+import { USERS_ME_PREFERENCES_PATH } from '#features/user-settings/api/constants/users-me-preferences-path';
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
+import type { MutationState } from '#features/user-settings/api/useUpdatePreferencesMutation/mutation-state';
+import type { UseUpdatePreferencesMutationResult } from '#features/user-settings/api/useUpdatePreferencesMutation/use-update-preferences-mutation-result';
 
 import { useState } from 'react';
 
-import type { PreferencesValues } from '#features/user-settings/model/types';
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
 import { apiClient } from '#shared/api';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface MutationState {
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-}
-
-interface UseUpdatePreferencesMutationResult {
-  readonly state: MutationState;
-  readonly mutateAsync: (body: Partial<PreferencesValues>) => Promise<boolean>;
-  readonly reset: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useUpdatePreferencesMutation = (): UseUpdatePreferencesMutationResult => {
   const [state, setState] = useState<MutationState>({
@@ -33,7 +19,7 @@ export const useUpdatePreferencesMutation = (): UseUpdatePreferencesMutationResu
 
     try {
       await apiClient.patch<PreferencesValues, Partial<PreferencesValues>>(
-        '/users/me/preferences',
+        USERS_ME_PREFERENCES_PATH,
         body,
       );
       setState({ isLoading: false, error: undefined });

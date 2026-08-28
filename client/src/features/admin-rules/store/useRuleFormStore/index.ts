@@ -1,1 +1,1 @@
-export { useRuleFormStore } from './useRuleFormStore';
+export { useRuleFormStore } from '#features/admin-rules/store/useRuleFormStore/useRuleFormStore';

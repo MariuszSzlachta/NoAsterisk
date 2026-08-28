@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { AnonymizationEntry, ColumnMapping, TransactionRow } from '#features/csv-import/model/types';
+import type {
+  AnonymizationEntry,
+  ColumnMapping,
+  TransactionRow,
+} from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
 import { useAnonymizationGrid } from './useAnonymizationGrid';
@@ -21,9 +25,26 @@ const buildMapping = (): ColumnMapping => ({
   '#Waluta': 'currency',
 });
 
-const buildRows = (): Pick<TransactionRow, 'id' | 'date' | 'title' | 'amount' | 'currency' | 'status'>[] => [
-  { id: 'r0', date: '2026-06-26', title: 'BIEDRONKA 1234', amount: -87.43, currency: 'PLN', status: 'ok' },
-  { id: 'r1', date: '2026-06-25', title: 'PRZELEW •••• 5678', amount: -1200, currency: 'PLN', status: 'ok' },
+const buildRows = (): Pick<
+  TransactionRow,
+  'id' | 'date' | 'title' | 'amount' | 'currency' | 'status'
+>[] => [
+  {
+    id: 'r0',
+    date: '2026-06-26',
+    title: 'BIEDRONKA 1234',
+    amount: -87.43,
+    currency: 'PLN',
+    status: 'ok',
+  },
+  {
+    id: 'r1',
+    date: '2026-06-25',
+    title: 'PRZELEW •••• 5678',
+    amount: -1200,
+    currency: 'PLN',
+    status: 'ok',
+  },
 ];
 
 const buildEntries = (): AnonymizationEntry[] => [
@@ -39,7 +60,16 @@ const buildEntries = (): AnonymizationEntry[] => [
     rowIndex: 1,
     originalTitle: 'PRZELEW Jan Kowalski 51 2400 0005 0000',
     anonymizedTitle: 'PRZELEW •••• 5678',
-    spans: [{ start: 8, end: 21, type: 'name', confidence: 0.95, original: 'Jan Kowalski', detectorId: 'name' }],
+    spans: [
+      {
+        start: 8,
+        end: 21,
+        type: 'name',
+        confidence: 0.95,
+        original: 'Jan Kowalski',
+        detectorId: 'name',
+      },
+    ],
     status: 'anonymized',
     accepted: true,
   },
@@ -90,7 +120,11 @@ describe('useAnonymizationGrid', () => {
 
     it('skips debit/credit fields (no grid equivalent)', () => {
       useImportWizardStore.setState({
-        columnMapping: { 'Kwota Wn': 'debit', 'Kwota Ma': 'credit', '#Data': 'date' },
+        columnMapping: {
+          'Kwota Wn': 'debit',
+          'Kwota Ma': 'credit',
+          '#Data': 'date',
+        },
       });
 
       const { result } = renderHook(() => useAnonymizationGrid());
@@ -150,33 +184,43 @@ describe('useAnonymizationGrid', () => {
 
   describe('statusFilter', () => {
     it('shows all rows when filter is undefined', () => {
-      const { result } = renderHook(() => useAnonymizationGrid(undefined, undefined));
+      const { result } = renderHook(() =>
+        useAnonymizationGrid(undefined, undefined),
+      );
 
       expect(result.current.rows).toHaveLength(2);
     });
 
     it('shows all rows when filter is "all"', () => {
-      const { result } = renderHook(() => useAnonymizationGrid(undefined, 'all'));
+      const { result } = renderHook(() =>
+        useAnonymizationGrid(undefined, 'all'),
+      );
 
       expect(result.current.rows).toHaveLength(2);
     });
 
     it('filters to only safe rows', () => {
-      const { result } = renderHook(() => useAnonymizationGrid(undefined, 'safe'));
+      const { result } = renderHook(() =>
+        useAnonymizationGrid(undefined, 'safe'),
+      );
 
       expect(result.current.rows).toHaveLength(1);
       expect(result.current.rows[0]?.anonymizationStatus).toBe('safe');
     });
 
     it('filters to only anonymized rows', () => {
-      const { result } = renderHook(() => useAnonymizationGrid(undefined, 'anonymized'));
+      const { result } = renderHook(() =>
+        useAnonymizationGrid(undefined, 'anonymized'),
+      );
 
       expect(result.current.rows).toHaveLength(1);
       expect(result.current.rows[0]?.anonymizationStatus).toBe('anonymized');
     });
 
     it('returns empty array when no rows match filter', () => {
-      const { result } = renderHook(() => useAnonymizationGrid(undefined, 'needs_review'));
+      const { result } = renderHook(() =>
+        useAnonymizationGrid(undefined, 'needs_review'),
+      );
 
       expect(result.current.rows).toHaveLength(0);
     });

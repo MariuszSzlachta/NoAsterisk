@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useAuthStore } from './useAuthStore';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
 
 // ─── Tests ───────────────────────────────────────────────────────
 

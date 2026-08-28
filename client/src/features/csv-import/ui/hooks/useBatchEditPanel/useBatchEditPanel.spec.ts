@@ -89,7 +89,9 @@ describe('useBatchEditPanel', () => {
         result.current.handleCellEdit('r1', 'category', 'Zakupy spożywcze');
       });
 
-      const updatedRow = useImportWizardStore.getState().rows.find((r) => r.id === 'r1');
+      const updatedRow = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r1');
       expect(updatedRow?.category).toBe('Zakupy spożywcze');
     });
 
@@ -134,7 +136,9 @@ describe('useBatchEditPanel', () => {
       });
 
       expect(result.current.isOpen).toBe(false);
-      const row = useImportWizardStore.getState().rows.find((r) => r.id === 'r1');
+      const row = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r1');
       expect(row?.status).toBe('error');
     });
   });
@@ -182,7 +186,9 @@ describe('useBatchEditPanel', () => {
         result.current.handleApply();
       });
 
-      const r4 = useImportWizardStore.getState().rows.find((r) => r.id === 'r4');
+      const r4 = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r4');
       expect(r4?.category).toBeUndefined();
     });
   });
@@ -208,7 +214,9 @@ describe('useBatchEditPanel', () => {
       expect(result.current.isOpen).toBe(false);
 
       // Similar rows should NOT be updated
-      const r2 = useImportWizardStore.getState().rows.find((r) => r.id === 'r2');
+      const r2 = useImportWizardStore
+        .getState()
+        .rows.find((r) => r.id === 'r2');
       expect(r2?.category).toBeUndefined();
     });
   });

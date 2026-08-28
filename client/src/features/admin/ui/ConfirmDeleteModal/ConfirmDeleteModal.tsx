@@ -4,16 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 
-// ─── Props ───────────────────────────────────────────────────────
-
-interface ConfirmDeleteModalProps {
-  readonly title: string;
-  readonly description: string;
-  readonly onConfirm: () => void;
-  readonly onCancel: () => void;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { ConfirmDeleteModalProps } from '#features/admin/ui/ConfirmDeleteModal/confirm-delete-modal-props';
 
 export const ConfirmDeleteModal = ({
   title,
@@ -26,26 +17,24 @@ export const ConfirmDeleteModal = ({
   const titleId = `${uniqueId}-title`;
   const descId = `${uniqueId}-desc`;
   const dialogRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const previousFocusRef = useRef<Element | null>(null);
 
-  // Capture previously focused element for restore on close
   useEffect(() => {
-    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    previousFocusRef.current = document.activeElement;
   }, []);
 
-  // Auto-focus the dialog on mount
   useEffect(() => {
     dialogRef.current?.focus();
   }, []);
 
-  // Restore focus on unmount
   useEffect(() => {
     return () => {
-      previousFocusRef.current?.focus();
+      if (previousFocusRef.current instanceof HTMLElement) {
+        previousFocusRef.current.focus();
+      }
     };
   }, []);
 
-  // Focus trap: keep Tab/Shift+Tab within dialog
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
       if (event.key === 'Escape') {
@@ -58,21 +47,31 @@ export const ConfirmDeleteModal = ({
       }
 
       const dialog = dialogRef.current;
-      if (!dialog) return;
+      if (!dialog) {
+        return;
+      }
 
       const focusableElements = dialog.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
-      if (focusableElements.length === 0) return;
+      if (focusableElements.length === 0) {
+        return;
+      }
 
-      const firstFocusable = focusableElements[0]!;
-      const lastFocusable = focusableElements[focusableElements.length - 1]!;
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      if (!firstFocusable || !lastFocusable) {
+        return;
+      }
 
       if (event.shiftKey && document.activeElement === firstFocusable) {
         event.preventDefault();
         lastFocusable.focus();
-      } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+      }
+
+      if (!event.shiftKey && document.activeElement === lastFocusable) {
         event.preventDefault();
         firstFocusable.focus();
       }

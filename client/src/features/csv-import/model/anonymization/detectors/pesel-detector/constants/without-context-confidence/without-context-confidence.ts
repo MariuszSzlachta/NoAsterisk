@@ -1,0 +1,1 @@
+export const WITHOUT_CONTEXT_CONFIDENCE = 0.88;

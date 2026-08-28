@@ -1,0 +1,22 @@
+import type { NumericFormatDef } from '#features/csv-import/model/parsing/types/numeric-format-def';
+import type { ParseableDateFormat } from '#features/csv-import/model/parsing/types/parseable-date-format';
+
+export const createNumericParser = (
+  def: NumericFormatDef,
+): ParseableDateFormat => ({
+  format: def.format,
+  regex: def.regex,
+  parse: (m) => {
+    const y = m[def.groups.year];
+    const mo = m[def.groups.month];
+    const d = m[def.groups.day];
+    if (y === undefined || mo === undefined || d === undefined) {
+      return null;
+    }
+    const year = def.yearResolver ? def.yearResolver(y) : +y;
+    if (year === null) {
+      return null;
+    }
+    return { year, month: +mo, day: +d };
+  },
+});

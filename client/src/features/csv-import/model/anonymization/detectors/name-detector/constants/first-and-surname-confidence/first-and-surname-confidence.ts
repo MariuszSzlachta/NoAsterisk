@@ -1,0 +1,1 @@
+export const FIRST_AND_SURNAME_CONFIDENCE = 0.95;

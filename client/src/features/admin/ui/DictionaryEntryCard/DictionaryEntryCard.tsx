@@ -1,14 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import type { DictionaryEntryViewModel } from '#features/admin/model/types';
-
-// ─── Props ───────────────────────────────────────────────────────
-
-interface DictionaryEntryCardProps {
-  readonly entry: DictionaryEntryViewModel;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { DictionaryEntryCardProps } from '#features/admin/ui/DictionaryEntryCard/dictionary-entry-card-props';
 
 export const DictionaryEntryCard = ({ entry }: DictionaryEntryCardProps): React.JSX.Element => {
   const { t: _t } = useTranslation();

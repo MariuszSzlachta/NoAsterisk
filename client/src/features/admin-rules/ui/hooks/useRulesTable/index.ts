@@ -1,1 +1,1 @@
-export { useRulesTable } from './useRulesTable';
+export { useRulesTable } from '#features/admin-rules/ui/hooks/useRulesTable/useRulesTable';

@@ -1,84 +1,61 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { AnonymizationEntry, AnonymizationStatus } from '#features/csv-import/model/types';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
-// ─── Types ───────────────────────────────────────────────────────
+import type { AnonymizationStepResult } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-step-result';
+import type { AnonymizationStats } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-stats';
+import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep/status-filter';
 
-export type StatusFilter = 'all' | AnonymizationStatus;
-
-export interface AnonymizationStats {
-  readonly totalScanned: number;
-  readonly anonymizedCount: number;
-  readonly needsReviewCount: number;
-  readonly safeCount: number;
-}
-
-export interface AnonymizationStepResult {
-  readonly entries: readonly AnonymizationEntry[];
-  readonly filteredEntries: readonly AnonymizationEntry[];
-  readonly stats: AnonymizationStats;
-  readonly activeFilter: StatusFilter;
-  readonly selectedRowIndex: number | undefined;
-  readonly selectedEntry: AnonymizationEntry | undefined;
-  readonly isEditing: boolean;
-  readonly editValue: string;
-  readonly handleFilterChange: (filter: string) => void;
-  readonly handleSelectRow: (rowIndex: number) => void;
-  readonly handleClosePopover: () => void;
-  readonly handleBulkAccept: () => void;
-  readonly handleRestore: (rowIndex: number) => void;
-  readonly handleEdit: (rowIndex: number, newTitle: string) => void;
-  readonly handleRestoreSelected: () => void;
-  readonly handleStartEdit: () => void;
-  readonly handleEditValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  readonly handleEditSave: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useAnonymizationStep = (): AnonymizationStepResult => {
-  const { entries, rows, setAnonymizationEntries, setRows } = useImportWizardStore(
-    useShallow((s) => ({
-      entries: s.anonymizationEntries,
-      rows: s.rows,
-      setAnonymizationEntries: s.setAnonymizationEntries,
-      setRows: s.setRows,
-    })),
-  );
+  const { entries, rows, setAnonymizationEntries, setRows } =
+    useImportWizardStore(
+      useShallow((s) => ({
+        entries: s.anonymizationEntries,
+        rows: s.rows,
+        setAnonymizationEntries: s.setAnonymizationEntries,
+        setRows: s.setRows,
+      })),
+    );
 
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('all');
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number | undefined>(undefined);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number | undefined>(
+    undefined,
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
-  // ─── Derived: Stats (single-pass reduce) ─────────────────────
 
   const stats = entries.reduce<AnonymizationStats>(
     (acc, e) => ({
       totalScanned: acc.totalScanned,
-      anonymizedCount: acc.anonymizedCount + (e.status === 'anonymized' ? 1 : 0),
-      needsReviewCount: acc.needsReviewCount + (e.status === 'needs_review' ? 1 : 0),
+      anonymizedCount:
+        acc.anonymizedCount + (e.status === 'anonymized' ? 1 : 0),
+      needsReviewCount:
+        acc.needsReviewCount + (e.status === 'needs_review' ? 1 : 0),
       safeCount: acc.safeCount + (e.status === 'safe' ? 1 : 0),
     }),
-    { totalScanned: entries.length, anonymizedCount: 0, needsReviewCount: 0, safeCount: 0 },
+    {
+      totalScanned: entries.length,
+      anonymizedCount: 0,
+      needsReviewCount: 0,
+      safeCount: 0,
+    },
   );
 
-  // ─── Derived: Filtered Entries ───────────────────────────────
 
   const filteredEntries =
     activeFilter === 'all'
       ? entries
       : entries.filter((e) => e.status === activeFilter);
 
-  // ─── Derived: Selected Entry ─────────────────────────────────
 
-  const selectedEntry = selectedRowIndex !== undefined
-    ? entries.find((e) => e.rowIndex === selectedRowIndex)
-    : undefined;
+  const selectedEntry =
+    selectedRowIndex !== undefined
+      ? entries.find((e) => e.rowIndex === selectedRowIndex)
+      : undefined;
 
-  // ─── Popover State Reset ─────────────────────────────────────
 
   const resetPopoverState = (): void => {
     setSelectedRowIndex(undefined);
@@ -86,10 +63,12 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     setEditValue('');
   };
 
-  // ─── Handlers ────────────────────────────────────────────────
 
   const isValidFilter = (value: string): value is StatusFilter =>
-    value === 'all' || value === 'safe' || value === 'needs_review' || value === 'anonymized';
+    value === 'all' ||
+    value === 'safe' ||
+    value === 'needs_review' ||
+    value === 'anonymized';
 
   const handleFilterChange = (filter: string): void => {
     if (isValidFilter(filter)) {
@@ -184,7 +163,9 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
     }
   };
 
-  const handleEditValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleEditValueChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     setEditValue(e.target.value);
   };
 

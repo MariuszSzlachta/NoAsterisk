@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, X } from 'lucide-react';
 
+import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
-
-import { useBatchEditPanel } from '#features/csv-import/ui/hooks/useBatchEditPanel';
 
 export const BatchEditPanel = (): React.JSX.Element | null => {
   const { t } = useTranslation();
@@ -30,11 +29,13 @@ export const BatchEditPanel = (): React.JSX.Element | null => {
             {t('import.batchEdit.title', { count: similarRows.length })}
           </h4>
           <p className="mt-1 text-xs text-muted-foreground">
-            {t('import.batchEdit.description', { field: t(`import.batchEdit.fields.${field}`) })}
+            {t('import.batchEdit.description', {
+              field: t(`import.batchEdit.fields.${field}`),
+            })}
           </p>
 
           <div className="mt-3 flex items-center gap-2 text-xs">
-                PII. To może być potrzebne do decyzji użytkownika, ale zakres tej
+            PII. To może być potrzebne do decyzji użytkownika, ale zakres tej
             <span className="rounded bg-surface px-2 py-0.5 font-mono text-muted-foreground line-through">
               {originalValue}
             </span>

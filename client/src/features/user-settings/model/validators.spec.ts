@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import type { PasswordFormValues, PasswordValidationRules } from './types';
-import { isPasswordFormValid, validateDisplayName, validatePasswordForm } from './validators';
+import type { PasswordFormValues } from '#features/user-settings/model/types/password-form-values';
+import type { PasswordValidationRules } from '#features/user-settings/model/types/password-validation-rules';
+import { isPasswordFormValid } from '#features/user-settings/model/is-password-form-valid';
+import { validateDisplayName } from '#features/user-settings/model/validate-display-name';
+import { validatePasswordForm } from '#features/user-settings/model/validate-password-form';
 
 // ─── Test Helpers ────────────────────────────────────────────────
 

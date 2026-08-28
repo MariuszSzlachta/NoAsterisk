@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { BudgetPeriodFilter } from '#features/budgets/model/types';
+import type { BudgetPeriodFilter } from '#features/budgets/model/types/budget-period-filter';
 
 // ─── Type Guard ──────────────────────────────────────────────────
 

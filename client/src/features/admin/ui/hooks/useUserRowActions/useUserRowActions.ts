@@ -1,13 +1,6 @@
-import type { AdminUserViewModel } from '#features/admin';
+import type { AdminUserViewModel } from '#features/admin/model/types/admin-user-view-model';
 
-// ─── Result Interface ────────────────────────────────────────────
-
-interface UseUserRowActionsResult {
-  readonly handleBlock: () => void;
-  readonly handleDelete: () => void;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
+import type { UseUserRowActionsResult } from '#features/admin/ui/hooks/useUserRowActions/use-user-row-actions-result';
 
 export const useUserRowActions = (
   user: AdminUserViewModel,

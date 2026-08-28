@@ -7,7 +7,6 @@ import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 import { Skeleton } from '#shared/ui/Skeleton';
 
-// ─── Component ───────────────────────────────────────────────────
 
 export const UsersTab = (): React.JSX.Element => {
   const { t } = useTranslation();

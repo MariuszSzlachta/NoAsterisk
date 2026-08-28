@@ -14,11 +14,11 @@ const mockProcessRows = vi.fn();
 const mockLoadAll = vi.fn();
 const mockDetectDuplicatesInBatch = vi.fn();
 
-vi.mock('#features/csv-import/model/parsing/csv-parser', () => ({
+vi.mock('#features/csv-import/model/parsing/csv-parser/parse-csv-file', () => ({
   parseCsvFile: (...args: unknown[]) => mockParseCsvFile(...args),
 }));
 
-vi.mock('#features/csv-import/model/column-mapping/column-mapper', () => ({
+vi.mock('#features/csv-import/model/column-mapping/auto-detect', () => ({
   autoDetectMapping: (...args: unknown[]) => mockAutoDetectMapping(...args),
   hasRequiredFields: (mapping: Record<string, unknown>) =>
     'date' in mapping && 'title' in mapping && 'amount' in mapping,
@@ -36,8 +36,9 @@ vi.mock('#features/csv-import/api/dictionaryProvider', () => ({
   dictionaryProvider: { loadAll: (...args: unknown[]) => mockLoadAll(...args) },
 }));
 
-vi.mock('#features/csv-import/model/transformation/duplicate-detector', () => ({
-  detectDuplicatesInBatch: (...args: unknown[]) => mockDetectDuplicatesInBatch(...args),
+vi.mock('#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch', () => ({
+  detectDuplicatesInBatch: (...args: unknown[]) =>
+    mockDetectDuplicatesInBatch(...args),
 }));
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -83,7 +84,11 @@ describe('useImportWizard', () => {
         encoding: 'utf-8',
       };
       mockParseCsvFile.mockResolvedValue(parsedData);
-      mockAutoDetectMapping.mockReturnValue({ date: 'date', title: 'title', amount: 'amount' });
+      mockAutoDetectMapping.mockReturnValue({
+        date: 'date',
+        title: 'title',
+        amount: 'amount',
+      });
 
       const { result } = renderHook(() => useImportWizard());
 
@@ -166,10 +171,24 @@ describe('useImportWizard', () => {
       });
 
       const transformed = [
-        { id: '1', date: '2026-01-01', title: 'BIEDRONKA', amount: -50, currency: 'PLN', status: 'ok' },
+        {
+          id: '1',
+          date: '2026-01-01',
+          title: 'BIEDRONKA',
+          amount: -50,
+          currency: 'PLN',
+          status: 'ok',
+        },
       ];
       const anonymizationEntries = [
-        { rowIndex: 0, originalTitle: 'BIEDRONKA', anonymizedTitle: 'BIEDRONKA', spans: [], status: 'safe', accepted: true },
+        {
+          rowIndex: 0,
+          originalTitle: 'BIEDRONKA',
+          anonymizedTitle: 'BIEDRONKA',
+          spans: [],
+          status: 'safe',
+          accepted: true,
+        },
       ];
       // a test sprawdza tylko lokalny krok (0→1). Nie pokrywa realnego flow 1→2→3
       const withDuplicates = [{ ...transformed[0], isDuplicate: false }];
@@ -195,7 +214,12 @@ describe('useImportWizard', () => {
 
     it('does not advance step on double-click (isProcessing guard)', async () => {
       useImportWizardStore.setState({
-        parsedData: { headers: [], rows: [], separator: ',', encoding: 'utf-8' },
+        parsedData: {
+          headers: [],
+          rows: [],
+          separator: ',',
+          encoding: 'utf-8',
+        },
         columnMapping: {},
       });
 
@@ -240,7 +264,12 @@ describe('useImportWizard', () => {
     it('sets parseError when processing fails', async () => {
       useImportWizardStore.setState({
         // obiektu utrzymywanego tylko przez testowy typ inference.
-        parsedData: { headers: ['a'], rows: [{ a: '1' }], separator: ',', encoding: 'utf-8' },
+        parsedData: {
+          headers: ['a'],
+          rows: [{ a: '1' }],
+          separator: ',',
+          encoding: 'utf-8',
+        },
         columnMapping: { a: 'date' },
       });
 
@@ -306,7 +335,16 @@ describe('useImportWizard', () => {
     it('handleReset sets step to 0 and clears state', () => {
       useImportWizardStore.setState({
         step: 3,
-        rows: [{ id: '1', date: '', title: '', amount: 0, currency: '', status: 'ok' }],
+        rows: [
+          {
+            id: '1',
+            date: '',
+            title: '',
+            amount: 0,
+            currency: '',
+            status: 'ok',
+          },
+        ],
       });
 
       const { result } = renderHook(() => useImportWizard());

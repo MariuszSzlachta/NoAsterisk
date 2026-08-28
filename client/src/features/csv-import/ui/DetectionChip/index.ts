@@ -1,1 +1,1 @@
-export { DetectionChip } from './DetectionChip';
+export { DetectionChip } from '#features/csv-import/ui/DetectionChip/DetectionChip';

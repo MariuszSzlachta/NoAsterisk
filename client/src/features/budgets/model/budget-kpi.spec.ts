@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
-import { computeBudgetKpis } from './budget-kpi';
-import type { BudgetViewModel } from './types';
+import { computeBudgetKpis } from '#features/budgets/model/compute-budget-kpis';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 
 const buildBudgetVM = (overrides?: Partial<BudgetViewModel>): BudgetViewModel => ({
   id: 'budget-1',

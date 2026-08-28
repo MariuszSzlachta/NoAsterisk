@@ -1,27 +1,10 @@
-// ═══════════════════════════════════════════════════════════════════
-// User Settings — Vault Query
-// ═══════════════════════════════════════════════════════════════════
+import { USERS_ME_VAULT_PATH } from '#features/user-settings/api/constants/users-me-vault-path';
+import type { VaultResponse } from '#features/user-settings/api/useVaultQuery/vault-response';
+import type { UseVaultQueryResult } from '#features/user-settings/api/useVaultQuery/use-vault-query-result';
 
 import { useCallback, useEffect, useState } from 'react';
 
 import { ApiError, apiClient } from '#shared/api';
-
-// ─── Types ───────────────────────────────────────────────────────
-
-interface VaultResponse {
-  readonly encryptedBlob: string;
-  readonly updatedAt: string;
-}
-
-interface UseVaultQueryResult {
-  readonly data: VaultResponse | undefined;
-  readonly isLoading: boolean;
-  readonly error: string | undefined;
-  readonly hasBackup: boolean;
-  readonly refetch: () => Promise<void>;
-}
-
-// ─── Hook ────────────────────────────────────────────────────────
 
 export const useVaultQuery = (): UseVaultQueryResult => {
   const [data, setData] = useState<VaultResponse | undefined>(undefined);
@@ -33,7 +16,7 @@ export const useVaultQuery = (): UseVaultQueryResult => {
     setError(undefined);
 
     try {
-      const response = await apiClient.get<VaultResponse>('/users/me/vault', { signal });
+      const response = await apiClient.get<VaultResponse>(USERS_ME_VAULT_PATH, { signal });
       setData(response);
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -41,9 +24,9 @@ export const useVaultQuery = (): UseVaultQueryResult => {
       }
       if (err instanceof ApiError && err.status === 404) {
         setData(undefined);
-      } else {
-        setError('Nie udało się sprawdzić stanu kopii zapasowej');
+        return;
       }
+      setError('Nie udało się sprawdzić stanu kopii zapasowej');
     } finally {
       setIsLoading(false);
     }

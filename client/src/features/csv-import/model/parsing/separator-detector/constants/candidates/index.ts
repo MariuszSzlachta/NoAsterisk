@@ -1,0 +1,1 @@
+export { CANDIDATES } from './candidates';

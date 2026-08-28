@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
-import { hasRequiredFields } from '#features/csv-import/model/column-mapping/column-mapper';
-import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector';
-import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser';
-import { autoDetectMapping } from '#features/csv-import/model/column-mapping/column-mapper';
-import { processRows } from '#features/csv-import/model/anonymization/pipeline';
 import { dictionaryProvider } from '#features/csv-import/api/dictionaryProvider';
+import { processRows } from '#features/csv-import/model/anonymization/pipeline';
+import { autoDetectMapping } from '#features/csv-import/model/column-mapping/auto-detect';
+import { hasRequiredFields } from '#features/csv-import/model/column-mapping/validators/has-required-fields';
+import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file';
+import { detectDuplicatesInBatch } from '#features/csv-import/model/transformation/duplicate-detector/detect-duplicates-in-batch';
 import { transformRows } from '#features/csv-import/model/transformation/row-transformer';
-import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import type { WizardStep } from '#features/csv-import/model/types';
+import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 
 interface ImportWizardResult {
   readonly step: WizardStep;
@@ -37,7 +37,9 @@ export const useImportWizard = (): ImportWizardResult => {
   const setParseError = useImportWizardStore((s) => s.setParseError);
   const setDetectedMapping = useImportWizardStore((s) => s.setDetectedMapping);
   const setRows = useImportWizardStore((s) => s.setRows);
-  const setAnonymizationEntries = useImportWizardStore((s) => s.setAnonymizationEntries);
+  const setAnonymizationEntries = useImportWizardStore(
+    (s) => s.setAnonymizationEntries,
+  );
   const nextStep = useImportWizardStore((s) => s.nextStep);
   const prevStep = useImportWizardStore((s) => s.prevStep);
   const reset = useImportWizardStore((s) => s.reset);
@@ -96,7 +98,6 @@ export const useImportWizard = (): ImportWizardResult => {
     setIsProcessing(true);
 
     try {
-      // Transform raw CSV rows to typed TransactionRows
       const transformed = transformRows(parsedData.rows, columnMapping);
 
       // Anonymize titles — raw data NEVER leaves the browser
@@ -105,7 +106,6 @@ export const useImportWizard = (): ImportWizardResult => {
       const anonymizationEntries = processRows(titles, dictionaries);
       setAnonymizationEntries(anonymizationEntries);
 
-      // Apply anonymized titles to rows
       const anonymizedRows = transformed.map((row, idx) => {
         const entry = anonymizationEntries[idx];
         if (entry && entry.status === 'anonymized') {
@@ -114,7 +114,6 @@ export const useImportWizard = (): ImportWizardResult => {
         return row;
       });
 
-      // Run duplicate detection on anonymized rows
       const withDuplicates = detectDuplicatesInBatch(anonymizedRows);
 
       setRows(withDuplicates);
@@ -124,14 +123,15 @@ export const useImportWizard = (): ImportWizardResult => {
         console.info('[csv-import] Mapping confirm OK', {
           inputRows: parsedData.rows.length,
           transformedRows: transformed.length,
-          anonymized: anonymizationEntries.filter((e) => e.status === 'anonymized').length,
+          anonymized: anonymizationEntries.filter(
+            (e) => e.status === 'anonymized',
+          ).length,
           duplicates: withDuplicates.filter((r) => r.isDuplicate).length,
           mapping: columnMapping,
         });
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Processing failed';
+      const message = err instanceof Error ? err.message : 'Processing failed';
 
       if (import.meta.env.DEV) {
         console.warn('[csv-import] Mapping confirm FAILED', {

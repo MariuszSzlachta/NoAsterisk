@@ -3,21 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '#shared/ui/Button';
 import { Card, CardHeader } from '#shared/ui/Card';
 
-// ─── Props ───────────────────────────────────────────────────────
-
-interface DictionaryDisplayItem {
-  readonly label: string;
-  readonly count: number;
-  readonly lastUpdated: string;
-}
-
-interface DictionariesPanelProps {
-  readonly items: readonly DictionaryDisplayItem[];
-  readonly onManage: (tabId: string) => void;
-  readonly targetTab: string;
-}
-
-// ─── Component ───────────────────────────────────────────────────
+import type { DictionariesPanelProps } from '#features/admin/ui/DictionariesPanel/dictionaries-panel-props';
 
 export const DictionariesPanel = ({
   items,
@@ -32,10 +18,7 @@ export const DictionariesPanel = ({
 
       <div className="flex flex-col gap-3">
         {items.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between"
-          >
+          <div key={item.label} className="flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-sm font-medium text-foreground">{item.label}</span>
               <span className="text-xs text-muted-foreground">
