@@ -4,7 +4,7 @@ import type {
   HeuristicRegistry,
 } from '#features/csv-import/model/column-mapping/types';
 
-import { BUILTIN_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics';
+import { BUILTIN_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/builtin-heuristics';
 
 export const createHeuristicRegistry = (
   entries: readonly HeaderHeuristic[] = BUILTIN_HEURISTICS,

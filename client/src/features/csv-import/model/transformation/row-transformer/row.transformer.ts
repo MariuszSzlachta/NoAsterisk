@@ -1,7 +1,7 @@
-import {
-  MERGEABLE_FIELDS,
-  type ColumnMapping,
-  type DomainField,
+import { MERGEABLE_FIELDS } from '#features/csv-import/model/column-mapping/mergeable-fields';
+import type {
+  ColumnMapping,
+  DomainField,
 } from '#features/csv-import/model/column-mapping/types';
 import { detectAmountLocale, parseAmount } from '#features/csv-import/model/parsing/amount-parser';
 import {

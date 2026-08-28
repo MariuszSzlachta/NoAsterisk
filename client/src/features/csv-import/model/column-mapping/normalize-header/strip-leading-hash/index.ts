@@ -1,1 +1,1 @@
-export { stripLeadingHash } from './strip-leading-hash';
+export { stripLeadingHash } from '#features/csv-import/model/column-mapping/normalize-header/strip-leading-hash/strip-leading-hash';

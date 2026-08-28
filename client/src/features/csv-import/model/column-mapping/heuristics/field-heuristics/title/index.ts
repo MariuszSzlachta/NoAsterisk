@@ -1,1 +1,1 @@
-export { TITLE_HEURISTICS } from './title';
+export { TITLE_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/title/title';

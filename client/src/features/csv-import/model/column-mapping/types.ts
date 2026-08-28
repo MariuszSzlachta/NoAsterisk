@@ -17,13 +17,6 @@ export type DomainField =
   | 'counterpart'
   | 'reference';
 
-export const MERGEABLE_FIELDS: ReadonlySet<DomainField> = new Set([
-  'title',
-  'source',
-  'recipient',
-  'counterpart',
-]);
-
 export type ColumnMapping = Partial<Record<string, DomainField>>;
 
 export interface MappingProfile {

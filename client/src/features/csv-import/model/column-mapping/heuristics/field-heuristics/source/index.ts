@@ -1,1 +1,1 @@
-export { SOURCE_HEURISTICS } from './source';
+export { SOURCE_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/source/source';

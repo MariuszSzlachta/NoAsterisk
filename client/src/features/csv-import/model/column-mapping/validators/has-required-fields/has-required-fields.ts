@@ -1,16 +1,13 @@
-import type {
-  ColumnMapping,
-  DomainField,
-} from '#features/csv-import/model/column-mapping/types';
+import type { ColumnMapping } from '#features/csv-import/model/column-mapping/types';
+import { REQUIRED_FIELDS } from '#features/csv-import/model/column-mapping/validators/required-fields';
 
-/** Minimum viable mapping: date + title + (amount OR debit/credit). */
 export const hasRequiredFields = (mapping: ColumnMapping): boolean => {
-  const fields = Object.values(mapping).filter(Boolean) as DomainField[];
-  const hasDate = fields.includes('date');
-  const hasTitle = fields.includes('title');
+  const fields = Object.values(mapping).filter(Boolean);
+  const hasDate = fields.includes(REQUIRED_FIELDS.DATE);
+  const hasTitle = fields.includes(REQUIRED_FIELDS.TITLE);
   const hasAmount =
-    fields.includes('amount') ||
-    fields.includes('debit') ||
-    fields.includes('credit');
+    fields.includes(REQUIRED_FIELDS.AMOUNT) ||
+    fields.includes(REQUIRED_FIELDS.DEBIT) ||
+    fields.includes(REQUIRED_FIELDS.CREDIT);
   return hasDate && hasTitle && hasAmount;
 };

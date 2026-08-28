@@ -1,1 +1,1 @@
-export { BALANCE_HEURISTICS } from './balance';
+export { BALANCE_HEURISTICS } from '#features/csv-import/model/column-mapping/heuristics/field-heuristics/balance/balance';

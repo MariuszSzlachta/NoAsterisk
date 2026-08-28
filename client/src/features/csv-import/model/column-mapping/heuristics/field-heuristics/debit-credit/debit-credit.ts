@@ -1,15 +1,16 @@
 import type { HeaderHeuristic } from '#features/csv-import/model/column-mapping/types';
+import { HEURISTIC_SOURCE_BUILTIN } from '#features/csv-import/model/column-mapping/heuristics/heuristic-source-builtin';
 
 export const DEBIT_CREDIT_HEURISTICS: readonly HeaderHeuristic[] = [
-  { normalized: 'kwota wn', field: 'debit', source: 'builtin' },
-  { normalized: 'kwota winien', field: 'debit', source: 'builtin' },
-  { normalized: 'obciążenia', field: 'debit', source: 'builtin' },
-  { normalized: 'obciazenia', field: 'debit', source: 'builtin' },
-  { normalized: 'wydatki', field: 'debit', source: 'builtin' },
-  { normalized: 'debit', field: 'debit', source: 'builtin' },
-  { normalized: 'kwota ma', field: 'credit', source: 'builtin' },
-  { normalized: 'uznania', field: 'credit', source: 'builtin' },
-  { normalized: 'wpływy', field: 'credit', source: 'builtin' },
-  { normalized: 'wplywy', field: 'credit', source: 'builtin' },
-  { normalized: 'credit', field: 'credit', source: 'builtin' },
+  { normalized: 'kwota wn', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'kwota winien', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'obciążenia', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'obciazenia', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'wydatki', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'debit', field: 'debit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'kwota ma', field: 'credit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'uznania', field: 'credit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'wpływy', field: 'credit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'wplywy', field: 'credit', source: HEURISTIC_SOURCE_BUILTIN },
+  { normalized: 'credit', field: 'credit', source: HEURISTIC_SOURCE_BUILTIN },
 ];

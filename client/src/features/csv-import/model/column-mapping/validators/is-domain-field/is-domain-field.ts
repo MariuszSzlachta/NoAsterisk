@@ -1,22 +1,5 @@
 import type { DomainField } from '#features/csv-import/model/column-mapping/types';
-
-/** Exhaustive list kept in sync with DomainField union via satisfies. Compiler errors on drift. */
-export const ALL_DOMAIN_FIELDS = [
-  'date',
-  'title',
-  'amount',
-  'currency',
-  'balance',
-  'debit',
-  'credit',
-  'category',
-  'source',
-  'recipient',
-  'counterpart',
-  'reference',
-] as const satisfies readonly DomainField[];
-
-export const VALID_DOMAIN_FIELDS: ReadonlySet<string> = new Set(ALL_DOMAIN_FIELDS);
+import { VALID_DOMAIN_FIELDS } from '#features/csv-import/model/column-mapping/validators/valid-domain-fields';
 
 export const isDomainField = (value: string): value is DomainField =>
   VALID_DOMAIN_FIELDS.has(value);

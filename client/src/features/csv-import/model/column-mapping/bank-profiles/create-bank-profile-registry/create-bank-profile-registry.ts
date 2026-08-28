@@ -1,18 +1,10 @@
+import { matchesPattern } from '#features/csv-import/model/column-mapping/bank-profiles/matches-pattern';
+import { BUILTIN_SIGNATURES } from '#features/csv-import/model/column-mapping/bank-profiles/signatures';
 import { normalizeHeader } from '#features/csv-import/model/column-mapping/normalize-header';
 import type {
   BankProfileRegistry,
   BankSignature,
 } from '#features/csv-import/model/column-mapping/types';
-
-import { BUILTIN_SIGNATURES } from '#features/csv-import/model/column-mapping/bank-profiles/signatures';
-
-export const matchesPattern = (
-  normalizedHeaders: readonly string[],
-  pattern: readonly string[],
-): boolean =>
-  pattern.every((expected) =>
-    normalizedHeaders.some((h) => h.includes(expected)),
-  );
 
 export const createBankProfileRegistry = (
   signatures: readonly BankSignature[] = BUILTIN_SIGNATURES,
