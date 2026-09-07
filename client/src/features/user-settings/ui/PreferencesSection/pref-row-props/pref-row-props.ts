@@ -1,3 +1,6 @@
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
+import type { SelectOption } from '#shared/ui/Select/Select';
+
 export interface PrefRowProps {
   readonly label: string;
   readonly description: string;

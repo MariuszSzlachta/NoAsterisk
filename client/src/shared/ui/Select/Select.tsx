@@ -101,8 +101,9 @@ export const Select = ({
           break;
         case 'Enter':
           e.preventDefault();
-          if (highlightIndex >= 0) {
-            selectOption(options[highlightIndex].value);
+          const option = options[highlightIndex];
+          if (option !== undefined) {
+            selectOption(option.value);
           }
           break;
         case 'Escape':

@@ -1,1 +1,1 @@
-export { resolveMonth } from './resolve-month';
+export { resolveMonth } from '../month-locales';

@@ -4,7 +4,8 @@ import { X } from 'lucide-react';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 
-import type { BudgetRecord, BudgetType } from '#features/budgets/model/types';
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetType } from '#features/budgets/model/types/budget-type';
 import { useBudgetForm } from '../hooks/useBudgetForm';
 import { COLOR_PALETTE } from '../constants/color-palette';
 

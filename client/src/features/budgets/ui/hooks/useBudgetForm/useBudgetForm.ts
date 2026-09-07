@@ -44,6 +44,15 @@ interface UseBudgetFormReturn {
 
 // ─── Constants ───────────────────────────────────────────────────
 
+export const COLOR_PALETTE = [
+  '#3b82f6',
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+  '#a855f7',
+  '#06b6d4',
+] as const;
+
 const DEFAULT_VALUES: BudgetFormValues = {
   budgetType: 'standard',
   name: '',

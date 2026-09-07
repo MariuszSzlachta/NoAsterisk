@@ -2,29 +2,27 @@
 // Re-exports from all sub-modules for unified access.
 
 // Parsing
-export { parseCsvFile, CsvParseError } from './parsing/csv-parser';
-export {
-  detectDateFormat,
-  parseDate,
-  parseDateFlexible,
-} from './parsing/date-parser';
-export { detectAmountLocale, parseAmount } from './parsing/amount-parser';
-export {
-  detectEncoding,
-  decodeBuffer,
-  decodeBufferWithWarning,
-  countReplacementChars,
-} from './parsing/encoding-detector';
-export type { DecodeWarning } from './parsing/types';
-export { detectSeparator } from './parsing/separator-detector';
-export { detectDataBoundaries } from './parsing/data-boundary-detector';
+export { parseCsvFile } from './parsing/csv-parser/parse-csv-file';
+export { CsvParseError } from './parsing/csv-parser/helpers/csv-parse-error';
+export { detectDateFormat } from './parsing/date-parser/detect-date-format';
+export { parseDate } from './parsing/date-parser/parse-date';
+export { parseDateFlexible } from './parsing/date-parser/parse-date-flexible';
+export { detectAmountLocale } from './parsing/amount-parser/detect-amount-locale';
+export { parseAmount } from './parsing/amount-parser/parse-amount';
+export { detectEncoding } from './parsing/encoding-detector/detect-encoding';
+export { decodeBuffer } from './parsing/encoding-detector/decode-buffer';
+export { decodeBufferWithWarning } from './parsing/encoding-detector/decode-buffer-with-warning';
+export { countReplacementChars } from './parsing/encoding-detector/helpers/count-replacement-chars';
+export type { DecodeWarning } from './parsing/types/decode-warning';
+export { detectSeparator } from './parsing/separator-detector/detect-separator';
+export { detectDataBoundaries } from './parsing/data-boundary-detector/detect-data-boundaries';
 
 // Column Mapping
 export { autoDetectMapping } from './column-mapping/auto-detect';
 export { normalizeHeader } from './column-mapping/normalize-header';
 export { isDomainField } from './column-mapping/validators/is-domain-field';
 export { hasRequiredFields } from './column-mapping/validators/has-required-fields';
-export { MERGEABLE_FIELDS } from './column-mapping';
+export { MERGEABLE_FIELDS } from './column-mapping/mergeable-fields';
 export { createHeuristicRegistry } from './column-mapping/heuristics/create-heuristic-registry';
 export { defaultHeuristicRegistry } from './column-mapping/heuristics/default-heuristic-registry';
 export { createBankProfileRegistry } from './column-mapping/bank-profiles/create-bank-profile-registry';
@@ -38,14 +36,13 @@ export { detectDuplicatesAgainstExisting } from './transformation/duplicate-dete
 export { findSimilarRows } from './transformation/find-similar-rows';
 
 // Submission
-export {
-  createImportChunks,
-  computeContentHash,
-  computeBatchHash,
-} from './submission/import-chunks';
+export { createImportChunks } from './submission/import-chunks/create-import-chunks';
+export { computeContentHash } from './submission/import-chunks/compute-content-hash';
+export { computeBatchHash } from './submission/import-chunks/compute-batch-hash';
 
 // Anonymization
-export { anonymizeTitle, processRows } from './anonymization/pipeline';
+export { anonymizeTitle } from './anonymization/pipeline/anonymize-title';
+export { processRows } from './anonymization/pipeline/process-rows';
 export { buildFromStubs } from './anonymization/dictionaries/build-from-stubs';
 export { createDictionaryProvider } from './anonymization/dictionaries/dictionary-provider-factory';
 export { devDictionaryProvider } from './anonymization/dictionaries/dev-provider';

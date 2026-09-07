@@ -67,7 +67,7 @@ export class HttpClient {
     return this.requestWithRetry<TResponse>('GET', path, undefined, options);
   }
 
-  async post<TResponse, TBody extends Record<string, unknown>>(
+  async post<TResponse, TBody extends object>(
     path: string,
     body: TBody,
     options?: RequestOptions,
@@ -75,7 +75,7 @@ export class HttpClient {
     return this.requestWithRetry<TResponse>('POST', path, body, options);
   }
 
-  async patch<TResponse, TBody extends Record<string, unknown>>(
+  async patch<TResponse, TBody extends object>(
     path: string,
     body: TBody,
     options?: RequestOptions,
@@ -83,7 +83,7 @@ export class HttpClient {
     return this.requestWithRetry<TResponse>('PATCH', path, body, options);
   }
 
-  async put<TResponse, TBody extends Record<string, unknown>>(
+  async put<TResponse, TBody extends object>(
     path: string,
     body: TBody,
     options?: RequestOptions,
@@ -101,7 +101,7 @@ export class HttpClient {
   private async requestWithRetry<TResponse>(
     method: HttpMethod,
     path: string,
-    body?: Record<string, unknown>,
+    body?: object,
     options?: RequestOptions,
   ): Promise<TResponse> {
     try {
@@ -134,7 +134,7 @@ export class HttpClient {
   private async request<TResponse>(
     method: HttpMethod,
     path: string,
-    body?: Record<string, unknown>,
+    body?: object,
     options?: RequestOptions,
   ): Promise<TResponse> {
     const headers = this.buildHeaders(options);

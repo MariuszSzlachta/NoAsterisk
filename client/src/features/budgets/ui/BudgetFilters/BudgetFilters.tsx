@@ -5,7 +5,8 @@ import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';
 import type { FilterTab } from '#shared/ui/FilterTabs';
 
-import type { BudgetFilterTab, BudgetPeriodFilter } from '#features/budgets/model/types';
+import type { BudgetFilterTab } from '#features/budgets/model/types/budget-filter-tab';
+import type { BudgetPeriodFilter } from '#features/budgets/model/types/budget-period-filter';
 
 // ─── Props ───────────────────────────────────────────────────────
 

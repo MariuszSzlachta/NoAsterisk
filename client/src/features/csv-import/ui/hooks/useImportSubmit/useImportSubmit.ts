@@ -30,7 +30,7 @@ const submitWithRetry = async (
     Promise<{ saved: number; duplicatesSkipped: number } | { error: string } | null>
   >(async (prevPromise, attempt) => {
     const prev = await prevPromise;
-    if (prev !== null && !('error' in prev)) {
+    if (prev !== null) {
       return prev;
     }
 
@@ -120,7 +120,7 @@ export const useImportSubmit = (): UseImportSubmitResult => {
       .map((chunk, i) => ({ chunk, index: i }))
       .filter(({ index }) => !completedChunkIndices.has(index));
 
-    const { savedTotal, duplicatesTotal, errors, newCompleted } =
+    const { errors, newCompleted } =
       await pendingChunks.reduce<
         Promise<{
           savedTotal: number;

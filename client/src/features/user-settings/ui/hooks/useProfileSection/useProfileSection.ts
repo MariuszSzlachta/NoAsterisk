@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { useProfileQuery } from '#features/user-settings/api/useProfileQuery';
 import { useUpdateProfileMutation } from '#features/user-settings/api/useUpdateProfileMutation';
-import type { ProfileData } from '#features/user-settings/model/types/profile-data';
 import { validateDisplayName } from '#features/user-settings/model/validate-display-name';
 import type { DisplayNameError } from '#features/user-settings/model/validate-display-name/display-name-error';
 import type { UseProfileSectionResult } from '#features/user-settings/ui/hooks/useProfileSection/use-profile-section-result';

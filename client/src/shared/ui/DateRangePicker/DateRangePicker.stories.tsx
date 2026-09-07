@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof DateRangePicker>;
 
 export const Default: Story = {
-  render: () => {
+  render: function DefaultStory() {
     const [selected, setSelected] = useState<DateRange | undefined>(undefined);
 
     return (
@@ -35,7 +35,7 @@ export const Default: Story = {
 };
 
 export const WithSelection: Story = {
-  render: () => {
+  render: function WithSelectionStory() {
     const [selected, setSelected] = useState<DateRange | undefined>({
       from: new Date(2026, 6, 1),
       to: new Date(2026, 6, 13),
@@ -55,7 +55,7 @@ export const WithSelection: Story = {
 };
 
 export const CustomPlaceholder: Story = {
-  render: () => {
+  render: function CustomPlaceholderStory() {
     const [selected, setSelected] = useState<DateRange | undefined>(undefined);
 
     return (
@@ -76,7 +76,7 @@ export const CustomPlaceholder: Story = {
 };
 
 export const NoPresets: Story = {
-  render: () => {
+  render: function NoPresetsStory() {
     const [selected, setSelected] = useState<DateRange | undefined>(undefined);
 
     return (
@@ -93,7 +93,8 @@ export const NoPresets: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => (
+  render: function DisabledStory() {
+    return (
     <div className="flex flex-col gap-4">
       <section>
         <h3 className="mb-3 text-sm font-medium text-muted-foreground">
@@ -102,5 +103,6 @@ export const Disabled: Story = {
         <DateRangePicker onSelect={() => undefined} disabled />
       </section>
     </div>
-  ),
+    );
+  },
 };

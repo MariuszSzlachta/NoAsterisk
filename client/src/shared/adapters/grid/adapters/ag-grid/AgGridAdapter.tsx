@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   AllCommunityModule,
-  createTheme,
   ModuleRegistry,
   themeQuartz,
   type ColDef,
@@ -18,13 +17,11 @@ import { PaginationBar } from '#shared/ui/PaginationBar';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const budgetTheme = createTheme()
-  .withPart(themeQuartz)
+const budgetTheme = themeQuartz
   .withParams({
     foregroundColor: 'var(--fg)',
     backgroundColor: 'transparent',
     headerBackgroundColor: 'var(--surface-2)',
-    headerForegroundColor: 'var(--fg-subtle)',
     headerFontSize: 11.5,
     headerFontWeight: 500,
     headerTextColor: 'var(--fg-subtle)',
@@ -142,11 +139,12 @@ export const AgGridAdapter = <TRow,>({
     : columnDefs;
 
   const handleGetRowClass = getRowClass
-    ? (params: { data: TRow }): string | undefined => getRowClass(params.data)
+    ? (params: { data: TRow | undefined }): string | undefined =>
+        params.data === undefined ? undefined : getRowClass(params.data)
     : undefined;
 
   const handleCellClicked = onCellClick
-    ? (params: { data: TRow; colDef: { field?: string } }): void => {
+    ? (params: { data: TRow | undefined; colDef: { field?: string } }): void => {
         if (params.data && params.colDef.field) {
           onCellClick(params.data, params.colDef.field);
         }

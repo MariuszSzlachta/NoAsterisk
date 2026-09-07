@@ -19,7 +19,7 @@ interface DataTableProps<TRow> {
   readonly className?: string;
 }
 
-export const DataTable = <TRow extends Record<string, unknown>>({
+export const DataTable = <TRow extends object>({
   columns,
   data,
   rowKey,
@@ -105,7 +105,7 @@ export const DataTable = <TRow extends Record<string, unknown>>({
                   >
                     {col.render
                       ? col.render(row, i)
-                      : String(row[col.key] ?? '')}
+                      : String((row as Record<string, unknown>)[col.key] ?? '')}
                   </td>
                 ))}
               </tr>

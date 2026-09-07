@@ -113,7 +113,11 @@ export const useImportWizardStore = create<ImportWizardState>()(
         if (idx === -1) {
           return;
         }
-        draft[idx] = { ...draft[idx], ...updates };
+        const row = draft[idx];
+        if (!row) {
+          return;
+        }
+        Object.assign(row, updates);
         // SECURITY: title change invalidates anonymization entry at this index.
         // Caller (anonymization step hook) MUST re-run detection after updating.
         if (updates.title !== undefined && import.meta.env.DEV) {
@@ -164,7 +168,11 @@ export const useImportWizardStore = create<ImportWizardState>()(
           if (idx === -1) {
             return;
           }
-          draft[idx] = { ...draft[idx], [pending.field]: pending.newValue };
+          const row = draft[idx];
+          if (!row) {
+            return;
+          }
+          Object.assign(row, { [pending.field]: pending.newValue });
         });
         state.batchEditPanel = { isOpen: false, pendingEdit: undefined };
       }),

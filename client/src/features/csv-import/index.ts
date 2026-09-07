@@ -24,7 +24,8 @@ export { computeContentHash } from './model/submission/import-chunks/compute-con
 export { computeBatchHash } from './model/submission/import-chunks/compute-batch-hash';
 export { detectDuplicatesInBatch } from './model/transformation/duplicate-detector/detect-duplicates-in-batch';
 export { detectDuplicatesAgainstExisting } from './model/transformation/duplicate-detector/detect-duplicates-against-existing';
-export { anonymizeTitle, processRows } from './model/anonymization/pipeline';
+export { anonymizeTitle } from './model/anonymization/pipeline/anonymize-title';
+export { processRows } from './model/anonymization/pipeline/process-rows';
 export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
 export { createDictionaryProvider } from './model/anonymization/dictionaries/dictionary-provider-factory';
 export { devDictionaryProvider } from './model/anonymization/dictionaries/dev-provider';

@@ -5,7 +5,7 @@ import { formatAmount } from '#shared/lib';
 import { Button } from '#shared/ui/Button';
 import { Select } from '#shared/ui/Select';
 
-import type { BudgetViewModel } from '#features/budgets/model/types';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 import { usePeriodClosure } from '../hooks/usePeriodClosure';
 
 // ─── Props ───────────────────────────────────────────────────────

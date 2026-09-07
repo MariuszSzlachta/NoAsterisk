@@ -5,7 +5,8 @@ import { formatAmount } from '#shared/lib';
 import { Badge } from '#shared/ui/Badge';
 import { Progress } from '#shared/ui/Progress';
 
-import type { BudgetStatus, BudgetViewModel } from '#features/budgets/model/types';
+import type { BudgetStatus } from '#features/budgets/model/types/budget-status';
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
 import { useBudgetCard } from '../hooks/useBudgetCard';
 import { BudgetTransactionList } from './BudgetTransactionList';
 

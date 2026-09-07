@@ -1,3 +1,5 @@
+import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
+
 export interface UsePreferencesSectionResult {
   readonly preferences: PreferencesValues;
   readonly draft: PreferencesValues;

@@ -8,8 +8,6 @@ import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 import type { VaultPasswordDialogProps } from '#features/user-settings/ui/VaultPasswordDialog/vault-password-dialog-props';
 
-import type { VaultPasswordMode } from '#features/user-settings/ui/VaultPasswordDialog/vault-password-mode';
-
 export const VaultPasswordDialog = ({
   mode,
   error,

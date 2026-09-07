@@ -1,3 +1,6 @@
+import type { DisplayNameError } from '#features/user-settings/model/validate-display-name/display-name-error';
+import type { ProfileData } from '#features/user-settings/model/types/profile-data';
+
 export interface UseProfileSectionResult {
   readonly profile: ProfileData | undefined;
   readonly isLoading: boolean;

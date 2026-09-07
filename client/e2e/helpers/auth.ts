@@ -35,10 +35,6 @@ export const setupAuthenticatedUser = async (
 
   // Inject token before page scripts run
   await page.addInitScript(() => {
-    // Override the authTokens module's closure
-    let fakeToken: string | undefined = 'e2e-fake-token';
-    const originalDefineProperty = Object.defineProperty;
-    // Intercept the module's getter by patching localStorage as a signal
     window.localStorage.setItem('__e2e_auth', 'true');
   });
 };

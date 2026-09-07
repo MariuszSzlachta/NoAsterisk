@@ -6,6 +6,10 @@ import {
   type AnalyticsFilters,
   type CategoryBreakdownFilters,
 } from '#features/analytics';
+import type {
+  AnalyticsKpi,
+  AnalyticsSeries,
+} from '#features/analytics/model/types';
 import type { QueryState } from '#shared/api';
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -15,8 +19,8 @@ const BREAKDOWN_METRICS = ['expenses', 'income'] as const;
 // ─── Types ───────────────────────────────────────────────────────
 
 interface AnalyticsQueryData {
-  readonly series: ReadonlyArray<unknown>;
-  readonly kpis: ReadonlyArray<unknown>;
+  readonly series: AnalyticsSeries[];
+  readonly kpis: AnalyticsKpi[];
 }
 
 interface UseAnalyticsPageDataResult {

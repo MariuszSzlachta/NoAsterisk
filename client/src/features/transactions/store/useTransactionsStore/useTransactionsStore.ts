@@ -40,7 +40,10 @@ export const useTransactionsStore = create<TransactionsState>()(
             { id: transaction.id, description: transaction.description, categoryId: undefined },
           ]);
           if (results.length > 0) {
-            finalTransaction = { ...transaction, categoryId: results[0].categoryId };
+            const result = results[0];
+            if (result) {
+              finalTransaction = { ...transaction, categoryId: result.categoryId };
+            }
           }
         }
 

@@ -1,5 +1,4 @@
 export type {
-  CategoryInfo,
   StoredTransaction,
   TransactionFilters,
   TransactionPage,
@@ -9,6 +8,7 @@ export type {
   TransactionType,
   TransactionViewModel,
 } from './types';
+export type { CategoryInfo } from '#entities/category';
 
 export {
   computeStats,

@@ -1,4 +1,16 @@
-export const CARD_BRAND_PREFIXES: Readonly<Record<string, string>> = {
+interface CardBrandPrefixes {
+  readonly visa: string;
+  readonly mastercardRangeStart: string;
+  readonly mastercardRangeEnd: string;
+  readonly mastercard2RangeStart: string;
+  readonly mastercard2RangeEnd: string;
+  readonly maestro: string;
+  readonly maestro50: string;
+  readonly amex34: string;
+  readonly amex37: string;
+}
+
+export const CARD_BRAND_PREFIXES: CardBrandPrefixes = {
   visa: '4',
   mastercardRangeStart: '51',
   mastercardRangeEnd: '55',

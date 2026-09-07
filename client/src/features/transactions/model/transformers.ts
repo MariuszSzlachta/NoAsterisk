@@ -3,11 +3,8 @@
 // StoredTransaction → TransactionViewModel
 // ═══════════════════════════════════════════════════════════════════
 
-import type {
-  CategoryInfo,
-  StoredTransaction,
-  TransactionViewModel,
-} from './types';
+import type { CategoryInfo } from '#entities/category';
+import type { StoredTransaction, TransactionViewModel } from './types';
 
 // ─── Constants ───────────────────────────────────────────────────
 

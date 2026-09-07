@@ -12,7 +12,6 @@ const createMockResponse = (
   });
 
 describe('HttpClient', () => {
-  // REVIEW [P1]: Brakuje testu najbardziej wrażliwej ścieżki auth: 401 → refresh z poprawnym kontraktem → ponowienie requestu oraz 401 po refreshu → clear sesji. Bez tych testów obecna niezgodność body/nazw pól refresh tokenu mogła przejść niezauważona.
   let client: HttpClient;
   const tokenProvider = vi.fn<() => string | undefined>();
 

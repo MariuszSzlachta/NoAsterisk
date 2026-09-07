@@ -1,5 +1,6 @@
 import { USERS_ME_CHANGE_PASSWORD_PATH } from '#features/user-settings/api/constants/users-me-change-password-path';
 import type { ChangePasswordBody } from '#features/user-settings/api/useChangePasswordMutation/change-password-body';
+import type { ChangePasswordResponse } from '#features/user-settings/api/useChangePasswordMutation/change-password-response';
 import type { MutationState } from '#features/user-settings/api/useChangePasswordMutation/mutation-state';
 import type { UseChangePasswordMutationResult } from '#features/user-settings/api/useChangePasswordMutation/use-change-password-mutation-result';
 

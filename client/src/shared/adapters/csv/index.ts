@@ -19,7 +19,7 @@ export interface CsvParseResult<TRow> {
  * Port interface — CSV parsing adapter.
  * Current implementation: papaparse. Swappable without touching features.
  */
-export const parseCsv = <TRow extends Record<string, string>>(
+export const parseCsv = <TRow>(
   text: string,
   options: CsvParseOptions,
 ): CsvParseResult<TRow> => {

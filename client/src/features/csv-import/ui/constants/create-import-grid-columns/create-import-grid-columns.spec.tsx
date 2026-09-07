@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { createImportGridColumns } from './create-import-grid-columns';
 
@@ -18,7 +18,7 @@ describe('createImportGridColumns', () => {
       const { container } = render(
         renderer({
           value,
-          data: {} as never,
+          data: { amount: value } as never,
           rowIndex: 0,
         }) as React.ReactElement,
       );

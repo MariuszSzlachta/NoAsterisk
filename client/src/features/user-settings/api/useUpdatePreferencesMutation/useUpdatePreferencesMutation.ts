@@ -1,5 +1,4 @@
 import { USERS_ME_PREFERENCES_PATH } from '#features/user-settings/api/constants/users-me-preferences-path';
-import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
 import type { MutationState } from '#features/user-settings/api/useUpdatePreferencesMutation/mutation-state';
 import type { UseUpdatePreferencesMutationResult } from '#features/user-settings/api/useUpdatePreferencesMutation/use-update-preferences-mutation-result';
 

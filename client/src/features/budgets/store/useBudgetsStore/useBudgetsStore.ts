@@ -121,7 +121,7 @@ export const useBudgetsStore = create<BudgetsState>()(
                   ...(props.limitCurrency !== undefined && { limitCurrency: props.limitCurrency.toUpperCase() }),
                   ...(props.period !== undefined && { period: props.period }),
                   ...(props.categoryIds !== undefined && { categoryIds: props.categoryIds }),
-                }
+                } as BudgetRecord
               : b,
           ),
         }));
@@ -207,7 +207,7 @@ export const useBudgetsStore = create<BudgetsState>()(
         set((state) => ({
           budgets: state.budgets.map((b) =>
             b.id === params.budgetId
-              ? { ...b, period: params.nextPeriod, limitAmount: newLimit }
+              ? ({ ...b, period: params.nextPeriod, limitAmount: newLimit } as BudgetRecord)
               : b,
           ),
         }));

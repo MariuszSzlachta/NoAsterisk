@@ -1,6 +1,6 @@
 // User Settings — VaultSection Component
 
-import { Download, Lock, RotateCcw, Upload } from 'lucide-react';
+import { Download, Lock, RefreshCw, RotateCcw, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
@@ -127,5 +127,4 @@ export const VaultSection = (): React.JSX.Element => {
     </>
   );
 };
-
 

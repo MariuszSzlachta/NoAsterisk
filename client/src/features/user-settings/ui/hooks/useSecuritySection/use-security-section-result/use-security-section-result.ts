@@ -1,3 +1,6 @@
+import type { PasswordFormValues } from '#features/user-settings/model/types/password-form-values';
+import type { PasswordValidationRules } from '#features/user-settings/model/types/password-validation-rules';
+
 export interface UseSecuritySectionResult {
   readonly formValues: PasswordFormValues;
   readonly showPasswords: boolean;

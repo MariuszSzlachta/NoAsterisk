@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof Calendar>;
 
 export const Single: Story = {
-  render: () => {
+  render: function SingleStory() {
     const [selected, setSelected] = useState<Date | undefined>(undefined);
 
     return (
@@ -35,7 +35,7 @@ export const Single: Story = {
 };
 
 export const Range: Story = {
-  render: () => {
+  render: function RangeStory() {
     const [selected, setSelected] = useState<DateRange | undefined>(undefined);
 
     return (
@@ -59,7 +59,7 @@ export const Range: Story = {
 };
 
 export const TwoMonths: Story = {
-  render: () => {
+  render: function TwoMonthsStory() {
     const [selected, setSelected] = useState<DateRange | undefined>(undefined);
 
     return (
@@ -83,7 +83,7 @@ export const TwoMonths: Story = {
 };
 
 export const WithDisabledDates: Story = {
-  render: () => {
+  render: function WithDisabledDatesStory() {
     const [selected, setSelected] = useState<Date | undefined>(undefined);
     const today = new Date();
     const disableFuture = (date: Date): boolean => date > today;

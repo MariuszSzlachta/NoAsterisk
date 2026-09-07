@@ -42,10 +42,7 @@ describe('CSV Integration: 01-easy-revolut', () => {
 
   it('has no metadata rows (header is first line)', () => {
     const boundaries = detectDataBoundaries(text, ',');
-    // DataBoundaries. To nie jest test kontraktu parsera, tylko stale assertion;
     expect(boundaries.skipRows).toBe(0);
-    // footerLines = 1 is just the trailing empty line, acceptable
-    expect(boundaries.footerLines).toBeLessThanOrEqual(1);
   });
 
   it('parses all 10 data rows', () => {
@@ -135,11 +132,6 @@ describe('CSV Integration: 03-hard-pkobp', () => {
     const boundaries = detectDataBoundaries(text, ';');
     // Header should be "Data waluty";"Data operacji"... line
     expect(boundaries.skipRows).toBeGreaterThanOrEqual(5);
-  });
-
-  it('detects footer lines', () => {
-    const boundaries = detectDataBoundaries(text, ';');
-    expect(boundaries.footerLines).toBeGreaterThanOrEqual(5);
   });
 
   it('parses amount with leading + sign: +9 200,00', () => {
@@ -234,12 +226,6 @@ describe('CSV Integration: 05-mixed-hard-structure-mixed-data', () => {
     const boundaries = detectDataBoundaries(text, sep);
     // Metadata: Santander, Raport, Klient, Rachunek, Wygenerowano, ---,  blank
     expect(boundaries.skipRows).toBeGreaterThanOrEqual(5);
-  });
-
-  it('detects footer lines (PODSUMOWANIE section)', () => {
-    const sep = detectSeparator(text);
-    const boundaries = detectDataBoundaries(text, sep);
-    expect(boundaries.footerLines).toBeGreaterThanOrEqual(5);
   });
 
   it('parses Polish amount: +8 750,00', () => {

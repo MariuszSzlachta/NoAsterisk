@@ -19,13 +19,17 @@ export const validateNationalId = (
     ...Array.from(digits, (ch) => parseInt(ch, RADIX)),
   ];
 
-  const sum = ID_WEIGHTS.reduce((acc, weight, i) => {
+  let sum = 0;
+  for (let i = 0; i < ID_WEIGHTS.length; i += 1) {
     if (i === CHECKSUM_INDEX) {
-      return acc;
+      continue;
     }
     const v = values[i];
-    return v !== undefined ? acc + v * weight : acc;
-  }, 0);
+    const weight = ID_WEIGHTS[i];
+    if (v !== undefined && weight !== undefined) {
+      sum += v * weight;
+    }
+  }
 
   const checkValue = values[CHECKSUM_INDEX];
   return checkValue !== undefined && sum % CHECKSUM_MODULO === checkValue;

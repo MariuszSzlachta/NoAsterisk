@@ -36,7 +36,6 @@ export const BudgetsPage = (): React.JSX.Element => {
     handleCloseClosureModal,
   } = useBudgetsPage();
 
-  // REVIEW [P0]: Strona nie ma testu komponentowego ani e2e, więc cała kompozycja feature'a (filtry → grid → closure → savings) jest niezweryfikowana. To krytyczna luka, bo hooki są mocno zamockowane i nie testują rzeczywistych granic.
   return (
     <div className="flex flex-col gap-6">
       <BudgetKpiRow />
@@ -49,7 +48,6 @@ export const BudgetsPage = (): React.JSX.Element => {
         customRange={customRange}
         onCustomRangeChange={handleCustomRangeChange}
       />
-      {/* REVIEW [P0]: `onAssignTransaction` nie jest przekazane, więc akcja assign w BudgetCard nigdy się nie pojawi. `AssignTransactionModal` nie jest też montowany na stronie — istniejąca implementacja jest martwą ścieżką użytkownika. */}
       <BudgetGrid activeTab={activeTab} selectedPeriod={selectedPeriod} customRange={customRange} onClosePeriod={handleClosePeriod} />
 
       {closingBudgetId && closingBudgetVm && (
@@ -86,7 +84,6 @@ export const BudgetsPage = (): React.JSX.Element => {
         )}
       </section>
 
-      {/* REVIEW [P0]: Formularz jest podłączony wyłącznie do tworzenia savings. Nie ma ścieżki create/edit dla standard budget, mimo że komponent i `editBudget` ją obsługują; publiczne API feature'a jest niekompletne. */}
       <BudgetFormModal
         isOpen={isSavingsFormOpen}
         initialBudgetType="savings"

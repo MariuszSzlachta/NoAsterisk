@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import type { TransactionRow } from '#features/csv-import/model/types';
 import { BatchEditPanel } from '#features/csv-import/ui/BatchEditPanel';
 import { createImportGridColumns } from '#features/csv-import/ui/constants/create-import-grid-columns';
 import { IMPORT_GRID_ROW_HEIGHT } from '#features/csv-import/ui/constants/import-grid-row-height';
@@ -61,26 +60,26 @@ export const ImportPreviewGrid = (): React.JSX.Element => {
       )}
 
       <div className="flex items-center gap-3">
-        <Badge variant="default">
+        <Badge variant="soft" color="neutral">
           {t('import.preview.rows', { count: stats.total })}
         </Badge>
         {stats.ok > 0 && (
-          <Badge variant="success">
+          <Badge variant="soft" color="income">
             {t('import.preview.ok', { count: stats.ok })}
           </Badge>
         )}
         {stats.warnings > 0 && (
-          <Badge variant="warning">
+          <Badge variant="soft" color="warning">
             {t('import.preview.warnings', { count: stats.warnings })}
           </Badge>
         )}
         {stats.duplicates > 0 && (
-          <Badge variant="muted">
+          <Badge variant="soft" color="neutral">
             {t('import.preview.duplicates', { count: stats.duplicates })}
           </Badge>
         )}
         {stats.errors > 0 && (
-          <Badge variant="destructive">
+          <Badge variant="soft" color="expense">
             {t('import.preview.errors', { count: stats.errors })}
           </Badge>
         )}

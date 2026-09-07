@@ -32,12 +32,14 @@ export const createImportChunks = async (
       batchHash,
       sourceFilename: options.sourceFilename,
       profileId: options.profileId,
-      rows: chunkRows.map((row, rowIndex) =>
-        mapRowToPayload(
-          row,
-          contentHashes[chunkIndex * MAX_ROWS_PER_CHUNK + rowIndex],
-        ),
-      ),
+      rows: chunkRows.map((row, rowIndex) => {
+        const contentHash =
+          contentHashes[chunkIndex * MAX_ROWS_PER_CHUNK + rowIndex];
+        if (contentHash === undefined) {
+          throw new Error('Missing content hash for import row');
+        }
+        return mapRowToPayload(row, contentHash);
+      }),
     }),
   );
 };

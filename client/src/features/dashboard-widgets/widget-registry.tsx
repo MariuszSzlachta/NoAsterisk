@@ -18,15 +18,17 @@ import { TrendChartWidget } from '#features/dashboard-widgets/ui/TrendChartWidge
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 import { Skeleton } from '#shared/ui/Skeleton';
 
-export enum WidgetType {
-  KpiRow = 'KpiRow',
-  TrendChart = 'TrendChart',
-  CategoryDonut = 'CategoryDonut',
-  SavingsRate = 'SavingsRate',
-  BudgetProgress = 'BudgetProgress',
-  RecentTransactions = 'RecentTransactions',
-  RecurringExpenses = 'RecurringExpenses',
-}
+export const WidgetType = {
+  KpiRow: 'KpiRow',
+  TrendChart: 'TrendChart',
+  CategoryDonut: 'CategoryDonut',
+  SavingsRate: 'SavingsRate',
+  BudgetProgress: 'BudgetProgress',
+  RecentTransactions: 'RecentTransactions',
+  RecurringExpenses: 'RecurringExpenses',
+} as const;
+
+export type WidgetType = (typeof WidgetType)[keyof typeof WidgetType];
 
 interface WidgetConfig {
   readonly id: WidgetType;

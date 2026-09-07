@@ -32,13 +32,16 @@ export const transformRows = (
   const amountCol = firstCol(fieldToColumns, 'amount');
   const debitCol = firstCol(fieldToColumns, 'debit');
   const creditCol = firstCol(fieldToColumns, 'credit');
-  const hasAmountSource = amountCol || debitCol || creditCol;
+  const hasAmountSource = amountCol ?? debitCol ?? creditCol;
 
   if (!dateCols?.length || !titleCols?.length || !hasAmountSource) {
     throw new Error(ERROR_MESSAGE_REQUIRED_FIELDS);
   }
 
   const dateCol = dateCols[0];
+  if (dateCol === undefined) {
+    throw new Error(ERROR_MESSAGE_REQUIRED_FIELDS);
+  }
   const currencyCol = firstCol(fieldToColumns, 'currency');
   const balanceCol = firstCol(fieldToColumns, 'balance');
   const categoryCol = firstCol(fieldToColumns, 'category');

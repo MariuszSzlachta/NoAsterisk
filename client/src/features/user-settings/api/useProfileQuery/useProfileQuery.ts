@@ -4,8 +4,6 @@ import type { UseProfileQueryResult } from '#features/user-settings/api/useProfi
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { PreferencesValues } from '#features/user-settings/model/types/preferences-values';
-import type { ProfileData } from '#features/user-settings/model/types/profile-data';
 import { apiClient } from '#shared/api';
 
 export const useProfileQuery = (): UseProfileQueryResult => {

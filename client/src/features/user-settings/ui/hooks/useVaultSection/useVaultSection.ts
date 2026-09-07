@@ -9,7 +9,6 @@ import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault
 import { isValidVaultItem } from '#features/user-settings/model/decrypt-vault-payload/is-valid-vault-item';
 import { encryptVault } from '#features/user-settings/model/encrypt-vault';
 import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
-import type { VaultPayload } from '#features/user-settings/model/vault-payload';
 import type { DataStats } from '#features/user-settings/model/types/data-stats';
 import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
 import { computeVaultStatus } from '#features/user-settings/model/compute-vault-status';

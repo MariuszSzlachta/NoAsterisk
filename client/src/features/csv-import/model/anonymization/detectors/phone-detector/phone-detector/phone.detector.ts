@@ -37,7 +37,7 @@ export const phoneDetector: PiiDetector = {
           const firstDigit = digits[0];
           return (
             firstDigit !== undefined &&
-            PL_MOBILE_PREFIXES.includes(firstDigit)
+            PL_MOBILE_PREFIXES.some((prefix) => prefix === firstDigit)
           );
         })
         .map((match): DetectionSpan => {

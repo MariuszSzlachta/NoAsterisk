@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { useChangePasswordMutation } from '#features/user-settings/api/useChangePasswordMutation';
 import type { PasswordFormValues } from '#features/user-settings/model/types/password-form-values';
-import type { PasswordValidationRules } from '#features/user-settings/model/types/password-validation-rules';
 import { isPasswordFormValid } from '#features/user-settings/model/is-password-form-valid';
 import { validatePasswordForm } from '#features/user-settings/model/validate-password-form';
 import { INITIAL_FORM } from '#features/user-settings/ui/hooks/useSecuritySection/constants/initial-form';

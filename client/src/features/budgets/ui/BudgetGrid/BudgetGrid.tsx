@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import type { DateRange } from 'react-day-picker';
 
-import type { BudgetFilterTab, BudgetPeriodFilter } from '#features/budgets/model/types';
+import type { BudgetFilterTab } from '#features/budgets/model/types/budget-filter-tab';
+import type { BudgetPeriodFilter } from '#features/budgets/model/types/budget-period-filter';
 
 import { BudgetCard } from '../BudgetCard';
 import { useBudgetGrid } from '../hooks/useBudgetGrid';

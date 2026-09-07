@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { dictionaryProvider } from '#features/csv-import/api/dictionaryProvider';
-import { processRows } from '#features/csv-import/model/anonymization/pipeline';
+import { processRows } from '#features/csv-import/model/anonymization/pipeline/process-rows';
 import { autoDetectMapping } from '#features/csv-import/model/column-mapping/auto-detect';
 import { hasRequiredFields } from '#features/csv-import/model/column-mapping/validators/has-required-fields';
 import { parseCsvFile } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file';
@@ -76,7 +76,6 @@ export const useImportWizard = (): ImportWizardResult => {
         err instanceof Error ? err.message : 'Failed to parse file';
 
       if (import.meta.env.DEV) {
-        // potrzebny jest sanitised diagnostic event.
         console.warn('[csv-import] Parse FAILED', {
           file: file.name,
           size: file.size,
@@ -126,7 +125,7 @@ export const useImportWizard = (): ImportWizardResult => {
           anonymized: anonymizationEntries.filter(
             (e) => e.status === 'anonymized',
           ).length,
-          duplicates: withDuplicates.filter((r) => r.isDuplicate).length,
+          duplicates: withDuplicates.filter((r) => r.status === 'duplicate').length,
           mapping: columnMapping,
         });
       }

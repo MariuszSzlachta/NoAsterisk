@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
-import type { ConfirmDialogField } from '#features/user-settings/ui/ConfirmDialog/confirm-dialog-field';
 import type { ConfirmDialogProps } from '#features/user-settings/ui/ConfirmDialog/confirm-dialog-props';
 
 export const ConfirmDialog = ({

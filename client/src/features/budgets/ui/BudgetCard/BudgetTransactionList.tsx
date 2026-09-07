@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formatAmount } from '#shared/lib';
 
-import type { BudgetTransactionVM } from '#features/budgets/model/types';
+import type { BudgetTransactionVM } from '#features/budgets/model/types/budget-transaction-vm';
 
 // ─── Props ───────────────────────────────────────────────────────
 

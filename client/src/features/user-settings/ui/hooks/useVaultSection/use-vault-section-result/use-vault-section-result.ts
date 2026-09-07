@@ -1,3 +1,7 @@
+import type { DataStats } from '#features/user-settings/model/types/data-stats';
+import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
+import type { VaultPasswordMode } from '#features/user-settings/ui/VaultPasswordDialog/vault-password-mode';
+
 export interface UseVaultSectionResult {
   readonly vaultInfo: VaultInfo;
   readonly dataStats: DataStats;

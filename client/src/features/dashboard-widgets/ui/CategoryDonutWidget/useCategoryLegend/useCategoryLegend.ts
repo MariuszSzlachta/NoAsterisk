@@ -27,7 +27,9 @@ export const useCategoryLegend = (
       return {
         label: item.label,
         percent: Math.round((item.value / total) * 100),
-        color: isGrouped ? 'var(--fg-subtle)' : colors[i % colors.length],
+        color: isGrouped
+          ? 'var(--fg-subtle)'
+          : (colors[i % colors.length] ?? 'var(--fg-subtle)'),
         isGrouped,
       };
     });

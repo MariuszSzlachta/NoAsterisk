@@ -41,7 +41,8 @@ const validateAmount = (amount: string): string | undefined => {
     return 'Kwota jest zbyt duża';
   }
   const decimalParts = trimmed.split('.');
-  if (decimalParts.length > 1 && decimalParts[1].length > MAX_DECIMAL_PLACES) {
+  const decimalPart = decimalParts[1];
+  if (decimalPart !== undefined && decimalPart.length > MAX_DECIMAL_PLACES) {
     return 'Maksymalnie 2 miejsca po przecinku';
   }
   return undefined;
