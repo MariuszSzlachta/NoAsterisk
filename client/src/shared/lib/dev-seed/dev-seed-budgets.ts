@@ -9,13 +9,20 @@
  *   seedBudgets()
  */
 
+import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
+import type { BudgetPeriodRecord } from '#features/budgets/model/types/budget-period-record';
+import { isBudgetRecord } from '#features/budgets/model/is-budget-record';
+import type { StoredTransaction } from '#features/transactions/model/types';
+import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
+import { encryptedPersistence } from '#shared/adapters/persistence/session';
+
 const BUDGET_IDS = {
   groceries: 'b-001-groceries',
   transport: 'b-002-transport',
   subscriptions: 'b-003-subscriptions',
   entertainment: 'b-004-entertainment',
   health: 'b-005-health',
-} as const;
+};
 
 const now = new Date();
 const year = now.getFullYear();
@@ -24,9 +31,22 @@ const month = String(now.getMonth() + 1).padStart(2, '0');
 const dateInMonth = (day: number): string =>
   `${year}-${month}-${String(day).padStart(2, '0')}`;
 
+interface SeedBudget {
+  readonly id: string;
+  readonly workspaceId: string;
+  readonly name: string;
+  readonly color: string;
+  readonly limitAmount: number;
+  readonly limitCurrency: string;
+  readonly period: BudgetPeriodRecord;
+  readonly categoryIds: readonly string[];
+  readonly createdAt: string;
+  readonly isArchived: boolean;
+}
+
 // ─── Budget Records ──────────────────────────────────────────────
 
-const budgets = [
+const budgets: ReadonlyArray<SeedBudget> = [
   {
     id: BUDGET_IDS.groceries,
     workspaceId: 'default',
@@ -34,7 +54,7 @@ const budgets = [
     color: '#22c55e',
     limitAmount: 2500,
     limitCurrency: 'PLN',
-    period: { type: 'monthly' as const },
+    period: { type: 'monthly' },
     categoryIds: ['cat-groceries'],
     createdAt: '2025-01-01T00:00:00.000Z',
     isArchived: false,
@@ -46,7 +66,7 @@ const budgets = [
     color: '#3b82f6',
     limitAmount: 800,
     limitCurrency: 'PLN',
-    period: { type: 'monthly' as const },
+    period: { type: 'monthly' },
     categoryIds: ['cat-transport'],
     createdAt: '2025-01-01T00:00:00.000Z',
     isArchived: false,
@@ -58,7 +78,7 @@ const budgets = [
     color: '#a855f7',
     limitAmount: 350,
     limitCurrency: 'PLN',
-    period: { type: 'monthly' as const },
+    period: { type: 'monthly' },
     categoryIds: ['cat-subscriptions'],
     createdAt: '2025-02-01T00:00:00.000Z',
     isArchived: false,
@@ -70,7 +90,7 @@ const budgets = [
     color: '#f59e0b',
     limitAmount: 600,
     limitCurrency: 'PLN',
-    period: { type: 'monthly' as const },
+    period: { type: 'monthly' },
     categoryIds: ['cat-entertainment'],
     createdAt: '2025-03-01T00:00:00.000Z',
     isArchived: false,
@@ -82,12 +102,19 @@ const budgets = [
     color: '#ef4444',
     limitAmount: 400,
     limitCurrency: 'PLN',
-    period: { type: 'monthly' as const },
+    period: { type: 'monthly' },
     categoryIds: ['cat-health'],
     createdAt: '2025-03-15T00:00:00.000Z',
     isArchived: false,
   },
 ];
+
+const toSeededBudget = (budget: SeedBudget): BudgetRecord => ({
+  ...budget,
+  budgetType: 'standard',
+});
+
+const seededBudgets: ReadonlyArray<BudgetRecord> = budgets.map(toSeededBudget);
 
 // ─── Transaction Records (assigned to budgets) ───────────────────
 
@@ -128,40 +155,39 @@ const transactions = [
 
 // ─── Seed function ───────────────────────────────────────────────
 
-export const seedBudgets = (): void => {
-  // Zustand persist format: { state: {...}, version: 0 }
-  const budgetsPayload = JSON.stringify({
-    state: { budgets },
-    version: 0,
-  });
-
-  // Merge with existing transactions (don't overwrite user's data)
-  const existingRaw = localStorage.getItem('budget-transactions');
-  const existingTxs: unknown[] = existingRaw
-    ? (JSON.parse(existingRaw)?.state?.transactions ?? [])
-    : [];
-
-  // Remove any previous seed transactions (prefixed tx-b-)
-  const cleaned = (existingTxs as Array<{ id: string }>).filter(
-    (tx) => !tx.id.startsWith('tx-b-'),
+export const seedBudgets = async (): Promise<void> => {
+  const budgetRepository = encryptedPersistence.repository<BudgetRecord>(
+    'budgets',
+    isBudgetRecord,
+    (record) => record.id,
+  );
+  const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
+    'transactions',
+    isStoredTransaction,
+    (record) => record.id,
   );
 
-  const transactionsPayload = JSON.stringify({
-    state: { transactions: [...cleaned, ...transactions] },
-    version: 0,
-  });
+  if (!encryptedPersistence.isUnlocked()) {
+    throw new Error('Unlock the local vault before seeding development data');
+  }
 
-  localStorage.setItem('budget-budgets', budgetsPayload);
-  localStorage.setItem('budget-transactions', transactionsPayload);
+  const existingTransactions = await transactionRepository.getAll();
+  const cleaned = existingTransactions.filter((tx) => !tx.id.startsWith('tx-b-'));
+  await budgetRepository.replace(seededBudgets);
+  await transactionRepository.replace([...cleaned, ...transactions]);
 
-  // eslint-disable-next-line no-console
   console.log(
-    `✅ Seeded ${budgets.length} budgets + ${transactions.length} transactions.\n` +
-    `   Refresh the page to see them.`,
+    `✅ Seeded ${seededBudgets.length} budgets + ${transactions.length} transactions.`,
   );
 };
 
 // Auto-run when pasted in console
+declare global {
+  interface Window {
+    seedBudgets: () => Promise<void>;
+  }
+}
+
 if (typeof window !== 'undefined') {
-  (window as unknown as Record<string, unknown>).seedBudgets = seedBudgets;
+  window.seedBudgets = seedBudgets;
 }

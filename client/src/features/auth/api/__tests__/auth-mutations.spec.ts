@@ -35,7 +35,6 @@ vi.mock('#shared/api/auth-tokens', () => ({
 
 const buildAuthResponse = () => ({
   accessToken: 'test-access-token',
-  refreshToken: 'test-refresh-token',
   user: { id: 'u-1', email: 'test@example.com', role: 'Member' as const, workspaceId: 'ws-1' },
 });
 
@@ -309,7 +308,7 @@ describe('useRegisterMutation', () => {
   });
 
   it('rejects malformed response (missing user)', async () => {
-    mockPost.mockResolvedValue({ accessToken: 'tok', refreshToken: 'ref' });
+    mockPost.mockResolvedValue({ accessToken: 'tok' });
 
     const { result } = renderHook(() => useRegisterMutation());
 

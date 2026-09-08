@@ -1,1 +1,1 @@
-export const PBKDF2_ITERATIONS = 600_000;
+export { PBKDF2_ITERATIONS } from '#shared/adapters/persistence/crypto';

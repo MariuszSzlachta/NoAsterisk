@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Routing Guards', () => {
   test('non-superuser is redirected from /admin to /dashboard', async ({ page }) => {
@@ -41,6 +41,7 @@ test.describe('Routing Guards', () => {
     // Rules page is NOT behind RequireRole guard (it's a separate route)
     await setupAuthenticatedUser(page, 'Member');
     await page.goto('/admin/rules');
+    await unlockVault(page);
 
     // Should show rules page content
     await expect(page.getByText(/reguły kategoryzacji/i)).toBeVisible();

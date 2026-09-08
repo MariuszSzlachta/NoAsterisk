@@ -1,6 +1,19 @@
 {
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading application…"
+  },
+  "vaultUnlock": {
+    "title": "Unlock local vault",
+    "description": "Your financial data is encrypted in this browser. Enter your vault passphrase to decrypt it.",
+    "passphrase": "Vault passphrase",
+    "submit": "Unlock data",
+    "unlocking": "Unlocking…",
+    "securityNote": "The passphrase and encryption key are never persisted. Reopening the browser requires unlocking again.",
+    "storageWarning": "The browser did not grant persistent storage. Data may be evicted under storage pressure — keep encrypted backups.",
+    "errors": {
+      "failed": "Unable to unlock local data. Check the passphrase or the local database state."
+    }
   },
   "pagination": {
     "range": "{{start}}–{{end}} of {{total}}",

@@ -46,7 +46,6 @@ const buildSubmitEvent = (): FormEvent =>
 
 const buildAuthResponse = () => ({
   accessToken: 'jwt-token-123',
-  refreshToken: 'refresh-token-456',
   user: { id: 'u-1', email: 'user@budget.pl', role: 'Member' as const, workspaceId: 'ws-1' },
 });
 

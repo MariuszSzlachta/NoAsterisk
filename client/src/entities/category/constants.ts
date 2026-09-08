@@ -1,6 +1,6 @@
 import type { SelectOption } from '#shared/ui/Select';
 
-import type { CategoryInfo } from './types';
+import type { CategoryInfo } from '#entities/category/types';
 
 // TODO: Replace with real data from categories API/store when categories feature lands
 export const STUB_CATEGORIES: ReadonlyArray<CategoryInfo> = [

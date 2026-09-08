@@ -8,7 +8,9 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import {
   CurrentUser,
@@ -63,6 +65,7 @@ import {
   updatePreferencesSchema,
   UpdatePreferencesDto,
 } from '@user-settings/presentation/dto/update-preferences.dto';
+import { refreshTokenCookie } from '@auth/presentation/refresh-token-cookie';
 
 @Controller('users/me')
 export class UserSettingsController {
@@ -143,8 +146,13 @@ export class UserSettingsController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser() user: CurrentUserPayload): Promise<LogoutResult> {
-    return this.logoutHandler.execute({ userId: user.userId });
+  async logout(
+    @CurrentUser() user: CurrentUserPayload,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LogoutResult> {
+    const result = await this.logoutHandler.execute({ userId: user.userId });
+    refreshTokenCookie.clear(res);
+    return result;
   }
 
   @Delete()

@@ -4,8 +4,6 @@ import { TokenPort, TokenPayload } from '@auth/domain/ports/token.port';
 
 @Injectable()
 export class JwtTokenAdapter implements TokenPort {
-  private static readonly REFRESH_SECRET_SUFFIX = '-refresh';
-
   constructor(private readonly jwtService: JwtService) {}
 
   sign(payload: TokenPayload): string {
@@ -35,10 +33,10 @@ export class JwtTokenAdapter implements TokenPort {
   }
 
   private getRefreshSecret(): string {
-    const baseSecret = process.env['JWT_SECRET'];
-    if (!baseSecret) {
-      throw new Error('JWT_SECRET environment variable is required');
+    const refreshSecret = process.env['JWT_REFRESH_SECRET'];
+    if (!refreshSecret) {
+      throw new Error('JWT_REFRESH_SECRET environment variable is required');
     }
-    return baseSecret + JwtTokenAdapter.REFRESH_SECRET_SUFFIX;
+    return refreshSecret;
   }
 }

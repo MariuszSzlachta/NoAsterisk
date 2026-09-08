@@ -13,7 +13,6 @@ test.describe('Login Page — E2E', () => {
           contentType: 'application/json',
           body: JSON.stringify({
             accessToken: 'e2e-access-token',
-            refreshToken: 'e2e-refresh-token',
             user: { id: 'u-1', email: 'user@budget.pl', role: 'Member', workspaceId: 'ws-1' },
           }),
         });
@@ -115,7 +114,6 @@ test.describe('Login Page — E2E', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           accessToken: 'e2e-token',
-          refreshToken: 'e2e-refresh',
           user: { id: 'u-1', email: 'user@budget.pl', role: 'Member', workspaceId: 'ws-1' },
         }),
       });

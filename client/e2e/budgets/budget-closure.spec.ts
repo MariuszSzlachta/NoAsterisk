@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Budgets Page — Period Closure & Savings E2E', () => {
   test.beforeEach(async ({ page }) => {
-    await setupAuthenticatedUser(page);
+    await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
 
-    // Seed localStorage with a standard budget that has ended period + a savings budget
-    // This simulates existing data in Zustand persisted stores
+    // Seed legacy localStorage before the first vault unlock so the migration
+    // path is exercised instead of bypassed by an already-created metadata row.
     const standardBudgetId = 'e2e-budget-std';
     const savingsBudgetId = 'e2e-budget-sav';
 
@@ -55,6 +55,7 @@ test.describe('Budgets Page — Period Closure & Savings E2E', () => {
     }, { budgets: budgetsState, history: historyState });
 
     await page.goto('/budgets');
+    await unlockVault(page);
   });
 
   test('shows budget card with awaiting closure status for past period', async ({ page }) => {

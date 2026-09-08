@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Admin Rules — Apply to Transactions', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser');
     await page.goto('/admin/rules');
+    await unlockVault(page);
   });
 
   test('apply rules button is visible', async ({ page }) => {

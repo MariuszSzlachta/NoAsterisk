@@ -27,7 +27,6 @@ test.describe('Register Page — E2E', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           accessToken: 'e2e-new-token',
-          refreshToken: 'e2e-refresh-token',
           user: { id: 'u-new', email: body.email, role: 'Member', workspaceId: 'ws-new' },
         }),
       });
@@ -169,7 +168,6 @@ test.describe('Register Page — E2E', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           accessToken: 'tok',
-          refreshToken: 'ref',
           user: { id: 'u-1', email: 'new@user.com', role: 'Member', workspaceId: 'ws-1' },
         }),
       });

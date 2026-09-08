@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { AppShell } from '#app/layouts/AppShell';
 import { RequireAuth } from '#app/routing/RequireAuth';
+import { RequireVault } from '#app/routing/RequireVault';
 import { RequireRole } from '#app/routing/RequireRole';
 import { AdminPage } from '#pages/AdminPage';
 import { AdminRulesPage } from '#pages/AdminRulesPage';
@@ -19,20 +20,34 @@ export const router = createBrowserRouter([
     element: <RequireAuth />,
     children: [
       {
-        element: <AppShell />,
+        path: '/admin',
+        element: <RequireRole role="Superuser" />,
         children: [
-          { path: '/', element: <Navigate to="/dashboard" replace /> },
-          { path: '/dashboard', element: <DashboardPage /> },
-          { path: '/transactions', element: <TransactionsPage /> },
-          { path: '/import', element: <ImportPage /> },
-          { path: '/budgets', element: <BudgetsPage /> },
-          { path: '/analytics', element: <AnalyticsPage /> },
-          { path: '/admin/rules', element: <AdminRulesPage /> },
-          { path: '/settings', element: <UserSettingsPage /> },
           {
-            element: <RequireRole role="Superuser" />,
+            element: <RequireVault />,
             children: [
-              { path: '/admin', element: <AdminPage /> },
+              {
+                element: <AppShell />,
+                children: [{ index: true, element: <AdminPage /> }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        element: <RequireVault />,
+        children: [
+          {
+            element: <AppShell />,
+            children: [
+              { path: '/', element: <Navigate to="/dashboard" replace /> },
+              { path: '/dashboard', element: <DashboardPage /> },
+              { path: '/transactions', element: <TransactionsPage /> },
+              { path: '/import', element: <ImportPage /> },
+              { path: '/budgets', element: <BudgetsPage /> },
+              { path: '/analytics', element: <AnalyticsPage /> },
+              { path: '/admin/rules', element: <AdminRulesPage /> },
+              { path: '/settings', element: <UserSettingsPage /> },
             ],
           },
         ],

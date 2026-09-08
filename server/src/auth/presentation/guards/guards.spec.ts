@@ -9,6 +9,9 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
 import { TokenPort } from '@auth/domain/ports/token.port';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
+import { UserRepository } from '@auth/domain/ports/user.repository';
+import { User } from '@auth/domain/user.entity';
+import { UserRole } from '@auth/domain/user-role.enum';
 
 const mockContext = (
   headers: Record<string, string>,
@@ -26,6 +29,8 @@ describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
   let token: jest.Mocked<TokenPort>;
   let reflector: jest.Mocked<Reflector>;
+  let userRepo: jest.Mocked<UserRepository>;
+  let user: User;
 
   beforeEach(() => {
     token = {
@@ -37,18 +42,36 @@ describe('JwtAuthGuard', () => {
     reflector = {
       getAllAndOverride: jest.fn().mockReturnValue(false),
     } as unknown as jest.Mocked<Reflector>;
-    guard = new JwtAuthGuard(token, reflector);
+    userRepo = {
+      save: jest.fn(),
+      findById: jest.fn(),
+      findByEmail: jest.fn(),
+      findAll: jest.fn(),
+      existsByEmail: jest.fn(),
+      delete: jest.fn(),
+    };
+    user = new User(
+      'user-1',
+      'user@example.com',
+      'password-hash',
+      UserRole.Member,
+      'ws-1',
+      new Date(),
+    );
+    guard = new JwtAuthGuard(token, reflector, userRepo);
   });
 
-  it('passes and sets user for valid token', () => {
+  it('passes and sets current user for valid token', async () => {
     token.verify.mockReturnValue({
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
+      tokenVersion: 0,
     });
+    userRepo.findById.mockResolvedValue(user);
     const ctx = mockContext({ authorization: 'Bearer valid-token' });
 
-    expect(guard.canActivate(ctx)).toBe(true);
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
 
     const req = ctx.switchToHttp().getRequest();
     expect(req.user).toEqual({
@@ -58,21 +81,59 @@ describe('JwtAuthGuard', () => {
     });
   });
 
-  it('throws for missing Authorization header', () => {
+  it('throws for missing Authorization header', async () => {
     const ctx = mockContext({});
-    expect(() => guard.canActivate(ctx)).toThrow(UnauthorizedException);
+    await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
   });
 
-  it('throws for invalid token', () => {
+  it('throws for invalid token', async () => {
     token.verify.mockReturnValue(undefined);
     const ctx = mockContext({ authorization: 'Bearer bad-token' });
-    expect(() => guard.canActivate(ctx)).toThrow(UnauthorizedException);
+    await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
   });
 
-  it('skips auth for @Public() endpoints', () => {
+  it('rejects a token without a revocation version', async () => {
+    token.verify.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+    });
+    const ctx = mockContext({ authorization: 'Bearer legacy-token' });
+
+    await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
+    expect(userRepo.findById).not.toHaveBeenCalled();
+  });
+
+  it('rejects a token when the account no longer exists', async () => {
+    token.verify.mockReturnValue({
+      sub: 'deleted-user',
+      workspaceId: 'ws-1',
+      role: 'Member',
+      tokenVersion: 0,
+    });
+    userRepo.findById.mockResolvedValue(undefined);
+    const ctx = mockContext({ authorization: 'Bearer deleted-token' });
+
+    await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('rejects a revoked token after logout or password change', async () => {
+    token.verify.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+      tokenVersion: 0,
+    });
+    userRepo.findById.mockResolvedValue(user.incrementTokenVersion());
+    const ctx = mockContext({ authorization: 'Bearer revoked-token' });
+
+    await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('skips auth for @Public() endpoints', async () => {
     reflector.getAllAndOverride.mockReturnValue(true);
     const ctx = mockContext({});
-    expect(guard.canActivate(ctx)).toBe(true);
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
   });
 });
 

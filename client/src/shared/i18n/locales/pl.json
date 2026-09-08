@@ -1,6 +1,19 @@
 {
   "common": {
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "loading": "Ładowanie aplikacji…"
+  },
+  "vaultUnlock": {
+    "title": "Odblokuj lokalny sejf",
+    "description": "Dane finansowe są szyfrowane w przeglądarce. Wpisz hasło sejfu, aby je odszyfrować.",
+    "passphrase": "Hasło sejfu",
+    "submit": "Odblokuj dane",
+    "unlocking": "Odblokowywanie…",
+    "securityNote": "Hasło i klucz szyfrujący nie są zapisywane. Po ponownym otwarciu przeglądarki wymagane będzie ponowne odblokowanie.",
+    "storageWarning": "Przeglądarka nie przyznała trwałego magazynu. Dane mogą zostać usunięte pod presją miejsca — wykonuj zaszyfrowane kopie zapasowe.",
+    "errors": {
+      "failed": "Nie udało się odblokować danych. Sprawdź hasło lub stan lokalnej bazy danych."
+    }
   },
   "pagination": {
     "range": "{{start}}–{{end}} z {{total}}",

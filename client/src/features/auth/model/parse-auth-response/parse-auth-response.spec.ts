@@ -11,7 +11,6 @@ const buildValidUser = (): Record<string, unknown> => ({
 
 const buildValidResponse = (): Record<string, unknown> => ({
   accessToken: 'jwt-access-token',
-  refreshToken: 'jwt-refresh-token',
   user: buildValidUser(),
 });
 
@@ -22,7 +21,6 @@ describe('parseAuthResponse', () => {
 
       expect(result).toEqual({
         accessToken: 'jwt-access-token',
-        refreshToken: 'jwt-refresh-token',
         user: {
           id: 'user-123',
           email: 'test@example.com',
@@ -98,26 +96,6 @@ describe('parseAuthResponse', () => {
 
     it('throws when accessToken is null', () => {
       expect(() => parseAuthResponse({ ...buildValidResponse(), accessToken: null })).toThrow('missing accessToken');
-    });
-  });
-
-  describe('refreshToken validation', () => {
-    it('throws when refreshToken is missing', () => {
-      const { refreshToken: _, ...data } = buildValidResponse();
-      expect(() => parseAuthResponse(data)).toThrow('missing refreshToken');
-    });
-
-    it('throws when refreshToken is a number', () => {
-      expect(() => parseAuthResponse({ ...buildValidResponse(), refreshToken: 123 })).toThrow('missing refreshToken');
-    });
-
-    it('throws when refreshToken is null', () => {
-      expect(() => parseAuthResponse({ ...buildValidResponse(), refreshToken: null })).toThrow('missing refreshToken');
-    });
-
-    it('accepts empty string refreshToken', () => {
-      const result = parseAuthResponse({ ...buildValidResponse(), refreshToken: '' });
-      expect(result.refreshToken).toBe('');
     });
   });
 

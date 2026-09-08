@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Budgets Page — CRUD E2E', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page);
     await page.goto('/budgets');
+    await unlockVault(page);
   });
 
   test('renders budgets page with KPI row and filters', async ({ page }) => {

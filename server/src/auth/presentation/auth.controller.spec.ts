@@ -27,14 +27,21 @@ describe('AuthController', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('returns 201 with access and refresh tokens', async () => {
+    it('returns access token and sets refresh token as an httpOnly cookie', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
         .send({ email: 'new@example.com', password: 'Secure1!pass' });
 
       expect(res.status).toBe(201);
       expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
+      expect(res.body).not.toHaveProperty('refreshToken');
+      expect(res.headers['set-cookie']).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(
+            /^budget_refresh_token=.+; Path=\/api\/auth\/refresh; HttpOnly; SameSite=Strict$/,
+          ),
+        ]),
+      );
       expect(res.body.user.email).toBe('new@example.com');
       expect(res.body.user.role).toBe('Member');
       expect(res.body.user.workspaceId).toBeDefined();
@@ -116,32 +123,58 @@ describe('AuthController', () => {
   });
 
   describe('POST /auth/refresh', () => {
-    let refreshToken: string;
+    let refreshCookie: string;
 
     beforeAll(async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
         .send({ email: 'refresh@example.com', password: 'Secure1!pass' });
-      refreshToken = res.body.refreshToken;
+      const cookieHeader = res.headers['set-cookie'];
+      const firstCookie = Array.isArray(cookieHeader)
+        ? cookieHeader[0]
+        : cookieHeader;
+      if (!firstCookie) {
+        throw new Error('Expected refresh cookie');
+      }
+      const cookieValue = firstCookie.split(';')[0];
+      if (!cookieValue) {
+        throw new Error('Expected refresh cookie value');
+      }
+      refreshCookie = cookieValue;
     });
 
-    it('returns 200 with new access and refresh tokens (rotation)', async () => {
+    it('returns access token and rotates the httpOnly refresh cookie', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/refresh')
-        .send({ refreshToken });
+        .set('Cookie', refreshCookie)
+        .send({});
 
       expect(res.status).toBe(200);
       expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
-      expect(typeof res.body.refreshToken).toBe('string');
+      expect(res.body).not.toHaveProperty('refreshToken');
+      expect(res.headers['set-cookie']).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(
+            /^budget_refresh_token=.+; Path=\/api\/auth\/refresh; HttpOnly; SameSite=Strict$/,
+          ),
+        ]),
+      );
     });
 
-    it('returns 401 for invalid refresh token', async () => {
+    it('returns 401 without the refresh cookie', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({});
+
+      expect(res.status).toBe(401);
+    });
+
+    it('rejects refresh tokens supplied in the request body', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken: 'invalid-token' });
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 });

@@ -1,21 +1,38 @@
 import type { Page } from '@playwright/test';
 
 /**
- * Mocks auth state for e2e tests:
- * 1. Intercepts /api/auth/refresh to return a fake token (prevents redirect)
- * 2. Intercepts /api/users/me to return user profile with specified role
- * 3. After page loads, injects token via window event
+ * Mocks an authenticated e2e session:
+ * 1. Intercepts login/profile endpoints with the requested role
+ * 2. Logs in through the real login form so the token stays module-scoped
+ * 3. Unlocks the real encrypted local database before the test navigates
  */
 export const setupAuthenticatedUser = async (
   page: Page,
   role: 'Superuser' | 'Member' = 'Superuser',
+  options: { readonly unlock?: boolean } = {},
 ): Promise<void> => {
   // Mock refresh endpoint (prevents 401 redirect loops)
   await page.route('**/api/auth/refresh', (route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ access_token: 'e2e-fake-token' }),
+      body: JSON.stringify({ accessToken: 'e2e-fake-token' }),
+    }),
+  );
+
+  await page.route('**/api/auth/login', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'e2e-fake-token',
+        user: {
+          id: 'user-e2e',
+          email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local',
+          role,
+          workspaceId: 'workspace-e2e',
+        },
+      }),
     }),
   );
 
@@ -33,10 +50,21 @@ export const setupAuthenticatedUser = async (
     }),
   );
 
-  // Inject token before page scripts run
-  await page.addInitScript(() => {
-    window.localStorage.setItem('__e2e_auth', 'true');
-  });
+  await page.goto('/login');
+  await page.getByLabel('Email').fill(role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local');
+  await page.getByLabel('Hasło').fill('e2e-test-password');
+  await page.getByRole('button', { name: 'Zaloguj' }).click();
+  await page.waitForURL('**/dashboard');
+
+  if (options.unlock !== false) {
+    await unlockVault(page);
+  }
+};
+
+export const unlockVault = async (page: Page): Promise<void> => {
+  await page.getByLabel('Hasło sejfu').fill('e2e-vault-passphrase');
+  await page.getByRole('button', { name: 'Odblokuj dane' }).click();
+  await page.getByLabel('Hasło sejfu').waitFor({ state: 'hidden' });
 };
 
 /**

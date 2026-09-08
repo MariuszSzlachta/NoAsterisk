@@ -341,8 +341,11 @@ describe('RefreshHandler', () => {
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
-      tokenVersion: 0,
+      tokenVersion: 1,
     });
+    expect(userRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ tokenVersion: 1 }),
+    );
   });
 
   it('throws UnauthorizedException for invalid refresh token', async () => {
@@ -383,6 +386,28 @@ describe('RefreshHandler', () => {
     );
 
     await expect(handler.execute('revoked-token')).rejects.toThrow(
+      'Token has been revoked',
+    );
+  });
+
+  it('rejects a refresh token without a token version', async () => {
+    token.verifyRefresh.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+    });
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-1',
+        'test@test.com',
+        'hash',
+        UserRole.Member,
+        'ws-1',
+        new Date(),
+      ),
+    );
+
+    await expect(handler.execute('legacy-refresh-token')).rejects.toThrow(
       'Token has been revoked',
     );
   });

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Admin Rules — CRUD', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,6 +21,7 @@ test.describe('Admin Rules — CRUD', () => {
     );
 
     await page.goto('/admin/rules');
+    await unlockVault(page);
   });
 
   test('shows empty state when no rules', async ({ page }) => {

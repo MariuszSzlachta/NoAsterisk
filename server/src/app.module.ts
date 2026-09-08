@@ -13,6 +13,8 @@ import { DictionariesModule } from '@dictionaries/dictionaries.module';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { THROTTLE_DEFAULT } from '@shared/presentation/throttle.constants';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 const imports: Array<Type | DynamicModule> = [
   ThrottlerModule.forRoot([THROTTLE_DEFAULT]),
@@ -32,7 +34,9 @@ if (process.env.PERSISTENCE_MODE === 'postgres') {
 
 @Module({
   imports,
+  controllers: [AppController],
   providers: [
+    AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

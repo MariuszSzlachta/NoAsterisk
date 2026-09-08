@@ -49,7 +49,6 @@ const buildSubmitEvent = (): FormEvent =>
 
 const buildAuthResponse = () => ({
   accessToken: 'new-user-token',
-  refreshToken: 'refresh-789',
   user: { id: 'u-new', email: 'new@user.com', role: 'Member' as const, workspaceId: 'ws-2' },
 });
 

@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAuthenticatedUser } from '../helpers/auth';
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Analytics Page', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page, 'Member');
     await page.goto('/analytics');
+    await unlockVault(page);
   });
 
   test('renders toolbar with metric buttons', async ({ page }) => {
@@ -90,6 +91,7 @@ test.describe('Analytics Page', () => {
 
   test('URL param ?metric=income,expenses activates both metrics', async ({ page }) => {
     await page.goto('/analytics?metric=income,expenses');
+    await unlockVault(page);
 
     const incomeBtn = page.getByRole('button', { name: /przychody/i });
     const expensesBtn = page.getByRole('button', { name: /wydatki/i });

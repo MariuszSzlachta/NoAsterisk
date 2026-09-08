@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useDeleteAccountMutation } from '#features/user-settings/api/useDeleteAccountMutation';
 import { useLogoutMutation } from '#features/user-settings/api/useLogoutMutation';
 import type { UseDangerSectionResult } from '#features/user-settings/ui/hooks/useDangerSection/use-danger-section-result';
+import { encryptedPersistence } from '#shared/adapters/persistence';
 
 export const useDangerSection = (): UseDangerSectionResult => {
   const { state: deleteState, mutateAsync: deleteAccount } = useDeleteAccountMutation();
@@ -18,12 +19,11 @@ export const useDangerSection = (): UseDangerSectionResult => {
   const handleCloseClearDialog = (): void => { setShowClearDialog(false); };
 
   const handleConfirmClear = (): void => {
-    // Clear all localStorage persisted stores
-    localStorage.removeItem('budget-transactions');
-    localStorage.removeItem('budget-rules');
-    localStorage.removeItem('budget-preferences');
-    setShowClearDialog(false);
-    window.location.reload();
+    void (async () => {
+      await encryptedPersistence.clearLocalData({ removePreferences: true });
+      setShowClearDialog(false);
+      window.location.reload();
+    })();
   };
 
   const handleOpenDeleteDialog = (): void => { setShowDeleteDialog(true); };

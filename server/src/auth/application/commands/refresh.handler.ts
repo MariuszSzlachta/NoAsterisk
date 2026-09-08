@@ -29,17 +29,20 @@ export class RefreshHandler {
     }
 
     if (
-      payload.tokenVersion !== undefined &&
+      payload.tokenVersion === undefined ||
       payload.tokenVersion !== user.tokenVersion
     ) {
       throw new UnauthorizedException('Token has been revoked');
     }
 
+    const rotatedUser = user.incrementTokenVersion();
+    await this.userRepo.save(rotatedUser);
+
     const tokenPayload = {
-      sub: user.id,
-      workspaceId: user.workspaceId,
-      role: user.role,
-      tokenVersion: user.tokenVersion,
+      sub: rotatedUser.id,
+      workspaceId: rotatedUser.workspaceId,
+      role: rotatedUser.role,
+      tokenVersion: rotatedUser.tokenVersion,
     };
 
     return {

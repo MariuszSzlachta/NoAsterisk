@@ -7,6 +7,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TOKEN_PORT, TokenPort } from '@auth/domain/ports/token.port';
+import {
+  USER_REPOSITORY,
+  UserRepository,
+} from '@auth/domain/ports/user.repository';
+import { UserRole } from '@auth/domain/user-role.enum';
 import { IS_PUBLIC_KEY } from '@auth/presentation/decorators/public.decorator';
 import { CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
 
@@ -15,9 +20,10 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     @Inject(TOKEN_PORT) private readonly token: TokenPort,
     private readonly reflector: Reflector,
+    @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -43,14 +49,28 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    if (payload.role === 'Blocked') {
+    if (payload.tokenVersion === undefined) {
+      throw new UnauthorizedException('Token is missing revocation version');
+    }
+
+    const user = await this.userRepo.findById(payload.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    if (user.role === UserRole.Blocked) {
       throw new UnauthorizedException('Account is blocked');
     }
 
+    if (payload.tokenVersion !== user.tokenVersion) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
     request.user = {
-      userId: payload.sub,
-      workspaceId: payload.workspaceId,
-      role: payload.role,
+      userId: user.id,
+      workspaceId: user.workspaceId,
+      role: user.role,
     };
 
     return true;

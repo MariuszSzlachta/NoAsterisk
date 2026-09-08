@@ -1,1 +1,1 @@
-export { usePeriodHistoryStore } from './usePeriodHistoryStore';
+export { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore/usePeriodHistoryStore';

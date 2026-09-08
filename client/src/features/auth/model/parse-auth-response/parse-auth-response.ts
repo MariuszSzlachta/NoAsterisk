@@ -11,15 +11,10 @@ export const parseAuthResponse = (data: unknown): AuthResponse => {
     throw new Error('Invalid auth response: missing accessToken');
   }
 
-  if (typeof data['refreshToken'] !== 'string') {
-    throw new Error('Invalid auth response: missing refreshToken');
-  }
-
   const user = parseAuthUser(data['user']);
 
   return {
     accessToken: data['accessToken'],
-    refreshToken: data['refreshToken'],
     user,
   };
 };

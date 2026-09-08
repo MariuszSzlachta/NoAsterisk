@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAdminApiMocks, setupAuthenticatedUser } from '../helpers/auth';
+import { setupAdminApiMocks, setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
 test.describe('Admin Users — Block/Delete Flow', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser');
     await setupAdminApiMocks(page);
     await page.goto('/admin');
+    await unlockVault(page);
     // Navigate to users tab
     await page.getByRole('tab', { name: /użytkownicy/i }).click();
   });

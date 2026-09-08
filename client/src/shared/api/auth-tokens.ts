@@ -20,4 +20,4 @@ export const authTokens = {
     accessToken = undefined;
     window.dispatchEvent(new CustomEvent('auth:session-expired'));
   },
-} as const;
+};

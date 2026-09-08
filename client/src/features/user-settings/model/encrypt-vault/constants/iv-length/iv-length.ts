@@ -1,1 +1,1 @@
-export const IV_LENGTH = 12;
+export { IV_LENGTH } from '#shared/adapters/persistence/crypto';

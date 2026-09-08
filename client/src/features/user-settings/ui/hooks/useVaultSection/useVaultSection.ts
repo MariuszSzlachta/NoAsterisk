@@ -9,6 +9,10 @@ import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault
 import { isValidVaultItem } from '#features/user-settings/model/decrypt-vault-payload/is-valid-vault-item';
 import { encryptVault } from '#features/user-settings/model/encrypt-vault';
 import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
+import type { RuleRecord } from '#features/admin-rules/model/rule-record';
+import { isRuleRecord } from '#features/admin-rules/model/is-rule-record';
+import type { StoredTransaction } from '#features/transactions/model/types';
+import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
 import type { DataStats } from '#features/user-settings/model/types/data-stats';
 import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
 import { computeVaultStatus } from '#features/user-settings/model/compute-vault-status';
@@ -24,6 +28,18 @@ import { isRecord } from '#features/user-settings/ui/hooks/useVaultSection/is-re
 import { isRuleRecordArray } from '#features/user-settings/ui/hooks/useVaultSection/is-rule-record-array';
 import { isStoredTransactionArray } from '#features/user-settings/ui/hooks/useVaultSection/is-stored-transaction-array';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
+import { encryptedPersistence } from '#shared/adapters/persistence/session';
+
+const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
+  'transactions',
+  isStoredTransaction,
+  (record) => record.id,
+);
+const ruleRepository = encryptedPersistence.repository<RuleRecord>(
+  'rules',
+  isRuleRecord,
+  (record) => record.id,
+);
 
 export const useVaultSection = (): UseVaultSectionResult => {
   const { t } = useTranslation();
@@ -113,11 +129,13 @@ export const useVaultSection = (): UseVaultSectionResult => {
       const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
 
       if (payload.transactions.length > 0 && isStoredTransactionArray(payload.transactions)) {
+        await transactionRepository.replace(payload.transactions);
         useTransactionsStore.setState({
           transactions: payload.transactions,
         });
       }
       if (payload.rules.length > 0 && isRuleRecordArray(payload.rules)) {
+        await ruleRepository.replace(payload.rules);
         useRulesStore.setState({
           rules: payload.rules,
         });
@@ -158,7 +176,7 @@ export const useVaultSection = (): UseVaultSectionResult => {
     }
 
     setImportError(undefined);
-    void file.text().then((text) => {
+    void file.text().then(async (text) => {
       try {
         const parsed: unknown = JSON.parse(text);
 
@@ -175,12 +193,14 @@ export const useVaultSection = (): UseVaultSectionResult => {
         if (Array.isArray(parsed['transactions'])) {
           const validTransactions = parsed['transactions'].filter(isValidVaultItem);
           if (isStoredTransactionArray(validTransactions)) {
+            await transactionRepository.replace(validTransactions);
             useTransactionsStore.setState({ transactions: validTransactions });
           }
         }
         if (Array.isArray(parsed['rules'])) {
           const validRules = parsed['rules'].filter(isValidVaultItem);
           if (isRuleRecordArray(validRules)) {
+            await ruleRepository.replace(validRules);
             useRulesStore.setState({ rules: validRules });
           }
         }

@@ -1,1 +1,1 @@
-export { useBudgetsStore } from './useBudgetsStore';
+export { useBudgetsStore } from '#features/budgets/store/useBudgetsStore/useBudgetsStore';

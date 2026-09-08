@@ -11,3 +11,6 @@ temp/
 graphify-out/cost.json
 graphify-out/cache/*
 client/playwright-report/
+
+# Generated test coverage reports
+coverage/

@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
+import { encryptedPersistence } from '#shared/adapters/persistence';
 
 export const useLogoutMutation = (): UseLogoutMutationResult => {
   const [state, setState] = useState<MutationState>({
@@ -22,10 +23,13 @@ export const useLogoutMutation = (): UseLogoutMutationResult => {
         {},
       );
     } catch {
-      // Logout should succeed even if server call fails (client-side cleanup still happens)
     }
 
-    // Always clear tokens regardless of server response
+    try {
+      await encryptedPersistence.clearLocalData();
+    } catch {
+    }
+
     authTokens.clear();
     setState({ isLoading: false, error: undefined });
     return true;

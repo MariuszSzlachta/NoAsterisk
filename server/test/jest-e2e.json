@@ -5,5 +5,18 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",
+    "^@shared/(.*)$": "<rootDir>/../src/shared/$1",
+    "^@transactions/(.*)$": "<rootDir>/../src/transactions/$1",
+    "^@categories/(.*)$": "<rootDir>/../src/categories/$1",
+    "^@imports/(.*)$": "<rootDir>/../src/imports/$1",
+    "^@import-profiles/(.*)$": "<rootDir>/../src/import-profiles/$1",
+    "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
+    "^@workspaces/(.*)$": "<rootDir>/../src/workspaces/$1",
+    "^@user-settings/(.*)$": "<rootDir>/../src/user-settings/$1",
+    "^@invite-codes/(.*)$": "<rootDir>/../src/invite-codes/$1",
+    "^@dictionaries/(.*)$": "<rootDir>/../src/dictionaries/$1"
   }
 }
