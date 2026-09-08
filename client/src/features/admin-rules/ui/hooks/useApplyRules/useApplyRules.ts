@@ -4,9 +4,7 @@ import { autoCategorize } from '#features/admin-rules/model';
 import type { ApplyResult } from '#features/admin-rules/model/apply-rules';
 import { buildApplyResult, countUncategorized, groupByCategoryId } from '#features/admin-rules/model/apply-rules';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-// ARCH-EXCEPTION: cross-feature import — rules must read and modify transactions.
-// Accepted per devplan. Alternative (entities/) is overkill at this stage.
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 
 interface UseApplyRulesResult {
   readonly handleApplyRules: () => void;

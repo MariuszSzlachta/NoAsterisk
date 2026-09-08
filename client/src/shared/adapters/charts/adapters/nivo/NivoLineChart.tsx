@@ -68,8 +68,8 @@ const GradientAreaLayer = ({
         const points = s.data
           .filter((d) => d.data.x !== null && d.data.y !== null)
           .map((d) => ({
-            x: xScale(d.data.x as Parameters<typeof xScale>[0]),
-            y: yScale(d.data.y as number),
+            x: xScale(String(d.data.x)),
+            y: yScale(Number(d.data.y)),
           }));
 
         if (points.length === 0) {
@@ -104,8 +104,8 @@ const LastPointLayer = ({
         return (
           <circle
             key={s.id}
-            cx={xScale(last.data.x as Parameters<typeof xScale>[0])}
-            cy={yScale(last.data.y as number)}
+            cx={xScale(String(last.data.x))}
+            cy={yScale(Number(last.data.y))}
             r={3.5}
             fill={s.color}
             stroke={COLOR_SURFACE}

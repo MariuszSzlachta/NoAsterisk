@@ -4,13 +4,7 @@
 
 // ─── Form Values ─────────────────────────────────────────────────
 
-export interface CreateTransactionFormValues {
-  readonly title: string;
-  readonly amount: string;
-  readonly date: string;
-  readonly type: 'income' | 'expense';
-  readonly categoryId: string;
-}
+export type { CreateTransactionFormValues } from '#entities/transaction';
 
 // ─── Validation Errors ───────────────────────────────────────────
 

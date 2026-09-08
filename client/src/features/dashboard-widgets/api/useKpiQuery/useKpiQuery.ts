@@ -1,6 +1,6 @@
 import { formatAmount } from '#features/dashboard-widgets/model/transformers';
 import type { KpiDto, KpiId } from '#features/dashboard-widgets/model/types';
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 import type { QueryState } from '#shared/api';
 
 export type { KpiDto, KpiId };

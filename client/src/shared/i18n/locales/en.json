@@ -535,13 +535,16 @@
       "encryptionInfo": "Your data is encrypted in the browser with a key derived from your password. The server stores only an encrypted blob — it has no access to your financial data.",
       "stats": {
         "transactions": "Transactions",
+        "categories": "Categories",
         "budgets": "Budgets",
         "rules": "Rules",
-        "importProfiles": "Import profiles",
+        "periodHistory": "Period history",
+        "importHistory": "Import history",
         "size": "Size"
       },
       "syncSuccess": "Data encrypted and uploaded successfully.",
       "syncError": "Failed to encrypt or upload data.",
+      "tooLarge": "This vault is too large to store safely.",
       "restoreSuccess": "Data restored successfully.",
       "restoreError": "Failed to restore data.",
       "wrongPassword": "Incorrect password — failed to decrypt data.",

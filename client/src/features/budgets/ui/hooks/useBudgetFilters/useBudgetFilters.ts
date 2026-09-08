@@ -7,7 +7,7 @@ import type { BudgetPeriodFilter } from '#features/budgets/model/types/budget-pe
 const VALID_PERIODS: ReadonlyArray<BudgetPeriodFilter> = ['monthly', 'yearly', 'custom', 'savings'];
 
 const isBudgetPeriodFilter = (value: string): value is BudgetPeriodFilter =>
-  (VALID_PERIODS as ReadonlyArray<string>).includes(value);
+  VALID_PERIODS.some((period) => period === value);
 
 // ─── Hook ────────────────────────────────────────────────────────
 

@@ -16,7 +16,7 @@ const mockTransactions = [
 
 const mockBulkUpdateCategory = vi.fn();
 
-vi.mock('#features/transactions', () => ({
+vi.mock('#entities/transaction', () => ({
   useTransactionsStore: (selector: (state: Record<string, unknown>) => unknown) =>
     selector({
       transactions: mockTransactions,

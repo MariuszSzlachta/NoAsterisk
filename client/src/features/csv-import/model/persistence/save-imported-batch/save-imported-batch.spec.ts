@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { saveImportedBatch } from '#features/csv-import/model/persistence/save-imported-batch';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import type { StoredTransaction } from '#entities/transaction/types';
 
 const putManyIfAbsentWithRelatedMock = vi.hoisted(() => vi.fn());
 

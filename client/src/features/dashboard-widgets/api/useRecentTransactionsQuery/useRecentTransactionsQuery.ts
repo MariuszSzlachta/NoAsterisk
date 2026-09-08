@@ -1,6 +1,6 @@
 import { formatAmount } from '#features/dashboard-widgets/model/transformers';
 import type { RecentTransactionDto } from '#features/dashboard-widgets/model/types';
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 import type { QueryState } from '#shared/api';
 
 export type { RecentTransactionDto };

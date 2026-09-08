@@ -7,6 +7,15 @@ import type { FilterTab } from '#shared/ui/FilterTabs';
 // ─── Types ───────────────────────────────────────────────────────
 
 type AdminTabId = 'overview' | 'users' | 'codes' | 'dictionaries';
+const ADMIN_TAB_IDS: readonly AdminTabId[] = [
+  'overview',
+  'users',
+  'codes',
+  'dictionaries',
+];
+
+const isAdminTabId = (value: string): value is AdminTabId =>
+  ADMIN_TAB_IDS.some((tabId) => tabId === value);
 
 interface UseAdminTabsResult {
   readonly tabs: readonly FilterTab[];
@@ -29,7 +38,9 @@ export const useAdminTabs = (): UseAdminTabsResult => {
   ];
 
   const handleTabChange = (id: string): void => {
-    setActiveTab(id as AdminTabId);
+    if (isAdminTabId(id)) {
+      setActiveTab(id);
+    }
   };
 
   // ─── Tab Content Renderer ──────────────────────────────────────

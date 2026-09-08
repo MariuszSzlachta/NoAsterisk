@@ -22,6 +22,14 @@ type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 let refreshPromise: Promise<boolean> | undefined;
 
+const isAccessTokenResponse = (
+  value: unknown,
+): value is { readonly accessToken: string } =>
+  typeof value === 'object' &&
+  value !== null &&
+  'accessToken' in value &&
+  typeof value.accessToken === 'string';
+
 const attemptTokenRefresh = async (baseUrl: string): Promise<boolean> => {
   try {
     const response = await fetch(`${baseUrl}/auth/refresh`, {
@@ -35,13 +43,8 @@ const attemptTokenRefresh = async (baseUrl: string): Promise<boolean> => {
     }
 
     const data: unknown = await response.json();
-    if (
-      typeof data === 'object' &&
-      data !== null &&
-      'accessToken' in data &&
-      typeof (data as Record<string, unknown>)['accessToken'] === 'string'
-    ) {
-      authTokens.setAccessToken((data as { accessToken: string }).accessToken);
+    if (isAccessTokenResponse(data)) {
+      authTokens.setAccessToken(data.accessToken);
       return true;
     }
 
@@ -179,10 +182,10 @@ export class HttpClient {
     }
 
     if (response.status === 204) {
-      return {} as TResponse;
+      return response.json().catch(() => ({}));
     }
 
-    return response.json() as Promise<TResponse>;
+    return response.json().then((value: TResponse) => value);
   }
 }
 

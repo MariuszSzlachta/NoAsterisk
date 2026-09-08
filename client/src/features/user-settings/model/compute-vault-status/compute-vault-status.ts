@@ -3,12 +3,13 @@ import type { VaultSyncStatus } from '#features/user-settings/model/types/vault-
 export const computeVaultStatus = (
   hasBackup: boolean,
   lastSync: string | undefined,
+  hasLocalChanges = false,
 ): VaultSyncStatus => {
   if (!hasBackup) {
     return 'no-backup';
   }
 
-  if (lastSync !== undefined) {
+  if (lastSync !== undefined && !hasLocalChanges) {
     return 'synced';
   }
 

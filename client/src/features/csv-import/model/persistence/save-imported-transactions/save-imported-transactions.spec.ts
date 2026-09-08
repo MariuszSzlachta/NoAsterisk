@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { StoredTransaction } from '#features/transactions/model/types';
+import type { StoredTransaction } from '#entities/transaction/types';
 import { saveImportedTransactions } from '#features/csv-import/model/persistence/save-imported-transactions';
 import { SHA_256_HEX_LENGTH } from '#shared/adapters/persistence/crypto/constants';
 

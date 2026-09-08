@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { useCategoryDrilldownQuery } from '#features/analytics/api/useCategoryDrilldownQuery';
 import type { CategoryBreakdownFilters } from '#features/analytics/model/types';
+import { useCategoryDrilldown } from '#features/analytics/ui/hooks/useCategoryDrilldown';
 import { TransactionRow } from '#features/analytics/ui/TransactionRow';
 import { LineChart } from '#shared/adapters/charts';
 import { Button } from '#shared/ui/Button';
@@ -25,7 +25,7 @@ export const CategoryDrilldown = ({
   onClose,
 }: CategoryDrilldownProps): React.JSX.Element => {
   const { t } = useTranslation();
-  const state = useCategoryDrilldownQuery(category, filters);
+  const state = useCategoryDrilldown(category, filters);
 
   return (
     <div

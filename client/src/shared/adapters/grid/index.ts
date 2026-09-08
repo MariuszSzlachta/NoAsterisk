@@ -5,4 +5,6 @@ export type {
   CellRendererParams,
   RowAction,
 } from '#shared/adapters/grid/ports/grid.port';
-export { AgGridAdapter as DataGrid } from '#shared/adapters/grid/adapters/ag-grid/AgGridAdapter';
+import { AgGridAdapter } from '#shared/adapters/grid/adapters/ag-grid/AgGridAdapter';
+
+export const DataGrid = AgGridAdapter;

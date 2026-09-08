@@ -20,7 +20,9 @@ export const parseMetricsParam = (param: string | null): MetricType[] => {
 
   const parsed = param
     .split(',')
-    .filter((m): m is MetricType => VALID_METRICS.includes(m as MetricType));
+    .filter((value): value is MetricType =>
+      VALID_METRICS.some((metric) => metric === value),
+    );
 
   return parsed.length > 0 ? parsed : [...DEFAULT_METRICS];
 };

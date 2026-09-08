@@ -49,8 +49,8 @@ const validateAmount = (amount: string): string | undefined => {
 };
 
 /**
- * Compares dates as ISO strings (YYYY-MM-DD) to avoid timezone issues.
- * Date-only strings parsed by `new Date()` are interpreted as UTC midnight,
+ * Compares date values in ISO string format (YYYY-MM-DD) to avoid timezone issues.
+ * Date-only strings parsed by `new Date()` are interpreted at UTC midnight,
  * which can differ from local "today". String comparison is timezone-safe.
  */
 const validateDate = (date: string): string | undefined => {

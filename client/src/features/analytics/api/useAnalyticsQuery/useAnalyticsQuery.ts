@@ -10,7 +10,7 @@ import type {
 // ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
 // Analytics needs transaction data for chart computation. Planned resolution: migrate to TanStack
 // Query with real API when backend provides aggregation endpoints.
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 import type { QueryState } from '#shared/api';
 
 interface AnalyticsData {

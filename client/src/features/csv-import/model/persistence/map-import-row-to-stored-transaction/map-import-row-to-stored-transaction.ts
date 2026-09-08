@@ -1,5 +1,5 @@
 import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import type { StoredTransaction } from '#entities/transaction/types';
 import type { ImportMappingContext } from '#features/csv-import/model/persistence/types';
 import { INVALID_IMPORT_ROW } from '#features/csv-import/model/persistence/map-import-row-to-stored-transaction/constants/invalid-import-row';
 import { isSha256Hex } from '#shared/adapters/persistence/crypto';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { StoredTransaction } from '#features/transactions';
+import type { StoredTransaction } from '#entities/transaction/types';
 
 import { METRIC_LABEL_KEYS, computeKpi } from './kpi-computation';
 

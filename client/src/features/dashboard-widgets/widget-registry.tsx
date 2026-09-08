@@ -18,7 +18,7 @@ import { TrendChartWidget } from '#features/dashboard-widgets/ui/TrendChartWidge
 import { QueryRenderer } from '#shared/ui/QueryRenderer';
 import { Skeleton } from '#shared/ui/Skeleton';
 
-export const WidgetType = {
+const WidgetType = {
   KpiRow: 'KpiRow',
   TrendChart: 'TrendChart',
   CategoryDonut: 'CategoryDonut',
@@ -28,7 +28,7 @@ export const WidgetType = {
   RecurringExpenses: 'RecurringExpenses',
 } as const;
 
-export type WidgetType = (typeof WidgetType)[keyof typeof WidgetType];
+type WidgetType = (typeof WidgetType)[keyof typeof WidgetType];
 
 interface WidgetConfig {
   readonly id: WidgetType;

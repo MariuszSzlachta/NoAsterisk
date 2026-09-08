@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Bucket } from '#features/analytics/model/buckets';
-import type { StoredTransaction } from '#features/transactions';
+import type { StoredTransaction } from '#entities/transaction/types';
 
 import { computeMetricForBucket, computeMetricForPeriod } from './metric-computation';
 

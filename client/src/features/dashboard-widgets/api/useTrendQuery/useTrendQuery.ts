@@ -1,4 +1,4 @@
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 import type { ChartSeries } from '#shared/adapters/charts';
 import type { QueryState } from '#shared/api';
 

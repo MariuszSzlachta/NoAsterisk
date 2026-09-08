@@ -1,5 +1,6 @@
-import { autoCategorize, type RuleRecord } from '#features/admin-rules';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import { autoCategorize } from '#entities/rule/auto-categorize';
+import type { RuleRecord } from '#entities/rule/types';
+import type { StoredTransaction } from '#entities/transaction/types';
 
 /** Applies rules only to records without an imported category. */
 export const categorizeImportedTransactions = (

@@ -44,11 +44,14 @@ export const DropdownMenu = ({
       return;
     }
     const handleClick = (e: MouseEvent): void => {
+      if (!(e.target instanceof Node)) {
+        return;
+      }
       if (
         menuRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
+        !menuRef.current.contains(e.target) &&
         btnRef.current &&
-        !btnRef.current.contains(e.target as Node)
+        !btnRef.current.contains(e.target)
       ) {
         setOpen(false);
       }
@@ -86,31 +89,30 @@ export const DropdownMenu = ({
             style={{ top: pos.top, left: pos.left }}
           >
             {items.map((item, i) => {
-              if ('type' in item && item.type === 'separator') {
+              if ('type' in item) {
                 return <div key={`sep-${i}`} className="my-1 h-px bg-border" />;
               }
-              const menuItem = item as DropdownMenuItem;
               return (
                 <button
-                  key={menuItem.label}
-                  disabled={menuItem.disabled}
+                  key={item.label}
+                  disabled={item.disabled}
                   className={`flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-xs outline-none ${
-                    menuItem.disabled
+                    item.disabled
                       ? 'cursor-not-allowed text-subtle opacity-50'
-                      : menuItem.variant === 'danger'
+                        : item.variant === 'danger'
                         ? 'text-expense hover:bg-expense-soft'
                         : 'text-foreground hover:bg-surface-3'
                   }`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!menuItem.disabled) {
-                      menuItem.onClick();
+                    if (!item.disabled) {
+                      item.onClick();
                       setOpen(false);
                     }
                   }}
                 >
-                  {menuItem.icon}
-                  {menuItem.label}
+                  {item.icon}
+                  {item.label}
                 </button>
               );
             })}

@@ -187,32 +187,34 @@ export const createEncryptedPersistence = (
   const replaceCollections = async (
     writes: ReadonlyArray<EncryptedCollectionWrite>,
   ): Promise<void> => {
-    const currentKey = requireKey();
-    const encryptedWrites = await Promise.all(
-      writes.map(async (write) => ({
-        collection: write.collection,
-        records: await Promise.all(
-          write.records.map((record) =>
-            encryptRecord(
-              write.collection,
-              getPersistenceRecordId(record),
-              record,
-              currentKey,
+    await databaseLock(async () => {
+      const currentKey = requireKey();
+      const encryptedWrites = await Promise.all(
+        writes.map(async (write) => ({
+          collection: write.collection,
+          records: await Promise.all(
+            write.records.map((record) =>
+              encryptRecord(
+                write.collection,
+                getPersistenceRecordId(record),
+                record,
+                currentKey,
+              ),
             ),
           ),
-        ),
-      })),
-    );
+        })),
+      );
 
-    await database.transaction('rw', database.records, async () => {
-      await encryptedWrites.reduce(async (previous, write) => {
-        await previous;
-        await database.records
-          .where('collection')
-          .equals(write.collection)
-          .delete();
-        await database.records.bulkPut(write.records);
-      }, Promise.resolve());
+      await database.transaction('rw', database.records, async () => {
+        await encryptedWrites.reduce(async (previous, write) => {
+          await previous;
+          await database.records
+            .where('collection')
+            .equals(write.collection)
+            .delete();
+          await database.records.bulkPut(write.records);
+        }, Promise.resolve());
+      });
     });
   };
 

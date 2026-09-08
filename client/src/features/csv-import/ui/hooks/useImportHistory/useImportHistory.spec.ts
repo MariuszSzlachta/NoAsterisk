@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ImportHistoryRecord } from '#features/csv-import/model/history/types';
 import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useImportHistory } from '#features/csv-import/ui/hooks/useImportHistory';
-import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import { useTransactionsStore } from '#entities/transaction';
 
 const deleteImportHistoryBatchMock = vi.hoisted(() =>
   vi.fn<() => Promise<void>>(),

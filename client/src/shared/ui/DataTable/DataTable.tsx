@@ -105,7 +105,11 @@ export const DataTable = <TRow extends object>({
                   >
                     {col.render
                       ? col.render(row, i)
-                      : String((row as Record<string, unknown>)[col.key] ?? '')}
+                      : String(
+                          Object.entries(row).find(
+                            ([key]) => key === col.key,
+                          )?.[1] ?? '',
+                        )}
                   </td>
                 ))}
               </tr>

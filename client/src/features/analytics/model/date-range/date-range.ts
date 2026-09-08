@@ -43,11 +43,11 @@ const computeRange = (period: Period): DateRangeDate => {
   return { from: new Date(to.getFullYear(), to.getMonth(), to.getDate() - days), to };
 };
 
-/** Returns date range as ISO date strings ('YYYY-MM-DD'). */
+/** Returns date range in ISO date-string format ('YYYY-MM-DD'). */
 export const getDateRange = (period: Period): DateRangeStr => {
   const { from, to } = computeRange(period);
   return { from: toLocalDateStr(from), to: toLocalDateStr(to) };
 };
 
-/** Returns date range as Date objects. */
+/** Returns date range in Date-object format. */
 export const getDateRangeAsDate = (period: Period): DateRangeDate => computeRange(period);

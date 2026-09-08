@@ -1,8 +1,28 @@
 export { decryptVault } from './model/decrypt-vault';
 export { decryptVaultPayload } from './model/decrypt-vault-payload';
+export { parseVaultPayload } from './model/decrypt-vault-payload';
 export { encryptVault } from './model/encrypt-vault';
 export { VaultDecryptionError } from './model/vault-decryption-error';
+export { VaultPayloadError } from './model/vault-payload-error';
+export { VaultSizeError } from './model/vault-size-error';
 export type { VaultPayload } from './model/vault-payload';
+export {
+  createVaultPayload,
+  digestVaultRecords,
+  serializeVaultPayload,
+} from './model/vault-payload';
+export { isVaultPayload } from './model/vault-payload';
+export { createValidatedVaultPayload } from './model/create-validated-vault-payload';
+export type {
+  DecryptedVaultPayload,
+  LegacyVaultPayload,
+  VaultRecords,
+} from './model/vault-payload';
+export { restoreVaultPayload } from './ui/hooks/restore-vault-payload';
+export {
+  MAX_ENCRYPTED_VAULT_LENGTH,
+  MAX_PLAINTEXT_VAULT_LENGTH,
+} from './model/vault-limits';
 export { isPasswordFormValid } from './model/is-password-form-valid';
 export { validateDisplayName } from './model/validate-display-name';
 export type { DisplayNameError } from './model/validate-display-name/display-name-error';

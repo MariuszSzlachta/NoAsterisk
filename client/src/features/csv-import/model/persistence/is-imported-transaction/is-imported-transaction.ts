@@ -1,5 +1,5 @@
-import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import { isStoredTransaction } from '#entities/transaction/is-stored-transaction';
+import type { StoredTransaction } from '#entities/transaction/types';
 import { IMPORTED_TRANSACTION_FIELDS } from '#features/csv-import/model/persistence/is-imported-transaction/constants/imported-transaction-fields';
 import { isSha256Hex } from '#shared/adapters/persistence/crypto';
 

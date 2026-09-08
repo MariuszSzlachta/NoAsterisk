@@ -1,5 +1,5 @@
 import { formatAmount } from '#features/dashboard-widgets/model/transformers';
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 import type { QueryState } from '#shared/api';
 
 // ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.

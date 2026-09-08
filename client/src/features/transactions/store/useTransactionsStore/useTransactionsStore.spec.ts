@@ -4,7 +4,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { useRulesStore } from '#features/admin-rules';
+import { useRulesStore } from '#entities/rule';
 import type { CreateTransactionFormValues } from '#features/transactions/model/create-transaction/types';
 
 import { useTransactionsStore } from './useTransactionsStore';

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import { useRulesStore } from '#features/admin-rules';
+import { useRulesStore } from '#entities/rule';
 import {
   categorizeImportedTransactions,
   IMPORT_PROGRESS_STATUS,
@@ -14,7 +14,7 @@ import type { ImportProgress } from '#features/csv-import/model/types';
 import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { LOCAL_IMPORT_FAILED } from '#features/csv-import/ui/hooks/useImportSubmit/constants/local-import-failed';
-import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import { useTransactionsStore } from '#entities/transaction';
 
 interface UseImportSubmitResult {
   readonly progress: ImportProgress;

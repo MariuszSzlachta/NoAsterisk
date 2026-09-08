@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Draft } from 'immer';
 
 import type { PendingBatchEdit } from '#features/csv-import/store/useImportWizardStore/pending-batch-edit';
 import type { ImportWizardData } from '#features/csv-import/store/useImportWizardStore/import-wizard-data';
@@ -94,9 +93,7 @@ export const useImportWizardStore = create<ImportWizardState>()(
       set({ detectedMapping: mapping, columnMapping: mapping }),
     updateColumnMapping: (column, field) =>
       set((state) => {
-        const draft = state.columnMapping as Draft<
-          Record<string, DomainField | undefined>
-        >;
+        const draft = state.columnMapping;
         if (field === undefined) {
           delete draft[column];
           return;
@@ -108,7 +105,7 @@ export const useImportWizardStore = create<ImportWizardState>()(
     setRows: (rows) => set({ rows }),
     updateRow: (id, updates) =>
       set((state) => {
-        const draft = state.rows as Draft<TransactionRow[]>;
+        const draft = state.rows;
         const idx = draft.findIndex((r) => r.id === id);
         if (idx === -1) {
           return;
@@ -162,7 +159,7 @@ export const useImportWizardStore = create<ImportWizardState>()(
             '[ImportWizardStore] Batch title edit applied — caller MUST re-run anonymization on affected rows',
           );
         }
-        const draft = state.rows as Draft<TransactionRow[]>;
+        const draft = state.rows;
         pending.similarRowIds.forEach((rowId) => {
           const idx = draft.findIndex((r) => r.id === rowId);
           if (idx === -1) {

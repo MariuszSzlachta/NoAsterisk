@@ -10,7 +10,6 @@ import {
 import type {
   DataGridProps,
   GridColumn,
-  GridSortConfig,
 } from '#shared/adapters/grid/ports/grid.port';
 
 const mapColumns = <TRow>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
@@ -24,9 +23,14 @@ const mapColumns = <TRow>(columns: GridColumn<TRow>[]): ColDef<TRow>[] => {
       flex: col.flex,
     };
 
-    // ARCH-EXCEPTION: type assertion — AG Grid ColDefField is a recursive template literal
-    // incompatible with port's Extract<keyof TRow, string>. Accepted permanently.
-    (colDef as Record<string, unknown>)['field'] = col.field;
+    // AG Grid's recursive ColDefField type cannot represent the simpler port field.
+    // Define the field at runtime while keeping the adapter boundary typed.
+    Object.defineProperty(colDef, 'field', {
+      configurable: true,
+      enumerable: true,
+      value: col.field,
+      writable: true,
+    });
 
     if (col.comparator) {
       const portComparator = col.comparator;
@@ -135,7 +139,7 @@ export const useAgGrid = <TRow>({
         onSortChange({
           field: sortModel.colId,
           direction: sortModel.sort,
-        } as GridSortConfig);
+        });
       } else {
         onSortChange(undefined);
       }

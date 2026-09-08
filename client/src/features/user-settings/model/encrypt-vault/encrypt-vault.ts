@@ -2,9 +2,14 @@ import { IV_LENGTH } from '#features/user-settings/model/encrypt-vault/constants
 import { SALT_LENGTH } from '#features/user-settings/model/encrypt-vault/constants/salt-length';
 import { deriveKey } from '#features/user-settings/model/encrypt-vault/derive-key';
 import { uint8ToBase64 } from '#features/user-settings/model/encrypt-vault/uint8-to-base64';
+import { MAX_ENCRYPTED_VAULT_LENGTH } from '#features/user-settings/model/vault-limits';
+import { VaultSizeError } from '#features/user-settings/model/vault-size-error';
 import { encryptBytes } from '#shared/adapters/persistence/crypto';
 
-export const encryptVault = async (plaintext: string, password: string): Promise<string> => {
+export const encryptVault = async (
+  plaintext: string,
+  password: string,
+): Promise<string> => {
   const encoder = new TextEncoder();
   const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
   const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
@@ -18,5 +23,9 @@ export const encryptVault = async (plaintext: string, password: string): Promise
     ...new Uint8Array(ciphertext),
   ]);
 
-  return uint8ToBase64(combined);
+  const encrypted = uint8ToBase64(combined);
+  if (encrypted.length > MAX_ENCRYPTED_VAULT_LENGTH) {
+    throw new VaultSizeError();
+  }
+  return encrypted;
 };

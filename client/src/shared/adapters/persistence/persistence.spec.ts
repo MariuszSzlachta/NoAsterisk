@@ -687,15 +687,26 @@ describe('encrypted IndexedDB foundation', () => {
   it('can replace multiple collections atomically through the session boundary', async () => {
     const database = makeDatabase();
     const persistence = createEncryptedPersistence(database);
+    const category = persistenceTestData.createCategory({ label: 'Private' });
     await persistence.unlock('vault-passphrase');
 
     await persistence.replaceCollections([
       { collection: 'transactions', records: [transaction] },
-      { collection: 'categories', records: [persistenceTestData.createCategory({ label: 'Private' })] },
+      { collection: 'categories', records: [category] },
     ]);
 
     expect(await database.records.where('collection').equals('transactions').count()).toBe(1);
     expect(await database.records.where('collection').equals('categories').count()).toBe(1);
+    expect(
+      await persistence
+        .repository('transactions', isStoredEntityTransaction, (record) => record.id)
+        .getAll(),
+    ).toEqual([transaction]);
+    expect(
+      await persistence
+        .repository('categories', isCategoryEntityInfo, (record) => record.id)
+        .getAll(),
+    ).toEqual([category]);
   });
 
   it('supports batch repository writes, replacement and clearing', async () => {

@@ -8,6 +8,81 @@ import { decryptVault } from '#features/user-settings/model/decrypt-vault';
 import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
 import { encryptVault } from '#features/user-settings/model/encrypt-vault';
 import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
+import { MAX_PLAINTEXT_VAULT_LENGTH } from '#features/user-settings/model/vault-limits';
+import {
+  createVaultPayload,
+  serializeVaultPayload,
+  type VaultPayload,
+} from '#features/user-settings/model/vault-payload';
+import { VaultSizeError } from '#features/user-settings/model/vault-size-error';
+
+const buildCompleteVaultPayload = (): VaultPayload =>
+  createVaultPayload(
+    {
+      transactions: [
+        {
+          id: 'tx-1',
+          date: '2026-01-01',
+          description: 'Anonymized merchant',
+          amount: -100,
+          currency: 'PLN',
+          contentHash: 'hash-1',
+          batchId: 'batch-1',
+          importedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      rules: [
+        {
+          id: 'rule-1',
+          keyword: 'SHOP',
+          matcherType: 'Contains',
+          categoryId: 'cat-1',
+          priority: 1,
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      categories: [{ id: 'cat-1', label: 'Food', color: '#00ff00' }],
+      budgets: [
+        {
+          id: 'budget-1',
+          workspaceId: 'workspace-1',
+          name: 'Monthly budget',
+          color: '#0000ff',
+          limitAmount: 1000,
+          limitCurrency: 'PLN',
+          categoryIds: ['cat-1'],
+          createdAt: '2026-01-01T00:00:00.000Z',
+          isArchived: false,
+          budgetType: 'savings',
+          period: null,
+        },
+      ],
+      periodHistory: [
+        {
+          id: 'period-1',
+          budgetId: 'budget-1',
+          periodFrom: '2026-01-01',
+          periodTo: '2026-01-31',
+          limitAmount: 1000,
+          spentAmount: 100,
+          remainingAmount: 900,
+          closedAt: '2026-02-01T00:00:00.000Z',
+          rollover: null,
+        },
+      ],
+      importHistory: [
+        {
+          batchId: 'batch-1',
+          fileName: 'statement.csv',
+          completedAt: '2026-01-01T00:00:00.000Z',
+          acceptedCount: 1,
+          duplicateCount: 0,
+          rejectedCount: 0,
+        },
+      ],
+    },
+    '2026-02-01T00:00:00.000Z',
+  );
 
 describe('vault crypto', () => {
   describe('encryptVault + decryptVault roundtrip', () => {
@@ -68,8 +143,18 @@ describe('vault crypto', () => {
           category: 'groceries',
         })),
         rules: [
-          { id: 'r1', keyword: 'BIEDRONKA', matcherType: 'Contains', categoryId: 'groceries' },
-          { id: 'r2', keyword: 'SPOTIFY', matcherType: 'Exact', categoryId: 'subscriptions' },
+          {
+            id: 'r1',
+            keyword: 'BIEDRONKA',
+            matcherType: 'Contains',
+            categoryId: 'groceries',
+          },
+          {
+            id: 'r2',
+            keyword: 'SPOTIFY',
+            matcherType: 'Exact',
+            categoryId: 'subscriptions',
+          },
         ],
       });
       const password = 'MyVaultP@ss2026!';
@@ -78,6 +163,21 @@ describe('vault crypto', () => {
       const decrypted = await decryptVault(encrypted, password);
 
       expect(decrypted).toBe(vaultData);
+    });
+
+    it('roundtrips the complete versioned snapshot without exposing plaintext', async () => {
+      const payload = buildCompleteVaultPayload();
+      const plaintext = serializeVaultPayload(payload);
+
+      const encrypted = await encryptVault(plaintext, 'complete-vault-pass');
+      const restored = await decryptVaultPayload(
+        encrypted,
+        'complete-vault-pass',
+      );
+
+      expect(restored).toEqual(payload);
+      expect(encrypted).not.toContain('statement.csv');
+      expect(encrypted).not.toContain('Anonymized merchant');
     });
   });
 
@@ -101,7 +201,9 @@ describe('vault crypto', () => {
     it('throws VaultDecryptionError with wrong password', async () => {
       const encrypted = await encryptVault('secret data', 'correctPassword');
 
-      await expect(decryptVault(encrypted, 'wrongPassword')).rejects.toThrow(VaultDecryptionError);
+      await expect(decryptVault(encrypted, 'wrongPassword')).rejects.toThrow(
+        VaultDecryptionError,
+      );
     });
 
     it('throws VaultDecryptionError for corrupted data', async () => {
@@ -109,14 +211,18 @@ describe('vault crypto', () => {
       // Corrupt the base64 by flipping characters in the middle
       const corrupted = encrypted.slice(0, 20) + 'AAAA' + encrypted.slice(24);
 
-      await expect(decryptVault(corrupted, 'pass')).rejects.toThrow(VaultDecryptionError);
+      await expect(decryptVault(corrupted, 'pass')).rejects.toThrow(
+        VaultDecryptionError,
+      );
     });
 
     it('throws VaultDecryptionError for too-short input', async () => {
       // Less than salt(16) + iv(12) + 1 byte = 29 bytes minimum
       const tooShort = btoa('too_short');
 
-      await expect(decryptVault(tooShort, 'pass')).rejects.toThrow(VaultDecryptionError);
+      await expect(decryptVault(tooShort, 'pass')).rejects.toThrow(
+        VaultDecryptionError,
+      );
       await expect(decryptVault(tooShort, 'pass')).rejects.toThrow('too short');
     });
 
@@ -147,14 +253,27 @@ describe('vault crypto', () => {
     it('cannot decrypt with empty password if encrypted with real password', async () => {
       const encrypted = await encryptVault('data', 'realPassword!');
 
-      await expect(decryptVault(encrypted, '')).rejects.toThrow(VaultDecryptionError);
+      await expect(decryptVault(encrypted, '')).rejects.toThrow(
+        VaultDecryptionError,
+      );
+    });
+
+    it('rejects an encrypted snapshot that exceeds the transport limit', async () => {
+      const oversizedPlaintext = 'x'.repeat(MAX_PLAINTEXT_VAULT_LENGTH);
+
+      await expect(
+        encryptVault(oversizedPlaintext, 'large-vault-pass'),
+      ).rejects.toThrow(VaultSizeError);
     });
   });
 
   describe('decryptVaultPayload', () => {
     it('roundtrips valid vault data', async () => {
       const data = JSON.stringify({
-        transactions: [{ id: 'tx-1', amount: 100 }, { id: 'tx-2', amount: 200 }],
+        transactions: [
+          { id: 'tx-1', amount: 100 },
+          { id: 'tx-2', amount: 200 },
+        ],
         rules: [{ id: 'r-1', keyword: 'BIEDRONKA' }],
       });
       const encrypted = await encryptVault(data, 'pass');
@@ -169,7 +288,9 @@ describe('vault crypto', () => {
       const data = JSON.stringify({ transactions: [], rules: [] });
       const encrypted = await encryptVault(data, 'correct');
 
-      await expect(decryptVaultPayload(encrypted, 'wrong')).rejects.toThrow(VaultDecryptionError);
+      await expect(decryptVaultPayload(encrypted, 'wrong')).rejects.toThrow(
+        VaultDecryptionError,
+      );
     });
 
     it('returns empty arrays when keys are missing', async () => {

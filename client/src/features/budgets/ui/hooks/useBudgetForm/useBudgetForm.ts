@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import type { BudgetPeriodRecord } from '#features/budgets/model/types/budget-period-record';
@@ -84,7 +84,7 @@ export const useBudgetForm = ({ editBudget, onClose, initialBudgetType, workspac
 
   const isEditing = editBudget !== undefined;
 
-  const buildInitialValues = (): BudgetFormValues =>
+  const buildInitialValues = useCallback((): BudgetFormValues =>
     editBudget
       ? {
           budgetType: editBudget.budgetType,
@@ -96,7 +96,8 @@ export const useBudgetForm = ({ editBudget, onClose, initialBudgetType, workspac
           dateFrom: editBudget.period?.type === 'custom' ? editBudget.period.dateFrom : '',
           dateTo: editBudget.period?.type === 'custom' ? editBudget.period.dateTo : '',
         }
-      : { ...DEFAULT_VALUES, budgetType: initialBudgetType ?? 'standard' };
+      : { ...DEFAULT_VALUES, budgetType: initialBudgetType ?? 'standard' },
+  [editBudget, initialBudgetType]);
 
   const [values, setValues] = useState<BudgetFormValues>(buildInitialValues);
   const [errors, setErrors] = useState<BudgetFormErrors>({});
@@ -105,8 +106,7 @@ export const useBudgetForm = ({ editBudget, onClose, initialBudgetType, workspac
   useEffect(() => {
     setValues(buildInitialValues());
     setErrors({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when editBudget identity changes
-  }, [editBudget?.id]);
+  }, [buildInitialValues]);
 
   const isSavings = values.budgetType === 'savings';
 

@@ -1,5 +1,5 @@
 import { isImportHistoryRecord } from '#features/csv-import/model/history/is-import-history-record';
-import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
+import { isStoredTransaction } from '#entities/transaction/is-stored-transaction';
 import {
   IMPORT_HISTORY_COLLECTION,
   TRANSACTIONS_COLLECTION,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, expect, it } from 'vitest';
 
 import type {
@@ -18,7 +17,7 @@ import {
   toMonthlyAmount,
 } from './transformers';
 
-const STUB_ICON = React.createElement('span', null, 'icon');
+const STUB_ICON = null;
 
 describe('mapKpiDtoToVm', () => {
   it('maps label, value, delta, trend from DTO', () => {

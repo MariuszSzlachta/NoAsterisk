@@ -7,8 +7,8 @@ import type { TransactionRow } from '#features/csv-import/model/transformation/t
 import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
 import { useImportSubmit } from '#features/csv-import/ui/hooks/useImportSubmit/useImportSubmit';
-import type { StoredTransaction } from '#features/transactions/model/types';
-import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import type { StoredTransaction } from '#entities/transaction/types';
+import { useTransactionsStore } from '#entities/transaction/useTransactionsStore';
 import { apiClient } from '#shared/api';
 
 const prepareImportedTransactionsMock = vi.fn();

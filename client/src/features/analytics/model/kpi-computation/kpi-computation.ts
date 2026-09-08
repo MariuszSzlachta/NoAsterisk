@@ -3,7 +3,7 @@ import { toLocalDateStr } from '#features/analytics/model/date-range';
 import { formatAbsoluteAmount, formatSignedAmount } from '#features/analytics/model/format-amount';
 import { computeMetricForPeriod } from '#features/analytics/model/metric-computation';
 import type { AnalyticsKpi, MetricType } from '#features/analytics/model/types';
-import type { StoredTransaction } from '#features/transactions';
+import type { StoredTransaction } from '#entities/transaction/types';
 
 const MS_PER_DAY = 86_400_000;
 

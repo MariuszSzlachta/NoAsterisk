@@ -4,7 +4,7 @@ import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
 // ARCH-EXCEPTION: cross-feature import — budgets needs transaction data for spent computation.
 // Transactions feature exports useTransactionsStore via its public API (index.ts).
-import { useTransactionsStore } from '#features/transactions';
+import { useTransactionsStore } from '#entities/transaction';
 
 import { getPeriodRange } from '#features/budgets/model/get-period-range';
 import { mapBudgetRecordToViewModel } from '#features/budgets/model/map-budget-record-to-view-model';

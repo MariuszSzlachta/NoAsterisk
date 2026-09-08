@@ -536,13 +536,16 @@
       "encryptionInfo": "Twoje dane są szyfrowane w przeglądarce kluczem wyprowadzonym z Twojego hasła. Serwer przechowuje jedynie zaszyfrowany blob — nie ma dostępu do Twoich danych finansowych.",
       "stats": {
         "transactions": "Transakcje",
+        "categories": "Kategorie",
         "budgets": "Budżety",
         "rules": "Reguły",
-        "importProfiles": "Profile importu",
+        "periodHistory": "Historia okresów",
+        "importHistory": "Historia importów",
         "size": "Rozmiar"
       },
       "syncSuccess": "Dane zaszyfrowane i przesłane pomyślnie.",
       "syncError": "Nie udało się zaszyfrować lub przesłać danych.",
+      "tooLarge": "Ten vault jest zbyt duży, aby bezpiecznie go zapisać.",
       "restoreSuccess": "Dane przywrócone pomyślnie.",
       "restoreError": "Nie udało się przywrócić danych.",
       "wrongPassword": "Nieprawidłowe hasło — nie udało się odszyfrować danych.",

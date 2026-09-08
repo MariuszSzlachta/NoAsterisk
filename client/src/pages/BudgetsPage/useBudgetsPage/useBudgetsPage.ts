@@ -16,12 +16,12 @@ import { useTransactionsStore } from '#features/transactions';
 const VALID_FILTER_TABS: ReadonlyArray<BudgetFilterTab> = ['all', 'needsAttention'];
 
 const isBudgetFilterTab = (value: string): value is BudgetFilterTab =>
-  (VALID_FILTER_TABS as ReadonlyArray<string>).includes(value);
+  VALID_FILTER_TABS.some((tab) => tab === value);
 
 const VALID_PERIODS: ReadonlyArray<BudgetPeriodFilter> = ['monthly', 'yearly', 'custom'];
 
 const isBudgetPeriodFilter = (value: string): value is BudgetPeriodFilter =>
-  (VALID_PERIODS as ReadonlyArray<string>).includes(value);
+  VALID_PERIODS.some((period) => period === value);
 
 // ─── Result Interface ────────────────────────────────────────────
 

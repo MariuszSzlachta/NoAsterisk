@@ -1,5 +1,5 @@
-import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
-import type { StoredTransaction } from '#features/transactions/model/types';
+import { isStoredTransaction } from '#entities/transaction/is-stored-transaction';
+import type { StoredTransaction } from '#entities/transaction/types';
 import { isImportedTransaction } from '#features/csv-import/model/persistence/is-imported-transaction';
 import type { ImportedTransactionsWriteResult } from '#features/csv-import/model/persistence/types';
 import { INVALID_IMPORTED_TRANSACTIONS } from '#features/csv-import/model/persistence/save-imported-transactions/constants/invalid-imported-transactions';

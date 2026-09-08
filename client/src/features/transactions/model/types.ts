@@ -3,20 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 // ─── Stored Transaction (persistence shape) ──────────────────────
-
-export interface StoredTransaction {
-  readonly id: string;
-  readonly date: string;
-  readonly description: string;
-  readonly amount: number;
-  readonly currency: string;
-  readonly categoryId?: string;
-  readonly accountName?: string;
-  readonly contentHash: string;
-  readonly batchId: string;
-  readonly importedAt: string;
-  readonly budgetId?: string;
-}
+export type { StoredTransaction } from '#entities/transaction';
 
 // ─── Category Lookup ─────────────────────────────────────────────
 // CategoryInfo now lives in #entities/category

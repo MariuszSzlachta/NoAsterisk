@@ -3,18 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useVaultQuery } from '#features/user-settings/api/useVaultQuery';
-import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
-import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
-import { formatSyncDate } from '#features/user-settings/model/format-sync-date';
 // ARCH-EXCEPTION: cross-feature import — vault restore needs to write all stores.
 // Planned resolution: centralized data layer (post-MVP)
-import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
-import { isRuleRecordArray } from '#features/user-settings/ui/hooks/useVaultSection/is-rule-record-array';
-import { isStoredTransactionArray } from '#features/user-settings/ui/hooks/useVaultSection/is-stored-transaction-array';
-import { useToast } from '#shared/hooks/useToast';
+import { useTransactionsStore } from '#entities/transaction';
+import { useVaultQuery } from '#features/user-settings/api/useVaultQuery';
+import { decryptVaultPayload } from '#features/user-settings/model/decrypt-vault-payload';
+import { formatSyncDate } from '#features/user-settings/model/format-sync-date';
+import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
+import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
 import type { UseRestoreOnLoginResult } from '#features/user-settings/ui/hooks/useRestoreOnLogin/use-restore-on-login-result';
+import { useToast } from '#shared/hooks/useToast';
 
 export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
   const { t } = useTranslation();
@@ -36,7 +34,9 @@ export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
     }
   }, [shouldPrompt]);
 
-  const backupDate = vaultData?.updatedAt ? formatSyncDate(vaultData.updatedAt) : '';
+  const backupDate = vaultData?.updatedAt
+    ? formatSyncDate(vaultData.updatedAt)
+    : '';
 
   const handleRestore = (password: string): void => {
     void performRestore(password);
@@ -51,18 +51,11 @@ export const useRestoreOnLogin = (): UseRestoreOnLoginResult => {
     setError(undefined);
 
     try {
-      const payload = await decryptVaultPayload(vaultData.encryptedBlob, password);
-
-      if (payload.transactions.length > 0 && isStoredTransactionArray(payload.transactions)) {
-        useTransactionsStore.setState({
-          transactions: payload.transactions,
-        });
-      }
-      if (payload.rules.length > 0 && isRuleRecordArray(payload.rules)) {
-        useRulesStore.setState({
-          rules: payload.rules,
-        });
-      }
+      const payload = await decryptVaultPayload(
+        vaultData.encryptedBlob,
+        password,
+      );
+      await restoreVaultPayload(payload);
 
       setShowDialog(false);
       addToast(t('settings.vault.restoreSuccess'), 'success');

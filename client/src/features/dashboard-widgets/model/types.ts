@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from '#shared/types/react-node';
 
 // --- DTO types (API response shapes) ---
 

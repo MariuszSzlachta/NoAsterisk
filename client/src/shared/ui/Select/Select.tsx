@@ -68,11 +68,14 @@ export const Select = ({
       return;
     }
     const handleOutside = (e: MouseEvent): void => {
+      if (!(e.target instanceof Node)) {
+        return;
+      }
       if (
         listRef.current &&
-        !listRef.current.contains(e.target as Node) &&
+        !listRef.current.contains(e.target) &&
         triggerRef.current &&
-        !triggerRef.current.contains(e.target as Node)
+        !triggerRef.current.contains(e.target)
       ) {
         close();
       }

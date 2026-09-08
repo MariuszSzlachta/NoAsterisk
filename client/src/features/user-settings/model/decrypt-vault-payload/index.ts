@@ -1,1 +1,4 @@
-export { decryptVaultPayload } from './decrypt-vault-payload';
+export {
+  decryptVaultPayload,
+  parseVaultPayload,
+} from './decrypt-vault-payload';
