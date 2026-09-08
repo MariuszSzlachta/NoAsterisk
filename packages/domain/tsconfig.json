@@ -16,7 +16,6 @@
       "#domain/shared/*": ["./src/shared/*"],
       "#domain/transaction/*": ["./src/transaction/*"],
       "#domain/account/*": ["./src/account/*"],
-      "#domain/import-batch/*": ["./src/import-batch/*"],
       "#domain/categorization-rule/*": ["./src/categorization-rule/*"],
       "#domain/category/*": ["./src/category/*"],
       "#domain/budget/*": ["./src/budget/*"]

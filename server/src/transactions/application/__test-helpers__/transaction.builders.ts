@@ -13,8 +13,6 @@ export const buildMockTransactionRepo =
     findUncategorized: jest.fn(),
     findPaged: jest.fn(),
     existsByCategoryId: jest.fn(),
-    existsByContentHash: jest.fn(),
-    deleteByBatchId: jest.fn(),
     delete: jest.fn(),
   });
 

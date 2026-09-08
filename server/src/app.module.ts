@@ -4,7 +4,6 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { DatabaseModule } from '@shared/infrastructure/database/database.module';
 import { TransactionsModule } from '@transactions/transactions.module';
 import { CategoriesModule } from '@categories/categories.module';
-import { ImportsModule } from '@imports/imports.module';
 import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 import { AuthModule } from '@auth/auth.module';
 import { UserSettingsModule } from '@user-settings/user-settings.module';
@@ -22,7 +21,6 @@ const imports: Array<Type | DynamicModule> = [
   InviteCodesModule,
   TransactionsModule,
   CategoriesModule,
-  ImportsModule,
   ImportProfilesModule,
   UserSettingsModule,
   DictionariesModule,

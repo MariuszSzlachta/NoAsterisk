@@ -10,6 +10,5 @@ export interface TransactionRecord {
   date: string;
   created_at: string;
   content_hash?: string;
-  import_batch_id?: string;
   balance?: number;
 }

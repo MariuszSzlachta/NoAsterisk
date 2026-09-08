@@ -154,36 +154,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
     return rows.length > 0;
   }
 
-  async existsByContentHash(
-    workspaceId: string,
-    contentHash: string,
-  ): Promise<boolean> {
-    const rows = await this.db
-      .select({ id: transactions.id })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.workspaceId, workspaceId),
-          eq(transactions.contentHash, contentHash),
-        ),
-      )
-      .limit(1);
-    return rows.length > 0;
-  }
-
-  async deleteByBatchId(workspaceId: string, batchId: string): Promise<number> {
-    const result = await this.db
-      .delete(transactions)
-      .where(
-        and(
-          eq(transactions.workspaceId, workspaceId),
-          eq(transactions.importBatchId, batchId),
-        ),
-      )
-      .returning({ id: transactions.id });
-    return result.length;
-  }
-
   async delete(id: string): Promise<void> {
     await this.db.delete(transactions).where(eq(transactions.id, id));
   }
@@ -200,7 +170,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
       date: t.date,
       categoryIds: [...t.categoryIds],
       contentHash: t.contentHash ?? null,
-      importBatchId: t.importBatchId ?? null,
       budgetId: t.budgetId ?? null,
       balance: t.balance?.toString() ?? null,
       createdAt: t.createdAt,
@@ -227,7 +196,6 @@ export class PostgresTransactionRepository implements TransactionRepository {
       row.date,
       row.createdAt,
       row.contentHash ?? undefined,
-      row.importBatchId ?? undefined,
       row.balance ? Number(row.balance) : undefined,
       row.budgetId ?? undefined,
     );

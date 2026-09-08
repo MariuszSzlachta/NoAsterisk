@@ -30,10 +30,5 @@ export interface TransactionRepository {
   // ARCH-EXCEPTION: global-scope — existsByCategoryId uses category UUID (globally unique).
   // Handler verifies workspace ownership before calling delete. Defense-in-depth gap accepted.
   existsByCategoryId(categoryId: string): Promise<boolean>;
-  existsByContentHash(
-    workspaceId: string,
-    contentHash: string,
-  ): Promise<boolean>;
-  deleteByBatchId(workspaceId: string, batchId: string): Promise<number>;
   delete(id: string): Promise<void>;
 }

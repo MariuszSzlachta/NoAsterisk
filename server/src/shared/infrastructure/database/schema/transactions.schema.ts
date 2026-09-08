@@ -24,7 +24,6 @@ export const transactions = pgTable(
     date: timestamp('date', { withTimezone: true }).notNull(),
     categoryIds: jsonb('category_ids').notNull().default([]),
     contentHash: varchar('content_hash', { length: 128 }),
-    importBatchId: uuid('import_batch_id'),
     budgetId: uuid('budget_id'),
     balance: numeric('balance', { precision: 14, scale: 2 }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),

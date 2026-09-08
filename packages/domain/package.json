@@ -8,7 +8,6 @@
     "#domain/shared/*": "./src/shared/*.ts",
     "#domain/transaction/*": "./src/transaction/*.ts",
     "#domain/account/*": "./src/account/*.ts",
-    "#domain/import-batch/*": "./src/import-batch/*.ts",
     "#domain/categorization-rule/*": "./src/categorization-rule/*.ts",
     "#domain/category/*": "./src/category/*.ts",
     "#domain/budget/*": "./src/budget/*.ts"

@@ -21,7 +21,6 @@ export class Transaction {
     public readonly date: Date,
     public readonly createdAt: Date,
     public readonly contentHash?: string | undefined,
-    public readonly importBatchId?: string | undefined,
     public readonly balance?: number | undefined,
     public readonly budgetId?: string | undefined,
   ) {
@@ -55,7 +54,6 @@ export class Transaction {
     description: string;
     date: Date;
     contentHash?: string;
-    importBatchId?: string;
     balance?: number;
     budgetId?: string;
   }): Transaction {
@@ -70,7 +68,6 @@ export class Transaction {
       props.date,
       new Date(),
       props.contentHash,
-      props.importBatchId,
       props.balance,
       props.budgetId,
     );
@@ -100,7 +97,6 @@ export class Transaction {
       props.date ?? this.date,
       this.createdAt,
       this.contentHash,
-      this.importBatchId,
       this.balance,
       this.budgetId,
     );
@@ -121,7 +117,6 @@ export class Transaction {
       this.date,
       this.createdAt,
       this.contentHash,
-      this.importBatchId,
       this.balance,
       this.budgetId,
     );
@@ -142,7 +137,6 @@ export class Transaction {
       this.date,
       this.createdAt,
       this.contentHash,
-      this.importBatchId,
       this.balance,
       this.budgetId,
     );
@@ -166,7 +160,6 @@ export class Transaction {
       this.date,
       this.createdAt,
       this.contentHash,
-      this.importBatchId,
       this.balance,
       budgetId,
     );
@@ -187,7 +180,6 @@ export class Transaction {
       this.date,
       this.createdAt,
       this.contentHash,
-      this.importBatchId,
       this.balance,
       undefined,
     );

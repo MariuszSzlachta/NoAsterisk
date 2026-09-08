@@ -7,7 +7,6 @@ export default defineConfig({
       '#domain/shared': resolve(__dirname, 'src/shared'),
       '#domain/transaction': resolve(__dirname, 'src/transaction'),
       '#domain/account': resolve(__dirname, 'src/account'),
-      '#domain/import-batch': resolve(__dirname, 'src/import-batch'),
       '#domain/categorization-rule': resolve(__dirname, 'src/categorization-rule'),
       '#domain/category': resolve(__dirname, 'src/category'),
       '#domain/budget': resolve(__dirname, 'src/budget'),

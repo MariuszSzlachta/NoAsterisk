@@ -20,7 +20,6 @@ export class TransactionMapper {
       new Date(record.date),
       new Date(record.created_at),
       record.content_hash,
-      record.import_batch_id,
       record.balance,
     );
   }
@@ -38,7 +37,6 @@ export class TransactionMapper {
       date: entity.date.toISOString(),
       created_at: entity.createdAt.toISOString(),
       content_hash: entity.contentHash,
-      import_batch_id: entity.importBatchId,
       balance: entity.balance,
     };
   }

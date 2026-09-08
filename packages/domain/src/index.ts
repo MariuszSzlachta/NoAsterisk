@@ -9,7 +9,6 @@ export { Transaction, TransactionType } from '#domain/transaction/transaction.en
 export { Money } from '#domain/transaction/money.vo';
 export { isTransactionType } from '#domain/transaction/transaction-type.guard';
 export { computeContentHashInput } from '#domain/transaction/content-hash';
-export { ImportBatch, ImportBatchStatus } from '#domain/import-batch/import-batch.entity';
 export { CategorizationRule } from '#domain/categorization-rule/categorization-rule.entity';
 export { MatcherType } from '#domain/categorization-rule/matcher-type.enum';
 export { ContainsMatcher, ExactMatcher, MATCHERS } from '#domain/categorization-rule/matchers';

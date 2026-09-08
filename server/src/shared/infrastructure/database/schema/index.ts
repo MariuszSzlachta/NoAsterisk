@@ -4,7 +4,6 @@ export { permissions } from './permissions.schema';
 export { vaults } from './vaults.schema';
 export { transactions } from './transactions.schema';
 export { categories } from './categories.schema';
-export { importBatches } from './import-batches.schema';
 export { importProfiles } from './import-profiles.schema';
 export { dictionaries } from './dictionaries.schema';
 export { inviteCodes } from './invite-codes.schema';

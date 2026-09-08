@@ -15,7 +15,6 @@ describe('Transaction', () => {
     date: new Date('2026-01-15'),
     createdAt: new Date('2026-01-15T10:00:00Z'),
     contentHash: undefined as string | undefined,
-    importBatchId: undefined as string | undefined,
     balance: undefined as number | undefined,
     budgetId: undefined as string | undefined,
   };
@@ -32,7 +31,6 @@ describe('Transaction', () => {
       overrides?.date ?? validProps.date,
       overrides?.createdAt ?? validProps.createdAt,
       'contentHash' in (overrides ?? {}) ? overrides?.contentHash : validProps.contentHash,
-      'importBatchId' in (overrides ?? {}) ? overrides?.importBatchId : validProps.importBatchId,
       'balance' in (overrides ?? {}) ? overrides?.balance : validProps.balance,
       'budgetId' in (overrides ?? {}) ? overrides?.budgetId : validProps.budgetId,
     );
@@ -91,13 +89,12 @@ describe('Transaction', () => {
       expect(tx.description).toBe('Zakupy BIEDRONKA');
     });
 
-    it('accepts optional contentHash, importBatchId, and balance', () => {
+    it('accepts optional contentHash and balance', () => {
       const tx = new Transaction(
         'tx-1', 'ws-1', 'acc-1', Money.of(50, 'PLN'), TransactionType.Income,
-        [], 'desc', new Date(), new Date(), 'hash-123', 'batch-456', 1234.56,
+        [], 'desc', new Date(), new Date(), 'hash-123', 1234.56,
       );
       expect(tx.contentHash).toBe('hash-123');
-      expect(tx.importBatchId).toBe('batch-456');
       expect(tx.balance).toBe(1234.56);
     });
   });
@@ -124,7 +121,7 @@ describe('Transaction', () => {
       expect(tx.createdAt).toBeInstanceOf(Date);
     });
 
-    it('passes contentHash, importBatchId, and balance', () => {
+    it('passes contentHash and balance', () => {
       const tx = Transaction.create({
         workspaceId: 'ws-1',
         accountId: 'acc-1',
@@ -135,12 +132,10 @@ describe('Transaction', () => {
         description: 'Salary',
         date: new Date(),
         contentHash: 'abc',
-        importBatchId: 'batch-1',
         balance: 5000,
       });
 
       expect(tx.contentHash).toBe('abc');
-      expect(tx.importBatchId).toBe('batch-1');
       expect(tx.balance).toBe(5000);
     });
 
@@ -208,7 +203,6 @@ describe('Transaction', () => {
       expect(updated.date).toBe(tx.date);
       expect(updated.createdAt).toBe(tx.createdAt);
       expect(updated.contentHash).toBe(tx.contentHash);
-      expect(updated.importBatchId).toBe(tx.importBatchId);
       expect(updated.balance).toBe(tx.balance);
     });
 
@@ -320,7 +314,7 @@ describe('Transaction', () => {
     });
 
     it('preserves all other fields', () => {
-      const tx = buildTransaction({ contentHash: 'hash-1', importBatchId: 'batch-1', balance: 500 });
+      const tx = buildTransaction({ contentHash: 'hash-1', balance: 500 });
       const updated = tx.assignBudget('budget-1');
 
       expect(updated.id).toBe(tx.id);
@@ -333,7 +327,6 @@ describe('Transaction', () => {
       expect(updated.date).toBe(tx.date);
       expect(updated.createdAt).toBe(tx.createdAt);
       expect(updated.contentHash).toBe('hash-1');
-      expect(updated.importBatchId).toBe('batch-1');
       expect(updated.balance).toBe(500);
     });
   });
@@ -354,7 +347,7 @@ describe('Transaction', () => {
     });
 
     it('preserves all other fields', () => {
-      const tx = buildTransaction({ contentHash: 'hash-1', importBatchId: 'batch-1', balance: 500, budgetId: 'budget-1' });
+      const tx = buildTransaction({ contentHash: 'hash-1', balance: 500, budgetId: 'budget-1' });
       const updated = tx.removeBudget();
 
       expect(updated.id).toBe(tx.id);
@@ -362,7 +355,6 @@ describe('Transaction', () => {
       expect(updated.accountId).toBe(tx.accountId);
       expect(updated.money).toBe(tx.money);
       expect(updated.contentHash).toBe('hash-1');
-      expect(updated.importBatchId).toBe('batch-1');
       expect(updated.balance).toBe(500);
     });
   });
@@ -382,7 +374,6 @@ describe('Transaction', () => {
   describe('budgetId propagation in existing methods', () => {
     const txWithBudget = buildTransaction({
       contentHash: 'hash-1',
-      importBatchId: 'batch-1',
       balance: 500,
       budgetId: 'budget-1',
     });
