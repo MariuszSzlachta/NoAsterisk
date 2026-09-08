@@ -29,6 +29,7 @@
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "import": "CSV Import",
+    "importHistory": "Import history",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "rules": "Rules",
@@ -48,6 +49,7 @@
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "import": "Import",
+    "importHistory": "Import history",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "rules": "Rules",
@@ -59,6 +61,7 @@
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "import": "CSV Import",
+    "importHistory": "Import history",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "rules": "Rules",
@@ -69,6 +72,34 @@
   "user": {
     "workspace": "Home account",
     "email": "user@example.com"
+  },
+  "importHistory": {
+    "title": "Import history",
+    "description": "Review locally stored import batches and remove their transactions when needed.",
+    "importMore": "Import CSV",
+    "completedAt": "Completed {{date}}",
+    "delete": "Delete import {{fileName}}",
+    "stats": {
+      "accepted": "New transactions",
+      "duplicates": "Duplicates",
+      "rejected": "Rejected"
+    },
+    "empty": {
+      "title": "No imports yet",
+      "description": "Completed local CSV imports will appear here. Your file and history stay encrypted in this browser.",
+      "action": "Start an import"
+    },
+    "error": {
+      "title": "Import history is unavailable",
+      "description": "Unlock local storage again to view your import history."
+    },
+    "deleteDialog": {
+      "title": "Delete this import?",
+      "description": "This removes \"{{fileName}}\" and all transactions from this import. Manually created transactions and other imports will remain.",
+      "cancel": "Cancel",
+      "confirm": "Delete import",
+      "deleting": "Deleting..."
+    }
   },
   "analytics": {
     "metrics": {
@@ -342,15 +373,14 @@
     },
     "confirm": {
       "title": "Import confirmation",
-      "readyDescription": "Ready to import: {{count}} transactions will be sent to the server.",
+      "readyDescription": "Ready to import: {{count}} transactions will be saved locally.",
       "submit": "Import transactions",
-      "progress": "Sending batch {{completed}} of {{total}}...",
       "saved": "Saved {{count}} transactions",
       "success": "Import completed successfully",
       "successDetail": "Saved: {{saved}}, duplicates skipped: {{duplicates}}",
       "failed": "Import completed with errors",
       "partialSuccess": "Partially saved: {{saved}} transactions",
-      "retry": "Retry import"
+      "rejectedRow": "Row {{row}} skipped: {{reason}}"
     },
     "nav": {
       "back": "Back",

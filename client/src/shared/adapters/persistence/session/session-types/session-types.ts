@@ -1,6 +1,10 @@
 import type {
   EncryptedCollectionWrite,
+  EncryptedCollectionWriteIfAbsent,
+  EncryptedRecordDeletion,
+  EncryptedRelatedWrite,
   EncryptedRepository,
+  EncryptedWriteResult,
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
 
@@ -25,11 +29,30 @@ interface EncryptedPersistence {
     getId: (record: TRecord) => string,
   ) => EncryptedRepository<TRecord>;
   readonly requestPersistentStorage: () => Promise<PersistentStorageStatus>;
-  readonly unlock: (passphrase: string, hydrate?: () => Promise<void>) => Promise<void>;
+  readonly unlock: (
+    passphrase: string,
+    hydrate?: () => Promise<void>,
+  ) => Promise<void>;
   readonly lock: () => void;
   readonly failClosed: (error: unknown) => void;
-  readonly clearLocalData: (options?: { readonly removePreferences?: boolean }) => Promise<void>;
-  readonly replaceCollections: (writes: ReadonlyArray<EncryptedCollectionWrite>) => Promise<void>;
+  readonly clearLocalData: (options?: {
+    readonly removePreferences?: boolean;
+  }) => Promise<void>;
+  readonly replaceCollections: (
+    writes: ReadonlyArray<EncryptedCollectionWrite>,
+  ) => Promise<void>;
+  readonly putManyIfAbsentWithRelated: <
+    TRecord extends object,
+    TRelated extends object,
+  >(
+    primaryWrite: EncryptedCollectionWriteIfAbsent<TRecord>,
+    createRelatedWrite: (
+      result: EncryptedWriteResult<TRecord>,
+    ) => EncryptedRelatedWrite<TRelated>,
+  ) => Promise<EncryptedWriteResult<TRecord>>;
+  readonly deleteMatchingRecords: (
+    deletions: ReadonlyArray<EncryptedRecordDeletion>,
+  ) => Promise<void>;
 }
 
 const INITIAL_PERSISTENCE_SNAPSHOT: PersistenceSessionSnapshot = {

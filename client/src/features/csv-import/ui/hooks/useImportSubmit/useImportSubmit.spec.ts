@@ -1,332 +1,316 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { TransactionRow } from '#features/csv-import/model/types';
+import type { AnonymizationEntry } from '#features/csv-import/model/anonymization/types/anonymization-entry';
+import type { PreparedImportedTransactions } from '#features/csv-import/model/persistence/types';
+import type { TransactionRow } from '#features/csv-import/model/transformation/types/transaction-row';
+import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
-import { ApiError } from '#shared/api';
+import { useImportSubmit } from '#features/csv-import/ui/hooks/useImportSubmit/useImportSubmit';
+import type { StoredTransaction } from '#features/transactions/model/types';
+import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
+import { apiClient } from '#shared/api';
 
-import { useImportSubmit } from './useImportSubmit';
+const prepareImportedTransactionsMock = vi.fn();
+const categorizeImportedTransactionsMock = vi.fn();
+const saveImportedBatchMock = vi.fn();
 
-// ─── Mocks ───────────────────────────────────────────────────────
-
-const submitChunkMock = vi.fn();
-
-vi.mock('#features/csv-import/api/useImportMutation', () => ({
-  useImportMutation: () => ({ submitChunk: submitChunkMock }),
+vi.mock('#features/csv-import/model/persistence', () => ({
+  INITIAL_IMPORT_PROGRESS: {
+    totalRows: 0,
+    savedRows: 0,
+    duplicatesSkipped: 0,
+    rejectedRows: [],
+    errors: [],
+    status: 'idle',
+  },
+  IMPORT_PROGRESS_STATUS: {
+    idle: 'idle',
+    submitting: 'submitting',
+    completed: 'completed',
+    failed: 'failed',
+  },
+  prepareImportedTransactions: (...args: unknown[]) =>
+    prepareImportedTransactionsMock(...args),
+  categorizeImportedTransactions: (...args: unknown[]) =>
+    categorizeImportedTransactionsMock(...args),
+  saveImportedBatch: (...args: unknown[]) => saveImportedBatchMock(...args),
+  selectAcceptedImportRows: (
+    rows: ReadonlyArray<TransactionRow>,
+    entries: ReadonlyArray<AnonymizationEntry>,
+  ) =>
+    rows.flatMap((row, rowIndex) => {
+      const entry = entries.find((item) => item.rowIndex === rowIndex);
+      return row.status !== 'error' &&
+        row.status !== 'duplicate' &&
+        entry?.accepted === true
+        ? [{ row, rowIndex, description: entry.anonymizedTitle }]
+        : [];
+    }),
 }));
-
-vi.mock('#features/csv-import/model/submission/import-chunks', () => ({
-  createImportChunks: vi.fn(async (rows: TransactionRow[]) => {
-    // Return simple canned chunks — 1 chunk per 50 rows
-    const count = rows.filter(
-      (r) => r.status === 'ok' || r.status === 'warning',
-    ).length;
-    const chunkCount = Math.max(1, Math.ceil(count / 50));
-    return Array.from({ length: chunkCount }, (_, i) => ({
-      batchId: 'test-batch-id',
-      batchHash: `hash-${i}`,
-      rows: [
-        {
-          amount: -100,
-          currency: 'PLN',
-          type: 'expense',
-          description: 'test',
-          date: '2026-01-01',
-          categoryIds: [],
-          contentHash: `h-${i}`,
-        },
-      ],
-    }));
-  }),
-}));
-
-// ─── Test Data ───────────────────────────────────────────────────
 
 const buildRow = (overrides: Partial<TransactionRow> = {}): TransactionRow => ({
-  id: `row-${Math.random().toString(36).slice(2, 8)}`,
+  id: 'row-1',
   date: '2026-01-15',
-  title: 'Test Transaction',
+  title: 'Safe title',
   amount: -100,
   currency: 'PLN',
   status: 'ok',
   ...overrides,
 });
 
-const buildRows = (count: number): TransactionRow[] =>
-  Array.from({ length: count }, (_, i) =>
-    buildRow({ id: `row-${i}`, title: `Transaction ${i}` }),
-  );
+const buildEntry = (
+  rowIndex: number,
+  overrides: Partial<AnonymizationEntry> = {},
+): AnonymizationEntry => ({
+  rowIndex,
+  originalTitle: 'Original PII title',
+  anonymizedTitle: 'Safe title',
+  spans: [],
+  status: 'safe',
+  accepted: true,
+  ...overrides,
+});
 
-// ─── Tests ───────────────────────────────────────────────────────
+const buildRecord = (
+  overrides: Partial<StoredTransaction> = {},
+): StoredTransaction => ({
+  id: 'row-1',
+  date: '2026-01-15',
+  description: 'Safe title',
+  amount: -100,
+  currency: 'PLN',
+  contentHash: 'content-hash',
+  batchId: 'batch-1',
+  importedAt: '2026-01-15T12:00:00.000Z',
+  ...overrides,
+});
+
+const buildPrepared = (
+  records: ReadonlyArray<StoredTransaction>,
+): PreparedImportedTransactions => ({
+  records,
+  rejectedRows: [],
+});
 
 describe('useImportSubmit', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
     vi.clearAllMocks();
     useImportWizardStore.getState().reset();
+    useTransactionsStore.setState({ transactions: [] });
+    useImportHistoryStore.setState({ history: [] });
+    saveImportedBatchMock.mockResolvedValue({
+      written: [buildRecord()],
+      duplicatesSkipped: 0,
+      historyRecord: {
+        batchId: 'batch-1',
+        fileName: 'unknown.csv',
+        completedAt: '2026-09-08T10:00:00.000Z',
+        acceptedCount: 1,
+        duplicateCount: 0,
+        rejectedCount: 0,
+      },
+    });
+    const records = [buildRecord()];
+    prepareImportedTransactionsMock.mockResolvedValue(buildPrepared(records));
+    categorizeImportedTransactionsMock.mockImplementation(
+      (items: ReadonlyArray<StoredTransaction>) => items,
+    );
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    useImportWizardStore.getState().reset();
+    useTransactionsStore.setState({ transactions: [] });
+    useImportHistoryStore.setState({ history: [] });
   });
 
-  describe('canSubmit', () => {
-    it('returns false when no rows', () => {
-      const { result } = renderHook(() => useImportSubmit());
-
-      expect(result.current.canSubmit).toBe(false);
+  it('only enables submit for accepted post-review rows', () => {
+    useImportWizardStore.setState({
+      rows: [
+        buildRow(),
+        buildRow({ id: 'row-2', status: 'warning' }),
+        buildRow({ id: 'row-3', status: 'error' }),
+      ],
+      anonymizationEntries: [
+        buildEntry(0),
+        buildEntry(1, { accepted: false, status: 'needs_review' }),
+        buildEntry(2),
+      ],
     });
 
-    it('returns true when importable rows exist', () => {
-      useImportWizardStore.setState({ rows: buildRows(5) });
+    const { result } = renderHook(() => useImportSubmit());
 
-      const { result } = renderHook(() => useImportSubmit());
-
-      expect(result.current.canSubmit).toBe(true);
-    });
-
-    it('returns false when all rows are errors/duplicates', () => {
-      useImportWizardStore.setState({
-        rows: [
-          buildRow({ status: 'error' }),
-          buildRow({ status: 'duplicate' }),
-        ],
-      });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      expect(result.current.canSubmit).toBe(false);
-    });
+    expect(result.current.importableCount).toBe(1);
+    expect(result.current.canSubmit).toBe(true);
   });
 
-  describe('importableCount', () => {
-    it('counts only ok + warning rows', () => {
-      useImportWizardStore.setState({
-        rows: [
-          buildRow({ status: 'ok' }),
-          buildRow({ status: 'ok' }),
-          buildRow({ status: 'warning' }),
-          buildRow({ status: 'error' }),
-          buildRow({ status: 'duplicate' }),
-        ],
-      });
+  it('starts idle and disables submit without accepted rows', () => {
+    const { result } = renderHook(() => useImportSubmit());
 
-      const { result } = renderHook(() => useImportSubmit());
-
-      expect(result.current.importableCount).toBe(3);
-    });
+    expect(result.current.progress.status).toBe('idle');
+    expect(result.current.canSubmit).toBe(false);
   });
 
-  describe('initial progress', () => {
-    it('starts with idle status', () => {
-      useImportWizardStore.setState({ rows: buildRows(5) });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      expect(result.current.progress.status).toBe('idle');
-      expect(result.current.progress.totalChunks).toBe(0);
-      expect(result.current.progress.savedRows).toBe(0);
+  it('persists locally, updates the transactions store and clears wizard PII', async () => {
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
     });
+    const { result } = renderHook(() => useImportSubmit());
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.progress.status).toBe('completed');
+    expect(result.current.progress.savedRows).toBe(1);
+    expect(useTransactionsStore.getState().transactions).toEqual([
+      buildRecord(),
+    ]);
+    expect(useImportWizardStore.getState().rows).toEqual([]);
+    expect(useImportWizardStore.getState().anonymizationEntries).toEqual([]);
+    expect(saveImportedBatchMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        batchId: expect.any(String),
+        rejectedCount: 0,
+      }),
+    );
   });
 
-  describe('handleSubmit — success', () => {
-    it('transitions to completed on success', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
+  it('reports duplicates and rejected rows in the completion summary', async () => {
+    const prepared: PreparedImportedTransactions = {
+      records: [buildRecord()],
+      rejectedRows: [{ rowIndex: 2, reason: 'Duplicate row' }],
+    };
+    prepareImportedTransactionsMock.mockResolvedValue(prepared);
+    saveImportedBatchMock.mockResolvedValue({
+      written: [],
+      duplicatesSkipped: 1,
+      historyRecord: {
+        batchId: 'batch-1',
+        fileName: 'unknown.csv',
+        completedAt: '2026-09-08T10:00:00.000Z',
+        acceptedCount: 0,
+        duplicateCount: 1,
+        rejectedCount: 1,
+      },
+    });
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
+    });
+    const { result } = renderHook(() => useImportSubmit());
 
-      submitChunkMock.mockResolvedValue({ saved: 3, duplicatesSkipped: 0 });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.status).toBe('completed');
-      expect(result.current.progress.savedRows).toBe(3);
-      expect(result.current.progress.errors).toHaveLength(0);
+    await act(async () => {
+      await result.current.handleSubmit();
     });
 
-    it('reports duplicatesSkipped from server response', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(5),
-        file: new File([''], 'test.csv'),
-      });
-
-      submitChunkMock.mockResolvedValue({ saved: 3, duplicatesSkipped: 2 });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.duplicatesSkipped).toBe(2);
-    });
+    expect(result.current.progress.duplicatesSkipped).toBe(1);
+    expect(result.current.progress.rejectedRows).toEqual([
+      { rowIndex: 2, reason: 'Duplicate row' },
+    ]);
   });
 
-  describe('handleSubmit — failure', () => {
-    it('transitions to failed when chunk submission throws non-retryable error', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
+  it('does not write to local memory when preparation validation fails', async () => {
+    prepareImportedTransactionsMock.mockRejectedValue(
+      new Error('Accepted import row is not valid for local persistence'),
+    );
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
+    });
+    const { result } = renderHook(() => useImportSubmit());
 
-      submitChunkMock.mockRejectedValue(new ApiError('Bad Request', 400));
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.status).toBe('failed');
-      expect(result.current.progress.errors.length).toBeGreaterThan(0);
+    await act(async () => {
+      await result.current.handleSubmit();
     });
 
-    it('canSubmit remains true after failure (for retry)', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
-
-      submitChunkMock.mockRejectedValue(new ApiError('Bad Request', 400));
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.canSubmit).toBe(true);
-    });
+    expect(result.current.progress.status).toBe('failed');
+    expect(result.current.progress.errors).toEqual([
+      'Accepted import row is not valid for local persistence',
+    ]);
+    expect(saveImportedBatchMock).not.toHaveBeenCalled();
+    expect(useTransactionsStore.getState().transactions).toEqual([]);
   });
 
-  describe('retry logic', () => {
-    it('retries on 5xx errors up to MAX_RETRIES times then succeeds', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
+  it('performs no HTTP import request', async () => {
+    const postSpy = vi.spyOn(apiClient, 'post');
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
+    });
+    const { result } = renderHook(() => useImportSubmit());
 
-      submitChunkMock
-        .mockRejectedValueOnce(new ApiError('Server Error', 500))
-        .mockRejectedValueOnce(new ApiError('Server Error', 500))
-        .mockResolvedValueOnce({ saved: 3, duplicatesSkipped: 0 });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        const promise = result.current.handleSubmit();
-        await vi.runAllTimersAsync();
-        await promise;
-      });
-
-      expect(result.current.progress.status).toBe('completed');
-      expect(submitChunkMock).toHaveBeenCalledTimes(3);
+    await act(async () => {
+      await result.current.handleSubmit();
     });
 
-    it('fails after exhausting retries on 5xx', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
-
-      submitChunkMock.mockRejectedValue(new ApiError('Server Error', 500));
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        const promise = result.current.handleSubmit();
-        await vi.runAllTimersAsync();
-        await promise;
-      });
-
-      expect(result.current.progress.status).toBe('failed');
-      // 1 initial + 2 retries = 3 calls
-      expect(submitChunkMock).toHaveBeenCalledTimes(3);
-    });
-
-    it('does not retry on 4xx errors (non-retryable)', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
-
-      submitChunkMock.mockRejectedValue(new ApiError('Validation Error', 422));
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.status).toBe('failed');
-      expect(submitChunkMock).toHaveBeenCalledTimes(1);
-    });
-
-    it('retries on 429 Too Many Requests', async () => {
-      useImportWizardStore.setState({
-        rows: buildRows(3),
-        file: new File([''], 'test.csv'),
-      });
-
-      submitChunkMock
-        .mockRejectedValueOnce(new ApiError('Too Many Requests', 429))
-        .mockResolvedValueOnce({ saved: 3, duplicatesSkipped: 0 });
-
-      const { result } = renderHook(() => useImportSubmit());
-
-      await act(async () => {
-        const promise = result.current.handleSubmit();
-        await vi.runAllTimersAsync();
-        await promise;
-      });
-
-      expect(result.current.progress.status).toBe('completed');
-      expect(submitChunkMock).toHaveBeenCalledTimes(2);
-    });
+    expect(postSpy).not.toHaveBeenCalled();
+    postSpy.mockRestore();
   });
 
-  describe('chunk deduplication on retry', () => {
-    it('skips already-completed chunks on second submission', async () => {
-      // Setup: 100 rows = 2 chunks (50 each)
-      useImportWizardStore.setState({
-        rows: buildRows(100),
-        file: new File([''], 'test.csv'),
-      });
+  it('does not submit the completed wizard twice', async () => {
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
+    });
+    const { result } = renderHook(() => useImportSubmit());
 
-      // First call: chunk 0 succeeds, chunk 1 fails with non-retryable
-      submitChunkMock
-        .mockResolvedValueOnce({ saved: 50, duplicatesSkipped: 0 })
-        .mockRejectedValueOnce(new ApiError('Bad Request', 400));
+    await act(async () => {
+      await result.current.handleSubmit();
+      await result.current.handleSubmit();
+    });
 
-      const { result } = renderHook(() => useImportSubmit());
+    expect(saveImportedBatchMock).toHaveBeenCalledTimes(1);
+    expect(useTransactionsStore.getState().transactions).toHaveLength(1);
+  });
 
-      // First attempt
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.status).toBe('failed');
-      expect(result.current.progress.savedRows).toBe(50);
-
-      // Retry — should only submit chunk 1
-      submitChunkMock.mockClear();
-      submitChunkMock.mockResolvedValueOnce({
-        saved: 50,
+  it('allows retry after a failed local write', async () => {
+    saveImportedBatchMock
+      .mockRejectedValueOnce(new Error('Storage unavailable'))
+      .mockResolvedValueOnce({
+        written: [buildRecord()],
         duplicatesSkipped: 0,
+        historyRecord: {
+          batchId: 'batch-1',
+          fileName: 'unknown.csv',
+          completedAt: '2026-09-08T10:00:00.000Z',
+          acceptedCount: 1,
+          duplicateCount: 0,
+          rejectedCount: 0,
+        },
       });
-
-      await act(async () => {
-        await result.current.handleSubmit();
-      });
-
-      expect(result.current.progress.status).toBe('completed');
-      // Only 1 chunk submitted on retry (chunk 0 was skipped)
-      expect(submitChunkMock).toHaveBeenCalledTimes(1);
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
     });
+    const { result } = renderHook(() => useImportSubmit());
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+    expect(result.current.progress.status).toBe('failed');
+    expect(result.current.canSubmit).toBe(true);
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+    expect(result.current.progress.status).toBe('completed');
+  });
+
+  it('uses a stable fallback message for unknown local persistence failures', async () => {
+    saveImportedBatchMock.mockRejectedValueOnce(undefined);
+    useImportWizardStore.setState({
+      rows: [buildRow()],
+      anonymizationEntries: [buildEntry(0)],
+    });
+    const { result } = renderHook(() => useImportSubmit());
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.progress.errors).toEqual(['Local import failed']);
   });
 });

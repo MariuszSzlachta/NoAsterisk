@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
+  History,
   LayoutGrid,
   List,
   Shield,
@@ -60,6 +61,14 @@ export const Sidebar = ({ onNavigate }: SidebarProps): React.JSX.Element => {
 
         <SidebarNavLink icon={Upload} to="/import" onClick={onNavigate}>
           {t('nav.import')}
+        </SidebarNavLink>
+
+        <SidebarNavLink
+          icon={History}
+          to="/import-history"
+          onClick={onNavigate}
+        >
+          {t('nav.importHistory')}
         </SidebarNavLink>
 
         <SidebarNavLink icon={Wallet} to="/budgets" onClick={onNavigate}>

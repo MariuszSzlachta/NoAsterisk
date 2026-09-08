@@ -1,3 +1,6 @@
+import { AES_GCM_ALGORITHM } from '#shared/adapters/persistence/crypto/constants';
+
+/** Decrypts authenticated AES-GCM bytes and rejects tampered ciphertext or AAD. */
 export const decryptBytes = async (
   key: CryptoKey,
   ciphertext: ArrayBuffer,
@@ -6,7 +9,7 @@ export const decryptBytes = async (
 ): Promise<ArrayBuffer> =>
   crypto.subtle.decrypt(
     {
-      name: 'AES-GCM',
+      name: AES_GCM_ALGORITHM,
       iv,
       ...(additionalData ? { additionalData } : {}),
     },

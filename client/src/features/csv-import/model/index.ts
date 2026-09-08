@@ -35,10 +35,14 @@ export { detectDuplicatesInBatch } from './transformation/duplicate-detector/det
 export { detectDuplicatesAgainstExisting } from './transformation/duplicate-detector/detect-duplicates-against-existing';
 export { findSimilarRows } from './transformation/find-similar-rows';
 
-// Submission
-export { createImportChunks } from './submission/import-chunks/create-import-chunks';
-export { computeContentHash } from './submission/import-chunks/compute-content-hash';
-export { computeBatchHash } from './submission/import-chunks/compute-batch-hash';
+// Local persistence
+export { categorizeImportedTransactions } from './persistence/categorize-imported-transactions';
+export { computeImportContentHash } from './persistence/compute-import-content-hash';
+export { isImportableRow } from './persistence/is-importable-row';
+export { mapImportRowToStoredTransaction } from './persistence/map-import-row-to-stored-transaction';
+export { prepareImportedTransactions } from './persistence/prepare-imported-transactions';
+export { saveImportedTransactions } from './persistence/save-imported-transactions';
+export { selectAcceptedImportRows } from './persistence/select-accepted-import-rows';
 
 // Anonymization
 export { anonymizeTitle } from './anonymization/pipeline/anonymize-title';
@@ -74,9 +78,5 @@ export type {
   DictionaryProvider,
   AnonymizationStatus,
   AnonymizationEntry,
-  TransactionType,
-  ImportRowPayload,
-  ImportChunkPayload,
-  ImportChunkResult,
   ImportProgress,
 } from './types';

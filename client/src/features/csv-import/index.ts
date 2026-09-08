@@ -19,11 +19,18 @@ export { isDomainField } from './model/column-mapping/validators/is-domain-field
 export { hasRequiredFields } from './model/column-mapping/validators/has-required-fields';
 export { transformRows } from './model/transformation/row-transformer';
 export { findSimilarRows } from './model/transformation/find-similar-rows';
-export { createImportChunks } from './model/submission/import-chunks/create-import-chunks';
-export { computeContentHash } from './model/submission/import-chunks/compute-content-hash';
-export { computeBatchHash } from './model/submission/import-chunks/compute-batch-hash';
 export { detectDuplicatesInBatch } from './model/transformation/duplicate-detector/detect-duplicates-in-batch';
 export { detectDuplicatesAgainstExisting } from './model/transformation/duplicate-detector/detect-duplicates-against-existing';
+export { categorizeImportedTransactions } from './model/persistence/categorize-imported-transactions';
+export { computeImportContentHash } from './model/persistence/compute-import-content-hash';
+export { mapImportRowToStoredTransaction } from './model/persistence/map-import-row-to-stored-transaction';
+export { prepareImportedTransactions } from './model/persistence/prepare-imported-transactions';
+export { saveImportedTransactions } from './model/persistence/save-imported-transactions';
+export { saveImportedBatch } from './model/persistence/save-imported-batch';
+export { saveImportHistoryRecord } from './model/persistence/save-import-history-record';
+export { deleteImportHistoryBatch } from './model/persistence/delete-import-history-batch';
+export { isImportHistoryRecord } from './model/history/is-import-history-record';
+export { selectAcceptedImportRows } from './model/persistence/select-accepted-import-rows';
 export { anonymizeTitle } from './model/anonymization/pipeline/anonymize-title';
 export { processRows } from './model/anonymization/pipeline/process-rows';
 export { buildFromStubs } from './model/anonymization/dictionaries/build-from-stubs';
@@ -33,9 +40,9 @@ export { detectBankFromHeaders } from './model/column-mapping/bank-profiles/dete
 
 // Store
 export { useImportWizardStore } from './store/useImportWizardStore';
+export { useImportHistoryStore } from './store/useImportHistoryStore';
 
 // API
-export { useImportMutation } from './api/useImportMutation';
 export { dictionaryProvider } from './api/dictionaryProvider';
 
 // UI — Components
@@ -51,6 +58,9 @@ export { useImportWizard } from './ui/hooks/useImportWizard';
 export { useAnonymizationStep } from './ui/hooks/useAnonymizationStep';
 export { useBatchEditPanel } from './ui/hooks/useBatchEditPanel';
 export { useImportSubmit } from './ui/hooks/useImportSubmit';
+export { useImportHistory } from './ui/hooks/useImportHistory';
+export { ImportHistoryPage } from './ui/ImportHistoryPage';
+export { ImportHistoryDeleteDialog } from './ui/ImportHistoryDeleteDialog';
 
 // Types
 export type {
@@ -68,10 +78,8 @@ export type {
   MappingProfile,
   BankProfile,
   UserCorrection,
-  ImportRowPayload,
-  ImportChunkPayload,
-  ImportChunkResult,
   ImportProgress,
+  ImportHistoryRecord,
 } from './model/types';
 
 export type { DecodeWarning } from './model/parsing/types/decode-warning';

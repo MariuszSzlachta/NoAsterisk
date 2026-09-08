@@ -14,6 +14,7 @@ import type { BudgetPeriodRecord } from '#features/budgets/model/types/budget-pe
 import { isBudgetRecord } from '#features/budgets/model/is-budget-record';
 import type { StoredTransaction } from '#features/transactions/model/types';
 import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
+import { TRANSACTIONS_COLLECTION } from '#shared/adapters/persistence/ports';
 import { encryptedPersistence } from '#shared/adapters/persistence/session';
 
 const BUDGET_IDS = {
@@ -162,7 +163,7 @@ export const seedBudgets = async (): Promise<void> => {
     (record) => record.id,
   );
   const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
-    'transactions',
+    TRANSACTIONS_COLLECTION,
     isStoredTransaction,
     (record) => record.id,
   );

@@ -11,6 +11,7 @@ type PersistenceCollection =
   | 'budgets'
   | 'period-history'
   | 'import-profiles'
+  | 'import-history'
   | 'sentinel';
 
 interface EncryptedRecordEnvelope {

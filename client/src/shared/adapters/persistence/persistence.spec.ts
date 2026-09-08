@@ -13,6 +13,8 @@ import {
   isEncryptedRecordEnvelope,
   PBKDF2_ITERATIONS,
   SALT_LENGTH,
+  SHA_256_HEX_LENGTH,
+  isSha256Hex,
   verifySentinel,
 } from '#shared/adapters/persistence/crypto';
 import { BudgetDatabase } from '#shared/adapters/persistence/dexie';
@@ -123,6 +125,10 @@ describe('encrypted IndexedDB foundation', () => {
     const envelope = await encryptRecord('transactions', transaction.id, transaction, key);
     expect(envelope.cryptoVersion).toBe(CRYPTO_VERSION);
     expect(envelope.iv.byteLength).toBe(IV_LENGTH);
+  });
+
+  it('accepts the canonical SHA-256 digest representation', () => {
+    expect(isSha256Hex('a'.repeat(SHA_256_HEX_LENGTH))).toBe(true);
   });
 
   it('roundtrips records and rejects tampering or AAD substitution', async () => {
@@ -707,6 +713,43 @@ describe('encrypted IndexedDB foundation', () => {
 
     await repository.clear();
     expect(await repository.getAll()).toEqual([]);
+  });
+
+  it('deduplicates existing and repeated content hashes atomically', async () => {
+    const database = makeDatabase();
+    const persistence = createEncryptedPersistence(database);
+    await persistence.unlock('vault-passphrase');
+    const repository = persistence.repository(
+      'transactions',
+      isStoredEntityTransaction,
+      (record) => record.id,
+    );
+    const existing = persistenceTestData.createTransaction({
+      id: 'existing-id',
+      contentHash: 'same-hash',
+    });
+    const firstNew = persistenceTestData.createTransaction({
+      id: 'new-id',
+      contentHash: 'new-hash',
+    });
+    const repeatedNew = persistenceTestData.createTransaction({
+      id: 'repeated-id',
+      contentHash: 'new-hash',
+    });
+
+    await repository.put(existing);
+    const result = await repository.putManyIfAbsent(
+      [
+        persistenceTestData.createTransaction({ id: 'duplicate-id', contentHash: 'same-hash' }),
+        firstNew,
+        repeatedNew,
+      ],
+      (record) => record.contentHash,
+    );
+
+    expect(result.written).toEqual([firstNew]);
+    expect(result.duplicatesSkipped).toBe(2);
+    expect(await repository.getAll()).toEqual([existing, firstNew]);
   });
 
   it('rejects invalid sentinels before accepting a vault session', async () => {

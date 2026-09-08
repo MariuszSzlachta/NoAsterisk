@@ -14,6 +14,10 @@ export const ROUTE_META: Record<string, RouteMeta> = {
     titleKey: 'titles.transactions',
   },
   '/import': { breadcrumbKey: 'breadcrumb.import', titleKey: 'titles.import' },
+  '/import-history': {
+    breadcrumbKey: 'breadcrumb.importHistory',
+    titleKey: 'titles.importHistory',
+  },
   '/budgets': {
     breadcrumbKey: 'breadcrumb.budgets',
     titleKey: 'titles.budgets',

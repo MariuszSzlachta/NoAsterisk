@@ -1,5 +1,9 @@
 const DATABASE_LOCK_NAME = 'budgetflow-encrypted-database-initialization';
 
+/**
+ * Serializes persistence critical sections across tabs with Web Locks, falling
+ * back to a promise tail when the browser does not expose that API.
+ */
 export const createDatabaseLock = (): (<TResult>(task: () => Promise<TResult>) => Promise<TResult>) => {
   let localLockTail: Promise<void> = Promise.resolve();
 

@@ -2,30 +2,24 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ImportConfirmStep } from './ImportConfirmStep';
-
-// ─── Mocks ───────────────────────────────────────────────────────
+import { ImportConfirmStep } from '#features/csv-import/ui/ImportConfirmStep/ImportConfirmStep';
+import type { ImportProgress } from '#features/csv-import/model/types';
 
 const mockHandleSubmit = vi.fn();
 const mockHandlePrevStep = vi.fn();
 
-// Module-level mutable state — required because vi.mock factory is hoisted
-// and must reference top-level variables. Reset in beforeEach for isolation.
+const buildIdleProgress = (): ImportProgress => ({
+  totalRows: 0,
+  savedRows: 0,
+  duplicatesSkipped: 0,
+  rejectedRows: [],
+  errors: [],
+  status: 'idle',
+});
+
 let mockProgress = buildIdleProgress();
 let mockCanSubmit = true;
 let mockImportableCount = 247;
-
-function buildIdleProgress() {
-  return {
-    totalChunks: 0,
-    completedChunks: 0,
-    totalRows: 0,
-    savedRows: 0,
-    duplicatesSkipped: 0,
-    errors: [] as Array<{ chunkIndex: number; message: string }>,
-    status: 'idle' as const,
-  };
-}
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -34,12 +28,12 @@ vi.mock('react-i18next', () => ({
         'import.confirm.title': 'Potwierdzenie importu',
         'import.confirm.readyDescription': `Gotowe do importu: ${params?.count ?? ''} transakcji`,
         'import.confirm.submit': 'Importuj transakcje',
-        'import.confirm.progress': `${params?.completed ?? ''}/${params?.total ?? ''}`,
         'import.confirm.saved': `Zapisano: ${params?.count ?? ''}`,
         'import.confirm.success': 'Import zakończony',
         'import.confirm.successDetail': `Zapisano: ${params?.saved ?? ''}, pominięto: ${params?.duplicates ?? ''}`,
         'import.confirm.failed': 'Import nieudany',
         'import.confirm.partialSuccess': `Częściowo: ${params?.saved ?? ''}`,
+        'import.confirm.rejectedRow': `Wiersz ${params?.row ?? ''} pominięto: ${params?.reason ?? ''}`,
         'import.nav.back': 'Wstecz',
       };
       return map[key] ?? key;
@@ -61,8 +55,6 @@ vi.mock('#features/csv-import/ui/hooks/useImportWizard', () => ({
     handlePrevStep: mockHandlePrevStep,
   }),
 }));
-
-// ─── Tests ───────────────────────────────────────────────────────
 
 describe('ImportConfirmStep', () => {
   beforeEach(() => {
@@ -127,21 +119,19 @@ describe('ImportConfirmStep', () => {
   describe('submitting state', () => {
     beforeEach(() => {
       mockProgress = {
-        totalChunks: 5,
-        completedChunks: 2,
         totalRows: 247,
         savedRows: 100,
         duplicatesSkipped: 0,
         errors: [],
+        rejectedRows: [],
         status: 'submitting',
       };
     });
 
-    it('shows progress info', () => {
+    it('shows saved count while writing locally', () => {
       render(<ImportConfirmStep />);
 
-      expect(screen.getByText('2/5')).toBeInTheDocument();
-      expect(screen.getByText('40%')).toBeInTheDocument();
+      expect(screen.getByText('Zapisano: 100')).toBeInTheDocument();
     });
 
     it('disables Wstecz button during submission', () => {
@@ -161,12 +151,11 @@ describe('ImportConfirmStep', () => {
   describe('completed state', () => {
     beforeEach(() => {
       mockProgress = {
-        totalChunks: 5,
-        completedChunks: 5,
         totalRows: 247,
         savedRows: 240,
         duplicatesSkipped: 7,
         errors: [],
+        rejectedRows: [],
         status: 'completed',
       };
     });
@@ -185,6 +174,20 @@ describe('ImportConfirmStep', () => {
       ).toBeInTheDocument();
     });
 
+    it('shows rejected rows in the completion summary', () => {
+      mockProgress = {
+        totalRows: 247,
+        savedRows: 240,
+        duplicatesSkipped: 6,
+        errors: [],
+        rejectedRows: [{ rowIndex: 8, reason: 'Needs review' }],
+        status: 'completed',
+      };
+      render(<ImportConfirmStep />);
+
+      expect(screen.getByText('Wiersz 9 pominięto: Needs review')).toBeInTheDocument();
+    });
+
     it('disables Wstecz button after completion', () => {
       render(<ImportConfirmStep />);
 
@@ -196,14 +199,13 @@ describe('ImportConfirmStep', () => {
   describe('failed state', () => {
     beforeEach(() => {
       mockProgress = {
-        totalChunks: 5,
-        completedChunks: 3,
         totalRows: 247,
         savedRows: 150,
         duplicatesSkipped: 0,
-        errors: [
-          { chunkIndex: 3, message: 'Chunk 4: HTTP 500' },
-          { chunkIndex: 4, message: 'Chunk 5: HTTP 500' },
+        errors: ['Storage unavailable'],
+        rejectedRows: [
+          { rowIndex: 3, reason: 'Duplicate row' },
+          { rowIndex: 4, reason: 'Duplicate row' },
         ],
         status: 'failed',
       };
@@ -219,8 +221,9 @@ describe('ImportConfirmStep', () => {
     it('shows error messages', () => {
       render(<ImportConfirmStep />);
 
-      expect(screen.getByText('Chunk 4: HTTP 500')).toBeInTheDocument();
-      expect(screen.getByText('Chunk 5: HTTP 500')).toBeInTheDocument();
+      expect(screen.getByText('Storage unavailable')).toBeInTheDocument();
+      expect(screen.getByText('Wiersz 4 pominięto: Duplicate row')).toBeInTheDocument();
+      expect(screen.getByText('Wiersz 5 pominięto: Duplicate row')).toBeInTheDocument();
     });
 
     it('shows partial success info', () => {

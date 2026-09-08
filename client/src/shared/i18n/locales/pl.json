@@ -29,6 +29,7 @@
     "dashboard": "Pulpit",
     "transactions": "Transakcje",
     "import": "Import CSV",
+    "importHistory": "Historia importów",
     "budgets": "Budżety",
     "analytics": "Analiza",
     "rules": "Reguły",
@@ -48,6 +49,7 @@
     "dashboard": "Pulpit",
     "transactions": "Transakcje",
     "import": "Import",
+    "importHistory": "Historia importów",
     "budgets": "Budżety",
     "analytics": "Analiza",
     "rules": "Reguły",
@@ -59,6 +61,7 @@
     "dashboard": "Pulpit",
     "transactions": "Transakcje",
     "import": "Import CSV",
+    "importHistory": "Historia importów",
     "budgets": "Budżety",
     "analytics": "Analiza",
     "rules": "Reguły",
@@ -69,6 +72,34 @@
   "user": {
     "workspace": "Konto domowe",
     "email": "user@example.com"
+  },
+  "importHistory": {
+    "title": "Historia importów",
+    "description": "Przeglądaj lokalnie zapisane partie importu i w razie potrzeby usuwaj ich transakcje.",
+    "importMore": "Importuj CSV",
+    "completedAt": "Zakończono {{date}}",
+    "delete": "Usuń import {{fileName}}",
+    "stats": {
+      "accepted": "Nowe transakcje",
+      "duplicates": "Duplikaty",
+      "rejected": "Odrzucone"
+    },
+    "empty": {
+      "title": "Brak importów",
+      "description": "Zakończone lokalne importy CSV pojawią się tutaj. Plik i historia pozostają zaszyfrowane w tej przeglądarce.",
+      "action": "Rozpocznij import"
+    },
+    "error": {
+      "title": "Historia importów jest niedostępna",
+      "description": "Odblokuj ponownie lokalny magazyn, aby wyświetlić historię importów."
+    },
+    "deleteDialog": {
+      "title": "Usunąć ten import?",
+      "description": "Spowoduje to usunięcie \"{{fileName}}\" oraz wszystkich transakcji z tego importu. Transakcje ręczne i inne importy pozostaną.",
+      "cancel": "Anuluj",
+      "confirm": "Usuń import",
+      "deleting": "Usuwam..."
+    }
   },
   "analytics": {
     "metrics": {
@@ -343,15 +374,14 @@
     },
     "confirm": {
       "title": "Potwierdzenie importu",
-      "readyDescription": "Gotowe do importu: {{count}} transakcji zostanie wysłanych na serwer.",
+      "readyDescription": "Gotowe do importu: {{count}} transakcji zostanie zapisanych lokalnie.",
       "submit": "Importuj transakcje",
-      "progress": "Wysyłanie paczki {{completed}} z {{total}}...",
       "saved": "Zapisano {{count}} transakcji",
       "success": "Import zakończony pomyślnie",
       "successDetail": "Zapisano: {{saved}}, pominięto duplikatów: {{duplicates}}",
       "failed": "Import zakończony z błędami",
       "partialSuccess": "Częściowo zapisano: {{saved}} transakcji",
-      "retry": "Ponów import"
+      "rejectedRow": "Pominięto wiersz {{row}}: {{reason}}"
     },
     "nav": {
       "back": "Wstecz",

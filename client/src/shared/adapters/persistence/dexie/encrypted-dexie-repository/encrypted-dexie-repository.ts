@@ -2,6 +2,7 @@ import { decryptRecord, encryptRecord } from '#shared/adapters/persistence/crypt
 import type { BudgetDatabase } from '#shared/adapters/persistence/dexie/budget-database';
 import type {
   EncryptedRepository,
+  EncryptedWriteResult,
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
 
@@ -11,6 +12,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   getKey: () => CryptoKey,
   validator: (value: unknown) => value is TRecord,
   getId: (record: TRecord) => string,
+  runExclusive: <TResult>(task: () => Promise<TResult>) => Promise<TResult>,
 ): EncryptedRepository<TRecord> => {
   const get = async (id: string): Promise<TRecord | undefined> => {
     const key = getKey();
@@ -45,6 +47,40 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
     });
   };
 
+  /**
+   * Serializes read-filter-encrypt-write under the database lock. The first
+   * record for a duplicate key wins, and encryption completes before the
+   * single Dexie transaction starts so validation/encryption failures write nothing.
+   */
+  const putManyIfAbsent = async (
+    records: ReadonlyArray<TRecord>,
+    getDuplicateKey: (record: TRecord) => string,
+  ): Promise<EncryptedWriteResult<TRecord>> =>
+    runExclusive(async () => {
+      const existing = await getAll();
+      const seenKeys = new Set(existing.map(getDuplicateKey));
+      const uniqueRecords = records.filter((record) => {
+        const duplicateKey = getDuplicateKey(record);
+        if (seenKeys.has(duplicateKey)) {
+          return false;
+        }
+        seenKeys.add(duplicateKey);
+        return true;
+      });
+      const duplicatesSkipped = records.length - uniqueRecords.length;
+      const envelopes = await Promise.all(
+        uniqueRecords.map((record) =>
+          encryptRecord(collection, getId(record), record, getKey()),
+        ),
+      );
+
+      await database.transaction('rw', database.records, async () => {
+        await database.records.bulkPut(envelopes);
+      });
+
+      return { written: uniqueRecords, duplicatesSkipped };
+    });
+
   const replace = async (records: ReadonlyArray<TRecord>): Promise<void> => {
     const envelopes = await Promise.all(
       records.map((record) => encryptRecord(collection, getId(record), record, getKey())),
@@ -67,5 +103,14 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
     });
   };
 
-  return { get, getAll, put, putMany, replace, delete: deleteRecord, clear };
+  return {
+    get,
+    getAll,
+    put,
+    putMany,
+    putManyIfAbsent,
+    replace,
+    delete: deleteRecord,
+    clear,
+  };
 };

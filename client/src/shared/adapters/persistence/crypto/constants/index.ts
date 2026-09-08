@@ -1,9 +1,14 @@
 export { AAD_PREFIX } from '#shared/adapters/persistence/crypto/constants/aad-prefix';
 export { AES_KEY_LENGTH } from '#shared/adapters/persistence/crypto/constants/aes-key-length';
+export { AES_GCM_ALGORITHM } from '#shared/adapters/persistence/crypto/constants/aes-gcm-algorithm';
 export { CRYPTO_VERSION } from '#shared/adapters/persistence/crypto/constants/crypto-version';
 export { IV_LENGTH } from '#shared/adapters/persistence/crypto/constants/iv-length';
 export { PBKDF2_ITERATIONS } from '#shared/adapters/persistence/crypto/constants/pbkdf2-iterations';
+export { PBKDF2_ALGORITHM } from '#shared/adapters/persistence/crypto/constants/pbkdf2-algorithm';
 export { SALT_LENGTH } from '#shared/adapters/persistence/crypto/constants/salt-length';
+export { SHA_256_ALGORITHM } from '#shared/adapters/persistence/crypto/constants/sha-256-algorithm';
+export { SHA_256_HEX_DIGITS } from '#shared/adapters/persistence/crypto/constants/sha-256-hex-digits';
+export { SHA_256_HEX_LENGTH } from '#shared/adapters/persistence/crypto/constants/sha-256-hex-length';
 export { SENTINEL_COLLECTION } from '#shared/adapters/persistence/crypto/constants/sentinel-collection';
 export { SENTINEL_ID } from '#shared/adapters/persistence/crypto/constants/sentinel-id';
 export { SENTINEL_VALUE } from '#shared/adapters/persistence/crypto/constants/sentinel-value';

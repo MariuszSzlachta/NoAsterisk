@@ -28,10 +28,11 @@ import { isRecord } from '#features/user-settings/ui/hooks/useVaultSection/is-re
 import { isRuleRecordArray } from '#features/user-settings/ui/hooks/useVaultSection/is-rule-record-array';
 import { isStoredTransactionArray } from '#features/user-settings/ui/hooks/useVaultSection/is-stored-transaction-array';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
+import { TRANSACTIONS_COLLECTION } from '#shared/adapters/persistence/ports';
 import { encryptedPersistence } from '#shared/adapters/persistence/session';
 
 const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
-  'transactions',
+  TRANSACTIONS_COLLECTION,
   isStoredTransaction,
   (record) => record.id,
 );

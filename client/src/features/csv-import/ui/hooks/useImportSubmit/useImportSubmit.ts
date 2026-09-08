@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { useImportMutation } from '#features/csv-import/api/useImportMutation';
-import { createImportChunks } from '#features/csv-import/model/submission/import-chunks';
-import type {
-  ImportChunkPayload,
-  ImportProgress,
-} from '#features/csv-import/model/types';
+import { useRulesStore } from '#features/admin-rules';
+import {
+  categorizeImportedTransactions,
+  IMPORT_PROGRESS_STATUS,
+  INITIAL_IMPORT_PROGRESS,
+  prepareImportedTransactions,
+  saveImportedBatch,
+  selectAcceptedImportRows,
+} from '#features/csv-import/model/persistence';
+import { IMPORT_HISTORY_UNKNOWN_FILENAME } from '#features/csv-import/model/persistence/save-import-history-record/constants/unknown-file-name';
+import type { ImportProgress } from '#features/csv-import/model/types';
+import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useImportWizardStore } from '#features/csv-import/store/useImportWizardStore';
-import { ApiError } from '#shared/api';
-import { MAX_RETRIES } from '#features/csv-import/ui/hooks/useImportSubmit/max-retries';
-import { RETRY_DELAY_MS } from '#features/csv-import/ui/hooks/useImportSubmit/retry-delay-ms';
-import { sleep } from '#features/csv-import/ui/hooks/useImportSubmit/sleep';
+import { LOCAL_IMPORT_FAILED } from '#features/csv-import/ui/hooks/useImportSubmit/constants/local-import-failed';
+import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
 
 interface UseImportSubmitResult {
   readonly progress: ImportProgress;
@@ -19,158 +23,96 @@ interface UseImportSubmitResult {
   readonly importableCount: number;
 }
 
-const submitWithRetry = async (
-  submitChunk: (chunk: ImportChunkPayload) => Promise<{ saved: number; duplicatesSkipped: number }>,
-  chunk: ImportChunkPayload,
-  chunkIndex: number,
-): Promise<{ saved: number; duplicatesSkipped: number } | { error: string }> => {
-  const attempts = Array.from({ length: MAX_RETRIES + 1 }, (_, i) => i);
-
-  const result = await attempts.reduce<
-    Promise<{ saved: number; duplicatesSkipped: number } | { error: string } | null>
-  >(async (prevPromise, attempt) => {
-    const prev = await prevPromise;
-    if (prev !== null) {
-      return prev;
-    }
-
-    try {
-      const res = await submitChunk(chunk);
-      return { saved: res.saved, duplicatesSkipped: res.duplicatesSkipped };
-    } catch (err: unknown) {
-      const isRetryable =
-        err instanceof ApiError && (err.status >= 500 || err.status === 429);
-
-      if (!isRetryable || attempt === MAX_RETRIES) {
-        const message =
-          err instanceof ApiError
-            ? `Chunk ${chunkIndex + 1}: HTTP ${err.status}`
-            : `Chunk ${chunkIndex + 1}: ${err instanceof Error ? err.message : 'Unknown error'}`;
-        return { error: message };
-      }
-
-      await sleep(RETRY_DELAY_MS * (attempt + 1));
-      return null;
-    }
-  }, Promise.resolve(null));
-
-  return result ?? { error: `Chunk ${chunkIndex + 1}: max retries exceeded` };
-};
-
 export const useImportSubmit = (): UseImportSubmitResult => {
-  const rows = useImportWizardStore((s) => s.rows);
-  const file = useImportWizardStore((s) => s.file);
-  const batchId = useImportWizardStore((s) => s.batchId);
-  const setSubmitting = useImportWizardStore((s) => s.setSubmitting);
+  const rows = useImportWizardStore((state) => state.rows);
+  const entries = useImportWizardStore((state) => state.anonymizationEntries);
+  const batchId = useImportWizardStore((state) => state.batchId);
+  const isWizardSubmitting = useImportWizardStore(
+    (state) => state.isSubmitting,
+  );
+  const setSubmitting = useImportWizardStore((state) => state.setSubmitting);
+  const setSubmitError = useImportWizardStore((state) => state.setSubmitError);
+  const submissionInFlight = useRef(false);
+  const [progress, setProgress] = useState<ImportProgress>(
+    INITIAL_IMPORT_PROGRESS,
+  );
 
-  const { submitChunk } = useImportMutation();
-
-  const [progress, setProgress] = useState<ImportProgress>({
-    totalChunks: 0,
-    completedChunks: 0,
-    totalRows: 0,
-    savedRows: 0,
-    duplicatesSkipped: 0,
-    errors: [],
-    status: 'idle',
-  });
-
-  const [completedChunkIndices, setCompletedChunkIndices] = useState<
-    ReadonlySet<number>
-  >(new Set());
-
-  const importableCount = rows.filter(
-    (r) => r.status === 'ok' || r.status === 'warning',
-  ).length;
-  const canSubmit = importableCount > 0 && progress.status !== 'submitting';
+  const acceptedRows = selectAcceptedImportRows(rows, entries);
+  const importableCount = acceptedRows.length;
+  const canSubmit =
+    importableCount > 0 &&
+    !isWizardSubmitting &&
+    !submissionInFlight.current &&
+    progress.status !== IMPORT_PROGRESS_STATUS.completed;
 
   const handleSubmit = async (): Promise<void> => {
-    setSubmitting(true);
-
-    // BUG-2 FIX: Use stable batchId from store (generated once per wizard session)
-    const stableBatchId = batchId ?? crypto.randomUUID();
-    if (!batchId) {
-      useImportWizardStore.getState().setSubmitError(undefined);
-      useImportWizardStore.setState({ batchId: stableBatchId });
+    if (!canSubmit || submissionInFlight.current) {
+      return;
     }
 
-    const isRetry = completedChunkIndices.size > 0;
-
-    const chunks = await createImportChunks(rows, {
-      batchId: stableBatchId,
-      sourceFilename: file?.name,
-    });
-
-    // HIGH-1 FIX: Set isRetry flag on retry submissions
-    const chunksWithRetry: readonly ImportChunkPayload[] = isRetry
-      ? chunks.map((c) => ({ ...c, isRetry: true }))
-      : chunks;
-
+    submissionInFlight.current = true;
+    setSubmitting(true);
+    setSubmitError(undefined);
     setProgress({
-      totalChunks: chunks.length,
-      completedChunks: completedChunkIndices.size,
+      ...INITIAL_IMPORT_PROGRESS,
       totalRows: importableCount,
-      savedRows: 0,
-      duplicatesSkipped: 0,
-      errors: [],
-      status: 'submitting',
+      status: IMPORT_PROGRESS_STATUS.submitting,
     });
 
-    const pendingChunks = chunksWithRetry
-      .map((chunk, i) => ({ chunk, index: i }))
-      .filter(({ index }) => !completedChunkIndices.has(index));
+    const stableBatchId = batchId ?? crypto.randomUUID();
+    if (batchId === undefined) {
+      useImportWizardStore.setState({ batchId: stableBatchId });
+    }
+    const completedAt = new Date().toISOString();
 
-    const { errors, newCompleted } =
-      await pendingChunks.reduce<
-        Promise<{
-          savedTotal: number;
-          duplicatesTotal: number;
-          errors: Array<{ chunkIndex: number; message: string }>;
-          newCompleted: Set<number>;
-        }>
-      >(
-        async (accPromise, { chunk, index }) => {
-          const acc = await accPromise;
-          const result = await submitWithRetry(submitChunk, chunk, index);
-
-          if ('error' in result) {
-            acc.errors.push({ chunkIndex: index, message: result.error });
-          }
-          if (!('error' in result)) {
-            acc.savedTotal += result.saved;
-            acc.duplicatesTotal += result.duplicatesSkipped;
-            acc.newCompleted.add(index);
-          }
-
-          setProgress((prev) => ({
-            ...prev,
-            completedChunks: acc.newCompleted.size + completedChunkIndices.size,
-            savedRows: acc.savedTotal,
-            duplicatesSkipped: acc.duplicatesTotal,
-            errors: [...acc.errors],
-          }));
-
-          return acc;
-        },
-        Promise.resolve({
-          savedTotal: 0,
-          duplicatesTotal: 0,
-          errors: [],
-          newCompleted: new Set(completedChunkIndices),
-        }),
+    try {
+      const prepared = await prepareImportedTransactions(
+        rows,
+        entries,
+        stableBatchId,
+        completedAt,
       );
+      const categorized = categorizeImportedTransactions(
+        prepared.records,
+        useRulesStore.getState().rules,
+      );
+      const result = await saveImportedBatch(categorized, {
+        batchId: stableBatchId,
+        fileName:
+          useImportWizardStore.getState().file?.name ??
+          IMPORT_HISTORY_UNKNOWN_FILENAME,
+        completedAt,
+        rejectedCount: prepared.rejectedRows.length,
+      });
+      const historyRecord = result.historyRecord;
 
-    setCompletedChunkIndices(newCompleted);
-
-    const finalStatus = errors.length > 0 ? 'failed' : 'completed';
-    setProgress((prev) => ({ ...prev, status: finalStatus }));
-    setSubmitting(false);
+      useTransactionsStore.setState((state) => ({
+        transactions: [...state.transactions, ...result.written],
+      }));
+      useImportHistoryStore.getState().addRecord(historyRecord);
+      setProgress({
+        totalRows: importableCount,
+        savedRows: result.written.length,
+        duplicatesSkipped: result.duplicatesSkipped,
+        rejectedRows: prepared.rejectedRows,
+        errors: [],
+        status: IMPORT_PROGRESS_STATUS.completed,
+      });
+      useImportWizardStore.getState().reset();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : LOCAL_IMPORT_FAILED;
+      setSubmitError(message);
+      setProgress((current) => ({
+        ...current,
+        errors: [message],
+        status: IMPORT_PROGRESS_STATUS.failed,
+      }));
+    } finally {
+      setSubmitting(false);
+      submissionInFlight.current = false;
+    }
   };
 
-  return {
-    progress,
-    handleSubmit,
-    canSubmit,
-    importableCount,
-  };
+  return { progress, handleSubmit, canSubmit, importableCount };
 };

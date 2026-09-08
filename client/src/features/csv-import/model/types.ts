@@ -31,8 +31,5 @@ export type { DictionaryProvider } from './anonymization/types/dictionary-provid
 export type { AnonymizationStatus } from './anonymization/types/anonymization-status';
 export type { AnonymizationEntry } from './anonymization/types/anonymization-entry';
 
-export type { TransactionType } from './submission/transaction-type';
-export type { ImportRowPayload } from './submission/import-row-payload';
-export type { ImportChunkPayload } from './submission/import-chunk-payload';
-export type { ImportChunkResult } from './submission/import-chunk-result';
-export type { ImportProgress } from './submission/import-progress';
+export type { ImportProgress } from './persistence/import-progress';
+export type { ImportHistoryRecord } from '#features/csv-import/model/history/types';
