@@ -13,7 +13,7 @@ import { AdminDeleteUserHandler } from '@user-settings/application/commands/admi
 import { GetProfileHandler } from '@user-settings/application/queries/get-profile.handler';
 import { GetVaultHandler } from '@user-settings/application/queries/get-vault.handler';
 import { GetAllUsersHandler } from '@user-settings/application/queries/get-all-users.handler';
-import { VAULT_REPOSITORY } from '@user-settings/domain/ports/vault.repository';
+import { VAULT_REPOSITORY } from '@user-settings/domain/ports/vault-token';
 import { InMemoryVaultRepository } from '@user-settings/infrastructure/in-memory-vault.repository';
 import { PostgresVaultRepository } from '@user-settings/infrastructure/postgres-vault.repository';
 import { createRepositoryProvider } from '@shared/infrastructure/database/persistence.provider';

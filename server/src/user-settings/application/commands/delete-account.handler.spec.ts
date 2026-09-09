@@ -2,7 +2,7 @@ import { DeleteAccountHandler } from './delete-account.handler';
 import { UserRepository } from '@auth/domain/ports/user.repository';
 import { PasswordHasherPort } from '@auth/domain/ports/password-hasher.port';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
-import { VaultRepository } from '@user-settings/domain/ports/vault.repository';
+import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 
@@ -43,7 +43,7 @@ describe('DeleteAccountHandler', () => {
     };
     vaultRepo = {
       findByWorkspaceId: jest.fn(),
-      save: jest.fn(),
+      saveIfRevisionMatches: jest.fn(),
       deleteByWorkspaceId: jest.fn(),
     };
     handler = new DeleteAccountHandler(

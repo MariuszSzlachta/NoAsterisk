@@ -8,10 +8,8 @@ import {
   PERMISSION_REPOSITORY,
   PermissionRepository,
 } from '@auth/domain/ports/permission.repository';
-import {
-  VAULT_REPOSITORY,
-  VaultRepository,
-} from '@user-settings/domain/ports/vault.repository';
+import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
+import { VAULT_REPOSITORY } from '@user-settings/domain/ports/vault-token';
 
 export interface AdminDeleteUserCommand {
   targetUserId: string;

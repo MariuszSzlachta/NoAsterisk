@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { VaultRepository } from '@user-settings/domain/ports/vault.repository';
+import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
+import { VaultWriteResult } from '@user-settings/domain/ports/vault-write-result';
 import { Vault } from '@user-settings/domain/vault.entity';
 
 @Injectable()
@@ -10,15 +11,25 @@ export class InMemoryVaultRepository implements VaultRepository {
     return [...this.store.values()].find((v) => v.workspaceId === workspaceId);
   }
 
-  async save(vault: Vault): Promise<void> {
-    this.store.set(vault.id, vault);
+  async saveIfRevisionMatches(
+    vault: Vault,
+    baseRevision: number,
+  ): Promise<VaultWriteResult> {
+    const currentVault = this.store.get(vault.workspaceId);
+    if (!currentVault && baseRevision === 0) {
+      this.store.set(vault.workspaceId, vault);
+      return { status: 'saved', vault };
+    }
+    if (currentVault?.contentHash === vault.contentHash) {
+      return { status: 'saved', vault: currentVault };
+    }
+    if (currentVault?.revision !== baseRevision) return { status: 'conflict' };
+
+    this.store.set(vault.workspaceId, vault);
+    return { status: 'saved', vault };
   }
 
   async deleteByWorkspaceId(workspaceId: string): Promise<void> {
-    for (const [key, vault] of this.store.entries()) {
-      if (vault.workspaceId === workspaceId) {
-        this.store.delete(key);
-      }
-    }
+    this.store.delete(workspaceId);
   }
 }

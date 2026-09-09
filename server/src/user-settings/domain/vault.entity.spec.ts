@@ -7,6 +7,9 @@ describe('Vault', () => {
         'vault-1',
         'ws-1',
         'base64data',
+        'hash-1',
+        10,
+        1,
         new Date('2026-01-01'),
         new Date('2026-01-02'),
       );
@@ -21,7 +24,17 @@ describe('Vault', () => {
       ['empty encryptedBlob', { id: 'v-1', ws: 'ws-1', blob: '' }],
     ])('throws for %s', (_, props) => {
       expect(
-        () => new Vault(props.id, props.ws, props.blob, new Date(), new Date()),
+        () =>
+          new Vault(
+            props.id,
+            props.ws,
+            props.blob,
+            'hash-1',
+            10,
+            1,
+            new Date(),
+            new Date(),
+          ),
       ).toThrow();
     });
   });
@@ -32,6 +45,8 @@ describe('Vault', () => {
       const vault = Vault.create({
         workspaceId: 'ws-1',
         encryptedBlob: 'encrypted-content',
+        contentHash: 'hash-1',
+        byteSize: 17,
       });
 
       expect(vault.id).toBeDefined();
@@ -47,8 +62,18 @@ describe('Vault', () => {
     });
 
     it('generates different ids for each call', () => {
-      const v1 = Vault.create({ workspaceId: 'ws-1', encryptedBlob: 'a' });
-      const v2 = Vault.create({ workspaceId: 'ws-1', encryptedBlob: 'b' });
+      const v1 = Vault.create({
+        workspaceId: 'ws-1',
+        encryptedBlob: 'a',
+        contentHash: 'hash-a',
+        byteSize: 1,
+      });
+      const v2 = Vault.create({
+        workspaceId: 'ws-1',
+        encryptedBlob: 'b',
+        contentHash: 'hash-b',
+        byteSize: 1,
+      });
       expect(v1.id).not.toBe(v2.id);
     });
   });
@@ -59,15 +84,20 @@ describe('Vault', () => {
         'v-1',
         'ws-1',
         'old-blob',
+        'old-hash',
+        8,
+        1,
         new Date('2026-01-01'),
         new Date('2026-01-01'),
       );
 
-      const updated = original.updateBlob('new-blob');
+      const updated = original.updateBlob('new-blob', 'new-hash', 8);
 
       expect(updated.id).toBe('v-1');
       expect(updated.workspaceId).toBe('ws-1');
       expect(updated.encryptedBlob).toBe('new-blob');
+      expect(updated.contentHash).toBe('new-hash');
+      expect(updated.revision).toBe(2);
       expect(updated.createdAt).toEqual(new Date('2026-01-01'));
       expect(updated.updatedAt.getTime()).toBeGreaterThan(
         original.updatedAt.getTime(),
@@ -78,9 +108,18 @@ describe('Vault', () => {
       const vault = Vault.create({
         workspaceId: 'ws-1',
         encryptedBlob: 'data',
+        contentHash: 'hash-1',
+        byteSize: 4,
       });
 
-      expect(() => vault.updateBlob('')).toThrow();
+      expect(() => vault.updateBlob('', 'hash-2', 1)).toThrow();
+    });
+
+    it('rejects invalid transport metadata', () => {
+      expect(
+        () =>
+          new Vault('v-1', 'ws-1', 'blob', '', 4, 1, new Date(), new Date()),
+      ).toThrow();
     });
   });
 });

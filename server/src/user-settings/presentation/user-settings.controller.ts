@@ -30,10 +30,8 @@ import {
   UpdatePreferencesHandler,
   UpdatePreferencesResult,
 } from '@user-settings/application/commands/update-preferences.handler';
-import {
-  UploadVaultHandler,
-  UploadVaultResult,
-} from '@user-settings/application/commands/upload-vault.handler';
+import { UploadVaultHandler } from '@user-settings/application/commands/upload-vault.handler';
+import { UploadVaultResult } from '@user-settings/application/commands/upload-vault.result';
 import { DeleteAccountHandler } from '@user-settings/application/commands/delete-account.handler';
 import {
   LogoutHandler,
@@ -41,10 +39,8 @@ import {
 } from '@user-settings/application/commands/logout.handler';
 import { GetProfileHandler } from '@user-settings/application/queries/get-profile.handler';
 import { ProfileResponseDto } from '@user-settings/application/mappers/profile-response.mapper';
-import {
-  GetVaultHandler,
-  VaultResult,
-} from '@user-settings/application/queries/get-vault.handler';
+import { GetVaultHandler } from '@user-settings/application/queries/get-vault.handler';
+import { VaultResult } from '@user-settings/application/queries/vault-result';
 import {
   changePasswordSchema,
   ChangePasswordDto,
@@ -53,10 +49,8 @@ import {
   updateProfileSchema,
   UpdateProfileDto,
 } from '@user-settings/presentation/dto/update-profile.dto';
-import {
-  uploadVaultSchema,
-  UploadVaultDto,
-} from '@user-settings/presentation/dto/upload-vault.dto';
+import { uploadVaultSchema } from '@user-settings/presentation/dto/upload-vault.dto';
+import { z } from 'zod';
 import {
   deleteAccountSchema,
   DeleteAccountDto,
@@ -66,6 +60,8 @@ import {
   UpdatePreferencesDto,
 } from '@user-settings/presentation/dto/update-preferences.dto';
 import { refreshTokenCookie } from '@auth/presentation/refresh-token-cookie';
+
+type UploadVaultDto = z.infer<typeof uploadVaultSchema>;
 
 @Controller('users/me')
 export class UserSettingsController {
@@ -132,6 +128,7 @@ export class UserSettingsController {
     return this.uploadVaultHandler.execute({
       workspaceId: user.workspaceId,
       encryptedBlob: dto.encryptedBlob,
+      baseRevision: dto.baseRevision,
     });
   }
 

@@ -2,7 +2,7 @@ import { BlockUserHandler } from './block-user.handler';
 import { AdminDeleteUserHandler } from './admin-delete-user.handler';
 import { UserRepository } from '@auth/domain/ports/user.repository';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
-import { VaultRepository } from '@user-settings/domain/ports/vault.repository';
+import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 
@@ -114,7 +114,7 @@ describe('AdminDeleteUserHandler', () => {
     };
     vaultRepo = {
       findByWorkspaceId: jest.fn(),
-      save: jest.fn(),
+      saveIfRevisionMatches: jest.fn(),
       deleteByWorkspaceId: jest.fn(),
     };
     handler = new AdminDeleteUserHandler(userRepo, permissionRepo, vaultRepo);
