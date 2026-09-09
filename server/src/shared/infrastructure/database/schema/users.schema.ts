@@ -20,4 +20,7 @@ export const users = pgTable('users', {
   displayName: varchar('display_name', { length: 50 }),
   preferences: jsonb('preferences').notNull().default('{}'),
   tokenVersion: integer('token_version').notNull().default(0),
+  privacyPolicyVersion: varchar('privacy_policy_version', { length: 64 }),
+  termsVersion: varchar('terms_version', { length: 64 }),
+  consentAt: timestamp('consent_at', { withTimezone: true }),
 });

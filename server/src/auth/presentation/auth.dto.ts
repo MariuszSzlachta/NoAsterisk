@@ -25,6 +25,8 @@ export const registerSchema = z
       .string()
       .regex(/^[A-Z0-9]{6,8}$/)
       .optional(),
+    privacyPolicyVersion: z.string().max(64),
+    termsVersion: z.string().max(64),
   })
   .strict();
 

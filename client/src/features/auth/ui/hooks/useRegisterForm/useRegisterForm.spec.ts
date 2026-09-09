@@ -48,7 +48,7 @@ describe('useRegisterForm', () => {
   it('returns initial empty form values', () => {
     const { result } = renderHook(() => useRegisterForm());
 
-    expect(result.current.values).toEqual({ email: '', password: '', confirmPassword: '', inviteCode: '' });
+    expect(result.current.values).toEqual({ email: '', password: '', confirmPassword: '', inviteCode: '', privacyAccepted: false, termsAccepted: false });
     expect(result.current.errors).toEqual({});
     expect(result.current.serverError).toBeUndefined();
     expect(result.current.isSubmitting).toBe(false);
@@ -181,13 +181,15 @@ describe('useRegisterForm', () => {
       result.current.handleEmailChange(buildChangeEvent('  New@User.COM  '));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
       result.current.handleSubmit(buildSubmitEvent());
     });
 
-    expect(mockMutateAsync).toHaveBeenCalledWith({ email: 'new@user.com', password: STRONG_PASSWORD });
+    expect(mockMutateAsync).toHaveBeenCalledWith({ email: 'new@user.com', password: STRONG_PASSWORD, privacyPolicyVersion: 'privacy-alpha-1', termsVersion: 'terms-alpha-1' });
   });
 
   it('includes inviteCode when provided', async () => {
@@ -200,6 +202,8 @@ describe('useRegisterForm', () => {
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -209,6 +213,8 @@ describe('useRegisterForm', () => {
     expect(mockMutateAsync).toHaveBeenCalledWith({
       email: 'new@user.com',
       password: STRONG_PASSWORD,
+      privacyPolicyVersion: 'privacy-alpha-1',
+      termsVersion: 'terms-alpha-1',
       inviteCode: 'ABC123',
     });
   });
@@ -222,6 +228,8 @@ describe('useRegisterForm', () => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {

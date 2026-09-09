@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useRegisterForm } from '#features/auth/ui/hooks/useRegisterForm';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
+import { Checkbox } from '#shared/ui/Checkbox';
 
 export const RegisterForm = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -16,6 +17,8 @@ export const RegisterForm = (): React.JSX.Element => {
     handlePasswordChange,
     handleConfirmPasswordChange,
     handleInviteCodeChange,
+    handlePrivacyAcceptedChange,
+    handleTermsAcceptedChange,
     handleSubmit,
   } = useRegisterForm();
 
@@ -75,6 +78,27 @@ export const RegisterForm = (): React.JSX.Element => {
         {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}
       </Button>
 
+      <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+        <Checkbox
+          id="privacy-consent"
+          checked={values.privacyAccepted}
+          onChange={handlePrivacyAcceptedChange}
+          aria-invalid={errors.privacyAccepted ? true : undefined}
+          aria-describedby={errors.privacyAccepted ? 'privacy-consent-error' : undefined}
+          label={t('auth.register.privacyConsent')}
+        />
+        <Checkbox
+          id="terms-consent"
+          checked={values.termsAccepted}
+          onChange={handleTermsAcceptedChange}
+          aria-invalid={errors.termsAccepted ? true : undefined}
+          aria-describedby={errors.termsAccepted ? 'terms-consent-error' : undefined}
+          label={t('auth.register.termsConsent')}
+        />
+        {errors.privacyAccepted && <p id="privacy-consent-error" role="alert">{t(errors.privacyAccepted)}</p>}
+        {errors.termsAccepted && <p id="terms-consent-error" role="alert">{t(errors.termsAccepted)}</p>}
+      </div>
+
       <p className="text-center text-sm text-muted-foreground">
         {t('auth.register.hasAccount')}{' '}
         <Link
@@ -83,6 +107,10 @@ export const RegisterForm = (): React.JSX.Element => {
         >
           {t('auth.register.loginLink')}
         </Link>
+      </p>
+      <p className="text-center text-xs text-muted-foreground">
+        <Link className="underline" to="/privacy">{t('legal.privacy.title')}</Link>{' · '}
+        <Link className="underline" to="/terms">{t('legal.terms.title')}</Link>
       </p>
     </form>
   );

@@ -10,8 +10,10 @@ import { InviteCodeRepository } from '@invite-codes/domain/ports/invite-code.rep
 import { InviteCode } from '@invite-codes/domain/invite-code.entity';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
+import { REGISTRATION_CONSENT } from '@auth/application/consent/registration-consent';
 
 describe('RegisterHandler', () => {
+  const consent = REGISTRATION_CONSENT;
   let handler: RegisterHandler;
   let userRepo: jest.Mocked<UserRepository>;
   let workspaceRepo: jest.Mocked<WorkspaceRepository>;
@@ -76,6 +78,7 @@ describe('RegisterHandler', () => {
     const result = await handler.execute({
       email: 'user@test.com',
       password: 'password123',
+      ...consent,
     });
 
     expect(result.accessToken).toBe('jwt-token');
@@ -89,16 +92,52 @@ describe('RegisterHandler', () => {
     expect(hasher.hash).toHaveBeenCalledWith('password123');
   });
 
+  it('persists the accepted document versions and server timestamp', async () => {
+    const before = new Date();
+
+    await handler.execute({
+      email: 'consent@test.com',
+      password: 'password123',
+      ...consent,
+    });
+
+    const savedUser = userRepo.save.mock.calls[0]?.[0];
+    expect(savedUser?.privacyPolicyVersion).toBe(consent.privacyPolicyVersion);
+    expect(savedUser?.termsVersion).toBe(consent.termsVersion);
+    expect(savedUser?.consentAt?.getTime()).toBeGreaterThanOrEqual(
+      before.getTime(),
+    );
+  });
+
+  it('rejects a registration with an outdated document version', async () => {
+    await expect(
+      handler.execute({
+        email: 'outdated@test.com',
+        password: 'password123',
+        privacyPolicyVersion: 'privacy-v0',
+        termsVersion: consent.termsVersion,
+      }),
+    ).rejects.toThrow('Registration consent is required');
+  });
+
   it('throws when email already registered', async () => {
     userRepo.existsByEmail.mockResolvedValue(true);
 
     await expect(
-      handler.execute({ email: 'taken@test.com', password: 'password123' }),
+      handler.execute({
+        email: 'taken@test.com',
+        password: 'password123',
+        ...consent,
+      }),
     ).rejects.toThrow('Registration failed');
   });
 
   it('signs token with correct payload', async () => {
-    await handler.execute({ email: 'user@test.com', password: 'pass1234' });
+    await handler.execute({
+      email: 'user@test.com',
+      password: 'pass1234',
+      ...consent,
+    });
 
     expect(token.sign).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -124,7 +163,11 @@ describe('RegisterHandler', () => {
 
     it('throws when no invite code provided', async () => {
       await expect(
-        handler.execute({ email: 'user@test.com', password: 'pass1234' }),
+        handler.execute({
+          email: 'user@test.com',
+          password: 'pass1234',
+          ...consent,
+        }),
       ).rejects.toThrow('Invite code is required');
     });
 
@@ -136,6 +179,7 @@ describe('RegisterHandler', () => {
           email: 'user@test.com',
           password: 'pass1234',
           inviteCode: 'INVALID1',
+          ...consent,
         }),
       ).rejects.toThrow('Invalid invite code');
     });
@@ -149,6 +193,7 @@ describe('RegisterHandler', () => {
         email: 'user@test.com',
         password: 'pass1234',
         inviteCode: code.code,
+        ...consent,
       });
 
       expect(result.accessToken).toBe('jwt-token');
@@ -164,6 +209,7 @@ describe('RegisterHandler', () => {
         email: 'user@test.com',
         password: 'pass1234',
         inviteCode: code.code,
+        ...consent,
       });
 
       expect(inviteCodeRepo.save).toHaveBeenCalledWith(
@@ -183,6 +229,7 @@ describe('RegisterHandler', () => {
           email: 'user@test.com',
           password: 'pass1234',
           inviteCode: code.code,
+          ...consent,
         }),
       ).rejects.toThrow('Invalid invite code');
     });

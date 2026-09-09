@@ -26,6 +26,8 @@ import { Permission } from '@auth/domain/permission.entity';
 import { Workspace } from '@workspaces/domain/workspace.entity';
 import { DomainError } from '@budget/domain';
 import { AuthResult } from '@auth/application/dto/auth-result.dto';
+import { validateRegistrationConsent } from '@auth/application/consent/validate-registration-consent';
+import { registrationInvite } from '@auth/application/consent/registration-invite';
 
 export const REGISTRATION_MODE = Symbol('REGISTRATION_MODE');
 
@@ -33,6 +35,8 @@ export interface RegisterCommand {
   email: string;
   password: string;
   inviteCode?: string;
+  privacyPolicyVersion: string;
+  termsVersion: string;
 }
 
 @Injectable()
@@ -52,6 +56,10 @@ export class RegisterHandler {
   ) {}
 
   async execute(command: RegisterCommand): Promise<AuthResult> {
+    validateRegistrationConsent(
+      command.privacyPolicyVersion,
+      command.termsVersion,
+    );
     if (this.registrationMode === 'invite-only') {
       if (!command.inviteCode) {
         throw new DomainError('Invite code is required');
@@ -64,7 +72,10 @@ export class RegisterHandler {
     // for consistency. In-memory mode is single-threaded, no race possible.
     let claimedCodeId: string | undefined;
     if (command.inviteCode) {
-      claimedCodeId = await this.claimInviteCode(command.inviteCode);
+      claimedCodeId = await registrationInvite.claim(
+        command.inviteCode,
+        this.inviteCodeRepo,
+      );
     }
 
     const exists = await this.userRepo.existsByEmail(command.email);
@@ -84,13 +95,20 @@ export class RegisterHandler {
       passwordHash,
       role: UserRole.Member,
       workspaceId: workspace.id,
+      privacyPolicyVersion: command.privacyPolicyVersion,
+      termsVersion: command.termsVersion,
+      consentAt: new Date(),
     });
 
     await this.userRepo.save(user);
 
     // Update code with userId after user is created
     if (claimedCodeId) {
-      await this.assignUserToCode(claimedCodeId, user.id);
+      await registrationInvite.assign(
+        claimedCodeId,
+        user.id,
+        this.inviteCodeRepo,
+      );
     }
 
     const permission = Permission.create({
@@ -120,33 +138,5 @@ export class RegisterHandler {
         workspaceId: user.workspaceId,
       },
     };
-  }
-
-  /**
-   * Claims the invite code atomically — marks as Used with a placeholder userId.
-   * This prevents race conditions where two registrations use the same code.
-   * Returns the code ID for later userId assignment.
-   */
-  private async claimInviteCode(code: string): Promise<string> {
-    const inviteCode = await this.inviteCodeRepo.findByCode(code);
-    if (!inviteCode || !inviteCode.isAvailable()) {
-      throw new DomainError('Invalid invite code');
-    }
-    const redeemed = inviteCode.redeem('pending');
-    await this.inviteCodeRepo.save(redeemed);
-    return inviteCode.id;
-  }
-
-  /**
-   * Updates the claimed code with the actual userId after successful user creation.
-   */
-  private async assignUserToCode(
-    codeId: string,
-    userId: string,
-  ): Promise<void> {
-    const code = await this.inviteCodeRepo.findById(codeId);
-    if (!code) return;
-    const updated = code.assignUser(userId);
-    await this.inviteCodeRepo.save(updated);
   }
 }

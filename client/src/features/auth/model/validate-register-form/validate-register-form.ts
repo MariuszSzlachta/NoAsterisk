@@ -8,10 +8,18 @@ export const validateRegisterForm = (values: RegisterFormValues): FieldErrors =>
   const email = validateEmail(values.email);
   const password = validateRegisterPassword(values.password);
   const confirmPassword = validateConfirmPassword(values.password, values.confirmPassword);
+  const privacyAccepted = values.privacyAccepted
+    ? undefined
+    : 'auth.validation.privacyRequired';
+  const termsAccepted = values.termsAccepted
+    ? undefined
+    : 'auth.validation.termsRequired';
 
   return {
     ...(email && { email }),
     ...(password && { password }),
     ...(confirmPassword && { confirmPassword }),
+    ...(privacyAccepted && { privacyAccepted }),
+    ...(termsAccepted && { termsAccepted }),
   };
 };

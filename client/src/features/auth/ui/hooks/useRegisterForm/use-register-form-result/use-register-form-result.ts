@@ -12,5 +12,7 @@ export interface UseRegisterFormResult {
   readonly handlePasswordChange: (e: ChangeEvent<HTMLInputElement>) => void;
   readonly handleConfirmPasswordChange: (e: ChangeEvent<HTMLInputElement>) => void;
   readonly handleInviteCodeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  readonly handlePrivacyAcceptedChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  readonly handleTermsAcceptedChange: (e: ChangeEvent<HTMLInputElement>) => void;
   readonly handleSubmit: (e: FormEvent) => void;
 }

@@ -572,6 +572,7 @@
       "clearDataButton": "Clear data",
       "deleteAccount": "Delete account",
       "deleteAccountDescription": "Permanently deletes your account and all data from the server.",
+      "localDataReminder": "Account deletion does not remove browser-local data—clear it separately.",
       "deleteAccountButton": "Delete account",
       "clearDialog": {
         "title": "Clear local data",
@@ -703,6 +704,8 @@
       "confirmPasswordRequired": "Password confirmation is required",
       "passwordsMismatch": "Passwords do not match",
       "inviteCodeInvalid": "Invalid invite code format"
+      ,"privacyRequired": "Accept the Privacy Policy",
+      "termsRequired": "Accept the Terms"
     },
     "login": {
       "title": "Sign in",
@@ -733,10 +736,44 @@
       "submitting": "Creating account...",
       "hasAccount": "Already have an account?",
       "loginLink": "Sign in",
+      "privacyConsent": "I accept the Privacy Policy",
+      "termsConsent": "I accept the Terms",
       "emailConflict": "An account with this email already exists",
       "invalidInviteCode": "Invalid or expired invite code",
       "validationFailed": "Validation failed. Please check your input.",
       "genericError": "An error occurred. Please try again."
+    }
+  },
+  "legal": {
+    "backToRegister": "Back to registration",
+    "nonProductionNotice": "ALPHA / NON-PRODUCTION: controller, contact, jurisdiction, hosting providers, and domain are not yet approved. This version must not be published before legal validation.",
+    "privacy": {
+      "title": "Privacy Policy",
+      "version": "ALPHA version privacy-alpha-1",
+      "updated": "Last updated: September 9, 2026",
+      "intro": "BudgetFlow is a local-first application. This draft describes the actual data flow and must be completed by the data controller and legally reviewed before production.",
+      "sectionTitles": ["Controller and contact", "Purposes and legal bases", "Data we process", "Storage and processors", "Rights and deletion"],
+      "sections": [
+        "The controller is [NON-PRODUCTION: entity name], contact: [NON-PRODUCTION: email], jurisdiction: [NON-PRODUCTION: country].",
+        "Account data is needed for authentication, access protection, and synchronization. The legal bases and controller obligations must be confirmed for the target jurisdiction.",
+        "We process email, preferences, invitation and administration data, functional tokens/cookies, and operational logs. Financial data is created and stored locally in an encrypted store. The server may store only an opaque encrypted synchronization blob and revision metadata; E2EE does not remove all privacy obligations.",
+        "Data is retained as long as needed for its purpose or a legal obligation. Hosting and infrastructure providers: [NON-PRODUCTION: provider list]. We do not use analytics or marketing tracking.",
+        "You may request access, correction, deletion, restriction, and portability, and complain to the competent authority. Account deletion removes server data but does not automatically remove browser-local data—deliberately use “Clear local data”."
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "version": "ALPHA version terms-alpha-1",
+      "updated": "Last updated: September 9, 2026",
+      "intro": "This is a BudgetFlow terms draft. It requires the entity, audience restrictions, and jurisdiction to be completed and professional review before publication.",
+      "sectionTitles": ["Provider", "Service scope", "Account and security", "Limitations", "Changes and contact"],
+      "sections": [
+        "The provider is [NON-PRODUCTION: entity and address], domain: [NON-PRODUCTION: production domain].",
+        "The service supports local financial data management and optional synchronization of an encrypted blob between devices. The server does not decrypt financial data.",
+        "You are responsible for accurate account data, your password, and your vault passphrase. Losing the vault passphrase may make local data unrecoverable.",
+        "The service has availability limitations and provides no guarantee of financial decisions or advice. It is not financial advice. Liability limitations require legal approval.",
+        "Terms changes will be communicated with notice appropriate to their impact. Contact: [NON-PRODUCTION: email]."
+      ]
     }
   }
 }

@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { AuthModule } from '@auth/auth.module';
 import { REGISTRATION_MODE } from '@auth/application/commands/register.handler';
 import { DomainExceptionFilter } from '@shared/presentation/domain-exception.filter';
+import { REGISTRATION_CONSENT } from '@auth/application/consent/registration-consent';
 
 describe('AuthController', () => {
   let app: INestApplication<App>;
@@ -30,7 +31,11 @@ describe('AuthController', () => {
     it('returns access token and sets refresh token as an httpOnly cookie', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'new@example.com', password: 'Secure1!pass' });
+        .send({
+          email: 'new@example.com',
+          password: 'Secure1!pass',
+          ...REGISTRATION_CONSENT,
+        });
 
       expect(res.status).toBe(201);
       expect(res.body.accessToken).toBeDefined();
@@ -50,11 +55,19 @@ describe('AuthController', () => {
     it('returns 400 for duplicate email', async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'dup@example.com', password: 'Secure1!pass' });
+        .send({
+          email: 'dup@example.com',
+          password: 'Secure1!pass',
+          ...REGISTRATION_CONSENT,
+        });
 
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'dup@example.com', password: 'Secure1!pass' });
+        .send({
+          email: 'dup@example.com',
+          password: 'Secure1!pass',
+          ...REGISTRATION_CONSENT,
+        });
 
       expect(res.status).toBe(400);
     });
@@ -62,7 +75,11 @@ describe('AuthController', () => {
     it('returns 400 for invalid email', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'not-email', password: 'securepass' });
+        .send({
+          email: 'not-email',
+          password: 'securepass',
+          ...REGISTRATION_CONSENT,
+        });
 
       expect(res.status).toBe(400);
     });
@@ -70,7 +87,11 @@ describe('AuthController', () => {
     it('returns 400 for short password', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'valid@example.com', password: 'short' });
+        .send({
+          email: 'valid@example.com',
+          password: 'short',
+          ...REGISTRATION_CONSENT,
+        });
 
       expect(res.status).toBe(400);
     });
@@ -81,6 +102,7 @@ describe('AuthController', () => {
         .send({
           email: 'x@example.com',
           password: 'Secure1!pass',
+          ...REGISTRATION_CONSENT,
           admin: true,
         });
 
@@ -92,7 +114,11 @@ describe('AuthController', () => {
     beforeAll(async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'login@example.com', password: 'MyPass1!word' });
+        .send({
+          email: 'login@example.com',
+          password: 'MyPass1!word',
+          ...REGISTRATION_CONSENT,
+        });
     });
 
     it('returns 200 with access token for valid credentials', async () => {
@@ -128,7 +154,11 @@ describe('AuthController', () => {
     beforeAll(async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'refresh@example.com', password: 'Secure1!pass' });
+        .send({
+          email: 'refresh@example.com',
+          password: 'Secure1!pass',
+          ...REGISTRATION_CONSENT,
+        });
       const cookieHeader = res.headers['set-cookie'];
       const firstCookie = Array.isArray(cookieHeader)
         ? cookieHeader[0]

@@ -5,4 +5,6 @@ export const INITIAL_REGISTER_VALUES: RegisterFormValues = {
   password: '',
   confirmPassword: '',
   inviteCode: '',
+  privacyAccepted: false,
+  termsAccepted: false,
 };

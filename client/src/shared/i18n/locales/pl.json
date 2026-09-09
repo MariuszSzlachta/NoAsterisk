@@ -581,6 +581,7 @@
       "clearDataButton": "Wyczyść dane",
       "deleteAccount": "Usuń konto",
       "deleteAccountDescription": "Trwale usuwa Twoje konto i wszystkie dane z serwera.",
+      "localDataReminder": "Usunięcie konta nie usuwa danych lokalnych w przeglądarce — wyczyść je osobno.",
       "deleteAccountButton": "Usuń konto",
       "clearDialog": {
         "title": "Wyczyść dane lokalne",
@@ -712,6 +713,8 @@
       "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
       "passwordsMismatch": "Hasła nie są identyczne",
       "inviteCodeInvalid": "Nieprawidłowy format kodu zaproszenia"
+      ,"privacyRequired": "Zaakceptuj Politykę prywatności",
+      "termsRequired": "Zaakceptuj Regulamin"
     },
     "login": {
       "title": "Zaloguj się",
@@ -742,10 +745,44 @@
       "submitting": "Tworzenie konta...",
       "hasAccount": "Masz już konto?",
       "loginLink": "Zaloguj się",
+      "privacyConsent": "Akceptuję Politykę prywatności",
+      "termsConsent": "Akceptuję Regulamin",
       "emailConflict": "Konto z tym adresem email już istnieje",
       "invalidInviteCode": "Nieprawidłowy lub wygasły kod zaproszenia",
       "validationFailed": "Walidacja nie powiodła się. Sprawdź dane.",
       "genericError": "Wystąpił błąd. Spróbuj ponownie."
+    }
+  },
+  "legal": {
+    "backToRegister": "Wróć do rejestracji",
+    "nonProductionNotice": "ALPHA / NON-PRODUCTION: dane administratora, kontakt, jurysdykcja, dostawcy hostingu i domena nie zostały jeszcze zatwierdzone. Tej wersji nie wolno publikować przed walidacją prawną.",
+    "privacy": {
+      "title": "Polityka prywatności",
+      "version": "Wersja ALPHA privacy-alpha-1",
+      "updated": "Ostatnia aktualizacja: 9 września 2026",
+      "intro": "BudgetFlow jest aplikacją local-first. Ten szkic opisuje rzeczywisty przepływ danych i wymaga uzupełnienia przez administratora danych oraz weryfikacji prawnej przed produkcją.",
+      "sectionTitles": ["Administrator i kontakt", "Cele i podstawy", "Jakie dane przetwarzamy", "Przechowywanie i odbiorcy", "Prawa i usunięcie"],
+      "sections": [
+        "Administratorem jest [NON-PRODUCTION: nazwa podmiotu], kontakt: [NON-PRODUCTION: adres e-mail], jurysdykcja: [NON-PRODUCTION: państwo].",
+        "Dane konta są potrzebne do uwierzytelniania, ochrony dostępu i synchronizacji. Podstawy prawne oraz zakres obowiązków administratora wymagają potwierdzenia dla docelowej jurysdykcji.",
+        "Przetwarzamy adres e-mail, preferencje, dane zaproszeń i administracji, funkcjonalne tokeny/cookies oraz logi operacyjne. Dane finansowe są tworzone i przechowywane lokalnie w zaszyfrowanym magazynie. Serwer może przechowywać wyłącznie nieprzezroczysty zaszyfrowany blob synchronizacji oraz metadane rewizji; E2EE nie usuwa wszystkich obowiązków prywatności.",
+        "Dane są przechowywane tak długo, jak jest to potrzebne do celu lub obowiązku prawnego. Dostawcy hostingu i infrastruktury: [NON-PRODUCTION: lista dostawców]. Nie używamy analityki ani śledzenia marketingowego.",
+        "Możesz żądać dostępu, sprostowania, usunięcia, ograniczenia i przeniesienia danych oraz wnieść skargę do właściwego organu. Usunięcie konta usuwa dane serwerowe, ale nie usuwa automatycznie danych lokalnych w przeglądarkach — użyj świadomie funkcji „Wyczyść dane lokalne”."
+      ]
+    },
+    "terms": {
+      "title": "Regulamin",
+      "version": "Wersja ALPHA terms-alpha-1",
+      "updated": "Ostatnia aktualizacja: 9 września 2026",
+      "intro": "To szkic regulaminu BudgetFlow. Wymaga uzupełnienia danych podmiotu, ograniczeń odbiorców i jurysdykcji oraz profesjonalnego przeglądu przed publikacją.",
+      "sectionTitles": ["Usługodawca", "Zakres usługi", "Konto i bezpieczeństwo", "Ograniczenia", "Zmiany i kontakt"],
+      "sections": [
+        "Usługodawcą jest [NON-PRODUCTION: nazwa i adres podmiotu], domena: [NON-PRODUCTION: domena produkcyjna].",
+        "Usługa umożliwia lokalne prowadzenie danych finansowych i opcjonalną synchronizację zaszyfrowanego blobu między urządzeniami. Serwer nie odszyfrowuje danych finansowych.",
+        "Użytkownik odpowiada za prawdziwość danych konta, hasło oraz hasło sejfu. Utrata hasła sejfu może uniemożliwić odzyskanie lokalnych danych.",
+        "Usługa jest dostarczana z ograniczeniami dostępności i bez gwarancji poprawności decyzji finansowych. Nie stanowi doradztwa finansowego. Ograniczenia odpowiedzialności wymagają zatwierdzenia prawnego.",
+        "Zmiany regulaminu będą komunikowane z wyprzedzeniem odpowiednim do ich wpływu. Kontakt: [NON-PRODUCTION: adres e-mail]."
+      ]
     }
   }
 }

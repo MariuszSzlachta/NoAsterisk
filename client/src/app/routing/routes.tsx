@@ -15,6 +15,8 @@ import { RegisterPage } from '#pages/RegisterPage';
 import { TransactionsPage } from '#pages/TransactionsPage';
 import { UserSettingsPage } from '#pages/UserSettingsPage';
 import { ImportHistoryPage } from '#features/csv-import';
+import { PrivacyPage } from '#pages/PrivacyPage';
+import { TermsPage } from '#pages/TermsPage';
 
 export const router = createBrowserRouter([
   {
@@ -64,4 +66,6 @@ export const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
+  { path: '/privacy', element: <PrivacyPage /> },
+  { path: '/terms', element: <TermsPage /> },
 ]);

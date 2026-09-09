@@ -8,6 +8,8 @@ const validInput = {
   password: 'P@ssw0rd!',
   confirmPassword: 'P@ssw0rd!',
   inviteCode: '',
+  privacyAccepted: true,
+  termsAccepted: true,
 };
 
 describe('validateRegisterForm', () => {

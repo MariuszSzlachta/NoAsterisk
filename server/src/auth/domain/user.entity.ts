@@ -18,6 +18,9 @@ export class User {
     public readonly displayName?: string,
     public readonly preferences: UserPreferences = DEFAULT_PREFERENCES,
     public readonly tokenVersion: number = 0,
+    public readonly privacyPolicyVersion?: string,
+    public readonly termsVersion?: string,
+    public readonly consentAt?: Date,
   ) {
     if (!id) throw new DomainError('User ID cannot be empty');
     if (!email) throw new DomainError('User email cannot be empty');
@@ -33,6 +36,9 @@ export class User {
     passwordHash: string;
     role: UserRole;
     workspaceId: string;
+    privacyPolicyVersion?: string;
+    termsVersion?: string;
+    consentAt?: Date;
   }): User {
     return new User(
       crypto.randomUUID(),
@@ -41,6 +47,12 @@ export class User {
       props.role,
       props.workspaceId,
       new Date(),
+      undefined,
+      DEFAULT_PREFERENCES,
+      0,
+      props.privacyPolicyVersion,
+      props.termsVersion,
+      props.consentAt,
     );
   }
 
@@ -62,6 +74,9 @@ export class User {
       trimmed || undefined,
       this.preferences,
       this.tokenVersion,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 
@@ -78,6 +93,9 @@ export class User {
       this.displayName,
       this.preferences,
       this.tokenVersion + 1,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 
@@ -92,6 +110,9 @@ export class User {
       this.displayName,
       this.preferences,
       this.tokenVersion + 1,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 
@@ -112,6 +133,9 @@ export class User {
       this.displayName,
       this.preferences,
       this.tokenVersion + 1,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 
@@ -129,6 +153,9 @@ export class User {
       this.displayName,
       this.preferences,
       this.tokenVersion,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 
@@ -144,6 +171,9 @@ export class User {
       this.displayName,
       merged,
       this.tokenVersion,
+      this.privacyPolicyVersion,
+      this.termsVersion,
+      this.consentAt,
     );
   }
 

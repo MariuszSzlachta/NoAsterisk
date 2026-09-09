@@ -55,6 +55,7 @@ export const DangerSection = (): React.JSX.Element => {
             <div className="mr-4">
               <div className="text-sm font-medium text-foreground">{t('settings.danger.deleteAccount')}</div>
               <div className="text-xs text-muted-foreground">{t('settings.danger.deleteAccountDescription')}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{t('settings.danger.localDataReminder')}</div>
             </div>
             <Button
               variant="destructive"

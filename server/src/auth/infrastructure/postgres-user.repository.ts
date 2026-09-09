@@ -27,6 +27,9 @@ export class PostgresUserRepository implements UserRepository {
         displayName: user.displayName ?? null,
         preferences: user.preferences,
         tokenVersion: user.tokenVersion,
+        privacyPolicyVersion: user.privacyPolicyVersion ?? null,
+        termsVersion: user.termsVersion ?? null,
+        consentAt: user.consentAt ?? null,
       })
       .onConflictDoUpdate({
         target: users.id,
@@ -37,6 +40,9 @@ export class PostgresUserRepository implements UserRepository {
           displayName: user.displayName ?? null,
           preferences: user.preferences,
           tokenVersion: user.tokenVersion,
+          privacyPolicyVersion: user.privacyPolicyVersion ?? null,
+          termsVersion: user.termsVersion ?? null,
+          consentAt: user.consentAt ?? null,
         },
       });
     return user;
@@ -92,6 +98,9 @@ export class PostgresUserRepository implements UserRepository {
       row.displayName ?? undefined,
       row.preferences as UserPreferences,
       row.tokenVersion,
+      row.privacyPolicyVersion ?? undefined,
+      row.termsVersion ?? undefined,
+      row.consentAt ?? undefined,
     );
   }
 }

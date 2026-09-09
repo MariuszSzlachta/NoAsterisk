@@ -8,6 +8,7 @@ import type { FieldErrors } from '#features/auth/model/types/field-errors';
 import type { RegisterFormValues } from '#features/auth/model/types/register-form-values';
 import { hasErrors } from '#features/auth/model/has-errors';
 import { validateRegisterForm } from '#features/auth/model/validate-register-form';
+import { REGISTRATION_CONSENT } from '#features/auth/model/registration-consent';
 
 import { DASHBOARD_ROUTE } from '#features/auth/ui/hooks/useRegisterForm/constants/dashboard-route';
 import { INITIAL_REGISTER_VALUES } from '#features/auth/ui/hooks/useRegisterForm/initial-register-values';
@@ -40,6 +41,16 @@ export const useRegisterForm = (): UseRegisterFormResult => {
     setErrors((prev) => ({ ...prev, inviteCode: undefined }));
   };
 
+  const handlePrivacyAcceptedChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setValues((prev) => ({ ...prev, privacyAccepted: e.target.checked }));
+    setErrors((prev) => ({ ...prev, privacyAccepted: undefined }));
+  };
+
+  const handleTermsAcceptedChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setValues((prev) => ({ ...prev, termsAccepted: e.target.checked }));
+    setErrors((prev) => ({ ...prev, termsAccepted: undefined }));
+  };
+
   const handleSubmit = (e: FormEvent): void => {
     e.preventDefault();
 
@@ -57,6 +68,8 @@ export const useRegisterForm = (): UseRegisterFormResult => {
     const body = {
       email: canonicalizeEmail(values.email),
       password: values.password,
+      privacyPolicyVersion: REGISTRATION_CONSENT.privacyPolicyVersion,
+      termsVersion: REGISTRATION_CONSENT.termsVersion,
       ...(values.inviteCode.trim() && { inviteCode: values.inviteCode.trim() }),
     };
 
@@ -77,6 +90,8 @@ export const useRegisterForm = (): UseRegisterFormResult => {
     handlePasswordChange,
     handleConfirmPasswordChange,
     handleInviteCodeChange,
+    handlePrivacyAcceptedChange,
+    handleTermsAcceptedChange,
     handleSubmit,
   };
 };
