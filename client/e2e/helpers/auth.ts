@@ -11,44 +11,47 @@ export const setupAuthenticatedUser = async (
   role: 'Superuser' | 'Member' = 'Superuser',
   options: { readonly unlock?: boolean } = {},
 ): Promise<void> => {
-  // Mock refresh endpoint (prevents 401 redirect loops)
-  await page.route('**/api/auth/refresh', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ accessToken: 'e2e-fake-token' }),
-    }),
-  );
-
-  await page.route('**/api/auth/login', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
+  // The broad matcher also covers full reloads, where the app requests auth/profile
+  // before the route tree has mounted. Other API requests continue to the test server.
+  await page.route('**/*', (route) => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.pathname.endsWith('/api/auth/refresh')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'e2e-fake-token' }) });
+    }
+    if (requestUrl.pathname.endsWith('/api/auth/login')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
         accessToken: 'e2e-fake-token',
-        user: {
-          id: 'user-e2e',
-          email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local',
-          role,
-          workspaceId: 'workspace-e2e',
-        },
-      }),
-    }),
-  );
+        user: { id: 'user-e2e', email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local', role, workspaceId: 'workspace-e2e' },
+      }) });
+    }
+    if (requestUrl.pathname !== '/api/users/me' && requestUrl.pathname !== '/api/users/me/vault') {
+      return route.continue();
+    }
 
-  // Mock profile endpoint
-  await page.route('**/api/users/me', (route) =>
-    route.fulfill({
+    const pathname = requestUrl.pathname;
+
+    if (pathname.endsWith('/vault')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 'empty' }),
+      });
+    }
+
+    return route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
         id: 'user-e2e',
         email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local',
+        displayName: 'E2E User',
         role,
+        workspaceId: 'workspace-e2e',
+        createdAt: '2026-01-01T00:00:00.000Z',
         preferences: { language: 'pl', currency: 'PLN', theme: 'dark' },
       }),
-    }),
-  );
+    });
+  });
 
   await page.goto('/login');
   await page.getByLabel('Email').fill(role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local');

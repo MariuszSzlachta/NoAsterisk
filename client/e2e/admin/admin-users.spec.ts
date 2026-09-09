@@ -19,7 +19,7 @@ test.describe('Admin Users — Block/Delete Flow', () => {
   });
 
   test('search filters users by email', async ({ page }) => {
-    const searchInput = page.getByPlaceholder(/szukaj/i);
+    const searchInput = page.getByPlaceholder(/szukaj|filtruj/i);
     await searchInput.fill('admin');
 
     await expect(page.getByText('admin@budget.pl')).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('Admin Users — Block/Delete Flow', () => {
 
     // Confirmation modal appears
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByText(/na pewno/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /usunąć użytkownika/i })).toBeVisible();
   });
 
   test('confirming delete sends DELETE request', async ({ page }) => {

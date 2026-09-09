@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-import { setupAdminApiMocks, setupAuthenticatedUser, unlockVault } from '../helpers/auth';
+import { setupAdminApiMocks, setupAuthenticatedUser } from '../helpers/auth';
 
 test.describe('Admin Panel — Dashboard & Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser');
     await setupAdminApiMocks(page);
-    await page.goto('/admin');
-    await unlockVault(page);
+    await page.getByRole('link', { name: 'Administracja' }).click();
+    await page.waitForURL('**/admin');
   });
 
   test('shows admin page title', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /panel administracyjny/i })).toBeVisible();
+    await expect(page.locator('main').getByRole('heading', { name: /panel administratora/i }).last()).toBeVisible();
   });
 
   test('shows tab navigation with 4 tabs', async ({ page }) => {

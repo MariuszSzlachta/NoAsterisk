@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Register Page — E2E', () => {
+  const acceptRequiredConsents = async (page: import('@playwright/test').Page): Promise<void> => {
+    await page.getByLabel('Akceptuję Politykę prywatności').check();
+    await page.getByLabel('Akceptuję Regulamin').check();
+  };
+
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/auth/register', (route) => {
       const request = route.request();
@@ -95,9 +100,10 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Email').fill('existing@user.com');
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
-    await expect(page.getByRole('alert')).toContainText('Konto z tym adresem email już istnieje');
+    await expect(page.getByText('Konto z tym adresem email już istnieje')).toBeVisible();
   });
 
   test('shows invalid invite code error from server', async ({ page }) => {
@@ -105,15 +111,17 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
     await page.getByLabel('Kod zaproszenia').fill('BADCODE');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
-    await expect(page.getByRole('alert')).toContainText('Nieprawidłowy lub wygasły kod zaproszenia');
+    await expect(page.getByText('Nieprawidłowy lub wygasły kod zaproszenia')).toBeVisible();
   });
 
   test('successful registration redirects to dashboard', async ({ page }) => {
     await page.getByLabel('Email').fill('new@user.com');
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
     await page.waitForURL('**/dashboard');
@@ -127,6 +135,7 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
     await page.getByLabel('Kod zaproszenia').fill('ABC123');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
     const request = await registerPromise;
@@ -140,6 +149,7 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Email').fill('new@user.com');
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
     const request = await registerPromise;
@@ -153,6 +163,7 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Email').fill('  NEW@User.COM  ');
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
     const request = await registerPromise;
@@ -176,6 +187,7 @@ test.describe('Register Page — E2E', () => {
     await page.getByLabel('Email').fill('new@user.com');
     await page.getByLabel('Hasło', { exact: true }).fill('P@ssw0rd!x');
     await page.getByLabel('Potwierdź hasło').fill('P@ssw0rd!x');
+    await acceptRequiredConsents(page);
     await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
     await expect(page.getByRole('button', { name: 'Tworzenie konta...' })).toBeDisabled();
