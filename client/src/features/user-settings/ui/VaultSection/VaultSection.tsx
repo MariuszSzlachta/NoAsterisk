@@ -47,6 +47,8 @@ export const VaultSection = (): React.JSX.Element => {
         {/* Status Card */}
         <div
           className={`mb-4 flex items-center gap-3 rounded-lg border p-3 ${STATUS_COLORS[vaultInfo.status]}`}
+          role="status"
+          aria-live="polite"
         >
           <div aria-hidden="true">{STATUS_ICONS[vaultInfo.status]}</div>
           <div>
@@ -56,7 +58,7 @@ export const VaultSection = (): React.JSX.Element => {
             <div className="text-xs text-muted-foreground">
               {vaultInfo.lastSync
                 ? t('settings.vault.lastSync', { date: vaultInfo.lastSync })
-                : t('settings.vault.noBackup')}
+                : t('settings.vault.noSuccessfulSync')}
             </div>
           </div>
         </div>
@@ -79,7 +81,7 @@ export const VaultSection = (): React.JSX.Element => {
             variant="secondary"
             onClick={handleRestore}
             icon={<RotateCcw size={14} />}
-            disabled={vaultInfo.status === 'no-backup' || isSyncing}
+            disabled={vaultInfo.status === 'never-synced' || isSyncing}
           >
             {t('settings.vault.restore')}
           </Button>

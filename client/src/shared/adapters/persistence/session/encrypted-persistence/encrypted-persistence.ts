@@ -29,6 +29,7 @@ import {
   type EncryptedPersistence,
   type PersistentStorageStatus,
 } from '#shared/adapters/persistence/session/session-types';
+import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
 
 export const createEncryptedPersistence = (
   database: BudgetDatabase = encryptedDatabase,
@@ -189,6 +190,8 @@ export const createEncryptedPersistence = (
   ): Promise<void> => {
     await databaseLock(async () => {
       const currentKey = requireKey();
+      // Encryption runs in parallel without side effects. The IndexedDB transaction
+      // starts only after every record is encrypted, so one rejected promise writes nothing.
       const encryptedWrites = await Promise.all(
         writes.map(async (write) => ({
           collection: write.collection,
@@ -215,6 +218,7 @@ export const createEncryptedPersistence = (
           await database.records.bulkPut(write.records);
         }, Promise.resolve());
       });
+      persistenceSyncMetadata.markDirty();
     });
   };
 
@@ -226,14 +230,19 @@ export const createEncryptedPersistence = (
     createRelatedWrite: (
       result: EncryptedWriteResult<TRecord>,
     ) => EncryptedRelatedWrite<TRelated>,
-  ): Promise<EncryptedWriteResult<TRecord>> =>
-    putManyIfAbsentWithRelatedInDexie(
+  ): Promise<EncryptedWriteResult<TRecord>> => {
+    const result = await putManyIfAbsentWithRelatedInDexie(
       database,
       requireKey,
       primaryWrite,
       createRelatedWrite,
       databaseLock,
     );
+    if (result.written.length > 0) {
+      persistenceSyncMetadata.markDirty();
+    }
+    return result;
+  };
 
   return {
     getSnapshot: session.getSnapshot,
@@ -248,7 +257,14 @@ export const createEncryptedPersistence = (
     clearLocalData,
     replaceCollections,
     putManyIfAbsentWithRelated,
-    deleteMatchingRecords: (deletions) =>
-      deleteMatchingRecords(database, requireKey, deletions, databaseLock),
+    deleteMatchingRecords: async (deletions) => {
+      await deleteMatchingRecords(
+        database,
+        requireKey,
+        deletions,
+        databaseLock,
+      );
+      persistenceSyncMetadata.markDirty();
+    },
   };
 };

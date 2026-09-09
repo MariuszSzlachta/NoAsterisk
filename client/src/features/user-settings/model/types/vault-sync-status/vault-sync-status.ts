@@ -1,1 +1,8 @@
-export type VaultSyncStatus = 'synced' | 'unsynced' | 'no-backup';
+export type VaultSyncStatus =
+  | 'up-to-date'
+  | 'local-changes'
+  | 'never-synced'
+  | 'remote-newer'
+  | 'syncing'
+  | 'conflict'
+  | 'error';

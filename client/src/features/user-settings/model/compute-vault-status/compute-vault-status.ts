@@ -1,17 +1,23 @@
 import type { VaultSyncStatus } from '#features/user-settings/model/types/vault-sync-status';
 
 export const computeVaultStatus = (
-  hasBackup: boolean,
-  lastSync: string | undefined,
-  hasLocalChanges = false,
+  hasRemoteSnapshot: boolean,
+  isDirty: boolean,
+  lastSuccessfulSyncRevision: number | undefined,
+  remoteRevision: number | undefined,
 ): VaultSyncStatus => {
-  if (!hasBackup) {
-    return 'no-backup';
+  if (!hasRemoteSnapshot) {
+    return isDirty ? 'local-changes' : 'never-synced';
   }
-
-  if (lastSync !== undefined && !hasLocalChanges) {
-    return 'synced';
+  if (isDirty) {
+    return 'local-changes';
   }
-
-  return 'unsynced';
+  const hasRemoteChanges =
+    lastSuccessfulSyncRevision === undefined ||
+    (remoteRevision !== undefined &&
+      lastSuccessfulSyncRevision !== remoteRevision);
+  if (hasRemoteChanges) {
+    return 'remote-newer';
+  }
+  return 'up-to-date';
 };

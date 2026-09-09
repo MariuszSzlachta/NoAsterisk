@@ -4,6 +4,6 @@ import type { UploadVaultResponse } from '#features/user-settings/api/useUploadV
 
 export interface UseUploadVaultMutationResult {
   readonly state: MutationState;
-  readonly mutateAsync: (body: UploadVaultBody) => Promise<UploadVaultResponse | undefined>;
+  readonly mutateAsync: (body: UploadVaultBody) => Promise<UploadVaultResponse>;
   readonly reset: () => void;
 }

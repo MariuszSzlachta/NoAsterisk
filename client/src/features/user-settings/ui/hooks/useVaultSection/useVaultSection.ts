@@ -1,12 +1,8 @@
 // User Settings — useVaultSection Hook
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useRulesStore } from '#entities/rule';
-import { useTransactionsStore } from '#entities/transaction';
-import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
-import { useImportHistoryStore } from '#entities/import-batch';
 import { useUploadVaultMutation } from '#features/user-settings/api/useUploadVaultMutation';
 import { useVaultQuery } from '#features/user-settings/api/useVaultQuery';
 import { computeVaultStatus } from '#features/user-settings/model/compute-vault-status';
@@ -23,7 +19,6 @@ import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
 import { VaultDecryptionError } from '#features/user-settings/model/vault-decryption-error';
 import { MAX_PLAINTEXT_VAULT_LENGTH } from '#features/user-settings/model/vault-limits';
 import {
-  digestVaultRecords,
   serializeVaultPayload,
   type VaultRecords,
 } from '#features/user-settings/model/vault-payload';
@@ -32,7 +27,13 @@ import { VaultSizeError } from '#features/user-settings/model/vault-size-error';
 import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
 import type { VaultPasswordMode } from '#features/user-settings/ui/VaultPasswordDialog';
+import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
 import { useCategoriesStore } from '#entities/category';
+import { useImportHistoryStore } from '#entities/import-batch';
+import { useRulesStore } from '#entities/rule';
+import { useTransactionsStore } from '#entities/transaction';
+import { persistenceSyncMetadata } from '#shared/adapters/persistence';
+import { ApiError } from '#shared/api';
 import { useToast } from '#shared/hooks/useToast';
 
 const buildRecords = (): VaultRecords => ({
@@ -46,7 +47,7 @@ const buildRecords = (): VaultRecords => ({
 
 export const useVaultSection = (): UseVaultSectionResult => {
   const { t } = useTranslation();
-  const { data: vaultData, hasBackup, refetch } = useVaultQuery();
+  const { data: vaultData, error, refetch } = useVaultQuery();
   const { mutateAsync: uploadVault } = useUploadVaultMutation();
   const addToast = useToast((s) => s.addToast);
 
@@ -65,10 +66,7 @@ export const useVaultSection = (): UseVaultSectionResult => {
   const [passwordError, setPasswordError] = useState<string | undefined>(
     undefined,
   );
-  const [localDigest, setLocalDigest] = useState<string | undefined>(undefined);
-  const [uploadedDigest, setUploadedDigest] = useState<string | undefined>(
-    undefined,
-  );
+  const [hasConflict, setHasConflict] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const records = useMemo<VaultRecords>(
@@ -83,28 +81,33 @@ export const useVaultSection = (): UseVaultSectionResult => {
     [transactions, rules, categories, budgets, periodHistory, importHistory],
   );
 
-  useEffect(() => {
-    let isCancelled = false;
-    void digestVaultRecords(records).then((digest) => {
-      if (!isCancelled) {
-        setLocalDigest(digest);
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [records]);
-
-  const lastSync = vaultData?.updatedAt
-    ? formatSyncDate(vaultData.updatedAt)
-    : undefined;
-  const status = computeVaultStatus(
-    hasBackup,
-    lastSync,
-    uploadedDigest !== undefined && localDigest !== uploadedDigest,
+  const syncMetadata = useSyncExternalStore(
+    persistenceSyncMetadata.subscribe,
+    persistenceSyncMetadata.get,
+    persistenceSyncMetadata.get,
   );
-  const vaultInfo: VaultInfo = { status, lastSync };
+  const remoteSnapshot =
+    vaultData?.status === 'available' ? vaultData : undefined;
+  const lastSync = syncMetadata.lastSuccessfulSyncAt
+    ? formatSyncDate(syncMetadata.lastSuccessfulSyncAt)
+    : undefined;
+  const status = hasConflict
+    ? 'conflict'
+    : error !== undefined
+      ? 'error'
+      : isSyncing
+        ? 'syncing'
+        : computeVaultStatus(
+            remoteSnapshot !== undefined,
+            syncMetadata.isDirty,
+            syncMetadata.lastSuccessfulSyncRevision,
+            remoteSnapshot?.revision,
+          );
+  const vaultInfo: VaultInfo = {
+    status,
+    lastSync,
+    remoteRevision: remoteSnapshot?.revision,
+  };
 
   const dataStats: DataStats = useMemo(() => {
     const payload = createValidatedVaultPayload(records);
@@ -120,15 +123,40 @@ export const useVaultSection = (): UseVaultSectionResult => {
   }, [records]);
 
   const handleSync = (): void => {
-    setPasswordDialogMode('encrypt');
+    if (
+      remoteSnapshot !== undefined &&
+      (hasConflict || status === 'remote-newer')
+    ) {
+      void prepareOverwriteConfirmation();
+      return;
+    }
+    openPasswordDialog('encrypt');
+  };
+
+  const openPasswordDialog = (mode: VaultPasswordMode): void => {
+    setPasswordDialogMode(mode);
     setPasswordError(undefined);
     setShowPasswordDialog(true);
   };
 
+  const prepareOverwriteConfirmation = async (): Promise<void> => {
+    await refetch();
+    if (!window.confirm(t('settings.vault.overwriteConfirmation'))) {
+      return;
+    }
+    setHasConflict(false);
+    openPasswordDialog('encrypt');
+  };
+
   const handleRestore = (): void => {
-    setPasswordDialogMode('decrypt');
-    setPasswordError(undefined);
-    setShowPasswordDialog(true);
+    if (
+      remoteSnapshot !== undefined &&
+      !window.confirm(t('settings.vault.pullConfirmation'))
+    ) {
+      return;
+    }
+    setHasConflict(false);
+    openPasswordDialog('decrypt');
   };
 
   const handlePasswordSubmit = (password: string): void => {
@@ -150,17 +178,28 @@ export const useVaultSection = (): UseVaultSectionResult => {
 
     try {
       const payload = createValidatedVaultPayload(buildRecords());
-      const digest = await digestVaultRecords(payload);
       const encrypted = await encryptVault(
         serializeVaultPayload(payload),
         password,
       );
-      await uploadVault({ encryptedBlob: encrypted });
-      setUploadedDigest(digest);
+      const baseRevision =
+        remoteSnapshot?.revision ?? syncMetadata.observedRevision ?? 0;
+      const response = await uploadVault({
+        encryptedBlob: encrypted,
+        baseRevision,
+      });
+      persistenceSyncMetadata.markSynced(response.revision, response.updatedAt);
+      setHasConflict(false);
       setShowPasswordDialog(false);
       addToast(t('settings.vault.syncSuccess'), 'success');
       void refetch();
     } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        setHasConflict(true);
+        setPasswordError(t('settings.vault.conflict'));
+        void refetch();
+        return;
+      }
       setPasswordError(
         error instanceof VaultSizeError
           ? t('settings.vault.tooLarge')
@@ -176,19 +215,22 @@ export const useVaultSection = (): UseVaultSectionResult => {
     setPasswordError(undefined);
 
     try {
-      if (!vaultData?.encryptedBlob) {
+      if (remoteSnapshot === undefined) {
         setPasswordError(t('settings.vault.noBackup'));
         return;
       }
 
       const payload = await decryptVaultPayload(
-        vaultData.encryptedBlob,
+        remoteSnapshot.encryptedBlob,
         password,
       );
       await restoreVaultPayload(payload);
-      if (payload.schemaVersion === 1) {
-        setUploadedDigest(await digestVaultRecords(payload));
-      }
+      persistenceSyncMetadata.markSynced(
+        remoteSnapshot.revision,
+        remoteSnapshot.updatedAt,
+      );
+      persistenceSyncMetadata.rememberRevision(remoteSnapshot.revision);
+      setHasConflict(false);
 
       setShowPasswordDialog(false);
       addToast(t('settings.vault.restoreSuccess'), 'success');

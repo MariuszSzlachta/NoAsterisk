@@ -114,6 +114,8 @@ export class PostgresTransactionRepository implements TransactionRepository {
         ? asc(sortColumn)
         : desc(sortColumn);
 
+    // These are independent read-only queries; running them concurrently reduces latency.
+    // They do not form a write transaction, so a rejected query correctly rejects the whole read.
     const [rows, countResult] = await Promise.all([
       this.db
         .select()
