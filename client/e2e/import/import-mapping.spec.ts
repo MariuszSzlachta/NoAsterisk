@@ -2,12 +2,16 @@ import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.resolve(__dirname, '../fixtures');
 
 test.describe('Import CSV — Step 2: Column Mapping', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAuthenticatedUser(page, 'Member', { unlock: false });
     await page.goto('/import');
+    await unlockVault(page);
 
     // Upload a file to get to step 2
     const fileInput = page.locator('input[type="file"]');

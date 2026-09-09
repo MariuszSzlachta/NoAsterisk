@@ -130,4 +130,47 @@ describe('putManyIfAbsentWithRelated', () => {
         .getAll(),
     ).toEqual([]);
   });
+
+  it('skips a primary record that already exists', async () => {
+    const database = new BudgetDatabase(
+      `budgetflow-related-write-duplicate-test-${crypto.randomUUID()}`,
+    );
+    databases.push(database);
+    const persistence = createEncryptedPersistence(database);
+    await persistence.unlock('vault-passphrase');
+    const transaction = createTransaction('transaction-1');
+    const write = {
+      collection: TRANSACTIONS_COLLECTION,
+      records: [transaction],
+      validator: isStoredTransaction,
+      getId: (record: StoredTransaction) => record.id,
+      getDuplicateKey: (record: StoredTransaction) => record.contentHash,
+    };
+
+    await putManyIfAbsentWithRelated(
+      database,
+      persistence.requireKey,
+      write,
+      () => ({
+        collection: IMPORT_HISTORY_COLLECTION,
+        records: [],
+        getId: (record: ImportHistoryRecord) => record.batchId,
+      }),
+      async (task) => task(),
+    );
+
+    const result = await putManyIfAbsentWithRelated(
+      database,
+      persistence.requireKey,
+      write,
+      () => ({
+        collection: IMPORT_HISTORY_COLLECTION,
+        records: [],
+        getId: (record: ImportHistoryRecord) => record.batchId,
+      }),
+      async (task) => task(),
+    );
+
+    expect(result).toEqual({ written: [], duplicatesSkipped: 1 });
+  });
 });

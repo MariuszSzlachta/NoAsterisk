@@ -62,7 +62,7 @@ test.describe('Analytics Page', () => {
 
   test('clicking category opens drilldown panel', async ({ page }) => {
     // If there are categories, clicking one should expand a panel
-    const categoryButtons = page.locator('[aria-expanded]');
+    const categoryButtons = page.locator('button[aria-controls="category-drilldown-panel"]');
     const count = await categoryButtons.count();
 
     if (count > 0) {
@@ -76,7 +76,7 @@ test.describe('Analytics Page', () => {
   });
 
   test('closing drilldown collapses the panel', async ({ page }) => {
-    const categoryButtons = page.locator('[aria-expanded]');
+    const categoryButtons = page.locator('button[aria-controls="category-drilldown-panel"]');
     const count = await categoryButtons.count();
 
     if (count > 0) {

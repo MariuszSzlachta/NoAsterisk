@@ -2,12 +2,16 @@ import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.resolve(__dirname, '../fixtures');
 
 test.describe('Import CSV — Step 1: Upload', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAuthenticatedUser(page, 'Member', { unlock: false });
     await page.goto('/import');
+    await unlockVault(page);
   });
 
   test('shows stepper with 5 steps, first active', async ({ page }) => {

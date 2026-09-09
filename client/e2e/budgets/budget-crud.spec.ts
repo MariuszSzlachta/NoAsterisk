@@ -31,7 +31,7 @@ test.describe('Budgets Page — CRUD E2E', () => {
     await page.getByLabel(/Cel oszczędności/).fill('15000');
 
     // Submit
-    await page.getByRole('button', { name: 'Utwórz' }).click();
+    await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
 
     // Modal should close and savings card should appear
     await expect(page.getByRole('dialog')).not.toBeVisible();
@@ -42,7 +42,7 @@ test.describe('Budgets Page — CRUD E2E', () => {
     await page.getByRole('button', { name: 'Utwórz budżet oszczędnościowy' }).click();
 
     // Submit without filling
-    await page.getByRole('button', { name: 'Utwórz' }).click();
+    await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
 
     // Error should be visible (name required)
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -60,7 +60,7 @@ test.describe('Budgets Page — CRUD E2E', () => {
 
   test('filter tabs switch between monthly and yearly', async ({ page }) => {
     // Click yearly tab
-    await page.getByRole('button', { name: 'Rok' }).click();
+    await page.getByRole('tab', { name: 'Rok' }).click();
 
     // Should still show empty state (no yearly budgets)
     await expect(page.getByText('Brak budżetów')).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('Budgets Page — CRUD E2E', () => {
 
     await page.getByLabel('Nazwa budżetu').fill('Fundusz awaryjny');
     await page.getByLabel(/Cel oszczędności/).fill('10000');
-    await page.getByRole('button', { name: 'Utwórz' }).click();
+    await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
 
     // Savings card should show
     await expect(page.getByText('Fundusz awaryjny')).toBeVisible();

@@ -2,6 +2,8 @@ import 'fake-indexeddb/auto';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { isImportHistoryRecord } from '#features/csv-import/model/history/is-import-history-record';
+import { IMPORT_HISTORY_COLLECTION } from '#shared/adapters/persistence/ports';
 import {
   CRYPTO_VERSION,
   composeRecordAad,
@@ -48,6 +50,7 @@ import { persistInBackground } from '#shared/adapters/persistence/persist-in-bac
 import type { DatabaseMetadataRecord, PersistenceCollection } from '#shared/adapters/persistence/ports';
 import type { StoredTransaction } from '#features/transactions/model/types';
 import { persistenceTestData } from '#shared/adapters/persistence/persistence-test-data';
+import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
 
 class TestBroadcastChannel {
   static readonly instances: TestBroadcastChannel[] = [];
@@ -761,6 +764,63 @@ describe('encrypted IndexedDB foundation', () => {
     expect(result.written).toEqual([firstNew]);
     expect(result.duplicatesSkipped).toBe(2);
     expect(await repository.getAll()).toEqual([existing, firstNew]);
+  });
+
+  it('keeps session mutation state accurate for related writes and deletions', async () => {
+    const persistence = createEncryptedPersistence(makeDatabase());
+    await persistence.unlock('vault-passphrase');
+    persistenceSyncMetadata.markSynced(1, '2026-09-09T10:00:00.000Z');
+
+    const result = await persistence.putManyIfAbsentWithRelated(
+      {
+        collection: 'transactions',
+        records: [],
+        validator: isStoredEntityTransaction,
+        getId: (record) => record.id,
+        getDuplicateKey: (record) => record.contentHash,
+      },
+      () => ({
+        collection: IMPORT_HISTORY_COLLECTION,
+        records: [],
+        getId: () => 'empty-history',
+      }),
+    );
+
+    expect(result).toEqual({ written: [], duplicatesSkipped: 0 });
+    expect(persistenceSyncMetadata.get().isDirty).toBe(false);
+
+    await persistence.putManyIfAbsentWithRelated(
+      {
+        collection: 'transactions',
+        records: [persistenceTestData.createTransaction({ id: 'wrapper-tx' })],
+        validator: isStoredEntityTransaction,
+        getId: (record) => record.id,
+        getDuplicateKey: (record) => record.contentHash,
+      },
+      () => ({
+        collection: IMPORT_HISTORY_COLLECTION,
+        records: [],
+        getId: () => 'empty-history',
+      }),
+    );
+
+    expect(persistenceSyncMetadata.get().isDirty).toBe(true);
+    persistenceSyncMetadata.markSynced(1, '2026-09-09T10:00:00.000Z');
+
+    await persistence.deleteMatchingRecords([
+      {
+        collection: 'transactions',
+        validator: isStoredEntityTransaction,
+        shouldDelete: () => false,
+      },
+      {
+        collection: IMPORT_HISTORY_COLLECTION,
+        validator: isImportHistoryRecord,
+        shouldDelete: () => false,
+      },
+    ]);
+
+    expect(persistenceSyncMetadata.get().isDirty).toBe(true);
   });
 
   it('rejects invalid sentinels before accepting a vault session', async () => {
