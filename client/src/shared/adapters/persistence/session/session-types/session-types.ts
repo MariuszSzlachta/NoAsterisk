@@ -19,6 +19,7 @@ interface PersistenceSessionSnapshot {
 }
 
 interface EncryptedPersistence {
+  readonly setAccountContext: (userId: string, workspaceId: string) => void;
   readonly getSnapshot: () => PersistenceSessionSnapshot;
   readonly subscribe: (listener: () => void) => () => void;
   readonly isUnlocked: () => boolean;

@@ -5,6 +5,7 @@ import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metad
 describe('persistenceSyncMetadata', () => {
   beforeEach(() => {
     localStorage.clear();
+    persistenceSyncMetadata.setNamespace('anonymous');
   });
 
   it('persists dirty and successful sync metadata without secrets', () => {
@@ -21,9 +22,9 @@ describe('persistenceSyncMetadata', () => {
       lastSuccessfulSyncAt: '2026-09-09T12:00:00.000Z',
       isDirty: false,
     });
-    expect(localStorage.getItem('budget-sync-metadata')).not.toContain(
-      'password',
-    );
+    expect(
+      localStorage.getItem('budget-sync-metadata:anonymous'),
+    ).not.toContain('password');
   });
 
   it('notifies subscribers when metadata changes', () => {
@@ -39,7 +40,7 @@ describe('persistenceSyncMetadata', () => {
 
   it('reads valid persisted metadata', async () => {
     localStorage.setItem(
-      'budget-sync-metadata',
+      'budget-sync-metadata:anonymous',
       JSON.stringify({
         observedRevision: 7,
         lastSuccessfulSyncRevision: 6,
@@ -62,7 +63,7 @@ describe('persistenceSyncMetadata', () => {
 
   it('sanitizes invalid persisted metadata fields', async () => {
     localStorage.setItem(
-      'budget-sync-metadata',
+      'budget-sync-metadata:anonymous',
       JSON.stringify({
         observedRevision: '7',
         lastSuccessfulSyncRevision: '6',
@@ -97,7 +98,7 @@ describe('persistenceSyncMetadata', () => {
   });
 
   it('uses safe defaults for malformed metadata and unavailable storage', async () => {
-    localStorage.setItem('budget-sync-metadata', '{invalid');
+    localStorage.setItem('budget-sync-metadata:anonymous', '{invalid');
     vi.resetModules();
     const freshModule =
       await import('#shared/adapters/persistence/sync-metadata/sync-metadata');
@@ -113,5 +114,23 @@ describe('persistenceSyncMetadata', () => {
     ).toBeUndefined();
     unavailableModule.persistenceSyncMetadata.markDirty();
     vi.stubGlobal('localStorage', storedLocalStorage);
+  });
+
+  it('keeps synchronization metadata isolated per account namespace', () => {
+    persistenceSyncMetadata.setNamespace('user-a:workspace-a');
+    persistenceSyncMetadata.markSynced(4, '2026-09-09T12:00:00.000Z');
+
+    persistenceSyncMetadata.setNamespace('user-b:workspace-b');
+    expect(
+      persistenceSyncMetadata.get().lastSuccessfulSyncRevision,
+    ).toBeUndefined();
+    persistenceSyncMetadata.markDirty();
+
+    expect(
+      localStorage.getItem('budget-sync-metadata:user-a:workspace-a'),
+    ).toContain('4');
+    expect(
+      localStorage.getItem('budget-sync-metadata:user-b:workspace-b'),
+    ).toContain('true');
   });
 });

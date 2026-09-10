@@ -7,12 +7,8 @@ import {
   PASSWORD_HASHER,
   PasswordHasherPort,
 } from '@auth/domain/ports/password-hasher.port';
-import {
-  PERMISSION_REPOSITORY,
-  PermissionRepository,
-} from '@auth/domain/ports/permission.repository';
-import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
-import { VAULT_REPOSITORY } from '@user-settings/domain/ports/vault-token';
+import { AccountDeletionRepository } from '@user-settings/application/ports/account-deletion.repository';
+import { ACCOUNT_DELETION_REPOSITORY } from '@user-settings/application/ports/account-deletion-token';
 import { DomainError } from '@budget/domain';
 
 export interface DeleteAccountCommand {
@@ -30,9 +26,8 @@ export class DeleteAccountHandler {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
     @Inject(PASSWORD_HASHER) private readonly hasher: PasswordHasherPort,
-    @Inject(PERMISSION_REPOSITORY)
-    private readonly permissionRepo: PermissionRepository,
-    @Inject(VAULT_REPOSITORY) private readonly vaultRepo: VaultRepository,
+    @Inject(ACCOUNT_DELETION_REPOSITORY)
+    private readonly accountDeletionRepo: AccountDeletionRepository,
   ) {}
 
   async execute(command: DeleteAccountCommand): Promise<DeleteAccountResult> {
@@ -53,13 +48,10 @@ export class DeleteAccountHandler {
       throw new DomainError('Password is incorrect');
     }
 
-    await this.vaultRepo.deleteByWorkspaceId(command.workspaceId);
-    await this.permissionRepo.deleteByUserId(command.userId);
-    await this.userRepo.delete(command.userId);
-
-    // ARCH-EXCEPTION: Domain data (transactions, categories, budgets, import batches, workspace)
-    // not deleted on account deletion. Single-user workspace means orphaned data is inaccessible.
-    // Planned resolution: Phase 5 — cascade delete via domain events or explicit cleanup service.
+    await this.accountDeletionRepo.deleteUserOwnedData(
+      command.userId,
+      command.workspaceId,
+    );
 
     return { success: true };
   }

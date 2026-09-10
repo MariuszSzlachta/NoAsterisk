@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
-import type { AuthResponse } from '#features/auth/model/types/auth-response';
-import type { LoginRequestBody } from '#features/auth/model/types/login-request-body';
-import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
-import { useAuthStore } from '#features/auth/store/useAuthStore';
-import { ApiError, apiClient } from '#shared/api';
-import { authTokens } from '#shared/api/auth-tokens';
-
+import { LOGIN_ENDPOINT } from '#features/auth/api/constants/login-endpoint';
 import { GENERIC_LOGIN_ERROR } from '#features/auth/api/useLoginMutation/constants/generic-login-error';
 import { HTTP_UNAUTHORIZED } from '#features/auth/api/useLoginMutation/constants/http-unauthorized';
 import { INVALID_CREDENTIALS_ERROR } from '#features/auth/api/useLoginMutation/constants/invalid-credentials-error';
-import { LOGIN_ENDPOINT } from '#features/auth/api/constants/login-endpoint';
 import type { UseLoginMutationResult } from '#features/auth/api/useLoginMutation/use-login-mutation-result';
+import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
+import type { AuthResponse } from '#features/auth/model/types/auth-response';
+import type { LoginRequestBody } from '#features/auth/model/types/login-request-body';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
+import { encryptedPersistence } from '#shared/adapters/persistence';
+import { apiClient, ApiError } from '#shared/api';
+import { authTokens } from '#shared/api/auth-tokens';
 
 export const useLoginMutation = (): UseLoginMutationResult => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,10 @@ export const useLoginMutation = (): UseLoginMutationResult => {
 
       const response = parseAuthResponse(raw);
       authTokens.setAccessToken(response.accessToken);
+      encryptedPersistence.setAccountContext(
+        response.user.id,
+        response.user.workspaceId,
+      );
 
       setIsLoading(false);
       setLoginSubmitting(false);

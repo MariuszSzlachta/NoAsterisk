@@ -158,11 +158,13 @@ export class UserSettingsController {
   async deleteAccount(
     @CurrentUser() user: CurrentUserPayload,
     @Body(new ZodValidationPipe(deleteAccountSchema)) dto: DeleteAccountDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     await this.deleteAccountHandler.execute({
       userId: user.userId,
       workspaceId: user.workspaceId,
       password: dto.password,
     });
+    refreshTokenCookie.clear(res);
   }
 }

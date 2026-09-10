@@ -14,4 +14,8 @@ export class InMemoryWorkspaceRepository implements WorkspaceRepository {
   async findById(id: string): Promise<Workspace | undefined> {
     return this.store.get(id);
   }
+
+  async delete(id: string): Promise<void> {
+    this.store.delete(id);
+  }
 }

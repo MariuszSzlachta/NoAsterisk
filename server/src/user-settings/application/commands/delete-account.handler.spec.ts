@@ -1,8 +1,7 @@
 import { DeleteAccountHandler } from './delete-account.handler';
 import { UserRepository } from '@auth/domain/ports/user.repository';
 import { PasswordHasherPort } from '@auth/domain/ports/password-hasher.port';
-import { PermissionRepository } from '@auth/domain/ports/permission.repository';
-import { VaultRepository } from '@user-settings/domain/ports/vault-repository';
+import { AccountDeletionRepository } from '@user-settings/application/ports/account-deletion.repository';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 
@@ -10,8 +9,7 @@ describe('DeleteAccountHandler', () => {
   let handler: DeleteAccountHandler;
   let userRepo: jest.Mocked<UserRepository>;
   let hasher: jest.Mocked<PasswordHasherPort>;
-  let permissionRepo: jest.Mocked<PermissionRepository>;
-  let vaultRepo: jest.Mocked<VaultRepository>;
+  let accountDeletionRepo: jest.Mocked<AccountDeletionRepository>;
 
   const existingUser = new User(
     'user-1',
@@ -35,23 +33,10 @@ describe('DeleteAccountHandler', () => {
       hash: jest.fn(),
       compare: jest.fn().mockResolvedValue(true),
     };
-    permissionRepo = {
-      save: jest.fn(),
-      findByUserAndResource: jest.fn(),
-      hasPermission: jest.fn(),
-      deleteByUserId: jest.fn(),
+    accountDeletionRepo = {
+      deleteUserOwnedData: jest.fn(),
     };
-    vaultRepo = {
-      findByWorkspaceId: jest.fn(),
-      saveIfRevisionMatches: jest.fn(),
-      deleteByWorkspaceId: jest.fn(),
-    };
-    handler = new DeleteAccountHandler(
-      userRepo,
-      hasher,
-      permissionRepo,
-      vaultRepo,
-    );
+    handler = new DeleteAccountHandler(userRepo, hasher, accountDeletionRepo);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -68,9 +53,10 @@ describe('DeleteAccountHandler', () => {
       'correctPassword',
       '$2b$10$hash',
     );
-    expect(vaultRepo.deleteByWorkspaceId).toHaveBeenCalledWith('ws-1');
-    expect(permissionRepo.deleteByUserId).toHaveBeenCalledWith('user-1');
-    expect(userRepo.delete).toHaveBeenCalledWith('user-1');
+    expect(accountDeletionRepo.deleteUserOwnedData).toHaveBeenCalledWith(
+      'user-1',
+      'ws-1',
+    );
   });
 
   it('throws when password is incorrect', async () => {

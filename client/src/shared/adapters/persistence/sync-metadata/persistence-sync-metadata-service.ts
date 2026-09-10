@@ -1,6 +1,7 @@
 import type { PersistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata/sync-metadata-types';
 
 export interface PersistenceSyncMetadataService {
+  readonly setNamespace: (namespace: string) => void;
   readonly get: () => PersistenceSyncMetadata;
   readonly subscribe: (listener: () => void) => () => void;
   readonly markDirty: () => void;

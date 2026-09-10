@@ -36,6 +36,20 @@
       "when": 1788958993000,
       "tag": "0004_registration_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788962660000,
+      "tag": "0005_account_deletion_foreign_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788966260000,
+      "tag": "0006_retire_financial_tables",
+      "breakpoints": true
     }
   ]
 }

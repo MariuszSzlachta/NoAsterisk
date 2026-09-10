@@ -20,7 +20,12 @@ describe('Security controls', () => {
 
     const response = await request(app.getHttpServer())
       .post('/api/auth/register')
-      .send({ email: 'security@example.com', password: 'Secure1!pass' });
+      .send({
+        email: 'security@example.com',
+        password: 'Secure1!pass',
+        privacyPolicyVersion: 'privacy-alpha-1',
+        termsVersion: 'terms-alpha-1',
+      });
 
     accessToken = response.body.accessToken;
     const cookieHeader = response.headers['set-cookie'];
@@ -79,7 +84,17 @@ describe('Security controls', () => {
   });
 
   it('rejects unauthenticated API access and enforces roles', async () => {
-    await request(app.getHttpServer()).get('/api/transactions').expect(401);
+    await request(app.getHttpServer()).get('/api/transactions').expect(404);
+
+    await Promise.all(
+      ['/api/transactions', '/api/categories', '/api/import-profiles'].map(
+        (path) =>
+          request(app.getHttpServer())
+            .get(path)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(404),
+      ),
+    );
 
     await request(app.getHttpServer())
       .get('/api/admin/invite-codes')
@@ -155,12 +170,56 @@ describe('Security controls', () => {
     await request(app.getHttpServer())
       .get('/api/transactions')
       .set('Authorization', `Bearer ${String(secondRefresh.body.accessToken)}`)
-      .expect(401);
+      .expect(404);
 
     await request(app.getHttpServer())
       .post('/api/auth/refresh')
       .send({ refreshToken: refreshCookie })
       .expect(400);
+  });
+
+  it('deletes the account, clears the refresh cookie and rejects old sessions', async () => {
+    const registration = await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({
+        email: 'account-deletion@example.com',
+        password: 'Secure1!delete',
+        privacyPolicyVersion: 'privacy-alpha-1',
+        termsVersion: 'terms-alpha-1',
+      })
+      .expect(201);
+    const cookieHeader = registration.headers['set-cookie'];
+    const refreshCookie = Array.isArray(cookieHeader)
+      ? cookieHeader[0]?.split(';')[0]
+      : cookieHeader?.split(';')[0];
+    if (!refreshCookie) {
+      throw new Error('Expected deletion test refresh cookie');
+    }
+    const accessToken = String(registration.body.accessToken);
+
+    const deletion = await request(app.getHttpServer())
+      .delete('/api/users/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ password: 'Secure1!delete' })
+      .expect(204);
+
+    expect(deletion.headers['set-cookie']).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /^budget_refresh_token=; Path=\/api\/auth\/refresh;/,
+        ),
+      ]),
+    );
+
+    await request(app.getHttpServer())
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(401);
+    await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .set('Cookie', refreshCookie)
+      .send({})
+      .expect(401);
   });
 
   it('enforces the authentication rate limit', async () => {

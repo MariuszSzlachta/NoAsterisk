@@ -116,6 +116,18 @@ describe('HttpClient', () => {
         expect.objectContaining({ method: 'DELETE', body: undefined }),
       );
     });
+
+    it('sends DELETE with JSON body', async () => {
+      await client.delete('/users/me', { password: 'secret' });
+
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/users/me',
+        expect.objectContaining({
+          method: 'DELETE',
+          body: JSON.stringify({ password: 'secret' }),
+        }),
+      );
+    });
   });
 
   describe('response handling', () => {
@@ -198,7 +210,11 @@ describe('HttpClient', () => {
     it('omits Authorization header when skipAuth is true even if token exists', async () => {
       tokenProvider.mockReturnValue('existing-token');
 
-      await client.post('/auth/login', { email: 'a@b.com', password: 'x' }, { skipAuth: true });
+      await client.post(
+        '/auth/login',
+        { email: 'a@b.com', password: 'x' },
+        { skipAuth: true },
+      );
 
       const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
         ?.headers as Record<string, string>;

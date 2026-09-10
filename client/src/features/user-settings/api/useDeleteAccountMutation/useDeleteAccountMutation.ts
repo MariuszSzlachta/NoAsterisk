@@ -17,9 +17,7 @@ export const useDeleteAccountMutation = (): UseDeleteAccountMutationResult => {
     setState({ isLoading: true, error: undefined });
 
     try {
-      // Uses POST because HttpClient.delete() does not accept a body.
-      // Backend endpoint: POST /users/me/delete (requires password confirmation)
-      await apiClient.post<Record<string, never>, DeleteAccountBody>(
+      await apiClient.delete<Record<string, never>, DeleteAccountBody>(
         USERS_ME_DELETE_PATH,
         body,
       );

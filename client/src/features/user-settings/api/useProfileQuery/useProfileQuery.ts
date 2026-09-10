@@ -1,17 +1,19 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { USERS_ME_PATH } from '#features/user-settings/api/constants/users-me-path';
 import type { ProfileResponse } from '#features/user-settings/api/useProfileQuery/profile-response';
 import type { UseProfileQueryResult } from '#features/user-settings/api/useProfileQuery/use-profile-query-result';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
-
+import { encryptedPersistence } from '#shared/adapters/persistence';
 import { apiClient } from '#shared/api';
 
 let profileRequest: Promise<ProfileResponse> | undefined;
 
 const requestProfile = (): Promise<ProfileResponse> => {
-  profileRequest ??= apiClient.get<ProfileResponse>(USERS_ME_PATH).finally(() => {
-    profileRequest = undefined;
-  });
+  profileRequest ??= apiClient
+    .get<ProfileResponse>(USERS_ME_PATH)
+    .finally(() => {
+      profileRequest = undefined;
+    });
   return profileRequest;
 };
 
@@ -29,6 +31,7 @@ export const useProfileQuery = (): UseProfileQueryResult => {
 
     try {
       const response = await requestProfile();
+      encryptedPersistence.setAccountContext(response.id, response.workspaceId);
       if (isMounted.current) {
         setData(response);
       }

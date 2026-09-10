@@ -1,12 +1,11 @@
+import { useState } from 'react';
+
 import { USERS_ME_LOGOUT_PATH } from '#features/user-settings/api/constants/users-me-logout-path';
 import type { MutationState } from '#features/user-settings/api/useLogoutMutation/mutation-state';
 import type { UseLogoutMutationResult } from '#features/user-settings/api/useLogoutMutation/use-logout-mutation-result';
-
-import { useState } from 'react';
-
+import { encryptedPersistence } from '#shared/adapters/persistence';
 import { apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
-import { encryptedPersistence } from '#shared/adapters/persistence';
 
 export const useLogoutMutation = (): UseLogoutMutationResult => {
   const [state, setState] = useState<MutationState>({
@@ -22,13 +21,11 @@ export const useLogoutMutation = (): UseLogoutMutationResult => {
         USERS_ME_LOGOUT_PATH,
         {},
       );
-    } catch {
-    }
+    } catch {}
 
     try {
-      await encryptedPersistence.clearLocalData();
-    } catch {
-    }
+      encryptedPersistence.lock();
+    } catch {}
 
     authTokens.clear();
     setState({ isLoading: false, error: undefined });

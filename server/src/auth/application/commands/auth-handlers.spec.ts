@@ -34,6 +34,7 @@ describe('RegisterHandler', () => {
     workspaceRepo = {
       save: jest.fn().mockImplementation((w) => Promise.resolve(w)),
       findById: jest.fn(),
+      delete: jest.fn(),
     };
     permissionRepo = {
       save: jest.fn().mockImplementation((p) => Promise.resolve(p)),

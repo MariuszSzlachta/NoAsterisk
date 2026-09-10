@@ -4,11 +4,12 @@ import {
   createPersistenceLockedError,
 } from '#shared/adapters/persistence/crypto/errors';
 import {
+  BudgetDatabase,
   createEncryptedDexieRepository,
   deleteMatchingRecords,
   encryptedDatabase,
+  getAccountDatabaseName,
   putManyIfAbsentWithRelated as putManyIfAbsentWithRelatedInDexie,
-  type BudgetDatabase,
 } from '#shared/adapters/persistence/dexie';
 import { migrateLegacyLocalStorage } from '#shared/adapters/persistence/migrations';
 import type {
@@ -36,11 +37,13 @@ export const createEncryptedPersistence = (
 ): EncryptedPersistence => {
   const databaseLock = createDatabaseLock();
   const session = createPersistenceSnapshot();
+  let activeDatabase = database;
+  let accountNamespace = 'anonymous';
   // Mutable by design: locking and fail-closed paths must be able to erase the in-memory key.
   let key: CryptoKey | undefined;
   const channel = createPersistenceChannel(() => {
     key = undefined;
-    database.close();
+    activeDatabase.close();
     session.setSnapshot({
       status: 'locked',
       error: undefined,
@@ -55,13 +58,35 @@ export const createEncryptedPersistence = (
     throw createPersistenceLockedError();
   };
 
+  const setAccountContext = (userId: string, workspaceId: string): void => {
+    if (userId.length === 0 || workspaceId.length === 0) {
+      throw new Error('Persistence account context cannot be empty');
+    }
+    const nextNamespace = `${userId}:${workspaceId}`;
+    if (accountNamespace === nextNamespace) {
+      return;
+    }
+    key = undefined;
+    activeDatabase.close();
+    activeDatabase = new BudgetDatabase(
+      getAccountDatabaseName(userId, workspaceId),
+    );
+    accountNamespace = nextNamespace;
+    persistenceSyncMetadata.setNamespace(accountNamespace);
+    session.setSnapshot({
+      status: 'locked',
+      error: undefined,
+      warning: undefined,
+    });
+  };
+
   const repository = <TRecord extends object>(
     collection: PersistenceCollection,
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
   ): EncryptedRepository<TRecord> =>
     createEncryptedDexieRepository(
-      database,
+      () => activeDatabase,
       collection,
       requireKey,
       validator,
@@ -107,14 +132,14 @@ export const createEncryptedPersistence = (
 
     try {
       const warning = await databaseLock(async () => {
-        await database.open();
+        await activeDatabase.open();
         const initialized = await initializePersistenceMetadata(
-          database,
+          activeDatabase,
           passphrase,
         );
         key = initialized.key;
         const migration = await migrateLegacyLocalStorage(
-          database,
+          activeDatabase,
           initialized.key,
           initialized.metadata,
         );
@@ -128,7 +153,7 @@ export const createEncryptedPersistence = (
       channel.broadcast('session-unlocked');
     } catch (error) {
       key = undefined;
-      database.close();
+      activeDatabase.close();
       const message =
         error instanceof Error ? error.message : 'Unable to unlock local data';
       session.setSnapshot({
@@ -142,7 +167,7 @@ export const createEncryptedPersistence = (
 
   const lock = (): void => {
     key = undefined;
-    database.close();
+    activeDatabase.close();
     session.setSnapshot({
       status: 'locked',
       error: undefined,
@@ -153,7 +178,7 @@ export const createEncryptedPersistence = (
 
   const failClosed = (error: unknown): void => {
     key = undefined;
-    database.close();
+    activeDatabase.close();
     const message =
       error instanceof Error
         ? error.message
@@ -171,9 +196,9 @@ export const createEncryptedPersistence = (
   }): Promise<void> => {
     await databaseLock(async () => {
       key = undefined;
-      database.close();
+      activeDatabase.close();
       channel.broadcast('database-deleting');
-      await database.delete();
+      await activeDatabase.delete();
       clearPersistenceStorage(options?.removePreferences === true);
     });
 
@@ -208,16 +233,20 @@ export const createEncryptedPersistence = (
         })),
       );
 
-      await database.transaction('rw', database.records, async () => {
-        await encryptedWrites.reduce(async (previous, write) => {
-          await previous;
-          await database.records
-            .where('collection')
-            .equals(write.collection)
-            .delete();
-          await database.records.bulkPut(write.records);
-        }, Promise.resolve());
-      });
+      await activeDatabase.transaction(
+        'rw',
+        activeDatabase.records,
+        async () => {
+          await encryptedWrites.reduce(async (previous, write) => {
+            await previous;
+            await activeDatabase.records
+              .where('collection')
+              .equals(write.collection)
+              .delete();
+            await activeDatabase.records.bulkPut(write.records);
+          }, Promise.resolve());
+        },
+      );
       persistenceSyncMetadata.markDirty();
     });
   };
@@ -232,7 +261,7 @@ export const createEncryptedPersistence = (
     ) => EncryptedRelatedWrite<TRelated>,
   ): Promise<EncryptedWriteResult<TRecord>> => {
     const result = await putManyIfAbsentWithRelatedInDexie(
-      database,
+      activeDatabase,
       requireKey,
       primaryWrite,
       createRelatedWrite,
@@ -245,6 +274,7 @@ export const createEncryptedPersistence = (
   };
 
   return {
+    setAccountContext,
     getSnapshot: session.getSnapshot,
     subscribe: session.subscribe,
     isUnlocked: () => key !== undefined,
@@ -259,7 +289,7 @@ export const createEncryptedPersistence = (
     putManyIfAbsentWithRelated,
     deleteMatchingRecords: async (deletions) => {
       await deleteMatchingRecords(
-        database,
+        activeDatabase,
         requireKey,
         deletions,
         databaseLock,

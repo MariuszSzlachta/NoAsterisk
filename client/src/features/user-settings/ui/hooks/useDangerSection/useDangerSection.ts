@@ -8,15 +8,20 @@ import type { UseDangerSectionResult } from '#features/user-settings/ui/hooks/us
 import { encryptedPersistence } from '#shared/adapters/persistence';
 
 export const useDangerSection = (): UseDangerSectionResult => {
-  const { state: deleteState, mutateAsync: deleteAccount } = useDeleteAccountMutation();
+  const { state: deleteState, mutateAsync: deleteAccount } =
+    useDeleteAccountMutation();
   const { mutateAsync: logout } = useLogoutMutation();
 
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
 
-  const handleOpenClearDialog = (): void => { setShowClearDialog(true); };
-  const handleCloseClearDialog = (): void => { setShowClearDialog(false); };
+  const handleOpenClearDialog = (): void => {
+    setShowClearDialog(true);
+  };
+  const handleCloseClearDialog = (): void => {
+    setShowClearDialog(false);
+  };
 
   const handleConfirmClear = (): void => {
     void (async () => {
@@ -26,7 +31,9 @@ export const useDangerSection = (): UseDangerSectionResult => {
     })();
   };
 
-  const handleOpenDeleteDialog = (): void => { setShowDeleteDialog(true); };
+  const handleOpenDeleteDialog = (): void => {
+    setShowDeleteDialog(true);
+  };
   const handleCloseDeleteDialog = (): void => {
     setShowDeleteDialog(false);
     setDeletePassword('');
@@ -40,8 +47,19 @@ export const useDangerSection = (): UseDangerSectionResult => {
     void (async () => {
       const success = await deleteAccount({ password: deletePassword });
       if (success) {
-        // Always redirect even if logout request fails — account is already deleted
-        try { await logout(); } catch { /* noop */ }
+        // Account deletion also removes the local account namespace after the server confirms deletion.
+        try {
+          await encryptedPersistence.clearLocalData({
+            removePreferences: true,
+          });
+        } catch {
+          // Redirect remains safe because the server-side account is already deleted.
+        }
+        try {
+          await logout();
+        } catch {
+          /* noop */
+        }
         window.location.href = '/login';
       }
     })();

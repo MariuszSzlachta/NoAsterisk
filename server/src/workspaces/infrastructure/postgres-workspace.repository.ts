@@ -34,4 +34,8 @@ export class PostgresWorkspaceRepository implements WorkspaceRepository {
     if (!row) return undefined;
     return new Workspace(row.id, row.name, row.createdAt);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.db.delete(workspaces).where(eq(workspaces.id, id));
+  }
 }

@@ -1,7 +1,7 @@
 import type { PersistenceSyncMetadataService } from '#shared/adapters/persistence/sync-metadata/persistence-sync-metadata-service';
 import type { PersistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata/sync-metadata-types';
 
-const SYNC_METADATA_KEY = 'budget-sync-metadata';
+const SYNC_METADATA_KEY_PREFIX = 'budget-sync-metadata';
 
 const INITIAL_METADATA: PersistenceSyncMetadata = {
   observedRevision: undefined,
@@ -14,6 +14,10 @@ const listeners = new Set<() => void>();
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+let namespace = 'anonymous';
+
+const getStorageKey = (): string => `${SYNC_METADATA_KEY_PREFIX}:${namespace}`;
+
 const readMetadata = (): PersistenceSyncMetadata => {
   if (typeof localStorage === 'undefined') {
     return INITIAL_METADATA;
@@ -21,7 +25,7 @@ const readMetadata = (): PersistenceSyncMetadata => {
 
   try {
     const parsed: unknown = JSON.parse(
-      localStorage.getItem(SYNC_METADATA_KEY) ?? 'null',
+      localStorage.getItem(getStorageKey()) ?? 'null',
     );
     if (!isRecord(parsed)) {
       return INITIAL_METADATA;
@@ -59,7 +63,7 @@ const writeMetadata = (metadata: PersistenceSyncMetadata): void => {
     return;
   }
   try {
-    localStorage.setItem(SYNC_METADATA_KEY, JSON.stringify(metadata));
+    localStorage.setItem(getStorageKey(), JSON.stringify(metadata));
   } catch {
     return;
   }
@@ -94,6 +98,11 @@ const rememberPersistenceRevision = (revision: number): void => {
 };
 
 export const persistenceSyncMetadata: PersistenceSyncMetadataService = {
+  setNamespace: (nextNamespace: string): void => {
+    namespace = nextNamespace;
+    cachedMetadata = readMetadata();
+    listeners.forEach((listener) => listener());
+  },
   get: getPersistenceSyncMetadata,
   subscribe: subscribePersistenceSyncMetadata,
   markDirty: markPersistenceDirty,

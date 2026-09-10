@@ -2,9 +2,6 @@ import { Module, Type, DynamicModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { DatabaseModule } from '@shared/infrastructure/database/database.module';
-import { TransactionsModule } from '@transactions/transactions.module';
-import { CategoriesModule } from '@categories/categories.module';
-import { ImportProfilesModule } from '@import-profiles/import-profiles.module';
 import { AuthModule } from '@auth/auth.module';
 import { UserSettingsModule } from '@user-settings/user-settings.module';
 import { InviteCodesModule } from '@invite-codes/invite-codes.module';
@@ -19,9 +16,6 @@ const imports: Array<Type | DynamicModule> = [
   ThrottlerModule.forRoot([THROTTLE_DEFAULT]),
   AuthModule,
   InviteCodesModule,
-  TransactionsModule,
-  CategoriesModule,
-  ImportProfilesModule,
   UserSettingsModule,
   DictionariesModule,
 ];

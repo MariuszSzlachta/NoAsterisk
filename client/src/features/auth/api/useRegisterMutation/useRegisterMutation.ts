@@ -1,22 +1,24 @@
 import { useState } from 'react';
 
-import type { AuthResponse } from '#features/auth/model/types/auth-response';
-import type { RegisterRequestBody } from '#features/auth/model/types/register-request-body';
-import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
-import { useAuthStore } from '#features/auth/store/useAuthStore';
-import { apiClient } from '#shared/api';
-import { authTokens } from '#shared/api/auth-tokens';
-
 import { REGISTER_ENDPOINT } from '#features/auth/api/constants/register-endpoint';
 import { mapRegisterError } from '#features/auth/api/useRegisterMutation/map-register-error';
 import type { UseRegisterMutationResult } from '#features/auth/api/useRegisterMutation/use-register-mutation-result';
+import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
+import type { AuthResponse } from '#features/auth/model/types/auth-response';
+import type { RegisterRequestBody } from '#features/auth/model/types/register-request-body';
+import { useAuthStore } from '#features/auth/store/useAuthStore';
+import { encryptedPersistence } from '#shared/adapters/persistence';
+import { apiClient } from '#shared/api';
+import { authTokens } from '#shared/api/auth-tokens';
 
 export const useRegisterMutation = (): UseRegisterMutationResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const setRegisterSubmitting = useAuthStore((s) => s.setRegisterSubmitting);
 
-  const mutateAsync = async (body: RegisterRequestBody): Promise<AuthResponse> => {
+  const mutateAsync = async (
+    body: RegisterRequestBody,
+  ): Promise<AuthResponse> => {
     setIsLoading(true);
     setError(undefined);
     setRegisterSubmitting(true);
@@ -30,6 +32,10 @@ export const useRegisterMutation = (): UseRegisterMutationResult => {
 
       const response = parseAuthResponse(raw);
       authTokens.setAccessToken(response.accessToken);
+      encryptedPersistence.setAccountContext(
+        response.user.id,
+        response.user.workspaceId,
+      );
 
       setIsLoading(false);
       setRegisterSubmitting(false);

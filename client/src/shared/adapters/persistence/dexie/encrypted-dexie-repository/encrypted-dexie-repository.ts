@@ -11,7 +11,7 @@ import type {
 import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
 
 export const createEncryptedDexieRepository = <TRecord extends object>(
-  database: BudgetDatabase,
+  getDatabase: () => BudgetDatabase,
   collection: PersistenceCollection,
   getKey: () => CryptoKey,
   validator: (value: unknown) => value is TRecord,
@@ -20,6 +20,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
 ): EncryptedRepository<TRecord> => {
   const get = async (id: string): Promise<TRecord | undefined> => {
     const key = getKey();
+    const database = getDatabase();
     const envelope = await database.records.get([collection, id]);
     if (envelope === undefined) {
       return undefined;
@@ -29,6 +30,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
 
   const getAll = async (): Promise<ReadonlyArray<TRecord>> => {
     const key = getKey();
+    const database = getDatabase();
     const envelopes = await database.records
       .where('collection')
       .equals(collection)
@@ -41,6 +43,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   };
 
   const put = async (record: TRecord): Promise<void> => {
+    const database = getDatabase();
     const envelope = await encryptRecord(
       collection,
       getId(record),
@@ -54,6 +57,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   };
 
   const putMany = async (records: ReadonlyArray<TRecord>): Promise<void> => {
+    const database = getDatabase();
     const envelopes = await Promise.all(
       records.map((record) =>
         encryptRecord(collection, getId(record), record, getKey()),
@@ -78,6 +82,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   ): Promise<EncryptedWriteResult<TRecord>> =>
     runExclusive(async () => {
       const existing = await getAll();
+      const database = getDatabase();
       const seenKeys = new Set(existing.map(getDuplicateKey));
       const uniqueRecords = records.filter((record) => {
         const duplicateKey = getDuplicateKey(record);
@@ -106,6 +111,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
     });
 
   const replace = async (records: ReadonlyArray<TRecord>): Promise<void> => {
+    const database = getDatabase();
     const envelopes = await Promise.all(
       records.map((record) =>
         encryptRecord(collection, getId(record), record, getKey()),
@@ -119,6 +125,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   };
 
   const deleteRecord = async (id: string): Promise<void> => {
+    const database = getDatabase();
     await database.transaction('rw', database.records, async () => {
       await database.records.delete([collection, id]);
     });
@@ -126,6 +133,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
   };
 
   const clear = async (): Promise<void> => {
+    const database = getDatabase();
     await database.transaction('rw', database.records, async () => {
       await database.records.where('collection').equals(collection).delete();
     });

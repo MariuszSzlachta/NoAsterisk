@@ -94,11 +94,12 @@ export class HttpClient {
     return this.requestWithRetry<TResponse>('PUT', path, body, options);
   }
 
-  async delete<TResponse>(
+  async delete<TResponse, TBody extends object = Record<string, never>>(
     path: string,
+    body?: TBody,
     options?: RequestOptions,
   ): Promise<TResponse> {
-    return this.requestWithRetry<TResponse>('DELETE', path, undefined, options);
+    return this.requestWithRetry<TResponse>('DELETE', path, body, options);
   }
 
   private async requestWithRetry<TResponse>(
