@@ -88,4 +88,11 @@ export default tseslint.config(
       'no-param-reassign': 'off',
     },
   },
+  // Database seed/migration entry points are intentional CLI processes.
+  {
+    files: ['src/**/seed*.ts', 'src/**/migrate.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 );

@@ -1,14 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
-import {
-  Permission,
-  ResourceType,
-  Action,
-} from '@auth/domain/permission.entity';
+import { Permission } from '@auth/domain/permission.entity';
+import type { Action, ResourceType } from '@auth/domain/permission.entity';
 import { PermissionRepository } from '@auth/domain/ports/permission.repository';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import { permissions } from '@shared/infrastructure/database/schema';
+import { permissionValueGuards } from '@auth/infrastructure/persistence/permission-value-guards';
 
 @Injectable()
 export class PostgresPermissionRepository implements PermissionRepository {
@@ -75,12 +73,20 @@ export class PostgresPermissionRepository implements PermissionRepository {
     row: typeof permissions.$inferSelect | undefined,
   ): Permission | undefined {
     if (!row) return undefined;
+    if (!permissionValueGuards.isResourceType(row.resourceType)) {
+      throw new Error(
+        `Corrupted DB data: invalid permission resource '${row.resourceType}'`,
+      );
+    }
+    if (!permissionValueGuards.isActionList(row.actions)) {
+      throw new Error('Corrupted DB data: invalid permission actions');
+    }
     return new Permission(
       row.id,
       row.userId,
-      row.resourceType as ResourceType,
+      row.resourceType,
       row.resourceId,
-      row.actions as Action[],
+      row.actions,
       row.createdAt,
     );
   }

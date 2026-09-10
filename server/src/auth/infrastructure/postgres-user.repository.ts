@@ -3,12 +3,15 @@ import { eq } from 'drizzle-orm';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 import { UserRepository } from '@auth/domain/ports/user.repository';
-import { UserPreferences } from '@auth/domain/user-preferences.vo';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import { users } from '@shared/infrastructure/database/schema';
+import { parseUserPreferences } from '@auth/infrastructure/persistence/parse-user-preferences';
 
-const VALID_ROLES = new Set(Object.values(UserRole));
+const USER_ROLES: readonly string[] = Object.values(UserRole);
+
+const isUserRole = (value: string): value is UserRole =>
+  USER_ROLES.includes(value);
 
 @Injectable()
 export class PostgresUserRepository implements UserRepository {
@@ -85,18 +88,18 @@ export class PostgresUserRepository implements UserRepository {
     row: typeof users.$inferSelect | undefined,
   ): User | undefined {
     if (!row) return undefined;
-    if (!VALID_ROLES.has(row.role as UserRole)) {
+    if (!isUserRole(row.role)) {
       throw new Error(`Corrupted DB data: invalid user role '${row.role}'`);
     }
     return new User(
       row.id,
       row.email,
       row.passwordHash,
-      row.role as UserRole,
+      row.role,
       row.workspaceId,
       row.createdAt,
       row.displayName ?? undefined,
-      row.preferences as UserPreferences,
+      parseUserPreferences(row.preferences),
       row.tokenVersion,
       row.privacyPolicyVersion ?? undefined,
       row.termsVersion ?? undefined,

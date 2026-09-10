@@ -2,12 +2,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import { ImportProfile } from '@import-profiles/domain/import-profile.entity';
 import { ImportProfileRepository } from '@import-profiles/application/ports/import-profile.repository';
-import { ColumnMapping } from '@import-profiles/domain/value-objects/column-mapping';
-import { ParserConfig } from '@import-profiles/domain/value-objects/parser-config';
-import { AnonymizationConfig } from '@import-profiles/domain/value-objects/anonymization-config';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import { importProfiles } from '@shared/infrastructure/database/schema';
+import { parseImportProfileValueObjects } from '@import-profiles/infrastructure/persistence/parse-import-profile-value-objects';
 
 @Injectable()
 export class PostgresImportProfileRepository implements ImportProfileRepository {
@@ -97,13 +95,18 @@ export class PostgresImportProfileRepository implements ImportProfileRepository 
     row: typeof importProfiles.$inferSelect | undefined,
   ): ImportProfile | undefined {
     if (!row) return undefined;
+    const valueObjects = parseImportProfileValueObjects(
+      row.columnMapping,
+      row.parserConfig,
+      row.anonymizationConfig,
+    );
     return new ImportProfile(
       row.id,
       row.workspaceId,
       row.name,
-      row.columnMapping as ColumnMapping[],
-      row.parserConfig as ParserConfig,
-      row.anonymizationConfig as AnonymizationConfig,
+      valueObjects.columnMappings,
+      valueObjects.parserConfig,
+      valueObjects.anonymizationConfig,
       row.createdAt,
       row.updatedAt,
     );

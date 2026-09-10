@@ -1,13 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { InviteCode } from '@invite-codes/domain/invite-code.entity';
-import { InviteCodeStatus } from '@invite-codes/domain/invite-code-status.enum';
 import { InviteCodeRepository } from '@invite-codes/domain/ports/invite-code.repository';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import { inviteCodes } from '@shared/infrastructure/database/schema';
-
-const VALID_STATUSES = new Set(Object.values(InviteCodeStatus));
+import { isInviteCodeStatus } from '@invite-codes/infrastructure/persistence/is-invite-code-status';
 
 @Injectable()
 export class PostgresInviteCodeRepository implements InviteCodeRepository {
@@ -68,7 +66,7 @@ export class PostgresInviteCodeRepository implements InviteCodeRepository {
     row: typeof inviteCodes.$inferSelect | undefined,
   ): InviteCode | undefined {
     if (!row) return undefined;
-    if (!VALID_STATUSES.has(row.status as InviteCodeStatus)) {
+    if (!isInviteCodeStatus(row.status)) {
       throw new Error(
         `Corrupted DB data: invalid invite code status '${row.status}'`,
       );
@@ -77,7 +75,7 @@ export class PostgresInviteCodeRepository implements InviteCodeRepository {
       row.id,
       row.code,
       row.createdBy,
-      row.status as InviteCodeStatus,
+      row.status,
       row.createdAt,
       row.expiresAt ?? undefined,
       row.usedBy ?? undefined,
