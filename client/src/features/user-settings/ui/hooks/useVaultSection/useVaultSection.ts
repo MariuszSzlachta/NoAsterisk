@@ -196,7 +196,8 @@ export const useVaultSection = (): UseVaultSectionResult => {
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         setHasConflict(true);
-        setPasswordError(t('settings.vault.conflict'));
+        setPasswordError(undefined);
+        setShowPasswordDialog(false);
         void refetch();
         return;
       }
