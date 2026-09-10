@@ -22,6 +22,7 @@ import {
   formatAxisValue,
 } from '#shared/adapters/charts/adapters/nivo/utils/axis';
 import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
+import { useEffect, useState } from 'react';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
 const CHART_MARGIN_WITH_LEGEND = {
@@ -29,6 +30,13 @@ const CHART_MARGIN_WITH_LEGEND = {
   right: 20,
   bottom: 44,
   left: 48,
+} as const;
+
+const COMPACT_CHART_MARGIN_WITH_LEGEND = {
+  top: 30,
+  right: 8,
+  bottom: 40,
+  left: 28,
 } as const;
 
 const LEGEND_TOP_RIGHT = {
@@ -121,11 +129,34 @@ export const NivoLineChart = ({
   data,
   height = DEFAULT_CHART_HEIGHT,
   colors,
+  compactOnMobile = false,
   showLegend,
   showGrid = true,
   axisBottom,
   axisLeft,
 }: LineChartProps): React.JSX.Element => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (!compactOnMobile) return;
+
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
+    const updateViewport = (): void => setIsMobile(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, [compactOnMobile]);
+
+  const chartMargin = showLegend
+    ? isMobile && compactOnMobile
+      ? COMPACT_CHART_MARGIN_WITH_LEGEND
+      : CHART_MARGIN_WITH_LEGEND
+    : CHART_MARGIN;
+  const legend = isMobile && compactOnMobile
+    ? { ...LEGEND_TOP_RIGHT, itemWidth: 96 }
+    : LEGEND_TOP_RIGHT;
+
   const layers: LineSvgLayer<LineSeries>[] = [
     'grid',
     'axes',
@@ -141,7 +172,7 @@ export const NivoLineChart = ({
     <div style={{ height }}>
       <ResponsiveLine
         data={data}
-        margin={showLegend ? CHART_MARGIN_WITH_LEGEND : CHART_MARGIN}
+        margin={chartMargin}
         xScale={{ type: 'point' }}
         yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
         curve="linear"
@@ -194,7 +225,7 @@ export const NivoLineChart = ({
             },
           },
         }}
-        legends={showLegend ? [LEGEND_TOP_RIGHT] : []}
+        legends={showLegend ? [legend] : []}
       />
     </div>
   );

@@ -8,7 +8,7 @@ interface KpiRowWidgetProps {
 export const KpiRowWidget = ({
   items,
 }: KpiRowWidgetProps): React.JSX.Element => (
-  <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-4 [&_.kpi-label]:text-sm lg:[&_.kpi-label]:text-xs">
     {items.map((item) => (
       <KpiCard key={item.label} {...item} />
     ))}

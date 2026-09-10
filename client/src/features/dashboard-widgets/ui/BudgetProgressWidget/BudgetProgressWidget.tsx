@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { BudgetItemVM } from '#features/dashboard-widgets/model/types';
+import { DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS } from '#features/dashboard-widgets/ui/constants';
 import { BudgetProgressList } from '#shared/ui/BudgetProgressList';
 import { Card, CardHeader } from '#shared/ui/Card';
 
@@ -19,7 +20,7 @@ export const BudgetProgressWidget = ({
   currency,
   action,
 }: BudgetProgressWidgetProps): React.JSX.Element => (
-  <Card className="overflow-hidden">
+  <Card className={`overflow-hidden ${DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS}`}>
     <CardHeader title={title} subtitle={subtitle} action={action} />
     {items.length === 0 ? (
       <p className="py-8 text-center text-sm text-muted-foreground">

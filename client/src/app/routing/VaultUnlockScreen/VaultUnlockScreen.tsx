@@ -16,6 +16,7 @@ export const VaultUnlockScreen = ({
   const {
     error,
     handlePassphraseChange,
+    handlePassphraseKeyDown,
     handleSubmit,
     isUnlocking,
     passphrase,
@@ -44,6 +45,7 @@ export const VaultUnlockScreen = ({
             autoComplete="off"
             value={passphrase}
             onChange={handlePassphraseChange}
+            onKeyDown={handlePassphraseKeyDown}
             required
           />
 

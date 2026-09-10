@@ -24,6 +24,7 @@ interface ChartBaseProps {
 
 export interface LineChartProps extends ChartBaseProps {
   data: ChartSeries[];
+  compactOnMobile?: boolean;
 }
 
 export interface BarChartProps extends ChartBaseProps {

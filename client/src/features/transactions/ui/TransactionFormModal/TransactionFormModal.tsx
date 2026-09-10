@@ -7,8 +7,10 @@ import { useTranslation } from 'react-i18next';
 
 import { CATEGORY_SELECT_OPTIONS } from '#entities/category';
 import { Button } from '#shared/ui/Button';
+import { DatePicker } from '#shared/ui/DatePicker';
 import { Input } from '#shared/ui/Input';
 import { Select } from '#shared/ui/Select';
+import { useLayeredOverlayDismiss } from '#shared/hooks';
 
 import { useTransactionForm } from '../hooks/useTransactionForm';
 
@@ -33,7 +35,13 @@ export const TransactionFormModal = ({
   onClose,
 }: TransactionFormModalProps): React.JSX.Element | null => {
   const { t } = useTranslation();
-  const { formValues, errors, handleChange, handleSubmit } = useTransactionForm(onClose);
+  const {
+    isChildOpen: isDatePickerOpen,
+    setChildOpen: setDatePickerOpen,
+    handleBackdropClick,
+    handleClose,
+  } = useLayeredOverlayDismiss(onClose);
+  const { formValues, errors, handleChange, handleSubmit } = useTransactionForm(handleClose);
 
   if (!isOpen) {
     return null;
@@ -41,7 +49,7 @@ export const TransactionFormModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="transaction-form-title"
@@ -50,13 +58,13 @@ export const TransactionFormModal = ({
       <button
         type="button"
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleBackdropClick}
         aria-label={t('common.close')}
         tabIndex={-1}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card">
+      <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border border-border bg-surface p-5 shadow-card sm:p-6">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h2 id="transaction-form-title" className="text-lg font-semibold text-foreground">
@@ -65,7 +73,7 @@ export const TransactionFormModal = ({
           <button
             type="button"
             className="rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label={t('common.close')}
           >
             <X size={18} />
@@ -78,7 +86,7 @@ export const TransactionFormModal = ({
             e.preventDefault();
             handleSubmit();
           }}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 [&_label]:text-sm"
         >
           {/* Title */}
           <Input
@@ -102,17 +110,18 @@ export const TransactionFormModal = ({
           />
 
           {/* Date */}
-          <Input
+          <DatePicker
             label={t('transactions.form.dateLabel')}
-            type="date"
             value={formValues.date}
-            onChange={(e) => handleChange('date', e.target.value)}
+            onChange={(value) => handleChange('date', value)}
             error={errors.date}
+            open={isDatePickerOpen}
+            onOpenChange={setDatePickerOpen}
           />
 
           {/* Type radio buttons */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-muted-foreground">
               {t('transactions.form.typeLabel')}
             </span>
             <div className="flex gap-2">
@@ -120,7 +129,7 @@ export const TransactionFormModal = ({
                 <button
                   key={option.value}
                   type="button"
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`min-h-12 flex-1 rounded-md px-3 py-3 text-sm font-medium transition-colors ${
                     formValues.type === option.value
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
@@ -157,11 +166,20 @@ export const TransactionFormModal = ({
           </div>
 
           {/* Footer */}
-          <div className="mt-2 flex justify-end gap-3">
-            <Button variant="secondary" type="button" onClick={onClose}>
+          <div className="mt-2 flex gap-3">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={handleClose}
+              className="min-h-12 flex-1 px-4 sm:flex-none"
+            >
               {t('transactions.form.cancel')}
             </Button>
-            <Button variant="primary" type="submit">
+            <Button
+              variant="primary"
+              type="submit"
+              className="min-h-12 flex-1 px-4 sm:flex-none"
+            >
               {t('transactions.form.submit')}
             </Button>
           </div>

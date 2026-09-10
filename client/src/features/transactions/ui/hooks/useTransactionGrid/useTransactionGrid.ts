@@ -15,6 +15,7 @@ import { useTransactionFilters } from '../useTransactionFilters';
 
 interface UseTransactionGridResult {
   readonly page: TransactionPage;
+  readonly allItems: ReadonlyArray<TransactionPage['items'][number]>;
   readonly handlePageChange: (newPage: number) => void;
   readonly handlePageSizeChange: (size: number) => void;
 }
@@ -58,6 +59,7 @@ export const useTransactionGrid = (): UseTransactionGridResult => {
 
   return {
     page: pageResult,
+    allItems: sorted,
     handlePageChange,
     handlePageSizeChange,
   };

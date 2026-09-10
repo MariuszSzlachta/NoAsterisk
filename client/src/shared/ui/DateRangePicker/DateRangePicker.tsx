@@ -97,12 +97,12 @@ export const DateRangePicker = ({
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="z-50 rounded-lg border border-border bg-surface p-0 shadow-card"
+          className="z-50 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface p-0 shadow-card"
         >
-          <div className="flex">
+          <div className="flex w-full">
             {/* Presets sidebar */}
             {presets.length > 0 && (
-              <div className="flex flex-col gap-1 border-r border-border p-3">
+              <div className="hidden flex-col gap-1 border-r border-border p-3 lg:flex">
                 {presets.map((preset) => (
                   <button
                     key={preset.label}
@@ -117,7 +117,7 @@ export const DateRangePicker = ({
             )}
 
             {/* Calendar + footer */}
-            <div className="flex flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <div className="p-3">
                 <Calendar
                   mode="range"
@@ -127,8 +127,8 @@ export const DateRangePicker = ({
               </div>
 
               {/* Footer with confirm/clear */}
-              <div className="flex items-center justify-between border-t border-border px-3 py-2">
-                <span className="text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2">
+                <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
                   {formatRange(draft) ?? 'Kliknij datę początkową'}
                 </span>
                 <div className="flex items-center gap-1">

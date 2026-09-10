@@ -97,3 +97,17 @@
   font-weight: 600;
   font-size: 0.875rem;
 }
+
+/* Give mobile users a comfortable touch target without changing desktop sizing. */
+@media (max-width: 1023px) {
+  .budget-calendar.rdp-root {
+    --rdp-day-height: 42px;
+    --rdp-day-width: 42px;
+    --rdp-day_button-height: 40px;
+    --rdp-day_button-width: 40px;
+    --rdp-nav_button-height: 2.5rem;
+    --rdp-nav_button-width: 2.5rem;
+    --rdp-nav-height: 3rem;
+    font-size: 0.875rem;
+  }
+}

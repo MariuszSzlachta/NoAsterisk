@@ -26,14 +26,14 @@ export const TransactionsContent = ({
   onAddTransaction,
 }: TransactionsContentProps): React.JSX.Element => {
   return (
-    <div className="flex max-w-[1280px] flex-col gap-4">
+    <div className="mx-auto flex min-h-0 min-w-0 w-full max-w-[1280px] flex-1 flex-col gap-3 lg:flex-none lg:gap-4">
       <TransactionToolbar
         selectionCount={selectionCount}
         onBulkCategoryChange={onBulkCategoryChange}
         categories={categories}
         onAddTransaction={onAddTransaction}
       />
-      <Card className="overflow-hidden p-0">
+      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden !p-0 lg:!h-auto lg:flex-none">
         <TransactionGrid onSelectionChange={onSelectionChange} />
         <TransactionStatusBar />
       </Card>

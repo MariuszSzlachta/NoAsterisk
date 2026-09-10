@@ -4,6 +4,8 @@ import { clearHydratedFinancialStores } from '#app/providers/hydrate-financial-s
 import { encryptedPersistence } from '#shared/adapters/persistence';
 
 const AUTO_LOCK_AFTER_MS = 15 * 60 * 1000;
+// Temporary test switch. Set to true to enable inactivity auto-locking.
+const AUTO_LOCK_ENABLED = false;
 const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'] as const;
 
 export const usePersistenceLifecycle = (): void => {
@@ -30,7 +32,7 @@ export const usePersistenceLifecycle = (): void => {
     };
     const scheduleAutoLock = (): void => {
       clearAutoLockTimer();
-      if (!encryptedPersistence.isUnlocked()) return;
+      if (!AUTO_LOCK_ENABLED || !encryptedPersistence.isUnlocked()) return;
       autoLockTimer.current = setTimeout(
         () => encryptedPersistence.lock(),
         AUTO_LOCK_AFTER_MS,
@@ -40,10 +42,7 @@ export const usePersistenceLifecycle = (): void => {
       if (document.visibilityState === 'visible') scheduleAutoLock();
     };
     const handleVisibilityChange = (): void => {
-      if (document.visibilityState === 'hidden') {
-        clearAutoLockTimer();
-        encryptedPersistence.lock();
-      } else {
+      if (document.visibilityState === 'visible') {
         scheduleAutoLock();
       }
     };

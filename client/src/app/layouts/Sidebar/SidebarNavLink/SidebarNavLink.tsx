@@ -8,12 +8,14 @@ interface SidebarNavLinkProps {
   readonly children: ReactNode;
   readonly trailing?: ReactNode;
   readonly onClick?: () => void;
+  readonly mobile?: boolean;
 }
 
 const BASE_CLASSES =
   'flex w-full items-center gap-[11px] rounded-lg px-2.5 py-2 text-[13px] font-medium tracking-tight transition-colors';
 const ACTIVE_CLASSES = 'bg-primary-soft text-primary';
 const INACTIVE_CLASSES = 'text-muted-foreground hover:bg-surface-2';
+const MOBILE_CLASSES = 'min-h-12 gap-3 px-3 py-3 text-sm';
 
 export const SidebarNavLink = ({
   icon: Icon,
@@ -21,6 +23,7 @@ export const SidebarNavLink = ({
   children,
   trailing,
   onClick,
+  mobile = false,
 }: SidebarNavLinkProps): React.JSX.Element => {
   const { pathname } = useLocation();
   const isActive = pathname === to;
@@ -30,7 +33,7 @@ export const SidebarNavLink = ({
       to={to}
       onClick={onClick}
       aria-current={isActive ? 'page' : undefined}
-      className={`${BASE_CLASSES} ${isActive ? ACTIVE_CLASSES : INACTIVE_CLASSES}`}
+      className={`${BASE_CLASSES} ${mobile ? MOBILE_CLASSES : ''} ${isActive ? ACTIVE_CLASSES : INACTIVE_CLASSES}`}
     >
       <Icon size={18} aria-hidden="true" />
       <span className="flex-1">{children}</span>

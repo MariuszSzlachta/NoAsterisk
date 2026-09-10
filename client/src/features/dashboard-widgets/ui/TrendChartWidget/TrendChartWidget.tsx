@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { LineChart, type ChartSeries } from '#shared/adapters/charts';
+import { DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS } from '#features/dashboard-widgets/ui/constants';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 interface TrendChartWidgetProps {
@@ -16,11 +17,14 @@ export const TrendChartWidget = ({
   subtitle,
   action,
 }: TrendChartWidgetProps): React.JSX.Element => (
-  <Card>
+  <Card
+    className={DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS}
+  >
     <CardHeader title={title} subtitle={subtitle} action={action} />
     <LineChart
       data={data}
       height={260}
+      compactOnMobile
       colors={['var(--income)', 'var(--expense)']}
       showGrid
       showLegend

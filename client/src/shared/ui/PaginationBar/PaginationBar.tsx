@@ -16,6 +16,7 @@ interface PaginationBarProps {
   readonly pageSize: number;
   readonly onPageChange: (page: number) => void;
   readonly onPageSizeChange: (size: number) => void;
+  readonly className?: string;
 }
 
 export const PaginationBar = ({
@@ -25,6 +26,7 @@ export const PaginationBar = ({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  className = '',
 }: PaginationBarProps): React.JSX.Element => {
   const { t } = useTranslation();
   const rangeStart = (currentPage - 1) * pageSize + 1;
@@ -47,7 +49,7 @@ export const PaginationBar = ({
   };
 
   return (
-    <div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2">
+    <div className={`flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 ${className}`}>
       <span className="text-xs text-muted-foreground">
         {t('pagination.range', { start: rangeStart, end: rangeEnd, total: totalRows })}
       </span>

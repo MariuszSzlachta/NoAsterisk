@@ -11,15 +11,15 @@ export const DashboardPage = (): React.JSX.Element => {
   const gridWidgets = WIDGET_REGISTRY.filter((w) => w.cols < 4);
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-6 lg:h-full lg:flex-none lg:gap-4 lg:overflow-hidden lg:pb-0">
       {fullWidth.map((widget) => (
         <widget.Component key={widget.id} />
       ))}
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-4 lg:grid-rows-[1.5fr_1.5fr_1.3fr]">
+      <div className="grid flex-none grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-4 lg:gap-4 lg:grid-rows-[1.5fr_1.5fr_1.3fr]">
         {gridWidgets.map((widget) => (
           <div
             key={widget.id}
-            className={`min-h-0 overflow-hidden ${COL_SPAN[widget.cols]}`}
+            className={`min-h-0 overflow-visible lg:overflow-hidden ${COL_SPAN[widget.cols]}`}
           >
             <widget.Component />
           </div>

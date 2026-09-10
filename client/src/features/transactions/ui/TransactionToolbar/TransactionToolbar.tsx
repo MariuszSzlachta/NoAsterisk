@@ -48,8 +48,8 @@ export const TransactionToolbar = ({
   const hasSelection = selectionCount > 0;
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      <div className="w-64">
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="w-full lg:w-64">
         <Input
           placeholder={t('transactions.filterPlaceholder')}
           icon={<Search size={14} />}
@@ -62,23 +62,28 @@ export const TransactionToolbar = ({
         tabs={TYPE_TABS}
         activeTab={activeTypeTab}
         onTabChange={handleTypeTabChange}
+        className="w-full [&>button]:min-h-12 [&>button]:flex-1 [&>button]:justify-center [&>button]:rounded-md [&>button]:text-sm lg:w-auto lg:[&>button]:min-h-0 lg:[&>button]:flex-none lg:[&>button]:rounded-full"
       />
 
-      <DateRangePicker
-        selected={dateRange}
-        onSelect={handleDateRangeChange}
-      />
+      <div className="flex w-full gap-2 lg:w-auto">
+        <DateRangePicker
+          selected={dateRange}
+          onSelect={handleDateRangeChange}
+          className="min-h-12 flex-1 justify-center text-sm lg:min-h-0 lg:flex-none"
+        />
 
-      {onAddTransaction && (
-        <Button
-          variant="primary"
-          size="sm"
-          icon={<Plus size={14} />}
-          onClick={onAddTransaction}
-        >
-          {t('transactions.addButton')}
-        </Button>
-      )}
+        {onAddTransaction && (
+          <Button
+            variant="primary"
+            size="md"
+            icon={<Plus size={14} />}
+            onClick={onAddTransaction}
+            className="min-h-12 flex-1 px-3 lg:min-h-0 lg:flex-none"
+          >
+            {t('transactions.addButton')}
+          </Button>
+        )}
+      </div>
 
       {hasSelection && onBulkCategoryChange && (
         <div className="ml-auto">

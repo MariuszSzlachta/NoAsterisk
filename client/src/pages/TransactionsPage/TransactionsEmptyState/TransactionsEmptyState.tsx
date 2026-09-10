@@ -15,7 +15,7 @@ export const TransactionsEmptyState = ({ onAddTransaction }: TransactionsEmptySt
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-col items-center justify-center gap-4 py-8 text-center lg:min-h-0 lg:py-24">
       <FileSpreadsheet size={48} className="text-muted-foreground" />
       <p className="text-sm text-muted-foreground">
         {t('transactions.emptyDescription')}
@@ -24,6 +24,7 @@ export const TransactionsEmptyState = ({ onAddTransaction }: TransactionsEmptySt
         variant="primary"
         icon={<Plus size={14} />}
         onClick={onAddTransaction}
+        className="min-h-12 px-4 lg:min-h-0"
       >
         {t('transactions.addButton')}
       </Button>

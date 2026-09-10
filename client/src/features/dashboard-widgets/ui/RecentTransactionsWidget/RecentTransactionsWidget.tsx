@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { RecentTransactionVM } from '#features/dashboard-widgets/model/types';
+import { DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS } from '#features/dashboard-widgets/ui/constants';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 type Direction = RecentTransactionVM['direction'];
@@ -21,7 +22,7 @@ export const RecentTransactionsWidget = ({
   title,
   action,
 }: RecentTransactionsWidgetProps): React.JSX.Element => (
-  <Card className="overflow-hidden">
+  <Card className={`overflow-hidden ${DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS}`}>
     <CardHeader title={title} action={action} />
     {transactions.length === 0 ? (
       <p className="py-8 text-center text-sm text-muted-foreground">

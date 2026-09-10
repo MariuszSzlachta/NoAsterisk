@@ -34,6 +34,7 @@ export const Checkbox = ({
         type="checkbox"
         id={inputId}
         className="h-4 w-4 cursor-pointer rounded-sm border border-border-strong bg-surface accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ colorScheme: 'dark' }}
         {...props}
       />
       {label && <span>{label}</span>}

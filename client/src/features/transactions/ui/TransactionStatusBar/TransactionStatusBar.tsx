@@ -7,7 +7,7 @@ export const TransactionStatusBar = (): React.JSX.Element => {
   const stats = useTransactionStats();
 
   return (
-    <div className="flex h-10 items-center gap-4 border-t border-border bg-surface-2 px-4 text-xs text-muted-foreground">
+    <div className="flex h-10 shrink-0 items-center gap-4 border-t border-border bg-surface-2 px-4 text-xs text-muted-foreground">
       <span>{stats.totalCount} transakcji</span>
 
       {stats.uncategorizedCount > 0 && (

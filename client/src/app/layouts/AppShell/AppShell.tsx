@@ -5,6 +5,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { MobileSidebarOverlay } from '#app/layouts/AppShell/MobileSidebarOverlay/MobileSidebarOverlay';
 import { Sidebar } from '#app/layouts/Sidebar';
 import { TopBar } from '#app/layouts/TopBar';
+import { useSwipeBack } from '#app/routing/useSwipeBack';
 import { FALLBACK_META, ROUTE_META } from '#app/routing/route-meta';
 import { RestoreOnLoginGuard } from '#features/user-settings';
 import { ToastContainer } from '#shared/ui/Toast';
@@ -22,6 +23,8 @@ export const AppShell = (): React.JSX.Element => {
   const closeSidebar = useCallback((): void => {
     setSidebarOpen(false);
   }, []);
+
+  useSwipeBack();
 
   return (
     <div className="flex h-screen w-full">

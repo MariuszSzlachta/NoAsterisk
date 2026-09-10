@@ -1,4 +1,8 @@
 import type { SavingsRateVM } from '#features/dashboard-widgets/ui/hooks/useSavingsRateWidget';
+import {
+  DASHBOARD_SUPPORTING_VALUE_RESPONSIVE_CLASS,
+  DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS,
+} from '#features/dashboard-widgets/ui/constants';
 import { Card, CardHeader } from '#shared/ui/Card';
 
 const RING_SIZE = 160;
@@ -17,7 +21,7 @@ export const SavingsRateWidget = ({
   title,
   subtitle,
 }: SavingsRateWidgetProps): React.JSX.Element => (
-  <Card>
+  <Card className={DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS}>
     <CardHeader title={title} subtitle={subtitle} />
     <div className="flex flex-1 flex-col items-center justify-center gap-3 pb-4">
       <div className="relative">
@@ -54,7 +58,7 @@ export const SavingsRateWidget = ({
           {data.rate}%
         </span>
       </div>
-      <span className="text-sm text-muted-foreground">
+      <span className={`${DASHBOARD_SUPPORTING_VALUE_RESPONSIVE_CLASS} text-muted-foreground`}>
         {data.savedAmount} z {data.income}
       </span>
     </div>

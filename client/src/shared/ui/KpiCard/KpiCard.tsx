@@ -47,7 +47,7 @@ export const KpiCard = ({
 }: KpiCardProps): React.JSX.Element => (
   <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card">
     <div className="flex items-center justify-between">
-      <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+      <span className="kpi-label flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {label}
         {tooltip && (
           <Tooltip content={tooltip}>

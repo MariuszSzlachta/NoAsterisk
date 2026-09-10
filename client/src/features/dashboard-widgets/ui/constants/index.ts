@@ -5,3 +5,7 @@ export {
   KPI_ICONS,
   KPI_REPORT_HREFS,
 } from './kpi-config';
+export {
+  DASHBOARD_SUPPORTING_VALUE_RESPONSIVE_CLASS,
+  DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS,
+} from './responsive-classes';

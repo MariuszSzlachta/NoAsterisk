@@ -1,4 +1,10 @@
-import { useCallback, useState, type ChangeEvent, type FormEvent } from 'react';
+import {
+  useCallback,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { encryptedPersistence, type PersistenceSessionSnapshot } from '#shared/adapters/persistence';
@@ -9,6 +15,9 @@ interface VaultUnlockState {
   readonly error: string | undefined;
   readonly isUnlocking: boolean;
   readonly handlePassphraseChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  readonly handlePassphraseKeyDown: (
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => void;
   readonly handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
@@ -22,6 +31,22 @@ export const useVaultUnlock = (snapshot: PersistenceSessionSnapshot): VaultUnloc
       setPassphrase(event.currentTarget.value);
     },
     [],
+  );
+
+  const handlePassphraseKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>): void => {
+      if (
+        event.key !== 'Enter' ||
+        passphrase.length === 0 ||
+        snapshot.status === 'unlocking'
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.currentTarget.form?.requestSubmit();
+    },
+    [passphrase, snapshot.status],
   );
 
   const handleSubmit = useCallback(
@@ -41,6 +66,7 @@ export const useVaultUnlock = (snapshot: PersistenceSessionSnapshot): VaultUnloc
     error: submitError ?? snapshot.error,
     isUnlocking: snapshot.status === 'unlocking',
     handlePassphraseChange,
+    handlePassphraseKeyDown,
     handleSubmit,
   };
 };
