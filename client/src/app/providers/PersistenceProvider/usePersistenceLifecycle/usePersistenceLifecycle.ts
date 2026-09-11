@@ -2,10 +2,13 @@ import { useEffect, useRef } from 'react';
 
 import { clearHydratedFinancialStores } from '#app/providers/hydrate-financial-stores';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { isAutoLockEnabled } from './auto-lock-config';
 
 const AUTO_LOCK_AFTER_MS = 15 * 60 * 1000;
-// Temporary test switch. Set to true to enable inactivity auto-locking.
-const AUTO_LOCK_ENABLED = false;
+const AUTO_LOCK_ENABLED = isAutoLockEnabled(
+  import.meta.env.DEV,
+  import.meta.env.VITE_AUTO_LOCK_ENABLED,
+);
 const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'] as const;
 
 export const usePersistenceLifecycle = (): void => {
@@ -48,6 +51,7 @@ export const usePersistenceLifecycle = (): void => {
     };
     const handlePageHide = (): void => {
       clearAutoLockTimer();
+      if (!AUTO_LOCK_ENABLED) return;
       encryptedPersistence.lock();
     };
 

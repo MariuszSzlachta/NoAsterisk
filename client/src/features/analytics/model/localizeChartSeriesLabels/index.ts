@@ -1,0 +1,1 @@
+export { localizeChartSeriesLabels } from './localizeChartSeriesLabels';

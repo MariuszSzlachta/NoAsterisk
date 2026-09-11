@@ -39,7 +39,7 @@ export const AnalyticsCategoryBreakdown = ({
   } = useCategoryBreakdown(filters);
 
   return (
-    <Card>
+    <Card className="!p-4 lg:!p-5">
       <CardHeader
         title={
           filters.metric === 'expenses'

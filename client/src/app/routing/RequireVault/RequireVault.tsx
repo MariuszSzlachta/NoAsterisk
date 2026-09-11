@@ -1,15 +1,25 @@
 import { useSyncExternalStore } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { AppShellSkeleton } from '#app/layouts/AppShell';
 import { VaultUnlockScreen } from '#app/routing/VaultUnlockScreen';
+import { useProfileQuery } from '#features/user-settings';
 import { encryptedPersistence } from '#shared/adapters/persistence';
 
 export const RequireVault = (): React.JSX.Element => {
+  const { data: profile, isLoading: isProfileLoading } = useProfileQuery();
   const snapshot = useSyncExternalStore(
     encryptedPersistence.subscribe,
     encryptedPersistence.getSnapshot,
     encryptedPersistence.getSnapshot,
   );
+
+  // Establish the account database namespace before opening the unlock screen.
+  // Otherwise the first unlock can succeed against `anonymous`, then Sidebar's
+  // profile request switches the namespace and intentionally locks the session.
+  if (isProfileLoading || profile === undefined) {
+    return <AppShellSkeleton />;
+  }
 
   if (snapshot.status === 'unlocked') {
     return <Outlet />;

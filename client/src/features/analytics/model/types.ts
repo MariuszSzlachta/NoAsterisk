@@ -11,6 +11,8 @@ export type ChartType = 'line' | 'bar' | 'area';
 
 export type Granularity = 'daily' | 'weekly' | 'monthly';
 
+export type AnalyticsKpiValueTone = 'income' | 'expense' | 'neutral';
+
 export interface AnalyticsFilters {
   readonly metrics: MetricType[];
   readonly period: Period;
@@ -24,7 +26,8 @@ export type AnalyticsSeries = ChartSeries;
 export interface AnalyticsKpi {
   readonly label: string;
   readonly value: string;
-  readonly delta: string;
+  readonly valueTone: AnalyticsKpiValueTone;
+  readonly delta?: string;
   readonly trend: 'up' | 'down' | 'neutral';
   readonly invertColor?: boolean;
 }

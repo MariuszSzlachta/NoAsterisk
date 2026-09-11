@@ -1,0 +1,1 @@
+export { useAnalyticsMobileFilters } from './useAnalyticsMobileFilters';

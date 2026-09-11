@@ -55,8 +55,12 @@ export const useVaultUnlock = (snapshot: PersistenceSessionSnapshot): VaultUnloc
       setSubmitError(undefined);
       void encryptedPersistence
         .unlock(passphrase, hydrateFinancialStores)
-        .then(() => setPassphrase(''))
-        .catch(() => setSubmitError(t('vaultUnlock.errors.failed')));
+        .then(() => {
+          setPassphrase('');
+        })
+        .catch(() => {
+          setSubmitError(t('vaultUnlock.errors.failed'));
+        });
     },
     [passphrase, t],
   );

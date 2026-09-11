@@ -3,6 +3,20 @@
     "close": "Zamknij",
     "loading": "Ładowanie aplikacji…"
   },
+  "months": {
+    "jan": "sty",
+    "feb": "lut",
+    "mar": "mar",
+    "apr": "kwi",
+    "may": "maj",
+    "jun": "cze",
+    "jul": "lip",
+    "aug": "sie",
+    "sep": "wrz",
+    "oct": "paź",
+    "nov": "lis",
+    "dec": "gru"
+  },
   "vaultUnlock": {
     "title": "Odblokuj lokalny sejf",
     "description": "Dane finansowe są szyfrowane w przeglądarce. Wpisz hasło sejfu, aby je odszyfrować.",
@@ -125,6 +139,17 @@
       "weekly": "Tygodniowo",
       "monthly": "Miesięcznie"
     },
+    "filters": {
+      "title": "Filtry analizy",
+      "open": "Filtry",
+      "apply": "Zastosuj",
+      "cancel": "Anuluj",
+      "metrics": "Metryki",
+      "chartType": "Typ wykresu",
+      "period": "Okres",
+      "granularity": "Granularność",
+      "selectedMetrics": "{{count}} metryk"
+    },
     "kpi": {
       "balance": "Aktualne saldo",
       "income": "Przychód (bieżący)",
@@ -140,7 +165,6 @@
     },
     "drilldown": {
       "close": "Zamknij",
-      "delete": "Usuń budżet",
       "trendTitle": "Trend w wybranym okresie",
       "transactionsTitle": "Ostatnie transakcje"
     }

@@ -2,7 +2,11 @@ import { computeDelta, computeTrend } from '#features/analytics/model/compute-de
 import { toLocalDateStr } from '#features/analytics/model/date-range';
 import { formatAbsoluteAmount, formatSignedAmount } from '#features/analytics/model/format-amount';
 import { computeMetricForPeriod } from '#features/analytics/model/metric-computation';
-import type { AnalyticsKpi, MetricType } from '#features/analytics/model/types';
+import type {
+  AnalyticsKpi,
+  AnalyticsKpiValueTone,
+  MetricType,
+} from '#features/analytics/model/types';
 import type { StoredTransaction } from '#entities/transaction/types';
 
 const MS_PER_DAY = 86_400_000;
@@ -28,6 +32,17 @@ export const METRIC_LABELS: Record<MetricType, string> = {
 
 /** Metrics where the value can be negative and sign carries meaning. */
 const SIGNED_METRICS: ReadonlySet<MetricType> = new Set(['balance', 'savings']);
+
+const getValueTone = (
+  metric: MetricType,
+  value: number,
+): AnalyticsKpiValueTone => {
+  if (metric === 'income') return 'income';
+  if (metric === 'expenses') return 'expense';
+  if (value > 0) return 'income';
+  if (value < 0) return 'expense';
+  return 'neutral';
+};
 
 /**
  * Computes a single KPI for the given metric by comparing current range vs previous range.
@@ -60,8 +75,9 @@ export const computeKpi = (
   return {
     label: METRIC_LABEL_KEYS[metric],
     value: formatFn(currentValue),
-    delta: computeDelta(currentValue, prevValue),
-    trend: computeTrend(currentValue, prevValue),
+    valueTone: getValueTone(metric, currentValue),
+    delta: prevTx.length > 0 ? computeDelta(currentValue, prevValue) : undefined,
+    trend: prevTx.length > 0 ? computeTrend(currentValue, prevValue) : 'neutral',
     invertColor: metric === 'expenses',
   };
 };

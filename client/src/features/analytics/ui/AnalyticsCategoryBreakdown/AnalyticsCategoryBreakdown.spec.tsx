@@ -10,7 +10,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('#shared/ui/Card', () => ({
-  Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
+  Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div data-testid="card" className={className}>{children}</div>
+  ),
   CardHeader: ({ title }: { title: string }) => <h3>{title}</h3>,
 }));
 
@@ -59,6 +61,11 @@ describe('AnalyticsCategoryBreakdown', () => {
   it('renders expenses title', () => {
     render(<AnalyticsCategoryBreakdown filters={filters} />);
     expect(screen.getByText('analytics.breakdown.expensesTitle')).toBeInTheDocument();
+  });
+
+  it('uses the compact mobile card padding', () => {
+    render(<AnalyticsCategoryBreakdown filters={filters} />);
+    expect(screen.getByTestId('card')).toHaveClass('!p-4', 'lg:!p-5');
   });
 
   it('renders income title when metric is income', () => {

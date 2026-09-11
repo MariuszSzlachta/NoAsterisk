@@ -1,0 +1,1 @@
+export { getXAxisTickValues } from './getXAxisTickValues';

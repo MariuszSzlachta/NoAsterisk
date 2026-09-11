@@ -18,13 +18,20 @@ interface ChartBaseProps {
   colors?: string[];
   showLegend?: boolean;
   showGrid?: boolean;
-  axisBottom?: { label: string };
+  axisBottom?: {
+    label: string;
+    tickValues?: Array<string | number>;
+    mobileTickValues?: Array<string | number>;
+  };
   axisLeft?: { label: string; tickValues?: number | number[] };
 }
 
 export interface LineChartProps extends ChartBaseProps {
   data: ChartSeries[];
   compactOnMobile?: boolean;
+  hideLegendOnMobile?: boolean;
+  xAxisLastTickOffset?: number;
+  mobileXAxisLastTickOffset?: number;
 }
 
 export interface BarChartProps extends ChartBaseProps {

@@ -129,7 +129,6 @@ export const createEncryptedPersistence = (
       error: undefined,
       warning: undefined,
     });
-
     try {
       const warning = await databaseLock(async () => {
         await activeDatabase.open();

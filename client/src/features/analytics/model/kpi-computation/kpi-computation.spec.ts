@@ -33,6 +33,10 @@ describe('computeKpi', () => {
     expect(kpi.value).toContain('5');
   });
 
+  it('uses the income tone for income values', () => {
+    expect(computeKpi(transactions, range, 'income').valueTone).toBe('income');
+  });
+
   it('computes positive delta when current > previous', () => {
     const kpi = computeKpi(transactions, range, 'income');
     // Current income: 5000, Previous income: 4000 → +25.0%
@@ -54,16 +58,27 @@ describe('computeKpi', () => {
     expect(kpi.invertColor).toBe(false);
   });
 
-  it('returns neutral trend when no transactions exist', () => {
+  it('hides comparison when the previous period has no transactions', () => {
     const kpi = computeKpi([], range, 'income');
     expect(kpi.trend).toBe('neutral');
-    expect(kpi.delta).toBe('0,0%');
+    expect(kpi.delta).toBeUndefined();
+  });
+
+  it('keeps an infinite delta when the previous period exists but its metric is zero', () => {
+    const kpi = computeKpi(
+      [tx(5000, '2026-01-10'), tx(-600, '2025-12-15')],
+      range,
+      'income',
+    );
+
+    expect(kpi.delta).toBe('+∞');
   });
 
   it('uses formatSignedAmount for balance metric (preserves sign)', () => {
     const balanceKpi = computeKpi(transactions, range, 'balance');
     expect(balanceKpi.label).toBe('analytics.kpi.balance');
     expect(balanceKpi.value).toContain('zł');
+    expect(balanceKpi.valueTone).toBe('income');
   });
 
   it('uses formatAbsoluteAmount for expenses metric (absolute value)', () => {
@@ -71,5 +86,13 @@ describe('computeKpi', () => {
     // expenses value should not have negative sign
     expect(kpi.value).not.toMatch(/^-/);
     expect(kpi.value).toContain('zł');
+    expect(kpi.valueTone).toBe('expense');
+  });
+
+  it('uses the expense tone for a negative savings value without comparison data', () => {
+    const kpi = computeKpi([tx(-800, '2026-01-15')], range, 'savings');
+
+    expect(kpi.valueTone).toBe('expense');
+    expect(kpi.delta).toBeUndefined();
   });
 });

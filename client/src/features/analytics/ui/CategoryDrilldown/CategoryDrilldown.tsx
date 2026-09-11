@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
+import { getXAxisTickValues } from '#features/analytics/model/getXAxisTickValues';
+import { localizeChartSeriesLabels } from '#features/analytics/model/localizeChartSeriesLabels';
 import type { CategoryBreakdownFilters } from '#features/analytics/model/types';
 import { useCategoryDrilldown } from '#features/analytics/ui/hooks/useCategoryDrilldown';
 import { TransactionRow } from '#features/analytics/ui/TransactionRow';
@@ -46,35 +48,44 @@ export const CategoryDrilldown = ({
         </Button>
       </div>
       <QueryRenderer state={state}>
-        {(data) => (
-          <div className="flex flex-col gap-4">
-            <div>
-              <p className="mb-2 text-xs text-muted-foreground">
-                {t('analytics.drilldown.trendTitle')}
-              </p>
-              <LineChart
-                data={[data.trend]}
-                height={TREND_HEIGHT}
-                colors={[color]}
-              />
+        {(data) => {
+          const chartSeries = localizeChartSeriesLabels([data.trend], t);
+
+          return (
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t('analytics.drilldown.trendTitle')}
+                </p>
+                <LineChart
+                  data={chartSeries}
+                  height={TREND_HEIGHT}
+                  colors={[color]}
+                  axisBottom={{
+                    label: '',
+                    tickValues: getXAxisTickValues(chartSeries, 6),
+                  }}
+                  xAxisLastTickOffset={6}
+                />
+              </div>
+              <div>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t('analytics.drilldown.transactionsTitle')}
+                </p>
+                <ul className="divide-y divide-border">
+                  {data.transactions.map((tx) => (
+                    <TransactionRow
+                      key={tx.id}
+                      transaction={tx}
+                      isExpense={filters.metric === 'expenses'}
+                      color={color}
+                    />
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div>
-              <p className="mb-2 text-xs text-muted-foreground">
-                {t('analytics.drilldown.transactionsTitle')}
-              </p>
-              <ul className="divide-y divide-border">
-                {data.transactions.map((tx) => (
-                  <TransactionRow
-                    key={tx.id}
-                    transaction={tx}
-                    isExpense={filters.metric === 'expenses'}
-                    color={color}
-                  />
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
+          );
+        }}
       </QueryRenderer>
     </div>
   );

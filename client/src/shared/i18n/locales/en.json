@@ -3,6 +3,20 @@
     "close": "Close",
     "loading": "Loading application…"
   },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
   "vaultUnlock": {
     "title": "Unlock local vault",
     "description": "Your financial data is encrypted in this browser. Enter your vault passphrase to decrypt it.",
@@ -125,6 +139,17 @@
       "weekly": "Weekly",
       "monthly": "Monthly"
     },
+    "filters": {
+      "title": "Analytics filters",
+      "open": "Filters",
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "metrics": "Metrics",
+      "chartType": "Chart type",
+      "period": "Period",
+      "granularity": "Granularity",
+      "selectedMetrics": "{{count}} metrics"
+    },
     "kpi": {
       "balance": "Current balance",
       "income": "Income (current)",
@@ -140,7 +165,6 @@
     },
     "drilldown": {
       "close": "Close",
-      "delete": "Delete budget",
       "trendTitle": "Trend in selected period",
       "transactionsTitle": "Recent transactions"
     }

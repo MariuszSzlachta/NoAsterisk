@@ -10,9 +10,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 const kpis: AnalyticsKpi[] = [
-  { label: 'Przychód', value: '5 000,00 zł', delta: '+25,0%', trend: 'up', invertColor: false },
-  { label: 'Wydatki', value: '2 000,00 zł', delta: '-10,0%', trend: 'down', invertColor: true },
-  { label: 'Saldo', value: '3 000,00 zł', delta: '0,0%', trend: 'neutral' },
+  { label: 'Przychód', value: '5 000,00 zł', valueTone: 'income', delta: '+25,0%', trend: 'up', invertColor: false },
+  { label: 'Wydatki', value: '2 000,00 zł', valueTone: 'expense', delta: '-10,0%', trend: 'down', invertColor: true },
+  { label: 'Saldo', value: '3 000,00 zł', valueTone: 'income', delta: '0,0%', trend: 'neutral' },
 ];
 
 describe('AnalyticsKpiRow', () => {
@@ -63,5 +63,21 @@ describe('AnalyticsKpiRow', () => {
     const { container } = render(<AnalyticsKpiRow kpis={[]} />);
     const cards = container.querySelectorAll('.p-4');
     expect(cards).toHaveLength(0);
+  });
+
+  it('keeps the KPI value tone when there is no comparison', () => {
+    const { container } = render(
+      <AnalyticsKpiRow
+        kpis={[{
+          label: 'Oszczędności',
+          value: '-506,54 zł',
+          valueTone: 'expense',
+          trend: 'neutral',
+        }]}
+      />,
+    );
+
+    expect(container.querySelector('.text-expense')).toBeInTheDocument();
+    expect(container.querySelector('.text-xs.font-medium')).toBeNull();
   });
 });

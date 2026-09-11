@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import type { AxisTickProps } from '@nivo/axes';
 import {
   ResponsiveLine,
   type LineCustomSvgLayerProps,
@@ -22,7 +24,6 @@ import {
   formatAxisValue,
 } from '#shared/adapters/charts/adapters/nivo/utils/axis';
 import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
-import { useEffect, useState } from 'react';
 
 const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
 const CHART_MARGIN_WITH_LEGEND = {
@@ -39,6 +40,13 @@ const COMPACT_CHART_MARGIN_WITH_LEGEND = {
   left: 28,
 } as const;
 
+const COMPACT_CHART_MARGIN_WITHOUT_LEGEND = {
+  top: 12,
+  right: 20,
+  bottom: 40,
+  left: 48,
+} as const;
+
 const LEGEND_TOP_RIGHT = {
   anchor: 'top-right' as const,
   direction: 'row' as const,
@@ -47,6 +55,45 @@ const LEGEND_TOP_RIGHT = {
   itemHeight: 20,
   symbolSize: 8,
   symbolShape: 'square' as const,
+};
+
+const LastXAxisTick = ({
+  tickIndex,
+  value,
+  x,
+  y,
+  lineY,
+  textX,
+  textY,
+  textBaseline,
+  textAnchor,
+  rotate,
+  theme,
+  lastTickIndex,
+  lastTickOffset,
+}: AxisTickProps<string | number> & {
+  lastTickIndex: number;
+  lastTickOffset: number;
+}): React.JSX.Element => {
+  const offset = tickIndex === lastTickIndex ? -lastTickOffset : 0;
+
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <line x1={0} x2={0} y1={0} y2={lineY} style={theme.line} />
+      <text
+        dominantBaseline={
+          textBaseline as React.SVGAttributes<SVGTextElement>['dominantBaseline']
+        }
+        textAnchor={
+          textAnchor as React.SVGAttributes<SVGTextElement>['textAnchor']
+        }
+        transform={`translate(${textX + offset}, ${textY}) rotate(${rotate})`}
+        style={theme.text}
+      >
+        {String(value)}
+      </text>
+    </g>
+  );
 };
 
 const GradientAreaLayer = ({
@@ -130,6 +177,9 @@ export const NivoLineChart = ({
   height = DEFAULT_CHART_HEIGHT,
   colors,
   compactOnMobile = false,
+  hideLegendOnMobile = false,
+  xAxisLastTickOffset = 0,
+  mobileXAxisLastTickOffset = 0,
   showLegend,
   showGrid = true,
   axisBottom,
@@ -148,14 +198,37 @@ export const NivoLineChart = ({
     return () => mediaQuery.removeEventListener('change', updateViewport);
   }, [compactOnMobile]);
 
-  const chartMargin = showLegend
+  const legend =
+    isMobile && compactOnMobile
+      ? { ...LEGEND_TOP_RIGHT, itemWidth: 96 }
+      : LEGEND_TOP_RIGHT;
+  const shouldShowLegend =
+    showLegend && !(isMobile && compactOnMobile && hideLegendOnMobile);
+  const chartMargin = shouldShowLegend
     ? isMobile && compactOnMobile
       ? COMPACT_CHART_MARGIN_WITH_LEGEND
       : CHART_MARGIN_WITH_LEGEND
-    : CHART_MARGIN;
-  const legend = isMobile && compactOnMobile
-    ? { ...LEGEND_TOP_RIGHT, itemWidth: 96 }
-    : LEGEND_TOP_RIGHT;
+    : isMobile && compactOnMobile
+      ? COMPACT_CHART_MARGIN_WITHOUT_LEGEND
+      : CHART_MARGIN;
+  const bottomTickValues =
+    axisBottom && isMobile && compactOnMobile
+      ? (axisBottom.mobileTickValues ?? axisBottom.tickValues)
+      : axisBottom?.tickValues;
+  const lastTickOffset =
+    isMobile && compactOnMobile
+      ? mobileXAxisLastTickOffset
+      : xAxisLastTickOffset;
+  const bottomTick =
+    lastTickOffset > 0 && bottomTickValues
+      ? (props: AxisTickProps<string | number>) => (
+          <LastXAxisTick
+            {...props}
+            lastTickIndex={bottomTickValues.length - 1}
+            lastTickOffset={lastTickOffset}
+          />
+        )
+      : undefined;
 
   const layers: LineSvgLayer<LineSeries>[] = [
     'grid',
@@ -185,7 +258,14 @@ export const NivoLineChart = ({
         enablePointLabel={false}
         layers={layers}
         axisBottom={
-          axisBottom ? { legend: axisBottom.label } : { tickPadding: 10 }
+          axisBottom
+            ? {
+                legend: axisBottom.label,
+                tickPadding: 10,
+                ...(bottomTickValues ? { tickValues: bottomTickValues } : {}),
+                ...(bottomTick ? { renderTick: bottomTick } : {}),
+              }
+            : { tickPadding: 10 }
         }
         axisLeft={
           axisLeft
@@ -225,7 +305,7 @@ export const NivoLineChart = ({
             },
           },
         }}
-        legends={showLegend ? [legend] : []}
+        legends={shouldShowLegend ? [legend] : []}
       />
     </div>
   );

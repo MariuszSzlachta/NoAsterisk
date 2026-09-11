@@ -9,6 +9,7 @@ interface ModalProps {
   readonly onClose: () => void;
   readonly children: React.ReactNode;
   readonly className?: string;
+  readonly placement?: 'center' | 'bottom';
 }
 
 export const Modal = ({
@@ -18,6 +19,7 @@ export const Modal = ({
   onClose,
   children,
   className = '',
+  placement = 'center',
 }: ModalProps): React.JSX.Element | null => {
   const titleId = useId();
 
@@ -42,7 +44,11 @@ export const Modal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
+      className={`fixed inset-0 z-50 flex bg-background/80 backdrop-blur-sm ${
+        placement === 'bottom'
+          ? 'items-end justify-center p-0 sm:items-center sm:p-4'
+          : 'items-center justify-center p-4'
+      }`}
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
