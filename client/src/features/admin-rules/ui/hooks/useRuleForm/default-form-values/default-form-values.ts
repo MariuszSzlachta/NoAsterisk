@@ -4,7 +4,7 @@ interface FormValues {
   readonly keyword: string;
   readonly matcherType: MatcherType;
   readonly categoryId: string;
-  readonly priority: number;
+  readonly priority: number | '';
 }
 
 export const DEFAULT_FORM_VALUES: FormValues = {

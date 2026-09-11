@@ -1,8 +1,14 @@
 import { useState } from 'react';
 
-import type { MatcherType, RuleRecord } from '#features/admin-rules/model/types';
-import type { RuleFormErrors } from '#features/admin-rules/model/validators';
-import { hasRuleFormErrors, validateRuleForm } from '#features/admin-rules/model/validators';
+import type {
+  MatcherType,
+  RuleRecord,
+} from '#features/admin-rules/model/types';
+import {
+  hasRuleFormErrors,
+  validateRuleForm,
+  type RuleFormErrors,
+} from '#features/admin-rules/model/validators';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
 import { DEFAULT_FORM_VALUES } from '#features/admin-rules/ui/hooks/useRuleForm/default-form-values';
 
@@ -10,7 +16,7 @@ interface FormValues {
   readonly keyword: string;
   readonly matcherType: MatcherType;
   readonly categoryId: string;
-  readonly priority: number;
+  readonly priority: number | '';
 }
 
 interface UseRuleFormResult {
@@ -60,7 +66,7 @@ export const useRuleForm = (
     const validationErrors = validateRuleForm(formValues);
     setErrors(validationErrors);
 
-    if (hasRuleFormErrors(validationErrors)) {
+    if (hasRuleFormErrors(validationErrors) || formValues.priority === '') {
       return;
     }
 

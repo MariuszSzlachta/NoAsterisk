@@ -437,6 +437,8 @@
     "result": "Categorized <strong>{{categorized}}</strong> of <strong>{{total}}</strong> uncategorized transactions.",
     "resultText": "Categorized {{categorized}} of {{total}} uncategorized transactions.",
     "emptyState": "No rules. Add your first rule.",
+    "deleteConfirmTitle": "Delete rule?",
+    "deleteConfirmDescription": "The rule “{{keyword}}” will be permanently deleted.",
     "form": {
       "titleAdd": "Add rule",
       "titleEdit": "Edit rule",

@@ -1,12 +1,21 @@
+import { useCategoriesStore } from '#entities/category';
 import { useTransactionsStore } from '#entities/transaction';
 import type { ChartDataPoint } from '#shared/adapters/charts';
 import type { QueryState } from '#shared/api';
+
+import {
+  createCategoryLabelMap,
+  getDashboardCategoryLabel,
+} from '../../model/category-label';
 
 // ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
 // Planned resolution: migrate to TanStack Query when backend provides aggregation endpoints.
 
 export const useCategoryBreakdownQuery = (): QueryState<ChartDataPoint[]> => {
   const transactions = useTransactionsStore((s) => s.transactions);
+  const categories = useCategoriesStore((s) => s.categories);
+
+  const categoryLabels = createCategoryLabelMap(categories);
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -22,7 +31,7 @@ export const useCategoryBreakdownQuery = (): QueryState<ChartDataPoint[]> => {
 
   const categoryMap = new Map<string, number>();
   for (const tx of expenses) {
-    const label = tx.categoryId ?? 'Bez kategorii';
+    const label = getDashboardCategoryLabel(tx.categoryId, categoryLabels);
     const current = categoryMap.get(label) ?? 0;
     categoryMap.set(label, current + Math.abs(tx.amount));
   }

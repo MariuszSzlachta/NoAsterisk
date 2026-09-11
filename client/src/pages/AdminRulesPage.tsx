@@ -1,5 +1,5 @@
-import { ListChecks, Play, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ListChecks, Play, Plus } from 'lucide-react';
 
 import {
   RuleFormModal,
@@ -23,7 +23,7 @@ export const AdminRulesPage = (): React.JSX.Element => {
   } = useAdminRulesPage();
 
   return (
-    <div className="flex max-w-[1280px] flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-4">
       <div>
         <h1 className="text-lg font-semibold text-foreground">
           <ListChecks size={20} className="mr-2 inline-block text-primary" />
@@ -49,17 +49,19 @@ export const AdminRulesPage = (): React.JSX.Element => {
 
       {lastResult && (
         <p className="text-sm text-muted-foreground">
-          {t('rules.resultText', { categorized: lastResult.categorized, total: lastResult.total })}
+          {t('rules.resultText', {
+            categorized: lastResult.categorized,
+            total: lastResult.total,
+          })}
         </p>
       )}
 
-      {showForm && (
-        <RuleFormModal
-          key={editingRule?.id ?? 'new'}
-          editingRule={editingRule}
-          onClose={handleCloseForm}
-        />
-      )}
+      <RuleFormModal
+        key={editingRule?.id ?? 'new'}
+        isOpen={showForm}
+        editingRule={editingRule}
+        onClose={handleCloseForm}
+      />
 
       <RulesTable onEdit={handleEditRule} />
     </div>

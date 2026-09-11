@@ -40,6 +40,7 @@ vi.mock('#features/admin-rules/ui/hooks/useRuleForm', () => ({
 
 describe('RuleFormModal', () => {
   const defaultProps = {
+    isOpen: true,
     onClose: vi.fn(),
   };
 
@@ -51,8 +52,12 @@ describe('RuleFormModal', () => {
     render(<RuleFormModal {...defaultProps} />);
 
     expect(screen.getByLabelText('rules.form.keyword')).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'rules.form.matcher' })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'rules.form.category' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: 'rules.form.matcher' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: 'rules.form.category' }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('rules.form.priority')).toBeInTheDocument();
   });
 
@@ -94,6 +99,39 @@ describe('RuleFormModal', () => {
     fireEvent.change(input, { target: { value: '-5' } });
 
     expect(mockHandleFieldChange).toHaveBeenCalledWith('priority', 1);
+  });
+
+  it('allows clearing priority before entering a new value', () => {
+    render(<RuleFormModal {...defaultProps} />);
+
+    const input = screen.getByLabelText('rules.form.priority');
+    fireEvent.change(input, { target: { value: '' } });
+
+    expect(mockHandleFieldChange).toHaveBeenCalledWith('priority', '');
+  });
+
+  it('orders cancel before the submit action', () => {
+    render(<RuleFormModal {...defaultProps} />);
+
+    const cancel = screen.getByText('rules.form.cancel');
+    const submit = screen.getByText('rules.form.add');
+
+    expect(
+      cancel.compareDocumentPosition(submit) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('gives both footer actions equal mobile width and touch target', () => {
+    render(<RuleFormModal {...defaultProps} />);
+
+    expect(screen.getByText('rules.form.cancel')).toHaveClass(
+      'flex-1',
+      'min-h-12',
+    );
+    expect(screen.getByText('rules.form.add')).toHaveClass(
+      'flex-1',
+      'min-h-12',
+    );
   });
 
   it('passes numeric value for priority', () => {

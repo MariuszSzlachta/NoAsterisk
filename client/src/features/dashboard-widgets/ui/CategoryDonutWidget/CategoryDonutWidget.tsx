@@ -47,7 +47,7 @@ export const CategoryDonutWidget = ({
   return (
     <Card className={DASHBOARD_WIDGET_HEADER_RESPONSIVE_CLASS}>
       <CardHeader title={title} subtitle={subtitle} action={action} />
-      <div className="flex flex-1 items-center gap-6">
+      <div className="flex flex-1 items-center gap-6 lg:justify-center">
         <div className="h-[180px] w-[180px] shrink-0">
           <PieChart
             data={data}
@@ -56,7 +56,7 @@ export const CategoryDonutWidget = ({
           />
         </div>
         <ul
-          className="flex flex-1 flex-col gap-0.5 overflow-y-auto"
+          className="flex flex-1 flex-col gap-0.5 overflow-y-auto lg:w-[180px] lg:flex-none"
           style={{ maxHeight: 180 }}
         >
           {legendItems.map((item) => (

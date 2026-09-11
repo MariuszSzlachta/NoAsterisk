@@ -23,7 +23,9 @@ describe('ConfirmDeleteModal', () => {
     render(<ConfirmDeleteModal {...defaultProps} />);
 
     expect(screen.getByText('Delete user?')).toBeInTheDocument();
-    expect(screen.getByText('This action cannot be undone.')).toBeInTheDocument();
+    expect(
+      screen.getByText('This action cannot be undone.'),
+    ).toBeInTheDocument();
   });
 
   it('calls onConfirm when confirm button clicked', () => {
@@ -42,6 +44,19 @@ describe('ConfirmDeleteModal', () => {
     fireEvent.click(screen.getByText('admin.modal.cancel'));
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses equal mobile actions with a comfortable touch target', () => {
+    render(<ConfirmDeleteModal {...defaultProps} />);
+
+    expect(screen.getByText('admin.modal.cancel')).toHaveClass(
+      'flex-1',
+      'min-h-12',
+    );
+    expect(screen.getByText('admin.modal.delete')).toHaveClass(
+      'flex-1',
+      'min-h-12',
+    );
   });
 
   it('calls onCancel when Escape key pressed on dialog', () => {
@@ -69,7 +84,9 @@ describe('ConfirmDeleteModal', () => {
     render(<ConfirmDeleteModal {...defaultProps} onCancel={onCancel} />);
 
     // Backdrop is the aria-hidden outer div
-    const backdrop = screen.getByRole('dialog', { hidden: true }).parentElement!;
+    const backdrop = screen.getByRole('dialog', {
+      hidden: true,
+    }).parentElement!;
     fireEvent.click(backdrop);
 
     expect(onCancel).toHaveBeenCalledTimes(1);

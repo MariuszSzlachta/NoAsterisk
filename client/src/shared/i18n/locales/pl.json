@@ -438,6 +438,8 @@
     "result": "Skategoryzowano <strong>{{categorized}}</strong> z <strong>{{total}}</strong> niekategoryzowanych transakcji.",
     "resultText": "Skategoryzowano {{categorized}} z {{total}} niekategoryzowanych transakcji.",
     "emptyState": "Brak reguł. Dodaj pierwszą regułę.",
+    "deleteConfirmTitle": "Usunąć regułę?",
+    "deleteConfirmDescription": "Reguła „{{keyword}}” zostanie trwale usunięta.",
     "form": {
       "titleAdd": "Dodaj regułę",
       "titleEdit": "Edytuj regułę",

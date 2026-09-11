@@ -2,9 +2,8 @@ import { useCallback, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '#shared/ui/Button';
-
 import type { ConfirmDeleteModalProps } from '#features/admin/ui/ConfirmDeleteModal/confirm-delete-modal-props';
+import { Button } from '#shared/ui/Button';
 
 export const ConfirmDeleteModal = ({
   title,
@@ -79,7 +78,9 @@ export const ConfirmDeleteModal = ({
     [onCancel],
   );
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>): void => {
+  const handleBackdropClick = (
+    event: React.MouseEvent<HTMLDivElement>,
+  ): void => {
     if (event.target === event.currentTarget) {
       onCancel();
     }
@@ -87,7 +88,7 @@ export const ConfirmDeleteModal = ({
 
   const dialog = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
       <div
@@ -98,19 +99,27 @@ export const ConfirmDeleteModal = ({
         aria-describedby={descId}
         tabIndex={-1}
         onKeyDown={handleKeyDown}
-        className="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card outline-none"
+        className="w-full max-w-md rounded-lg border border-border bg-surface p-5 shadow-card outline-none sm:p-6"
       >
-        <h2 id={titleId} className="text-base font-semibold text-foreground">
+        <h2 id={titleId} className="text-lg font-semibold text-foreground">
           {title}
         </h2>
-        <p id={descId} className="mt-2 text-sm text-muted-foreground">
+        <p id={descId} className="mt-2 text-base text-muted-foreground">
           {description}
         </p>
-        <div className="mt-6 flex justify-end gap-2">
-          <Button variant="secondary" onClick={onCancel}>
+        <div className="mt-6 flex gap-3 sm:justify-end">
+          <Button
+            variant="secondary"
+            onClick={onCancel}
+            className="min-h-12 flex-1 px-4 sm:min-h-0 sm:flex-none"
+          >
             {t('admin.modal.cancel')}
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            className="min-h-12 flex-1 px-4 sm:min-h-0 sm:flex-none"
+          >
             {t('admin.modal.delete')}
           </Button>
         </div>
