@@ -140,11 +140,13 @@
     },
     "drilldown": {
       "close": "Zamknij",
+      "delete": "Usuń budżet",
       "trendTitle": "Trend w wybranym okresie",
       "transactionsTitle": "Ostatnie transakcje"
     }
   },
   "budgets": {
+    "create": "Utwórz budżet",
     "kpi": {
       "totalPlanned": "Zaplanowano",
       "totalSpent": "Wydano",
@@ -167,6 +169,12 @@
     },
     "grid": {
       "empty": "Brak budżetów. Utwórz pierwszy budżet."
+    },
+    "delete": {
+      "title": "Usuń budżet",
+      "description": "Czy na pewno chcesz usunąć ten budżet?",
+      "cancel": "Anuluj",
+      "confirm": "Usuń"
     },
     "form": {
       "titleCreate": "Nowy budżet",

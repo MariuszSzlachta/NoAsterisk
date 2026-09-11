@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 
 import { formatAmount } from '#shared/lib';
 import { Progress } from '#shared/ui/Progress';
+import { Button } from '#shared/ui/Button';
 
 import { useSavingsCard } from '../hooks/useSavingsCard';
 
@@ -10,11 +11,13 @@ import { useSavingsCard } from '../hooks/useSavingsCard';
 
 interface SavingsBudgetCardProps {
   readonly budgetId: string;
+  readonly onEditBudget?: (budgetId: string) => void;
+  readonly onDeleteBudget?: (budgetId: string) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const SavingsBudgetCard = ({ budgetId }: SavingsBudgetCardProps): React.JSX.Element | null => {
+export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: SavingsBudgetCardProps): React.JSX.Element | null => {
   const { t } = useTranslation();
   const { vm, inflowHistory, isHistoryExpanded, handleToggleHistory } = useSavingsCard({ budgetId });
 
@@ -25,9 +28,35 @@ export const SavingsBudgetCard = ({ budgetId }: SavingsBudgetCardProps): React.J
   return (
     <div className="flex flex-col rounded-lg border border-border bg-surface p-5 shadow-card">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <span className="text-base">💰</span>
-        <span className="text-sm font-semibold text-foreground">{vm.name}</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base">💰</span>
+          <span className="text-sm font-semibold text-foreground">{vm.name}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {onEditBudget && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={<Pencil size={14} />}
+              onClick={() => onEditBudget(budgetId)}
+              aria-label={t('budgets.form.titleEdit')}
+              className="h-12 w-12 sm:h-9 sm:w-9"
+            />
+          )}
+          {onDeleteBudget && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              icon={<Trash2 size={14} />}
+              onClick={() => onDeleteBudget(budgetId)}
+              aria-label={t('budgets.form.delete')}
+              className="h-12 w-12 sm:h-9 sm:w-9"
+            />
+          )}
+        </div>
       </div>
 
       {/* Subtitle */}

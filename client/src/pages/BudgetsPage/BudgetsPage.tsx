@@ -1,7 +1,9 @@
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '#shared/ui/Button';
+import { ConfirmDialog } from '#shared/ui/ConfirmDialog';
 import {
   BudgetKpiRow,
   BudgetFilters,
@@ -9,7 +11,9 @@ import {
   BudgetFormModal,
   SavingsBudgetCard,
   PeriodClosureModal,
+  useBudgetsStore,
 } from '#features/budgets';
+import type { BudgetRecord } from '#features/budgets';
 // ARCH-EXCEPTION: cross-feature import — page needs transaction data for closure modal VM.
 
 import { useBudgetsPage } from '#pages/BudgetsPage/useBudgetsPage';
@@ -18,6 +22,10 @@ import { useBudgetsPage } from '#pages/BudgetsPage/useBudgetsPage';
 
 export const BudgetsPage = (): React.JSX.Element => {
   const { t } = useTranslation();
+  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null);
+  const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
+  const budgets = useBudgetsStore((state) => state.budgets);
+  const deleteBudget = useBudgetsStore((state) => state.deleteBudget);
   const {
     activeTab,
     selectedPeriod,
@@ -36,8 +44,52 @@ export const BudgetsPage = (): React.JSX.Element => {
     handleCloseClosureModal,
   } = useBudgetsPage();
 
+  const editingBudget: BudgetRecord | undefined = editingBudgetId
+    ? budgets.find((budget) => budget.id === editingBudgetId)
+    : undefined;
+
+  const handleOpenCreateForm = (): void => {
+    setEditingBudgetId(null);
+    handleOpenSavingsForm();
+  };
+
+  const handleOpenEditForm = (budgetId: string): void => {
+    setEditingBudgetId(budgetId);
+    handleOpenSavingsForm();
+  };
+
+  const handleCloseBudgetForm = (): void => {
+    setEditingBudgetId(null);
+    handleCloseSavingsForm();
+  };
+
+  const handleRequestDeleteBudget = (budgetId: string): void => {
+    setDeletingBudgetId(budgetId);
+  };
+
+  const handleCancelDeleteBudget = (): void => {
+    setDeletingBudgetId(null);
+  };
+
+  const handleConfirmDeleteBudget = (): void => {
+    if (!deletingBudgetId) {
+      return;
+    }
+    deleteBudget(deletingBudgetId);
+    if (editingBudgetId === deletingBudgetId) {
+      handleCloseBudgetForm();
+    }
+    setDeletingBudgetId(null);
+  };
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6">
+      <div className="flex justify-end">
+        <Button variant="primary" onClick={handleOpenCreateForm}>
+          <Plus size={14} />
+          {t('budgets.create')}
+        </Button>
+      </div>
       <BudgetKpiRow />
       <BudgetFilters
         statusTabs={statusTabs}
@@ -48,7 +100,14 @@ export const BudgetsPage = (): React.JSX.Element => {
         customRange={customRange}
         onCustomRangeChange={handleCustomRangeChange}
       />
-      <BudgetGrid activeTab={activeTab} selectedPeriod={selectedPeriod} customRange={customRange} onClosePeriod={handleClosePeriod} />
+      <BudgetGrid
+        activeTab={activeTab}
+        selectedPeriod={selectedPeriod}
+        customRange={customRange}
+        onClosePeriod={handleClosePeriod}
+        onEditBudget={handleOpenEditForm}
+        onDeleteBudget={handleRequestDeleteBudget}
+      />
 
       {closingBudgetId && closingBudgetVm && (
         <PeriodClosureModal
@@ -59,14 +118,10 @@ export const BudgetsPage = (): React.JSX.Element => {
       )}
 
       <section className="mt-4">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <h2 className="text-base font-semibold text-foreground">
             {t('budgets.savings.title')}
           </h2>
-          <Button variant="ghost" size="sm" onClick={handleOpenSavingsForm}>
-            <Plus size={14} />
-            {t('budgets.savings.create')}
-          </Button>
         </div>
 
         {savingsBudgets.length === 0 ? (
@@ -78,7 +133,12 @@ export const BudgetsPage = (): React.JSX.Element => {
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {savingsBudgets.map((b) => (
-              <SavingsBudgetCard key={b.id} budgetId={b.id} />
+              <SavingsBudgetCard
+                key={b.id}
+                budgetId={b.id}
+                onEditBudget={handleOpenEditForm}
+                onDeleteBudget={handleRequestDeleteBudget}
+              />
             ))}
           </div>
         )}
@@ -86,8 +146,17 @@ export const BudgetsPage = (): React.JSX.Element => {
 
       <BudgetFormModal
         isOpen={isSavingsFormOpen}
-        initialBudgetType="savings"
-        onClose={handleCloseSavingsForm}
+        editBudget={editingBudget}
+        onClose={handleCloseBudgetForm}
+      />
+      <ConfirmDialog
+        isOpen={deletingBudgetId !== null}
+        title={t('budgets.delete.title')}
+        description={t('budgets.delete.description')}
+        cancelLabel={t('budgets.delete.cancel')}
+        confirmLabel={t('budgets.delete.confirm')}
+        onCancel={handleCancelDeleteBudget}
+        onConfirm={handleConfirmDeleteBudget}
       />
     </div>
   );

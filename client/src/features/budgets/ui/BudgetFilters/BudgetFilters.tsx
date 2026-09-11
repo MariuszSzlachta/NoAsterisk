@@ -43,15 +43,26 @@ export const BudgetFilters = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
-        <FilterTabs tabs={statusTabs} activeTab={activeTab} onTabChange={onTabChange as (id: string) => void} />
-        <div className="flex items-center gap-3">
-          <FilterTabs tabs={periodTabs} activeTab={selectedPeriod} onTabChange={onPeriodChange as (id: string) => void} />
+      <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        <FilterTabs
+          tabs={statusTabs}
+          activeTab={activeTab}
+          onTabChange={onTabChange as (id: string) => void}
+          className="w-full gap-2 [&>button]:min-h-10 [&>button]:flex-1 [&>button]:px-4 [&>button]:text-sm lg:w-auto lg:[&>button]:min-h-0 lg:[&>button]:flex-none lg:[&>button]:px-3 lg:[&>button]:text-xs"
+        />
+        <div className="flex w-full flex-col items-stretch gap-2 lg:w-auto lg:flex-row lg:items-center">
+          <FilterTabs
+            tabs={periodTabs}
+            activeTab={selectedPeriod}
+            onTabChange={onPeriodChange as (id: string) => void}
+            className="w-full gap-2 [&>button]:min-h-10 [&>button]:flex-1 [&>button]:px-4 [&>button]:text-sm lg:w-auto lg:[&>button]:min-h-0 lg:[&>button]:flex-none lg:[&>button]:px-3 lg:[&>button]:text-xs"
+          />
           {isCustom && onCustomRangeChange && (
             <DateRangePicker
               selected={customRange}
               onSelect={onCustomRangeChange}
               placeholder={t('budgets.filters.customPlaceholder')}
+              className="min-h-10 w-full px-4 text-sm lg:min-h-0 lg:w-auto lg:px-3 lg:text-xs"
             />
           )}
         </div>

@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, Plus, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Plus, AlertTriangle, Trash2 } from 'lucide-react';
 
 import { formatAmount } from '#shared/lib';
 import { Badge } from '#shared/ui/Badge';
 import { Progress } from '#shared/ui/Progress';
+import { Button } from '#shared/ui/Button';
 
 import type { BudgetStatus } from '#features/budgets/model/types/budget-status';
 import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
@@ -36,11 +37,13 @@ interface BudgetCardProps {
   readonly vm: BudgetViewModel;
   readonly onAssignTransaction?: (budgetId: string) => void;
   readonly onClosePeriod?: (budgetId: string) => void;
+  readonly onEditBudget?: (budgetId: string) => void;
+  readonly onDeleteBudget?: (budgetId: string) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCardProps): React.JSX.Element => {
+export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudget, onDeleteBudget }: BudgetCardProps): React.JSX.Element => {
   const { t } = useTranslation();
   const {
     isExpanded,
@@ -60,7 +63,7 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCar
   return (
     <div className="flex flex-col rounded-lg border border-border bg-surface p-5 shadow-card">
       {/* Header: color dot + name + status badge */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
             className="h-2.5 w-2.5 rounded-full"
@@ -68,9 +71,33 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCar
           />
           <span className="text-sm font-semibold text-foreground">{vm.name}</span>
         </div>
-        <Badge variant="soft" color={STATUS_BADGE_COLOR[vm.status]} dot={false}>
-          {t(`budgets.status.${vm.statusLabel}`)}
-        </Badge>
+        <div className="flex items-center gap-1">
+          <Badge variant="soft" color={STATUS_BADGE_COLOR[vm.status]} dot={false}>
+            {t(`budgets.status.${vm.statusLabel}`)}
+          </Badge>
+          {onEditBudget && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={<Pencil size={14} />}
+              onClick={() => onEditBudget(vm.id)}
+              aria-label={t('budgets.form.titleEdit')}
+              className="h-12 w-12 sm:h-9 sm:w-9"
+            />
+          )}
+          {onDeleteBudget && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              icon={<Trash2 size={14} />}
+              onClick={() => onDeleteBudget(vm.id)}
+              aria-label={t('budgets.form.delete')}
+              className="h-12 w-12 sm:h-9 sm:w-9"
+            />
+          )}
+        </div>
       </div>
 
       {/* Period info */}
@@ -138,16 +165,18 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod }: BudgetCar
 
       {/* Footer: assign + expand */}
       <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-        {onAssignTransaction && !isAwaitingClosure && (
-          <button
-            type="button"
-            className="flex items-center gap-1 text-xs font-medium text-primary transition-colors duration-150 hover:text-primary/80"
-            onClick={handleAssignTransaction}
-          >
-            <Plus size={14} />
-            {t('budgets.card.assignTransaction')}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onAssignTransaction && !isAwaitingClosure && (
+            <button
+              type="button"
+              className="flex items-center gap-1 text-xs font-medium text-primary transition-colors duration-150 hover:text-primary/80"
+              onClick={handleAssignTransaction}
+            >
+              <Plus size={14} />
+              {t('budgets.card.assignTransaction')}
+            </button>
+          )}
+        </div>
         <button
           type="button"
           className="ml-auto flex items-center gap-1 text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground"

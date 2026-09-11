@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
 
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
+import { Modal } from '#shared/ui/Modal';
 
 import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
 import type { BudgetType } from '#features/budgets/model/types/budget-type';
@@ -35,56 +35,31 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, workspa
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="budget-form-title"
+    <Modal
+      isOpen={isOpen}
+      title={isEditing ? t('budgets.form.titleEdit') : t('budgets.form.titleCreate')}
+      closeLabel={t('budgets.form.close')}
+      onClose={onClose}
+      className="max-h-[calc(100dvh-2rem)] overflow-y-auto !p-5 sm:!p-6"
     >
-      {/* Backdrop */}
-      <button
-        type="button"
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
-        aria-label={t('budgets.form.closeModal')}
-        tabIndex={-1}
-      />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 id="budget-form-title" className="text-lg font-semibold text-foreground">
-            {isEditing ? t('budgets.form.titleEdit') : t('budgets.form.titleCreate')}
-          </h2>
-          <button
-            type="button"
-            className="rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
-            onClick={onClose}
-            aria-label={t('budgets.form.close')}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
         {/* Form */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 [&_label]:text-sm"
         >
           {/* Budget type toggle (only when creating) */}
           {!isEditing && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.typeLabel')}</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('budgets.form.typeLabel')}</span>
               <div className="flex gap-2">
                 {(['standard', 'savings'] as const).map((type) => (
                   <button
                     key={type}
                     type="button"
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    className={`min-h-12 flex-1 rounded-md px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:flex-none sm:rounded-full sm:py-1.5 sm:text-xs ${
                       values.budgetType === type
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
@@ -109,13 +84,13 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, workspa
 
           {/* Color picker */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.colorLabel')}</span>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-muted-foreground">{t('budgets.form.colorLabel')}</span>
+            <div className="grid grid-cols-5 justify-items-center gap-2 sm:flex sm:flex-wrap">
               {COLOR_PALETTE.map((color) => (
                 <button
                   key={color}
                   type="button"
-                  className={`h-6 w-6 rounded-full border-2 transition-all ${
+                    className={`h-10 w-10 rounded-full border-2 transition-all sm:h-6 sm:w-6 ${
                     values.color === color
                       ? 'border-foreground scale-110'
                       : 'border-transparent hover:border-border-strong'
@@ -142,13 +117,13 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, workspa
           {!isSavings && (
             <>
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-muted-foreground">{t('budgets.form.periodLabel')}</span>
+                <span className="text-sm font-medium text-muted-foreground">{t('budgets.form.periodLabel')}</span>
                 <div className="flex gap-2">
                   {(['monthly', 'yearly', 'custom'] as const).map((period) => (
                     <button
                       key={period}
                       type="button"
-                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                      className={`min-h-12 flex-1 rounded-md px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:flex-none sm:rounded-full sm:py-1.5 sm:text-xs ${
                         values.periodType === period
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
@@ -188,16 +163,24 @@ export const BudgetFormModal = ({ isOpen, editBudget, initialBudgetType, workspa
           )}
 
           {/* Footer */}
-          <div className="mt-2 flex justify-end gap-3">
-            <Button variant="secondary" type="button" onClick={onClose}>
+          <div className="mt-2 flex gap-3">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={onClose}
+              className="min-h-12 flex-1 px-4 sm:min-h-0 sm:flex-none"
+            >
               {t('budgets.form.cancel')}
             </Button>
-            <Button variant="primary" type="submit">
+            <Button
+              variant="primary"
+              type="submit"
+              className="min-h-12 flex-1 px-4 sm:min-h-0 sm:flex-none"
+            >
               {isEditing ? t('budgets.form.save') : t('budgets.form.create')}
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };

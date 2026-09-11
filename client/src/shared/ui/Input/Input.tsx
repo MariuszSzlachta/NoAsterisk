@@ -12,9 +12,14 @@ export const Input = ({
   icon,
   className = '',
   id,
+  type,
   ...props
 }: InputProps): React.JSX.Element => {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+  const numberInputClass =
+    type === 'number'
+      ? '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+      : '';
 
   return (
     <div className="flex w-full flex-col gap-1.5">
@@ -43,9 +48,11 @@ export const Input = ({
             'focus:border-ring focus:ring-1 focus:ring-ring',
             'disabled:cursor-not-allowed disabled:opacity-50',
             icon ? 'pl-9' : '',
+            numberInputClass,
             error ? 'border-expense' : 'border-border',
             className,
           ].join(' ')}
+          type={type}
           {...props}
         />
       </div>
