@@ -4,7 +4,7 @@ import {
   text,
   timestamp,
   uuid,
-  unique,
+  uniqueIndex,
   varchar,
 } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
@@ -35,7 +35,7 @@ export const vaultRotations = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   },
   (table) => [
-    unique('vault_rotations_vault_id_idempotency_key_unique').on(
+    uniqueIndex('vault_rotations_vault_id_idempotency_key_unique').on(
       table.vaultId,
       table.idempotencyKey,
     ),
