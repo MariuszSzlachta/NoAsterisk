@@ -258,7 +258,7 @@ export const createEncryptedPersistence = (
   };
 
   const repository = <TRecord extends object>(
-    collection: PersistenceCollection,
+    collection: Exclude<PersistenceCollection, 'sentinel'>,
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
   ): EncryptedRepository<TRecord> => {
@@ -284,12 +284,6 @@ export const createEncryptedPersistence = (
       databaseLock,
     );
   };
-
-  const isObjectRecord = (value: unknown): value is object =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
-  const isRelatedObjectRecord = <TRecord extends object>(
-    value: unknown,
-  ): value is TRecord => isObjectRecord(value);
 
   const requestPersistentStorage =
     async (): Promise<PersistentStorageStatus> => {
@@ -894,19 +888,16 @@ export const createEncryptedPersistence = (
     ) => EncryptedRelatedWrite<TRelated>,
   ): Promise<EncryptedWriteResult<TRecord>> => {
     if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
-      const result = await repository(
+      const primaryRepository = repository(
         primaryWrite.collection,
         primaryWrite.validator,
         primaryWrite.getId,
-      ).putManyIfAbsent(primaryWrite.records, primaryWrite.getDuplicateKey);
-      if (result.written.length > 0) {
-        const relatedWrite = createRelatedWrite(result);
-        await repository(
-          relatedWrite.collection,
-          isRelatedObjectRecord<TRelated>,
-          relatedWrite.getId,
-        ).putMany(relatedWrite.records);
-      }
+      );
+      const result = await primaryRepository.putManyIfAbsentWithRelated(
+        primaryWrite.records,
+        primaryWrite.getDuplicateKey,
+        createRelatedWrite,
+      );
       if (result.written.length > 0) persistenceSyncMetadata.markDirty();
       return result;
     }
@@ -922,6 +913,11 @@ export const createEncryptedPersistence = (
     }
     return result;
   };
+
+  const toRecordKey = (collection: string, id: string): [string, string] => [
+    collection,
+    id,
+  ];
 
   return {
     setAccountContext,
@@ -991,10 +987,7 @@ export const createEncryptedPersistence = (
                 );
                 return records
                   .filter((record) => deletion.shouldDelete(record.value))
-                  .map(
-                    (record) =>
-                      [deletion.collection, record.id] as [string, string],
-                  );
+                  .map((record) => toRecordKey(deletion.collection, record.id));
               }),
             )
           ).flat();

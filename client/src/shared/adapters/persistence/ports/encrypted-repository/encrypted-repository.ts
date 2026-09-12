@@ -1,3 +1,4 @@
+import type { EncryptedRelatedWrite } from '#shared/adapters/persistence/ports/encrypted-related-write';
 import type { EncryptedWriteResult } from '#shared/adapters/persistence/ports/encrypted-write-result';
 
 export interface EncryptedRepository<TRecord extends object> {
@@ -8,6 +9,13 @@ export interface EncryptedRepository<TRecord extends object> {
   readonly putManyIfAbsent: (
     records: ReadonlyArray<TRecord>,
     getDuplicateKey: (record: TRecord) => string,
+  ) => Promise<EncryptedWriteResult<TRecord>>;
+  readonly putManyIfAbsentWithRelated: <TRelated extends object>(
+    records: ReadonlyArray<TRecord>,
+    getDuplicateKey: (record: TRecord) => string,
+    createRelatedWrite: (
+      result: EncryptedWriteResult<TRecord>,
+    ) => EncryptedRelatedWrite<TRelated>,
   ) => Promise<EncryptedWriteResult<TRecord>>;
   readonly replace: (records: ReadonlyArray<TRecord>) => Promise<void>;
   readonly delete: (id: string) => Promise<void>;

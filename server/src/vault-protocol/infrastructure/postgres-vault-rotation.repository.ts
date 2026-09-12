@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import type { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
@@ -29,6 +29,9 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
 
   async rotate(request: RotateVaultRequest): Promise<RotateVaultResult> {
     return this.db.transaction(async (transaction) => {
+      await transaction.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${request.vaultId}, 0))`,
+      );
       const existing = await transaction
         .select({
           keyId: vaultRotations.nextKeyId,

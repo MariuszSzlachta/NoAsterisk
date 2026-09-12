@@ -23,7 +23,7 @@ export class InMemoryVaultEnrollmentRepository implements VaultEnrollmentReposit
   }
 
   async finalize(request: VaultEnrollmentRequest): Promise<void> {
-    this.state.finalize(request);
+    await this.state.finalize(request);
   }
 
   async confirm(request: VaultEnrollmentConfirmation): Promise<void> {

@@ -13,6 +13,16 @@ export const createRepositoryProvider = (
   InMemoryImpl: Type,
 ): Provider => ({
   provide: token,
-  useClass:
-    process.env.PERSISTENCE_MODE === 'postgres' ? PostgresImpl : InMemoryImpl,
+  useClass: resolvePersistenceImplementation(PostgresImpl, InMemoryImpl),
 });
+
+function resolvePersistenceImplementation(
+  PostgresImpl: Type,
+  InMemoryImpl: Type,
+): Type {
+  const mode = process.env.PERSISTENCE_MODE;
+  if (process.env.NODE_ENV === 'production' && mode !== 'postgres') {
+    throw new Error('Production persistence must use postgres');
+  }
+  return mode === 'postgres' ? PostgresImpl : InMemoryImpl;
+}

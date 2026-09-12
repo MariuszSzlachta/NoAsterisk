@@ -74,7 +74,7 @@ interface EncryptedPersistence {
     localShare: CryptoKey,
   ) => Promise<void>;
   readonly repository: <TRecord extends object>(
-    collection: PersistenceCollection,
+    collection: Exclude<PersistenceCollection, 'sentinel'>,
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
   ) => EncryptedRepository<TRecord>;

@@ -61,6 +61,30 @@ const hasOnlyKeys = (
   keys: ReadonlyArray<string>,
 ): boolean => Object.keys(value).every((key) => keys.includes(key));
 
+const isAuthenticatorSelection = (
+  value: unknown,
+): value is AuthenticatorSelectionCriteria =>
+  isRecord(value) &&
+  hasOnlyKeys(value, [
+    'authenticatorAttachment',
+    'residentKey',
+    'requireResidentKey',
+    'userVerification',
+  ]) &&
+  (value.authenticatorAttachment === undefined ||
+    value.authenticatorAttachment === 'platform' ||
+    value.authenticatorAttachment === 'cross-platform') &&
+  (value.residentKey === undefined ||
+    value.residentKey === 'discouraged' ||
+    value.residentKey === 'preferred' ||
+    value.residentKey === 'required') &&
+  (value.requireResidentKey === undefined ||
+    typeof value.requireResidentKey === 'boolean') &&
+  (value.userVerification === undefined ||
+    value.userVerification === 'required' ||
+    value.userVerification === 'preferred' ||
+    value.userVerification === 'discouraged');
+
 const isOptions = (value: unknown): value is RegistrationOptionsResponse => {
   if (
     !isRecord(value) ||
@@ -75,6 +99,11 @@ const isOptions = (value: unknown): value is RegistrationOptionsResponse => {
       'excludeCredentials',
     ]) ||
     !isBoundedText(value.challenge, 16_384)
+  )
+    return false;
+  if (
+    value.authenticatorSelection !== undefined &&
+    !isAuthenticatorSelection(value.authenticatorSelection)
   )
     return false;
   if (

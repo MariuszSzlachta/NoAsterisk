@@ -6,6 +6,7 @@ import type {
   VaultEnrollmentConfirmation,
   VaultEnrollmentRequest,
 } from '@vault-protocol/domain/ports/vault-enrollment.repository';
+import { trustedDeviceProof } from '@vault-protocol/infrastructure/verify-trusted-device-proof';
 
 interface PendingEnrollment {
   readonly userId: string;
@@ -25,6 +26,8 @@ interface DeviceState {
   readonly deviceId: string;
   readonly deviceEnvelope: string;
   readonly serverShare: Uint8Array;
+  readonly signingPublicKey: string;
+  readonly expiresAt: number;
   status: 'pending' | 'active' | 'revoked';
 }
 
@@ -73,7 +76,7 @@ export class InMemoryVaultProtocolState {
     };
   }
 
-  finalize(request: VaultEnrollmentRequest): void {
+  async finalize(request: VaultEnrollmentRequest): Promise<void> {
     const pending = this.pending.get(request.challenge);
     this.pending.delete(request.challenge);
     if (
@@ -93,8 +96,50 @@ export class InMemoryVaultProtocolState {
         existingVault.keyId !== request.keyId)
     )
       throw new Error('Vault key context mismatch');
-    if (existingVault !== undefined && request.trustedDeviceProof === undefined)
-      throw new Error('Trusted-device approval required');
+    if (existingVault !== undefined) {
+      if (request.trustedDeviceProof === undefined)
+        throw new Error('Trusted-device approval required');
+      let proof: unknown;
+      try {
+        proof = JSON.parse(request.trustedDeviceProof);
+      } catch {
+        throw new Error('Invalid trusted-device approval');
+      }
+      if (
+        typeof proof !== 'object' ||
+        proof === null ||
+        Array.isArray(proof) ||
+        typeof (proof as { oldDeviceId?: unknown }).oldDeviceId !== 'string'
+      )
+        throw new Error('Invalid trusted-device approval');
+      const oldDeviceId = (proof as { oldDeviceId: string }).oldDeviceId;
+      const approver = [...this.completed.values()].find(
+        (device) =>
+          device.userId === request.userId &&
+          device.workspaceId === request.workspaceId &&
+          device.vaultId === request.vaultId &&
+          device.keyId === request.keyId &&
+          device.deviceId === oldDeviceId &&
+          device.status === 'active',
+      );
+      if (
+        approver === undefined ||
+        oldDeviceId === request.deviceId ||
+        !(await trustedDeviceProof.verify({
+          proof: request.trustedDeviceProof,
+          context: {
+            accountId: request.userId,
+            workspaceId: request.workspaceId,
+            vaultId: request.vaultId,
+            keyId: request.keyId,
+            oldDeviceId,
+            newDeviceId: request.deviceId,
+          },
+          expectedSigningPublicKey: approver.signingPublicKey,
+        }))
+      )
+        throw new Error('Invalid trusted-device approval');
+    }
     if (existingVault === undefined)
       this.workspaceVaults.set(request.workspaceId, {
         vaultId: request.vaultId,
@@ -118,6 +163,8 @@ export class InMemoryVaultProtocolState {
       deviceId: request.deviceId,
       deviceEnvelope: request.deviceEnvelope,
       serverShare: pending.serverShare.slice(),
+      signingPublicKey: request.signingPublicKey,
+      expiresAt: pending.expiresAt,
       status: 'pending',
     });
   }
@@ -134,7 +181,8 @@ export class InMemoryVaultProtocolState {
       device.status !== 'pending' ||
       device.challenge !== request.challenge ||
       device.vaultId !== request.vaultId ||
-      device.keyId !== request.keyId
+      device.keyId !== request.keyId ||
+      device.expiresAt < Date.now()
     )
       throw new Error('Invalid enrollment confirmation');
     device.status = 'active';
@@ -198,6 +246,8 @@ export class InMemoryVaultProtocolState {
       deviceId,
       deviceEnvelope: '',
       serverShare,
+      signingPublicKey: '',
+      expiresAt: Number.MAX_SAFE_INTEGER,
       status: 'active',
     });
   }

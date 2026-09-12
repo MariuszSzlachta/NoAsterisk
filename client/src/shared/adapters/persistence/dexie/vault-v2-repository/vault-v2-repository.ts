@@ -53,7 +53,7 @@ const createEnvelope = async <TRecord extends object>(
 
 export const createVaultV2Repository = <TRecord extends object>(
   database: VaultV2Database,
-  collection: PersistenceCollection,
+  collection: Exclude<PersistenceCollection, 'sentinel'>,
   getKey: () => CryptoKey,
   validator: (value: unknown) => value is TRecord,
   getId: (record: TRecord) => string,
@@ -63,7 +63,8 @@ export const createVaultV2Repository = <TRecord extends object>(
   onMutation: () => void = () => undefined,
 ): EncryptedRepository<TRecord> => {
   const assertSessionActive = (): void => {
-    if (!isSessionActive()) throw new Error('Encrypted persistence session is locked');
+    if (!isSessionActive())
+      throw new Error('Encrypted persistence session is locked');
   };
   const decrypt = async (
     envelope: VaultRecordEnvelope | undefined,
@@ -127,6 +128,59 @@ export const createVaultV2Repository = <TRecord extends object>(
       return { written, duplicatesSkipped: records.length - written.length };
     });
   };
+  const putManyIfAbsentWithRelated = async <TRelated extends object>(
+    records: ReadonlyArray<TRecord>,
+    getDuplicateKey: (record: TRecord) => string,
+    createRelatedWrite: (result: EncryptedWriteResult<TRecord>) => {
+      readonly collection: Exclude<PersistenceCollection, 'sentinel'>;
+      readonly records: ReadonlyArray<TRelated>;
+      readonly getId: (record: TRelated) => string;
+    },
+  ): Promise<EncryptedWriteResult<TRecord>> =>
+    runExclusive(async () => {
+      assertSessionActive();
+      const existing = await getAll();
+      const seen = new Set(existing.map(getDuplicateKey));
+      const written = records.filter((record) => {
+        const duplicateKey = getDuplicateKey(record);
+        if (seen.has(duplicateKey)) return false;
+        seen.add(duplicateKey);
+        return true;
+      });
+      const result = {
+        written,
+        duplicatesSkipped: records.length - written.length,
+      };
+      const related = createRelatedWrite(result);
+      const [primaryEnvelopes, relatedEnvelopes] = await Promise.all([
+        Promise.all(
+          written.map((record) =>
+            createEnvelope(collection, record, getId, getKey(), context),
+          ),
+        ),
+        Promise.all(
+          related.records.map((record) =>
+            createEnvelope(
+              related.collection,
+              record,
+              related.getId,
+              getKey(),
+              context,
+            ),
+          ),
+        ),
+      ]);
+      assertSessionActive();
+      await database.transaction('rw', database.records, async () => {
+        assertSessionActive();
+        await database.records.bulkPut([
+          ...primaryEnvelopes,
+          ...relatedEnvelopes,
+        ]);
+      });
+      onMutation();
+      return result;
+    });
   const replace = async (records: ReadonlyArray<TRecord>): Promise<void> => {
     await runExclusive(async () => {
       assertSessionActive();
@@ -164,6 +218,7 @@ export const createVaultV2Repository = <TRecord extends object>(
     put,
     putMany,
     putManyIfAbsent,
+    putManyIfAbsentWithRelated,
     replace,
     delete: deleteRecord,
     clear,

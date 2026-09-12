@@ -67,6 +67,8 @@ interface BootstrapState {
   readonly passkeyEnvelope?: string;
 }
 
+type FlowGuard = () => void;
+
 const decodeServerShare = (value: string): Uint8Array<ArrayBuffer> => {
   if (
     !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
@@ -88,6 +90,7 @@ const unlockFromBootstrap = async (
   accountId: string,
   workspaceId: string,
   bootstrap: BootstrapState,
+  assertCurrent: FlowGuard,
 ): Promise<void> => {
   if (
     bootstrap.status !== 'available' ||
@@ -108,7 +111,9 @@ const unlockFromBootstrap = async (
   const localShare = isHighSecurity
     ? undefined
     : await encryptedPersistence.readVaultLocalShare(context);
+  assertCurrent();
   const serverShare = await issueServerShare(bootstrap.deviceId);
+  assertCurrent();
   let prfKey: CryptoKey | undefined;
   let credentialId: string | undefined;
   const handoff =
@@ -128,6 +133,7 @@ const unlockFromBootstrap = async (
   ) {
     try {
       const passkeyResult = await vaultPasskeyCeremony.run(context);
+      assertCurrent();
       prfKey = passkeyResult.prfKey;
       credentialId = passkeyResult.credentialId;
     } catch (error) {
@@ -163,6 +169,7 @@ const unlockFromBootstrap = async (
       credentialId === undefined ? context : { ...context, credentialId },
     ...(prfKey === undefined ? {} : { prfKey }),
   });
+  assertCurrent();
   try {
     await encryptedPersistence.unlockWithVaultKeys(
       {
@@ -172,11 +179,13 @@ const unlockFromBootstrap = async (
       context,
       hydrateFinancialStores,
     );
+    assertCurrent();
   } finally {
     unlocked.vmk.fill(0);
   }
   try {
     await vaultRotation.resumePending();
+    assertCurrent();
   } catch {
     // The encrypted journal remains retryable when fresh-auth commit is unavailable.
   }
@@ -188,6 +197,7 @@ const enrollVmk = async (
   bootstrap: BootstrapState,
   vmk: Uint8Array,
   trustedDeviceProof?: string,
+  assertCurrent: FlowGuard = () => undefined,
 ): Promise<void> => {
   const vaultId = bootstrap.vaultId ?? crypto.randomUUID();
   const keyId = bootstrap.keyId ?? crypto.randomUUID();
@@ -199,10 +209,12 @@ const enrollVmk = async (
     deviceId: bootstrap.deviceId,
   };
   const localShare = await vaultProtocol.generateLocalShare();
+  assertCurrent();
   const prepared = await vaultEnrollment.prepare(
     bootstrap.deviceId,
     bootstrap.vaultId,
   );
+  assertCurrent();
   const serverShare = decodeServerShare(prepared.serverShare);
   try {
     const wrappingKey = await vaultProtocol.deriveDeviceKey(
@@ -210,6 +222,7 @@ const enrollVmk = async (
       serverShare,
       context,
     );
+    assertCurrent();
     const envelope = await vaultProtocol.wrapVmk(
       vmk,
       wrappingKey,
@@ -220,6 +233,7 @@ const enrollVmk = async (
     const signingPublicKey = JSON.stringify(
       await deviceSigningKey.exportPublicJwk(signingKeyPair.publicKey),
     );
+    assertCurrent();
     await vaultEnrollment.finalize({
       challenge: prepared.challenge,
       deviceId: bootstrap.deviceId,
@@ -229,13 +243,16 @@ const enrollVmk = async (
       signingPublicKey,
       ...(trustedDeviceProof === undefined ? {} : { trustedDeviceProof }),
     });
+    assertCurrent();
     const vaultKeys = await vaultProtocol.deriveKeys(vmk, context);
+    assertCurrent();
     try {
       await encryptedPersistence.unlockWithVaultKeys(
         { ...vaultKeys, localShare, signingKeyPair, vmk },
         context,
         hydrateFinancialStores,
       );
+      assertCurrent();
       await vaultEnrollment.confirm({
         challenge: prepared.challenge,
         deviceId: bootstrap.deviceId,
@@ -256,15 +273,18 @@ const recoverWithCode = async (
   workspaceId: string,
   bootstrap: BootstrapState,
   code: string,
+  assertCurrent: FlowGuard = () => undefined,
 ): Promise<void> => {
   const vmk = await recoveryCodeProtocol.restore(code);
   try {
+    assertCurrent();
     if (
       bootstrap.status === 'available' &&
       bootstrap.vaultId !== undefined &&
       bootstrap.keyId !== undefined
     ) {
       const remote = await syncSnapshotApi.get(bootstrap.vaultId);
+      assertCurrent();
       if (remote.status !== 'available' || remote.snapshot === undefined)
         throw new Error('Recovery authority is unavailable');
       const context = {
@@ -275,9 +295,11 @@ const recoverWithCode = async (
         deviceId: bootstrap.deviceId,
       };
       const keys = await vaultProtocol.deriveKeys(vmk, context);
+      assertCurrent();
       const senderKey = await deviceSigningKey.importPublicJwk(
         JSON.parse(remote.snapshot.signingPublicKey),
       );
+      assertCurrent();
       const plaintext = await opaqueSyncSnapshot.openEnvelope(
         {
           header: JSON.parse(remote.snapshot.header),
@@ -292,9 +314,18 @@ const recoverWithCode = async (
           envelopeHash: remote.snapshot.previousEnvelopeHash,
         },
       );
+      assertCurrent();
       parseVaultPayload(plaintext);
     }
-    await enrollVmk(accountId, workspaceId, bootstrap, vmk);
+    await enrollVmk(
+      accountId,
+      workspaceId,
+      bootstrap,
+      vmk,
+      undefined,
+      assertCurrent,
+    );
+    assertCurrent();
   } finally {
     vmk.fill(0);
   }
@@ -347,7 +378,12 @@ export const useVaultUnlock = (
       setRequiresRecovery(true);
       throw new Error('Recovery is required');
     }
-    await unlockFromBootstrap(accountId, workspaceId, currentBootstrap);
+    await unlockFromBootstrap(
+      accountId,
+      workspaceId,
+      currentBootstrap,
+      assertCurrent,
+    );
     assertCurrent();
   }, [accountId, bootstrap, workspaceId]);
 
@@ -375,6 +411,10 @@ export const useVaultUnlock = (
         workspaceId,
         currentBootstrap,
         recoveryCode,
+        () => {
+          if (flowGeneration.current !== startedGeneration)
+            throw new Error('Vault recovery flow was cancelled');
+        },
       );
       if (flowGeneration.current !== startedGeneration)
         throw new Error('Vault recovery flow was cancelled');
@@ -412,7 +452,17 @@ export const useVaultUnlock = (
     void (async () => {
       const startedGeneration = flowGeneration.current;
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
-      await enrollVmk(accountId, workspaceId, currentBootstrap, pending.vmk);
+      await enrollVmk(
+        accountId,
+        workspaceId,
+        currentBootstrap,
+        pending.vmk,
+        undefined,
+        () => {
+          if (flowGeneration.current !== startedGeneration)
+            throw new Error('Vault setup flow was cancelled');
+        },
+      );
       if (flowGeneration.current !== startedGeneration)
         throw new Error('Vault setup flow was cancelled');
       pending.vmk.fill(0);

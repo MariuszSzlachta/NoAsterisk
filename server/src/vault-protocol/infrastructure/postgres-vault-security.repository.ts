@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
@@ -20,6 +20,9 @@ export class PostgresVaultSecurityRepository implements VaultSecurityRepository 
 
   async enablePasskeyUnlock(request: EnableHighSecurityRequest): Promise<void> {
     await this.db.transaction(async (transaction) => {
+      await transaction.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${request.vaultId}, 0))`,
+      );
       const devices = await transaction
         .select({
           deviceRowId: vaultDevices.id,
@@ -73,6 +76,9 @@ export class PostgresVaultSecurityRepository implements VaultSecurityRepository 
 
   async enableHighSecurity(request: EnableHighSecurityRequest): Promise<void> {
     await this.db.transaction(async (transaction) => {
+      await transaction.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${request.vaultId}, 0))`,
+      );
       const devices = await transaction
         .select({
           deviceRowId: vaultDevices.id,
@@ -141,6 +147,9 @@ export class PostgresVaultSecurityRepository implements VaultSecurityRepository 
 
   async disableHighSecurity(request: EnableHighSecurityRequest): Promise<void> {
     await this.db.transaction(async (transaction) => {
+      await transaction.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${request.vaultId}, 0))`,
+      );
       const devices = await transaction
         .select({ deviceRowId: vaultDevices.id, keysetRowId: vaultKeysets.id })
         .from(vaultDevices)

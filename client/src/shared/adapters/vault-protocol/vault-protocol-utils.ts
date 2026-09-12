@@ -15,17 +15,20 @@ const toBase64 = (value: Uint8Array): string =>
       String.fromCharCode(...value.slice(index * 0x8000, (index + 1) * 0x8000)),
     ).join(''),
   );
-const fromBase64 = (value: unknown): Uint8Array<ArrayBuffer> => {
+const fromBase64 = (
+  value: unknown,
+  maxBytes: number = vaultProtocolConstants.maxCiphertextBytes,
+): Uint8Array<ArrayBuffer> => {
   if (
     typeof value !== 'string' ||
-    value.length >
-      Math.ceil((vaultProtocolConstants.maxCiphertextBytes * 4) / 3) + 4 ||
+    value.length > Math.ceil((maxBytes * 4) / 3) + 4 ||
     !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
       value,
     )
   )
     throw new Error('Invalid base64 encoding');
   const decoded = atob(value);
+  if (decoded.length > maxBytes) throw new Error('Decoded value is too large');
   const output = new Uint8Array(new ArrayBuffer(decoded.length));
   decoded.split('').forEach((character, index) => {
     output[index] = character.charCodeAt(0);
@@ -242,8 +245,10 @@ const validateWrapEnvelope = (
     typeof value.header.keyId === 'string' &&
     typeof value.header.deviceId === 'string' &&
     typeof value.header.credentialId === 'string' &&
-    fromBase64(getString(value.header, 'nonce')).length ===
-      vaultProtocolConstants.nonceLength
+    fromBase64(
+      getString(value.header, 'nonce'),
+      vaultProtocolConstants.nonceLength,
+    ).length === vaultProtocolConstants.nonceLength
   );
 };
 const validateSnapshot = (
@@ -280,9 +285,9 @@ const validateSnapshot = (
       typeof header.createdByDeviceId === 'string' &&
       typeof header.createdAt === 'string' &&
       typeof header.nonce === 'string' &&
-      fromBase64(header.nonce).length === vaultProtocolConstants.nonceLength &&
-      fromBase64(value.signature).length > 0 &&
-      fromBase64(value.signature).length <= 512 &&
+      fromBase64(header.nonce, vaultProtocolConstants.nonceLength).length ===
+        vaultProtocolConstants.nonceLength &&
+      fromBase64(value.signature, 512).length > 0 &&
       hasOnlyKeys(value, ['header', 'ciphertext', 'signature'])
     );
   } catch {

@@ -10,7 +10,7 @@ describe('WebauthnVerifierAdapter', () => {
     jest.mocked(verifyAuthenticationResponse).mockResolvedValue({
       verified: true,
       authenticationInfo: {
-        credentialID: 'credential',
+        credentialID: 'authenticator-credential-id',
         newCounter: 4,
         userVerified: true,
         credentialDeviceType: 'singleDevice',
@@ -22,7 +22,7 @@ describe('WebauthnVerifierAdapter', () => {
     const adapter = new WebauthnVerifierAdapter();
     const result = await adapter.verify(
       {
-        id: 'credential',
+        id: 'authenticator-credential-id',
         rawId: 'cmF3',
         type: 'public-key',
         response: {
@@ -32,8 +32,8 @@ describe('WebauthnVerifierAdapter', () => {
         },
       },
       {
-        id: 'credential',
-        credentialId: 'credential',
+        id: 'database-row-id',
+        credentialId: 'authenticator-credential-id',
         publicKey: new Uint8Array(new ArrayBuffer(32)),
         counter: 3,
       },
@@ -41,7 +41,10 @@ describe('WebauthnVerifierAdapter', () => {
       'https://budgetflow.test',
       'budgetflow.test',
     );
-    expect(result).toEqual({ credentialId: 'credential', newCounter: 4 });
+    expect(result).toEqual({
+      credentialId: 'authenticator-credential-id',
+      newCounter: 4,
+    });
     expect(verifyAuthenticationResponse).toHaveBeenCalledWith(
       expect.objectContaining({
         expectedChallenge: 'challenge',
@@ -70,7 +73,7 @@ describe('WebauthnVerifierAdapter', () => {
     await expect(
       adapter.verify(
         {
-          id: 'credential',
+          id: 'authenticator-credential-id',
           rawId: 'cmF3',
           type: 'public-key',
           response: {
@@ -80,8 +83,8 @@ describe('WebauthnVerifierAdapter', () => {
           },
         },
         {
-          id: 'credential',
-          credentialId: 'credential',
+          id: 'database-row-id',
+          credentialId: 'authenticator-credential-id',
           publicKey: new Uint8Array(new ArrayBuffer(32)),
           counter: 0,
         },

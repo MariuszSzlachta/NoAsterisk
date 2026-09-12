@@ -97,7 +97,7 @@ describe('JwtAuthGuard', () => {
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
-    });
+    } as never);
     const ctx = mockContext({ authorization: 'Bearer legacy-token' });
 
     await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);

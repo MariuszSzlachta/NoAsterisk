@@ -3,7 +3,9 @@ import {
   encryptRecord,
 } from '#shared/adapters/persistence/crypto';
 import type { BudgetDatabase } from '#shared/adapters/persistence/dexie/budget-database';
+import { putManyIfAbsentWithRelated } from '#shared/adapters/persistence/dexie/put-many-if-absent-with-related';
 import type {
+  EncryptedRelatedWrite,
   EncryptedRepository,
   EncryptedWriteResult,
   PersistenceCollection,
@@ -12,7 +14,7 @@ import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metad
 
 export const createEncryptedDexieRepository = <TRecord extends object>(
   getDatabase: () => BudgetDatabase,
-  collection: PersistenceCollection,
+  collection: Exclude<PersistenceCollection, 'sentinel'>,
   getKey: () => CryptoKey,
   validator: (value: unknown) => value is TRecord,
   getId: (record: TRecord) => string,
@@ -110,6 +112,21 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
       return { written: uniqueRecords, duplicatesSkipped };
     });
 
+  const putManyIfAbsentWithRelatedRepository = async <TRelated extends object>(
+    records: ReadonlyArray<TRecord>,
+    getDuplicateKey: (record: TRecord) => string,
+    createRelatedWrite: (
+      result: EncryptedWriteResult<TRecord>,
+    ) => EncryptedRelatedWrite<TRelated>,
+  ): Promise<EncryptedWriteResult<TRecord>> =>
+    putManyIfAbsentWithRelated(
+      getDatabase(),
+      getKey,
+      { records, collection, validator, getId, getDuplicateKey },
+      createRelatedWrite,
+      runExclusive,
+    );
+
   const replace = async (records: ReadonlyArray<TRecord>): Promise<void> => {
     const database = getDatabase();
     const envelopes = await Promise.all(
@@ -146,6 +163,7 @@ export const createEncryptedDexieRepository = <TRecord extends object>(
     put,
     putMany,
     putManyIfAbsent,
+    putManyIfAbsentWithRelated: putManyIfAbsentWithRelatedRepository,
     replace,
     delete: deleteRecord,
     clear,

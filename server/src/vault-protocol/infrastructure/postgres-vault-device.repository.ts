@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { DRIZZLE } from '@shared/infrastructure/database/database.tokens';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import {
@@ -70,29 +70,36 @@ export class PostgresVaultDeviceRepository implements VaultDeviceRepository {
     workspaceId: string,
     deviceId: string,
   ): Promise<void> {
-    const devices = await this.db
-      .select({ id: vaultDevices.id })
-      .from(vaultDevices)
-      .innerJoin(vaultKeysets, eq(vaultDevices.keysetId, vaultKeysets.id))
-      .innerJoin(vaults, eq(vaultKeysets.vaultId, vaults.id))
-      .where(
-        and(
-          eq(vaultDevices.userId, userId),
-          eq(vaultDevices.deviceId, deviceId),
-          eq(vaults.workspaceId, workspaceId),
-        ),
+    await this.db.transaction(async (transaction) => {
+      const devices = await transaction
+        .select({ id: vaultDevices.id, vaultId: vaults.id })
+        .from(vaultDevices)
+        .innerJoin(vaultKeysets, eq(vaultDevices.keysetId, vaultKeysets.id))
+        .innerJoin(vaults, eq(vaultKeysets.vaultId, vaults.id))
+        .where(
+          and(
+            eq(vaultDevices.userId, userId),
+            eq(vaultDevices.deviceId, deviceId),
+            eq(vaults.workspaceId, workspaceId),
+          ),
+        );
+      const row = devices[0];
+      if (row === undefined) return;
+      await transaction.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${row.vaultId}, 0))`,
       );
-    const row = devices[0];
-    if (row === undefined) return;
-    const now = new Date();
-    await this.db
-      .update(vaultDevices)
-      .set({
-        revoked: true,
-        revokedAt: now,
-        status: 'revoked',
-        lastSeenAt: now,
-      })
-      .where(eq(vaultDevices.id, row.id));
+      const now = new Date();
+      await transaction
+        .update(vaultDevices)
+        .set({
+          revoked: true,
+          revokedAt: now,
+          status: 'revoked',
+          lastSeenAt: now,
+        })
+        .where(
+          and(eq(vaultDevices.id, row.id), eq(vaultDevices.revoked, false)),
+        );
+    });
   }
 }
