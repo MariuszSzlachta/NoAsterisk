@@ -15,6 +15,11 @@ const encode = (value: Uint8Array): string =>
 const decode = (value: string): Uint8Array<ArrayBuffer> =>
   new Uint8Array(Buffer.from(value, 'base64'));
 
+const isCredentialDeviceType = (
+  value: string | null,
+): value is 'singleDevice' | 'multiDevice' =>
+  value === 'singleDevice' || value === 'multiDevice';
+
 const mapCredential = (
   row: typeof webauthnCredentials.$inferSelect,
 ): StoredWebauthnCredential => ({
@@ -26,6 +31,10 @@ const mapCredential = (
   transports:
     row.transports === null ? [] : row.transports.split(',').filter(Boolean),
   supportsPrf: row.supportsPrf === 1,
+  ...(isCredentialDeviceType(row.credentialDeviceType)
+    ? { credentialDeviceType: row.credentialDeviceType }
+    : {}),
+  credentialBackedUp: row.credentialBackedUp === 1,
   ...(row.revokedAt === null ? {} : { revokedAt: row.revokedAt }),
 });
 
@@ -42,6 +51,8 @@ export class PostgresWebauthnCredentialRepository implements WebauthnCredentialR
       counter: String(input.counter),
       transports: input.transports.join(','),
       supportsPrf: input.supportsPrf ? 1 : 0,
+      credentialDeviceType: input.credentialDeviceType,
+      credentialBackedUp: input.credentialBackedUp === true ? 1 : 0,
       createdAt: new Date(),
       lastUsedAt: null,
       revokedAt: null,

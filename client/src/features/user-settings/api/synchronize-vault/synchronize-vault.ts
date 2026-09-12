@@ -82,14 +82,20 @@ const verifyRemote = async (
     return;
   }
 
+  if (
+    metadata.observedRevision !== undefined &&
+    remote.revision < metadata.observedRevision
+  )
+    throw new Error('Remote snapshot rollback detected');
+
   await opaqueSyncSnapshot.openEnvelope(
     toEnvelope(remote),
     material.context,
     material.syncKey,
     remoteVerifyKey,
     {
-      revision: Math.max(0, remote.revision - 1),
-      envelopeHash: remote.previousEnvelopeHash,
+      revision: metadata.observedRevision ?? 0,
+      envelopeHash: metadata.highWaterEnvelopeHash ?? '',
     },
   );
 };
@@ -135,6 +141,8 @@ export const synchronizeVault = async (
       throw new Error('Sync high-water mark is missing');
 
     const payload = createValidatedVaultPayload(buildVaultRecords());
+    const coveredMutationVersion =
+      persistenceSyncMetadata.get().mutationVersion;
     const created = await opaqueSyncSnapshot.create({
       plaintext: serializeVaultPayload(payload),
       context: material.context,
@@ -159,6 +167,7 @@ export const synchronizeVault = async (
         saved.revision,
         nextSnapshot.createdAt,
         saved.envelopeHash,
+        coveredMutationVersion,
       );
       return { status: 'saved', snapshot: nextSnapshot };
     } catch (error) {

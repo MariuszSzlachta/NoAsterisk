@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import {
   USER_REPOSITORY,
   UserRepository,
@@ -60,6 +61,7 @@ export class LoginHandler {
       tokenVersion: user.tokenVersion,
       authTime: Date.now(),
       amr: 'password',
+      vaultUnlockGrant: randomUUID(),
     };
     const accessToken = this.token.sign(tokenPayload);
     const refreshToken = this.token.signRefresh(tokenPayload);

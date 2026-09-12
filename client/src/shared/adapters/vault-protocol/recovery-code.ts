@@ -37,8 +37,12 @@ const create = async (): Promise<{
   readonly vmk: Uint8Array;
 }> => {
   const vmk = vaultProtocol.generateVmk();
-  const check = await checksum(vmk);
-  return { code: toHex(vmk) + toHex(check), vmk };
+  return { code: await encode(vmk), vmk };
+};
+
+const encode = async (vmk: Uint8Array): Promise<string> => {
+  if (vmk.length !== VMK_BYTES) throw new Error('Invalid VMK');
+  return toHex(vmk) + toHex(await checksum(vmk));
 };
 
 const restore = async (code: string): Promise<Uint8Array<ArrayBuffer>> => {
@@ -53,4 +57,4 @@ const restore = async (code: string): Promise<Uint8Array<ArrayBuffer>> => {
   return vmk;
 };
 
-export const recoveryCode = Object.freeze({ create, restore });
+export const recoveryCode = Object.freeze({ create, encode, restore });

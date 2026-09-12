@@ -18,6 +18,8 @@ const toBase64 = (value: Uint8Array): string =>
 const fromBase64 = (value: unknown): Uint8Array<ArrayBuffer> => {
   if (
     typeof value !== 'string' ||
+    value.length >
+      Math.ceil((vaultProtocolConstants.maxCiphertextBytes * 4) / 3) + 4 ||
     !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
       value,
     )
@@ -185,20 +187,25 @@ const validateEnvelope = (
   if (
     !isRecord(value) ||
     !isRecord(value.header) ||
+    !hasOnlyKeys(value, ['header', 'ciphertext']) ||
     typeof value.ciphertext !== 'string'
   )
     return false;
   const header = value.header;
-  return (
-    header.formatVersion === vaultProtocolConstants.protocolVersion &&
-    header.cryptoSuite === vaultProtocolConstants.cryptoSuite &&
-    (hasOnlyKeys(header, vaultProtocolConstants.envelopeHeaderKeys) ||
-      hasOnlyKeys(header, vaultProtocolConstants.snapshotHeaderKeys)) &&
-    value.ciphertext.length <=
-      Math.ceil((vaultProtocolConstants.maxCiphertextBytes * 4) / 3) &&
-    fromBase64(value.ciphertext).length <=
-      vaultProtocolConstants.maxCiphertextBytes
-  );
+  try {
+    return (
+      header.formatVersion === vaultProtocolConstants.protocolVersion &&
+      header.cryptoSuite === vaultProtocolConstants.cryptoSuite &&
+      (hasOnlyKeys(header, vaultProtocolConstants.envelopeHeaderKeys) ||
+        hasOnlyKeys(header, vaultProtocolConstants.snapshotHeaderKeys)) &&
+      value.ciphertext.length <=
+        Math.ceil((vaultProtocolConstants.maxCiphertextBytes * 4) / 3) &&
+      fromBase64(value.ciphertext).length <=
+        vaultProtocolConstants.maxCiphertextBytes
+    );
+  } catch {
+    return false;
+  }
 };
 const validateWrapEnvelope = (
   value: unknown,
@@ -209,6 +216,7 @@ const validateWrapEnvelope = (
   if (
     !isRecord(value) ||
     !isRecord(value.header) ||
+    !hasOnlyKeys(value, ['header', 'ciphertext']) ||
     typeof value.ciphertext !== 'string' ||
     value.ciphertext.length >
       Math.ceil((vaultProtocolConstants.maxCiphertextBytes * 4) / 3)
@@ -257,21 +265,25 @@ const validateSnapshot = (
   )
     return false;
   const header = value.header;
-  return (
-    typeof header.accountId === 'string' &&
-    typeof header.workspaceId === 'string' &&
-    typeof header.vaultId === 'string' &&
-    typeof header.keyId === 'string' &&
-    typeof header.revision === 'number' &&
-    Number.isSafeInteger(header.revision) &&
-    header.revision > 0 &&
-    typeof header.previousEnvelopeHash === 'string' &&
-    typeof header.createdByDeviceId === 'string' &&
-    typeof header.createdAt === 'string' &&
-    typeof header.nonce === 'string' &&
-    fromBase64(header.nonce).length === vaultProtocolConstants.nonceLength &&
-    fromBase64(value.signature).length > 0
-  );
+  try {
+    return (
+      typeof header.accountId === 'string' &&
+      typeof header.workspaceId === 'string' &&
+      typeof header.vaultId === 'string' &&
+      typeof header.keyId === 'string' &&
+      typeof header.revision === 'number' &&
+      Number.isSafeInteger(header.revision) &&
+      header.revision > 0 &&
+      typeof header.previousEnvelopeHash === 'string' &&
+      typeof header.createdByDeviceId === 'string' &&
+      typeof header.createdAt === 'string' &&
+      typeof header.nonce === 'string' &&
+      fromBase64(header.nonce).length === vaultProtocolConstants.nonceLength &&
+      fromBase64(value.signature).length > 0
+    );
+  } catch {
+    return false;
+  }
 };
 const assertContext = (header: object, context: object): void => {
   const headerValue = Object.entries(header);

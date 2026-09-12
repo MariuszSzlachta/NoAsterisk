@@ -24,6 +24,8 @@ export class EnableHighSecurityHandler {
 
   async execute(command: EnableHighSecurityCommand): Promise<void> {
     assertFreshInteractiveAuth(command.user);
+    if (command.user.amr !== 'webauthn')
+      throw new ForbiddenException('Passkey step-up required');
     if (!command.recoveryConfirmed)
       throw new ForbiddenException('Recovery confirmation required');
     if (command.passkeyEnvelope.length === 0)
@@ -40,6 +42,8 @@ export class EnableHighSecurityHandler {
 
   async enablePasskeyUnlock(command: EnableHighSecurityCommand): Promise<void> {
     assertFreshInteractiveAuth(command.user);
+    if (command.user.amr !== 'webauthn')
+      throw new ForbiddenException('Passkey step-up required');
     if (!command.recoveryConfirmed)
       throw new ForbiddenException('Recovery confirmation required');
     if (command.passkeyEnvelope.length === 0)
@@ -56,6 +60,8 @@ export class EnableHighSecurityHandler {
 
   async disable(command: EnableHighSecurityCommand): Promise<void> {
     assertFreshInteractiveAuth(command.user);
+    if (command.user.amr !== 'webauthn')
+      throw new ForbiddenException('Passkey step-up required');
     if (!command.recoveryConfirmed)
       throw new ForbiddenException('Recovery confirmation required');
     if (command.passkeyEnvelope.length === 0)

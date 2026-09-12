@@ -7,6 +7,7 @@ export interface TokenPayload {
   tokenVersion?: number;
   authTime?: number;
   amr?: 'password' | 'webauthn';
+  vaultUnlockGrant?: string;
 }
 
 export interface TokenPort {

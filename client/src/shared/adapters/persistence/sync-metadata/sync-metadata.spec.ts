@@ -21,6 +21,7 @@ describe('persistenceSyncMetadata', () => {
       lastSuccessfulSyncRevision: 4,
       lastSuccessfulSyncAt: '2026-09-09T12:00:00.000Z',
       isDirty: false,
+      mutationVersion: 1,
     });
     expect(
       localStorage.getItem('budget-sync-metadata:anonymous'),
@@ -58,6 +59,7 @@ describe('persistenceSyncMetadata', () => {
       lastSuccessfulSyncRevision: 6,
       lastSuccessfulSyncAt: '2026-09-09T12:00:00.000Z',
       isDirty: true,
+      mutationVersion: 0,
     });
   });
 
@@ -81,6 +83,7 @@ describe('persistenceSyncMetadata', () => {
       lastSuccessfulSyncRevision: undefined,
       lastSuccessfulSyncAt: undefined,
       isDirty: false,
+      mutationVersion: 0,
     });
   });
 
@@ -94,6 +97,22 @@ describe('persistenceSyncMetadata', () => {
     expect(() => persistenceSyncMetadata.markDirty()).not.toThrow();
     expect(persistenceSyncMetadata.get().isDirty).toBe(true);
 
+    setItem.mockRestore();
+  });
+
+  it('notifies subscribers when storage cannot be written', () => {
+    const listener = vi.fn();
+    const unsubscribe = persistenceSyncMetadata.subscribe(listener);
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('storage unavailable');
+      });
+
+    persistenceSyncMetadata.markDirty();
+
+    expect(listener).toHaveBeenCalledOnce();
+    unsubscribe();
     setItem.mockRestore();
   });
 

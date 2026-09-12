@@ -73,6 +73,7 @@ export class JwtAuthGuard implements CanActivate {
       role: user.role,
       authTime: payload.authTime,
       amr: payload.amr,
+      vaultUnlockGrant: payload.vaultUnlockGrant,
     };
 
     return true;

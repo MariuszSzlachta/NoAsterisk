@@ -3,6 +3,15 @@ import type { CurrentUserPayload } from '@shared/auth/current-user';
 
 const INTERACTIVE_AUTH_MAX_AGE_MS = 5 * 60 * 1000;
 
+export const assertFreshVaultUnlockGrant = (
+  user: CurrentUserPayload,
+  now = Date.now(),
+): void => {
+  assertFreshInteractiveAuth(user, now);
+  if (user.vaultUnlockGrant === undefined || user.vaultUnlockGrant.length === 0)
+    throw new UnauthorizedException('step-up-required');
+};
+
 export const assertFreshInteractiveAuth = (
   user: CurrentUserPayload,
   now = Date.now(),

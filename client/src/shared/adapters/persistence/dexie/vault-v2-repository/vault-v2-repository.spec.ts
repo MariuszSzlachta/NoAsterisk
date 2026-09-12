@@ -230,7 +230,7 @@ describe('VaultV2Repository', () => {
     expect(rotated?.header.keyId).toBe('key-rotated');
     await expect(
       vaultProtocol.decryptRecord(
-        rotated,
+        { header: rotated?.header ?? {}, ciphertext: rotated?.ciphertext ?? '' },
         {
           accountId: nextContext.accountId,
           workspaceId: nextContext.workspaceId,

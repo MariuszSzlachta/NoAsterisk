@@ -6,6 +6,7 @@ export interface CurrentUserPayload {
   role: string;
   authTime?: number;
   amr?: 'password' | 'webauthn';
+  vaultUnlockGrant?: string;
 }
 
 export const CurrentUser = createParamDecorator(

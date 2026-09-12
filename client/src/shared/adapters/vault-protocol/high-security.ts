@@ -37,14 +37,21 @@ const enable = async (input: {
   readonly prfKey: CryptoKey;
   readonly recoveryCode: string;
 }): Promise<void> => {
+  const deviceContext = {
+    accountId: input.context.accountId,
+    workspaceId: input.context.workspaceId,
+    vaultId: input.context.vaultId,
+    keyId: input.context.keyId,
+    deviceId: input.context.deviceId,
+  };
   const vmk = await vaultProtocol.unwrapVmk(
     input.deviceEnvelope,
     await vaultProtocol.deriveDeviceKey(
       input.localShare,
       input.serverShare,
-      input.context,
+      deviceContext,
     ),
-    input.context,
+    deviceContext,
     vaultProtocolConstants.deviceWrapPurpose,
   );
   try {

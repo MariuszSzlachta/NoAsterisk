@@ -185,6 +185,7 @@ describe('synchronizeVault', () => {
       2,
       expect.any(String),
       'hash-2',
+      undefined,
     );
   });
 

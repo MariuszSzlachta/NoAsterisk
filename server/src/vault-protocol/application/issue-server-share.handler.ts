@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { assertFreshInteractiveAuth } from '@shared/auth/auth-freshness';
+import { assertFreshVaultUnlockGrant } from '@shared/auth/auth-freshness';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
 import {
   SERVER_SHARE_REPOSITORY,
@@ -28,7 +28,7 @@ export class IssueServerShareHandler {
   async execute(
     command: IssueServerShareCommand,
   ): Promise<IssueServerShareResult> {
-    assertFreshInteractiveAuth(command.user);
+    assertFreshVaultUnlockGrant(command.user);
     if (command.deviceId.length === 0)
       throw new ForbiddenException('Device enrollment required');
     const share = await this.repository.issue(

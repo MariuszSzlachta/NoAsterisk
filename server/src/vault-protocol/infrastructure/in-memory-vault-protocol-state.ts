@@ -93,6 +93,8 @@ export class InMemoryVaultProtocolState {
         existingVault.keyId !== request.keyId)
     )
       throw new Error('Vault key context mismatch');
+    if (existingVault !== undefined && request.trustedDeviceProof === undefined)
+      throw new Error('Trusted-device approval required');
     if (existingVault === undefined)
       this.workspaceVaults.set(request.workspaceId, {
         vaultId: request.vaultId,

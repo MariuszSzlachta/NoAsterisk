@@ -113,6 +113,13 @@
       "when": 1788977900000,
       "tag": "0015_enrollment_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1788978000000,
+      "tag": "0016_webauthn_backup_metadata",
+      "breakpoints": true
     }
   ]
 }

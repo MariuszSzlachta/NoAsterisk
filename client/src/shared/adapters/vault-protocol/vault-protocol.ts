@@ -285,6 +285,13 @@ const createVaultProtocol = (): VaultProtocol => ({
   verifySentinel: async (sentinel, context, key) => {
     if (!vaultProtocolUtils.validateEnvelope(sentinel))
       throw new Error('Invalid sentinel envelope');
+    if (
+      !vaultProtocolUtils.isRecord(sentinel.header) ||
+      sentinel.header.collection !== 'sentinel' ||
+      sentinel.header.recordId !== 'key-check'
+    )
+      throw new Error('Invalid sentinel envelope');
+    vaultProtocolUtils.assertContext(sentinel.header, context);
     const plaintext = await vaultProtocolUtils.decrypt(
       sentinel.ciphertext,
       vaultProtocolUtils.getString(sentinel.header, 'nonce'),

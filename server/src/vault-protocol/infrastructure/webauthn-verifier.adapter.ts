@@ -33,7 +33,7 @@ export class WebauthnVerifierAdapter implements WebauthnVerifierPort {
       expectedType: 'webauthn.get',
       requireUserVerification: true,
       credential: {
-        id: credential.id,
+        id: credential.credentialId,
         publicKey: credential.publicKey,
         counter: credential.counter,
         transports:

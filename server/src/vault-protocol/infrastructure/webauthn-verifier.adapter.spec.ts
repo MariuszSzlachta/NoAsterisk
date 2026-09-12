@@ -33,6 +33,7 @@ describe('WebauthnVerifierAdapter', () => {
       },
       {
         id: 'credential',
+        credentialId: 'credential',
         publicKey: new Uint8Array(new ArrayBuffer(32)),
         counter: 3,
       },
@@ -80,6 +81,7 @@ describe('WebauthnVerifierAdapter', () => {
         },
         {
           id: 'credential',
+          credentialId: 'credential',
           publicKey: new Uint8Array(new ArrayBuffer(32)),
           counter: 0,
         },

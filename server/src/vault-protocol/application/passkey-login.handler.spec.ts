@@ -5,7 +5,6 @@ import type { TokenPort } from '@auth/domain/ports/token.port';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
 import type { WebauthnCredentialRepository } from '@vault-protocol/domain/ports/webauthn-credential.repository';
 import type { WebauthnVerifierAdapter } from '@vault-protocol/infrastructure/webauthn-verifier.adapter';
-import type { VaultBootstrapRepository } from '@vault-protocol/domain/ports/vault-bootstrap.repository';
 
 jest.mock('@simplewebauthn/server', () => ({
   generateAuthenticationOptions: jest.fn(),
@@ -38,9 +37,6 @@ describe('PasskeyLoginHandler', () => {
     verify: jest.fn(),
     verifyRefresh: jest.fn(),
   };
-  const vaultBootstrap = {
-    get: jest.fn(),
-  } as unknown as VaultBootstrapRepository;
 
   const account = {
     id: 'user-1',
@@ -76,12 +72,6 @@ describe('PasskeyLoginHandler', () => {
     jest.mocked(generateAuthenticationOptions).mockResolvedValue({
       challenge: 'login-challenge',
     });
-    jest.mocked(vaultBootstrap.get).mockResolvedValue({
-      status: 'empty',
-      deviceId: 'device-1',
-      protocolVersion: 2,
-      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-    });
   });
 
   it('creates a login challenge bound to the account without a vault identifier', async () => {
@@ -91,7 +81,6 @@ describe('PasskeyLoginHandler', () => {
       credentials,
       verifier,
       token,
-      vaultBootstrap,
     );
 
     await handler.createOptions(account.email);
@@ -105,46 +94,27 @@ describe('PasskeyLoginHandler', () => {
       expect.objectContaining({
         challenge: 'login-challenge',
         userVerification: 'required',
-        allowCredentials: [{ id: 'credential-1', transports: ['internal'] }],
       }),
     );
+    expect(
+      jest.mocked(generateAuthenticationOptions).mock.calls[0]?.[0],
+    ).not.toHaveProperty('allowCredentials');
   });
 
-  it('returns only public vault context for a recognized device PRF handoff', async () => {
-    jest.mocked(vaultBootstrap.get).mockResolvedValue({
-      status: 'available',
-      vaultId: 'vault-1',
-      keyId: 'key-1',
-      deviceId: 'device-1',
-      protocolVersion: 2,
-      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-      deviceEnvelope: 'opaque-device-envelope',
-    });
+  it('does not enumerate vault context during authentication options', async () => {
     const handler = new PasskeyLoginHandler(
       users,
       challenges,
       credentials,
       verifier,
       token,
-      vaultBootstrap,
     );
 
     await expect(
       handler.createOptions(account.email, 'device-1'),
-    ).resolves.toMatchObject({
-      vaultContext: {
-        accountId: 'user-1',
-        workspaceId: 'workspace-1',
-        vaultId: 'vault-1',
-        keyId: 'key-1',
-        deviceId: 'device-1',
-      },
+    ).resolves.toEqual({
+      challenge: 'login-challenge',
     });
-    expect(vaultBootstrap.get).toHaveBeenCalledWith(
-      'user-1',
-      'workspace-1',
-      'device-1',
-    );
   });
 
   it('verifies the assertion once and issues fresh WebAuthn session tokens', async () => {
@@ -174,7 +144,6 @@ describe('PasskeyLoginHandler', () => {
       credentials,
       verifier,
       token,
-      vaultBootstrap,
     );
     const assertion = {
       id: 'credential-1',
@@ -232,7 +201,6 @@ describe('PasskeyLoginHandler', () => {
       credentials,
       verifier,
       token,
-      vaultBootstrap,
     );
 
     await expect(

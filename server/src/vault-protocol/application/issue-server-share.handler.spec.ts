@@ -10,6 +10,7 @@ describe('IssueServerShareHandler', () => {
     role: 'member',
     authTime: Date.now(),
     amr: 'password',
+    vaultUnlockGrant: 'grant',
   };
 
   it('issues a transient 32-byte share only after fresh auth', async () => {

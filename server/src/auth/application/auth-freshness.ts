@@ -1,1 +1,4 @@
-export { assertFreshInteractiveAuth } from '@shared/auth/auth-freshness';
+export {
+  assertFreshInteractiveAuth,
+  assertFreshVaultUnlockGrant,
+} from '@shared/auth/auth-freshness';

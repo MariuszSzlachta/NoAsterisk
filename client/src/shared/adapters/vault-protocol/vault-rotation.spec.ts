@@ -37,7 +37,7 @@ vi.mock('#shared/adapters/vault-protocol/vault-protocol', () => ({
   vaultProtocol: protocol,
 }));
 vi.mock('#shared/adapters/vault-protocol/recovery-code', () => ({
-  recoveryCode: { restore: vi.fn() },
+  recoveryCode: { restore: vi.fn(), encode: vi.fn(() => 'new-recovery-code') },
 }));
 vi.mock('#shared/api/vault-protocol/issue-server-share', () => ({
   issueServerShare: vi.fn(),

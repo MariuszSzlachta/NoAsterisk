@@ -11,7 +11,21 @@ interface VaultPasskeyContext {
   readonly deviceId: string;
 }
 
-const run = async (context: VaultPasskeyContext) => {
+const decodeCredentialId = (value: string): Uint8Array<ArrayBuffer> => {
+  const normalized = value.replaceAll('-', '+').replaceAll('_', '/');
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+  const binary = atob(padded);
+  const bytes = new Uint8Array(new ArrayBuffer(binary.length));
+  binary.split('').forEach((character, index) => {
+    bytes[index] = character.charCodeAt(0);
+  });
+  return bytes;
+};
+
+const run = async (
+  context: VaultPasskeyContext,
+  credentialId?: string,
+) => {
   const challenge =
     await webauthnChallenge.createAuthenticationChallengeRecord(
       context.vaultId,
@@ -25,6 +39,9 @@ const run = async (context: VaultPasskeyContext) => {
       vaultId: context.vaultId,
       deviceId: context.deviceId,
     }),
+    ...(credentialId === undefined
+      ? {}
+      : { credentialIds: [decodeCredentialId(credentialId)] }),
     requirePrf: true,
   });
   if (passkey.prfKey === undefined)

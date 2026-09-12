@@ -7,6 +7,7 @@ import type { UserRepository } from '@auth/domain/ports/user.repository';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
 import type { WebauthnCredentialRepository } from '@vault-protocol/domain/ports/webauthn-credential.repository';
 import type { WebauthnVerifierAdapter } from '@vault-protocol/infrastructure/webauthn-verifier.adapter';
+import type { TokenPort } from '@auth/domain/ports/token.port';
 
 jest.mock('@simplewebauthn/server', () => ({
   generateRegistrationOptions: jest.fn(),
@@ -44,6 +45,12 @@ describe('WebauthnCredentialHandler', () => {
   const verifier = {
     verify: jest.fn(),
   } as unknown as WebauthnVerifierAdapter;
+  const token: TokenPort = {
+    sign: jest.fn(() => 'access-token'),
+    signRefresh: jest.fn(() => 'refresh-token'),
+    verify: jest.fn(),
+    verifyRefresh: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -75,6 +82,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
     await handler.createRegistrationOptions(user, {
       vaultId: 'vault-1',
@@ -101,6 +109,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
 
     await expect(
@@ -141,6 +150,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
     await handler.verifyRegistration(user, {
       vaultId: 'vault-1',
@@ -197,6 +207,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
 
     jest
@@ -249,6 +260,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
 
     await expect(
@@ -292,6 +304,7 @@ describe('WebauthnCredentialHandler', () => {
         challenges,
         credentials,
         verifier,
+        token,
       ).list(user),
     ).resolves.toEqual([
       {
@@ -327,6 +340,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     ).verifyAuthentication(user, {
       vaultId: 'vault-1',
       deviceId: 'device-1',
@@ -349,6 +363,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
     await handler.revoke(user, 'credential-1');
     expect(credentials.revoke).toHaveBeenCalledWith('user-1', 'credential-1');
@@ -371,6 +386,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      token,
     );
 
     await expect(

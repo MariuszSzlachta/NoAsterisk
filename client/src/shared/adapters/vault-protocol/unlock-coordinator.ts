@@ -33,25 +33,20 @@ const unlock = async (input: UnlockInput): Promise<VaultKeySet> => {
     input.mode,
     input.prfKey !== undefined,
   );
-  let wrappingKey: CryptoKey;
-  if (method === 'prf') {
-    if (input.prfKey === undefined) throw new Error('PRF key is required');
-    wrappingKey = await vaultProtocol.derivePrfKey(
-      input.prfKey,
-      input.serverShare,
-      input.context,
-    );
-  } else {
-    wrappingKey = await vaultProtocol.deriveDeviceKey(
-      input.localShare ??
-        (() => {
-          throw new Error('LocalShare is required for split unlock');
-        })(),
-      input.serverShare,
-      input.context,
-    );
-  }
   try {
+    const wrappingKey =
+      method === 'prf'
+        ? await vaultProtocol.derivePrfKey(
+            input.prfKey ?? (() => { throw new Error('PRF key is required'); })(),
+            input.serverShare,
+            input.context,
+          )
+        : await vaultProtocol.deriveDeviceKey(
+            input.localShare ??
+              (() => { throw new Error('LocalShare is required for split unlock'); })(),
+            input.serverShare,
+            input.context,
+          );
     const vmk = await vaultProtocol.unwrapVmk(
       input.envelope,
       wrappingKey,

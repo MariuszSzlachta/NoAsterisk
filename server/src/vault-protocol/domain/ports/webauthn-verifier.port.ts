@@ -12,6 +12,7 @@ export interface WebauthnAssertion {
 
 export interface WebauthnStoredCredential {
   readonly id: string;
+  readonly credentialId: string;
   readonly publicKey: Uint8Array<ArrayBuffer>;
   readonly counter: number;
   readonly transports?: ReadonlyArray<string>;

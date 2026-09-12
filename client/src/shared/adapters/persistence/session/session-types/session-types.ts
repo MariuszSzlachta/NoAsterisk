@@ -100,7 +100,7 @@ interface EncryptedPersistence {
       readonly keyId: string;
       readonly deviceId: string;
     },
-    hydrate?: () => Promise<void>,
+    hydrate?: (isActive: () => boolean) => Promise<void>,
   ) => Promise<void>;
   readonly rotateVaultKeys: (
     vaultKeys: {

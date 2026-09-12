@@ -8,6 +8,7 @@ const INITIAL_METADATA: PersistenceSyncMetadata = {
   lastSuccessfulSyncRevision: undefined,
   lastSuccessfulSyncAt: undefined,
   isDirty: false,
+  mutationVersion: 0,
 };
 const listeners = new Set<() => void>();
 
@@ -50,6 +51,12 @@ const readMetadata = (): PersistenceSyncMetadata => {
           ? lastSuccessfulSyncAt
           : undefined,
       isDirty: isDirty === true,
+      mutationVersion:
+        typeof parsed.mutationVersion === 'number' &&
+        Number.isSafeInteger(parsed.mutationVersion) &&
+        parsed.mutationVersion >= 0
+          ? parsed.mutationVersion
+          : 0,
       ...(typeof highWaterEnvelopeHash === 'string' ? { highWaterEnvelopeHash } : {}),
     };
   } catch {
@@ -61,13 +68,13 @@ let cachedMetadata = readMetadata();
 
 const writeMetadata = (metadata: PersistenceSyncMetadata): void => {
   cachedMetadata = metadata;
-  if (typeof localStorage === 'undefined') {
-    return;
-  }
-  try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(metadata));
-  } catch {
-    return;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(metadata));
+    } catch {
+      // The in-memory value and subscribers remain authoritative when storage
+      // is unavailable or quota-limited.
+    }
   }
   listeners.forEach((listener) => listener());
 };
@@ -83,19 +90,28 @@ const subscribePersistenceSyncMetadata = (
 };
 
 const markPersistenceDirty = (): void => {
-  writeMetadata({ ...cachedMetadata, isDirty: true });
+  writeMetadata({
+    ...cachedMetadata,
+    isDirty: true,
+    mutationVersion: cachedMetadata.mutationVersion + 1,
+  });
 };
 
 const markPersistenceSynced = (
   revision: number,
   syncedAt: string,
   envelopeHash?: string,
+  coveredMutationVersion?: number,
 ): void => {
+  const hasUncoveredMutations =
+    coveredMutationVersion !== undefined &&
+    cachedMetadata.mutationVersion !== coveredMutationVersion;
   writeMetadata({
     observedRevision: revision,
     lastSuccessfulSyncRevision: revision,
     lastSuccessfulSyncAt: syncedAt,
-    isDirty: false,
+    isDirty: hasUncoveredMutations,
+    mutationVersion: cachedMetadata.mutationVersion,
     ...(envelopeHash === undefined ? {} : { highWaterEnvelopeHash: envelopeHash }),
   });
 };
@@ -114,6 +130,7 @@ const resetPersistenceForRotation = (): void => {
     lastSuccessfulSyncRevision: undefined,
     lastSuccessfulSyncAt: undefined,
     isDirty: true,
+    mutationVersion: cachedMetadata.mutationVersion + 1,
   });
 };
 

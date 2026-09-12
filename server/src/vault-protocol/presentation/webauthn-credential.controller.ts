@@ -95,9 +95,9 @@ export class WebauthnCredentialController {
   async verifyAuthentication(
     @CurrentUser() user: CurrentUserPayload,
     @Body(new ZodValidationPipe(authenticationSchema)) dto: AuthenticationDto,
-  ): Promise<{ readonly status: 'verified' }> {
-    await this.handler.verifyAuthentication(user, dto);
-    return { status: 'verified' };
+  ): Promise<{ readonly status: 'verified'; readonly accessToken: string }> {
+    const result = await this.handler.verifyAuthentication(user, dto);
+    return { status: 'verified', ...result };
   }
 
   @Delete(':credentialId')

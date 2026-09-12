@@ -13,7 +13,7 @@ interface RotateVaultInput {
 
 const rotate = async ({
   recoveryCode: code,
-}: RotateVaultInput): Promise<void> => {
+}: RotateVaultInput): Promise<{ readonly recoveryCode: string }> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const bootstrap = await vaultBootstrap.get();
   if (
@@ -116,6 +116,7 @@ const rotate = async ({
     if (result.keyId !== nextContext.keyId)
       throw new Error('Vault rotation key confirmation mismatch');
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
+    return { recoveryCode: await recoveryCodeProtocol.encode(nextVmk) };
   } finally {
     currentVmk.fill(0);
     nextVmk.fill(0);
@@ -123,7 +124,9 @@ const rotate = async ({
   }
 };
 
-const rotateWithPasskey = async (code: string): Promise<void> => {
+const rotateWithPasskey = async (
+  code: string,
+): Promise<{ readonly recoveryCode: string }> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const bootstrap = await vaultBootstrap.get();
   if (
@@ -194,6 +197,7 @@ const rotateWithPasskey = async (code: string): Promise<void> => {
     if (result.keyId !== nextContext.keyId)
       throw new Error('Vault rotation key confirmation mismatch');
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
+    return { recoveryCode: await recoveryCodeProtocol.encode(nextVmk) };
   } finally {
     currentVmk.fill(0);
     nextVmk.fill(0);

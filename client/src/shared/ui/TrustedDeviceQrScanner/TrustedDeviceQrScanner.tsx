@@ -88,7 +88,10 @@ export const TrustedDeviceQrScanner = ({
         await video.play();
         frame = requestAnimationFrame(() => void scan());
       } catch {
-        onErrorRef.current('Camera permission is required to scan the QR code');
+        const wasCancelled = cancelled;
+        stop();
+        if (!wasCancelled)
+          onErrorRef.current('Camera permission is required to scan the QR code');
       }
     })();
     return () => {

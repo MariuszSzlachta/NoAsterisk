@@ -7,7 +7,7 @@ const user = {
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Date.now(),
-  amr: 'password' as const,
+  amr: 'webauthn' as const,
 };
 
 describe('EnableHighSecurityHandler', () => {

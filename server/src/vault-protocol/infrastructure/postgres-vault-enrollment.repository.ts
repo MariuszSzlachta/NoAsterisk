@@ -85,6 +85,20 @@ export class PostgresVaultEnrollmentRepository implements VaultEnrollmentReposit
         (challenge.vaultId !== null && challenge.vaultId !== request.vaultId)
       )
         throw new Error('Invalid enrollment challenge');
+      const existingVaultAuthority = await transaction
+        .select({ id: vaults.id })
+        .from(vaults)
+        .where(
+          and(
+            eq(vaults.id, request.vaultId),
+            eq(vaults.workspaceId, request.workspaceId),
+          ),
+        );
+      if (
+        existingVaultAuthority.length > 0 &&
+        request.trustedDeviceProof === undefined
+      )
+        throw new Error('Trusted-device approval required');
       if (request.trustedDeviceProof !== undefined) {
         let proof: unknown;
         try {
@@ -196,12 +210,8 @@ export class PostgresVaultEnrollmentRepository implements VaultEnrollmentReposit
           ),
         );
       const existingDevice = existingDevices[0];
-      if (existingDevice?.status === 'active')
-        throw new Error('Vault device is already enrolled');
       if (existingDevice !== undefined)
-        await transaction
-          .delete(vaultDevices)
-          .where(eq(vaultDevices.id, existingDevice.id));
+        throw new Error('Vault device is already enrolled');
       const deviceRowId = randomUUID();
       await transaction.insert(vaultDevices).values({
         id: deviceRowId,

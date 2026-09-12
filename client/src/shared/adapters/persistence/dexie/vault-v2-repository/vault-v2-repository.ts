@@ -60,6 +60,7 @@ export const createVaultV2Repository = <TRecord extends object>(
   context: VaultContext,
   runExclusive: <TResult>(task: () => Promise<TResult>) => Promise<TResult>,
   isSessionActive: () => boolean,
+  onMutation: () => void = () => undefined,
 ): EncryptedRepository<TRecord> => {
   const assertSessionActive = (): void => {
     if (!isSessionActive()) throw new Error('Encrypted persistence session is locked');
@@ -104,6 +105,7 @@ export const createVaultV2Repository = <TRecord extends object>(
       assertSessionActive();
       await database.records.bulkPut(envelopes);
     });
+    if (records.length > 0) onMutation();
   };
   const putMany = async (records: ReadonlyArray<TRecord>): Promise<void> => {
     await runExclusive(() => writeMany(records));
@@ -139,18 +141,21 @@ export const createVaultV2Repository = <TRecord extends object>(
         await database.records.where('collection').equals(collection).delete();
         await database.records.bulkPut(envelopes);
       });
+      onMutation();
     });
   };
   const deleteRecord = async (id: string): Promise<void> => {
     await runExclusive(async () => {
       assertSessionActive();
       await database.records.delete([collection, id]);
+      onMutation();
     });
   };
   const clear = async (): Promise<void> => {
     await runExclusive(async () => {
       assertSessionActive();
       await database.records.where('collection').equals(collection).delete();
+      onMutation();
     });
   };
   return {

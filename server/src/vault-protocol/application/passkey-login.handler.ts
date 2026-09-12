@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { generateAuthenticationOptions } from '@simplewebauthn/server';
 import { WEBAUTHN_CHALLENGE_STORE } from '@vault-protocol/domain/ports/webauthn-challenge.token';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
@@ -18,8 +19,6 @@ import {
 import { WEBAUTHN_VERIFIER } from '@vault-protocol/domain/ports/webauthn-verifier.token';
 import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
 import { webauthnUserHandle } from '@vault-protocol/application/webauthn-user-handle';
-import { VAULT_BOOTSTRAP_REPOSITORY } from '@vault-protocol/domain/ports/vault-bootstrap.token';
-import type { VaultBootstrapRepository } from '@vault-protocol/domain/ports/vault-bootstrap.repository';
 
 const LOGIN_DEVICE_ID = 'auth-passkey-login';
 const origin = (): string =>
@@ -70,15 +69,15 @@ export class PasskeyLoginHandler {
     @Inject(WEBAUTHN_VERIFIER)
     private readonly verifier: WebauthnVerifierPort,
     @Inject(PASSKEY_TOKEN_PORT) private readonly token: PasskeyTokenPort,
-    @Inject(VAULT_BOOTSTRAP_REPOSITORY)
-    private readonly vaultBootstrap: VaultBootstrapRepository,
   ) {}
 
-  async createOptions(email: string, deviceId?: string) {
+  async createOptions(email: string, _deviceId?: string) {
     const user = await this.users.findByEmail(email);
     if (user === undefined || user.role === 'Blocked')
-      throw new BadRequestException('Passkey login unavailable');
-    const credentials = await this.credentials.listActiveByUserId(user.id);
+      return generateAuthenticationOptions({
+        rpID: rpId(),
+        userVerification: 'required',
+      });
     const challenge = await this.challenges.create({
       userId: user.id,
       deviceId: LOGIN_DEVICE_ID,
@@ -88,29 +87,8 @@ export class PasskeyLoginHandler {
       rpID: rpId(),
       challenge: challenge.challenge,
       userVerification: 'required',
-      allowCredentials: credentials.map((credential) => ({
-        id: credential.credentialId,
-        transports: [...credential.transports],
-      })),
     });
-    if (deviceId === undefined || deviceId.length === 0) return options;
-    const bootstrap = await this.vaultBootstrap.get(
-      user.id,
-      user.workspaceId,
-      deviceId,
-    );
-    if (bootstrap.vaultId === undefined || bootstrap.keyId === undefined)
-      return options;
-    return {
-      ...options,
-      vaultContext: {
-        accountId: user.id,
-        workspaceId: user.workspaceId,
-        vaultId: bootstrap.vaultId,
-        keyId: bootstrap.keyId,
-        deviceId,
-      } satisfies PasskeyLoginVaultContext,
-    };
+    return options;
   }
 
   async verify(
@@ -151,6 +129,7 @@ export class PasskeyLoginHandler {
       tokenVersion: user.tokenVersion,
       authTime: Date.now(),
       amr: 'webauthn',
+      vaultUnlockGrant: randomUUID(),
     };
     return {
       accessToken: this.token.sign(tokenPayload),

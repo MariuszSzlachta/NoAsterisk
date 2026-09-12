@@ -13,8 +13,8 @@ export const createApp = async (): Promise<INestApplication> => {
   app.use(helmet());
   app.enableCors({
     origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 

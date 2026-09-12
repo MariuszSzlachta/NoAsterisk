@@ -610,6 +610,7 @@
       "rotationChanging": "Zmieniam klucz sejfu…",
       "rotationRecoveryPrompt": "Wpisz kod recovery, aby potwierdzić rotację klucza sejfu:",
       "rotationSuccess": "Klucz sejfu został zmieniony, a pozostałe urządzenia wyrejestrowane.",
+      "rotationNewRecovery": "Zapisz teraz nowy kod recovery. Nie zostanie pokazany ponownie: {{recoveryCode}}",
       "rotationError": "Nie udało się zmienić klucza sejfu. Dane pozostały chronione i można ponowić próbę.",
       "trustedDeviceTitle": "Enrollment zaufanego urządzenia",
       "trustedDeviceDescription": "Zatwierdź nową przeglądarkę, skanując jej jednorazowy kod QR. VMK jest przesyłany wyłącznie w zaszyfrowanej i podpisanej postaci.",
@@ -617,6 +618,9 @@
       "trustedDeviceScanRequest": "Skanuj request nowego urządzenia",
       "trustedDeviceResponseReady": "Pokaż ten kod zatwierdzenia na nowej przeglądarce.",
       "trustedDeviceStop": "Zakończ zatwierdzanie",
+      "trustedDeviceConfirm": "Sprawdź nowe urządzenie przed zatwierdzeniem: {{deviceId}}",
+      "trustedDeviceConfirmAction": "Zatwierdź to urządzenie",
+      "trustedDeviceCancel": "Anuluj zatwierdzanie",
       "trustedDeviceError": "Zatwierdzanie urządzenia nie powiodło się. Użyj recovery albo spróbuj ponownie.",
       "stats": {
         "transactions": "Transakcje",

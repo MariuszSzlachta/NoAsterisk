@@ -1,4 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import { TOKEN_PORT, type TokenPort } from '@auth/domain/ports/token.port';
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
@@ -60,6 +62,7 @@ export class WebauthnCredentialHandler {
     private readonly credentials: WebauthnCredentialRepository,
     @Inject(WEBAUTHN_VERIFIER)
     private readonly verifier: WebauthnVerifierPort,
+    @Inject(TOKEN_PORT) private readonly token: TokenPort,
   ) {}
 
   async createRegistrationOptions(
@@ -133,6 +136,8 @@ export class WebauthnCredentialHandler {
       // proves PRF usability locally during the ceremony before creating an
       // envelope, so registration does not trust a client-declared flag.
       supportsPrf: false,
+      credentialDeviceType: info.credentialDeviceType,
+      credentialBackedUp: info.credentialBackedUp,
     });
   }
 
@@ -142,13 +147,15 @@ export class WebauthnCredentialHandler {
       credentialId: credential.credentialId,
       transports: credential.transports,
       supportsPrf: credential.supportsPrf,
+      credentialDeviceType: credential.credentialDeviceType,
+      credentialBackedUp: credential.credentialBackedUp,
     }));
   }
 
   async verifyAuthentication(
     user: CurrentUserPayload,
     request: AssertionRequest,
-  ): Promise<void> {
+  ): Promise<{ readonly accessToken: string }> {
     const challenge = await this.challenges.consume(request.challenge, {
       userId: user.userId,
       vaultId: request.vaultId,
@@ -178,6 +185,16 @@ export class WebauthnCredentialHandler {
       verified.credentialId,
       verified.newCounter,
     );
+    return {
+      accessToken: this.token.sign({
+        sub: user.userId,
+        workspaceId: user.workspaceId,
+        role: user.role,
+        authTime: Date.now(),
+        amr: 'webauthn',
+        vaultUnlockGrant: randomUUID(),
+      }),
+    };
   }
 
   async revoke(user: CurrentUserPayload, credentialId: string): Promise<void> {

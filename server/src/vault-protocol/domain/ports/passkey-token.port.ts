@@ -7,6 +7,7 @@ export interface PasskeyTokenPayload {
   readonly tokenVersion?: number;
   readonly authTime?: number;
   readonly amr?: 'password' | 'webauthn';
+  readonly vaultUnlockGrant?: string;
 }
 
 export interface PasskeyTokenPort {

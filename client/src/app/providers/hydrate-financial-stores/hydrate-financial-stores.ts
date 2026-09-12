@@ -27,7 +27,9 @@ import {
   TRANSACTIONS_COLLECTION,
 } from '#shared/adapters/persistence/ports';
 
-export const hydrateFinancialStores = async (): Promise<void> => {
+export const hydrateFinancialStores = async (
+  isActive: () => boolean = () => encryptedPersistence.isUnlocked(),
+): Promise<void> => {
   const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
     TRANSACTIONS_COLLECTION,
     isStoredTransaction,
@@ -67,11 +69,15 @@ export const hydrateFinancialStores = async (): Promise<void> => {
       periodHistoryRepository.getAll(),
       importHistoryRepository.getAll(),
     ]);
+  if (!isActive()) throw new Error('Vault session is locked');
   const hydratedCategories =
     categories.length > 0 ? categories : STUB_CATEGORIES;
   if (categories.length === 0) {
+    if (!isActive()) throw new Error('Vault session is locked');
     await categoryRepository.replace(STUB_CATEGORIES);
   }
+
+  if (!isActive()) throw new Error('Vault session is locked');
 
   useTransactionsStore.setState({ transactions });
   useRulesStore.setState({ rules });

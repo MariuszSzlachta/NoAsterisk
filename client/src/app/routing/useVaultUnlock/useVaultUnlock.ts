@@ -2,31 +2,34 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { hydrateFinancialStores } from '#app/providers/hydrate-financial-stores';
+import { vaultUnlockPolicy } from '#app/routing/useVaultUnlock/vault-unlock-policy';
+import { shouldResetVaultUnlockAttempt } from '#app/routing/useVaultUnlock/vault-unlock-state';
+import { parseVaultPayload } from '#features/user-settings/model/parse-vault-payload';
 import {
   encryptedPersistence,
   type PersistenceSessionSnapshot,
 } from '#shared/adapters/persistence';
 import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
+import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
 import { recoveryCode as recoveryCodeProtocol } from '#shared/adapters/vault-protocol/recovery-code';
 import { recoveryQr } from '#shared/adapters/vault-protocol/recovery-qr';
-import { unlockCoordinator } from '#shared/adapters/vault-protocol/unlock-coordinator';
-import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
-import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
-import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import {
   trustedDeviceEnrollment,
   type TrustedDeviceRequest,
 } from '#shared/adapters/vault-protocol/trusted-device-enrollment';
 import { trustedDeviceQr } from '#shared/adapters/vault-protocol/trusted-device-qr';
 import { trustedDeviceTransfer } from '#shared/adapters/vault-protocol/trusted-device-transfer';
-import { vaultPasskeyCeremony } from '#shared/adapters/webauthn/vault-passkey-ceremony';
+import { unlockCoordinator } from '#shared/adapters/vault-protocol/unlock-coordinator';
+import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
+import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
+import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
+import { vaultPasskeyCeremony } from '#shared/adapters/webauthn/vault-passkey-ceremony';
 import { issueServerShare } from '#shared/api/vault-protocol/issue-server-share';
+import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
 import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
-import { vaultEnrollment } from '#shared/api/vault-protocol/vault-enrollment';
 import { vaultDevices } from '#shared/api/vault-protocol/vault-devices';
-import { vaultUnlockPolicy } from '#app/routing/useVaultUnlock/vault-unlock-policy';
-import { shouldResetVaultUnlockAttempt } from '#app/routing/useVaultUnlock/vault-unlock-state';
+import { vaultEnrollment } from '#shared/api/vault-protocol/vault-enrollment';
 
 interface VaultUnlockState {
   readonly error: string | undefined;
@@ -156,7 +159,8 @@ const unlockFromBootstrap = async (
     ...(localShare === undefined ? {} : { localShare }),
     serverShare,
     envelope: JSON.parse(envelopeValue),
-    context: credentialId === undefined ? context : { ...context, credentialId },
+    context:
+      credentialId === undefined ? context : { ...context, credentialId },
     ...(prfKey === undefined ? {} : { prfKey }),
   });
   try {
@@ -255,6 +259,41 @@ const recoverWithCode = async (
 ): Promise<void> => {
   const vmk = await recoveryCodeProtocol.restore(code);
   try {
+    if (
+      bootstrap.status === 'available' &&
+      bootstrap.vaultId !== undefined &&
+      bootstrap.keyId !== undefined
+    ) {
+      const remote = await syncSnapshotApi.get(bootstrap.vaultId);
+      if (remote.status !== 'available' || remote.snapshot === undefined)
+        throw new Error('Recovery authority is unavailable');
+      const context = {
+        accountId,
+        workspaceId,
+        vaultId: bootstrap.vaultId,
+        keyId: bootstrap.keyId,
+        deviceId: bootstrap.deviceId,
+      };
+      const keys = await vaultProtocol.deriveKeys(vmk, context);
+      const senderKey = await deviceSigningKey.importPublicJwk(
+        JSON.parse(remote.snapshot.signingPublicKey),
+      );
+      const plaintext = await opaqueSyncSnapshot.openEnvelope(
+        {
+          header: JSON.parse(remote.snapshot.header),
+          ciphertext: remote.snapshot.ciphertext,
+          signature: remote.snapshot.signature,
+        },
+        context,
+        keys.sync,
+        senderKey,
+        {
+          revision: Math.max(0, remote.snapshot.revision - 1),
+          envelopeHash: remote.snapshot.previousEnvelopeHash,
+        },
+      );
+      parseVaultPayload(plaintext);
+    }
     await enrollVmk(accountId, workspaceId, bootstrap, vmk);
   } finally {
     vmk.fill(0);
@@ -268,6 +307,7 @@ export const useVaultUnlock = (
 ): VaultUnlockState => {
   const { t } = useTranslation();
   const attempted = useRef(false);
+  const flowGeneration = useRef(0);
   const attemptedContext = useRef(`${accountId}:${workspaceId}`);
   const [error, setError] = useState<string | undefined>();
   const [isUnlocking, setIsUnlocking] = useState(false);
@@ -295,13 +335,20 @@ export const useVaultUnlock = (
   >(undefined);
 
   const unlock = useCallback(async (): Promise<void> => {
+    const startedGeneration = flowGeneration.current;
+    const assertCurrent = (): void => {
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Vault unlock flow was cancelled');
+    };
     const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
+    assertCurrent();
     setBootstrap(currentBootstrap);
     if (currentBootstrap.status !== 'available') {
       setRequiresRecovery(true);
       throw new Error('Recovery is required');
     }
     await unlockFromBootstrap(accountId, workspaceId, currentBootstrap);
+    assertCurrent();
   }, [accountId, bootstrap, workspaceId]);
 
   const handleRetry = useCallback((): void => {
@@ -318,7 +365,10 @@ export const useVaultUnlock = (
     setIsUnlocking(true);
     setError(undefined);
     void (async () => {
+      const startedGeneration = flowGeneration.current;
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Vault recovery flow was cancelled');
       setBootstrap(currentBootstrap);
       await recoverWithCode(
         accountId,
@@ -326,6 +376,8 @@ export const useVaultUnlock = (
         currentBootstrap,
         recoveryCode,
       );
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Vault recovery flow was cancelled');
       setRecoveryCode('');
       setRequiresRecovery(false);
     })()
@@ -337,11 +389,16 @@ export const useVaultUnlock = (
     if (isUnlocking) return;
     setError(undefined);
     void (async () => {
+      const startedGeneration = flowGeneration.current;
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
       setBootstrap(currentBootstrap);
       if (currentBootstrap.status !== 'empty')
         throw new Error('Vault already exists');
       const created = await recoveryCodeProtocol.create();
+      if (flowGeneration.current !== startedGeneration) {
+        created.vmk.fill(0);
+        throw new Error('Vault setup flow was cancelled');
+      }
       pendingSetup.current = created;
       setRecoverySetupCode(created.code);
     })().catch(() => setError(t('vaultUnlock.errors.setupFailed')));
@@ -353,8 +410,11 @@ export const useVaultUnlock = (
     setIsUnlocking(true);
     setError(undefined);
     void (async () => {
+      const startedGeneration = flowGeneration.current;
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
       await enrollVmk(accountId, workspaceId, currentBootstrap, pending.vmk);
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Vault setup flow was cancelled');
       pending.vmk.fill(0);
       pendingSetup.current = undefined;
       setRecoverySetupCode(undefined);
@@ -386,6 +446,7 @@ export const useVaultUnlock = (
     if (isUnlocking) return;
     setTrustedDeviceError(undefined);
     void (async () => {
+      const startedGeneration = flowGeneration.current;
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
       setBootstrap(currentBootstrap);
       if (
@@ -394,6 +455,8 @@ export const useVaultUnlock = (
       )
         throw new Error('Trusted-device enrollment is unavailable');
       const devices = await vaultDevices.list();
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Trusted-device flow was cancelled');
       const trusted = devices.find(
         (device) =>
           device.deviceId !== currentBootstrap.deviceId &&
@@ -414,6 +477,8 @@ export const useVaultUnlock = (
       } as const;
       const created = await trustedDeviceEnrollment.createRequest(context);
       const requestQr = await trustedDeviceQr.render(created.request);
+      if (flowGeneration.current !== startedGeneration)
+        throw new Error('Trusted-device flow was cancelled');
       const signingPublicKey: unknown = JSON.parse(trusted.signingPublicKey);
       if (!trustedDeviceEnrollment.isP256PublicJwk(signingPublicKey))
         throw new Error('Invalid trusted device signing key');
@@ -426,7 +491,9 @@ export const useVaultUnlock = (
       setTrustedDeviceFlow('show-request');
     })().catch((error: unknown) => {
       setTrustedDeviceError(
-        error instanceof Error ? error.message : 'Trusted-device enrollment failed',
+        error instanceof Error
+          ? error.message
+          : 'Trusted-device enrollment failed',
       );
     });
   }, [accountId, bootstrap, isUnlocking, workspaceId]);
@@ -445,7 +512,9 @@ export const useVaultUnlock = (
       setTrustedDeviceError(undefined);
       void (async () => {
         const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
-        const response = trustedDeviceEnrollment.parseResponse(trustedDeviceQr.parse(value));
+        const response = trustedDeviceEnrollment.parseResponse(
+          trustedDeviceQr.parse(value),
+        );
         const vmk = await trustedDeviceTransfer.restoreApproval(
           response,
           pending.request,
@@ -476,7 +545,8 @@ export const useVaultUnlock = (
           );
         })
         .finally(() => setIsUnlocking(false));
-    }, [accountId, bootstrap, isUnlocking, workspaceId],
+    },
+    [accountId, bootstrap, isUnlocking, workspaceId],
   );
 
   const handleCancelTrustedDeviceEnrollment = useCallback((): void => {
@@ -490,31 +560,28 @@ export const useVaultUnlock = (
     setTrustedDeviceError(message);
   }, []);
 
-  useEffect(
-    () => {
-      let active = true;
-      setRecoverySetupQrSvg(undefined);
-      setTrustedDeviceRequestQrSvg(undefined);
-      setTrustedDeviceError(undefined);
-      setTrustedDeviceFlow('idle');
-      trustedDeviceRequest.current = undefined;
-      if (recoverySetupCode === undefined) return;
+  useEffect(() => {
+    let active = true;
+    setRecoverySetupQrSvg(undefined);
+    setTrustedDeviceRequestQrSvg(undefined);
+    setTrustedDeviceError(undefined);
+    setTrustedDeviceFlow('idle');
+    trustedDeviceRequest.current = undefined;
+    if (recoverySetupCode === undefined) return;
 
-      void recoveryQr
-        .render(recoverySetupCode)
-        .then((svg) => {
-          if (active) setRecoverySetupQrSvg(svg);
-        })
-        .catch(() => {
-          if (active) setRecoverySetupQrSvg(undefined);
-        });
+    void recoveryQr
+      .render(recoverySetupCode)
+      .then((svg) => {
+        if (active) setRecoverySetupQrSvg(svg);
+      })
+      .catch(() => {
+        if (active) setRecoverySetupQrSvg(undefined);
+      });
 
-      return () => {
-        active = false;
-      };
-    },
-    [recoverySetupCode],
-  );
+    return () => {
+      active = false;
+    };
+  }, [recoverySetupCode]);
 
   useEffect(
     () => () => {
@@ -523,6 +590,13 @@ export const useVaultUnlock = (
     },
     [],
   );
+
+  useEffect(() => {
+    flowGeneration.current += 1;
+    return () => {
+      flowGeneration.current += 1;
+    };
+  }, [accountId, workspaceId]);
 
   useEffect(() => {
     const nextContext = `${accountId}:${workspaceId}`;

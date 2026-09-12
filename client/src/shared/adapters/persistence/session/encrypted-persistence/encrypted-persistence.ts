@@ -36,6 +36,7 @@ import {
 } from '#shared/adapters/persistence/session/session-types';
 import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
+import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 
 export const createEncryptedPersistence = (
   database: BudgetDatabase = encryptedDatabase,
@@ -43,29 +44,10 @@ export const createEncryptedPersistence = (
   const generateSigningKeyPair = async (): Promise<CryptoKeyPair> => {
     const generated = await crypto.subtle.generateKey(
       { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
+      false,
       ['sign', 'verify'],
     );
-    const privateJwk = await crypto.subtle.exportKey(
-      'jwk',
-      generated.privateKey,
-    );
-    const publicJwk = await crypto.subtle.exportKey('jwk', generated.publicKey);
-    const privateKey = await crypto.subtle.importKey(
-      'jwk',
-      privateJwk,
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      false,
-      ['sign'],
-    );
-    const publicKey = await crypto.subtle.importKey(
-      'jwk',
-      publicJwk,
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
-      ['verify'],
-    );
-    return { privateKey, publicKey };
+    return { privateKey: generated.privateKey, publicKey: generated.publicKey };
   };
   const databaseLock = createDatabaseLock();
   const session = createPersistenceSnapshot();
@@ -95,6 +77,7 @@ export const createEncryptedPersistence = (
     | undefined;
   const channel = createPersistenceChannel(() => {
     generation += 1;
+    passkeyUnlockHandoff.clear();
     key = undefined;
     syncKey = undefined;
     signingKey = undefined;
@@ -225,6 +208,7 @@ export const createEncryptedPersistence = (
       return;
     }
     generation += 1;
+    passkeyUnlockHandoff.clear();
     key = undefined;
     syncKey = undefined;
     signingKey = undefined;
@@ -288,6 +272,7 @@ export const createEncryptedPersistence = (
         vaultContext,
         databaseLock,
         () => generation === activeGeneration,
+        () => persistenceSyncMetadata.markDirty(),
       );
     }
     return createEncryptedDexieRepository(
@@ -408,7 +393,7 @@ export const createEncryptedPersistence = (
       readonly keyId: string;
       readonly deviceId: string;
     },
-    hydrate?: () => Promise<void>,
+    hydrate?: (isActive: () => boolean) => Promise<void>,
   ): Promise<void> => {
     const unlockGeneration = ++generation;
     session.setSnapshot({
@@ -478,6 +463,7 @@ export const createEncryptedPersistence = (
             keyId: existingMetadata.pendingRotation.nextKeyId,
           };
           effectiveVaultKeys = {
+            vmk: pendingVmk.slice(),
             ...(await vaultProtocol.deriveKeys(
               pendingVmk,
               nextRotationContext,
@@ -489,8 +475,8 @@ export const createEncryptedPersistence = (
               ? {}
               : { signingKeyPair: vaultKeys.signingKeyPair }),
           };
-          pendingVmk.fill(0);
           effectiveContext = nextRotationContext;
+          pendingVmk.fill(0);
         }
         if (existingMetadata !== undefined) {
           await vaultProtocol.verifySentinel(
@@ -508,6 +494,8 @@ export const createEncryptedPersistence = (
           existingMetadata?.signingKeyPair ??
           effectiveVaultKeys.signingKeyPair ??
           (await generateSigningKeyPair());
+        if (generation !== unlockGeneration)
+          throw createPersistenceLockedError();
         key = effectiveVaultKeys.local;
         syncKey = effectiveVaultKeys.sync;
         signingKey = signingKeyPair.privateKey;
@@ -517,6 +505,8 @@ export const createEncryptedPersistence = (
         vaultContext = effectiveContext;
         activeGeneration = unlockGeneration;
         if (existingMetadata === undefined) {
+          if (generation !== unlockGeneration)
+            throw createPersistenceLockedError();
           await database.metadata.put({
             id: 'vault',
             protocolVersion: 2,
@@ -536,6 +526,8 @@ export const createEncryptedPersistence = (
             ),
           });
         } else {
+          if (generation !== unlockGeneration)
+            throw createPersistenceLockedError();
           const {
             localShare: _existingLocalShare,
             ...metadataWithoutLocalShare
@@ -550,7 +542,12 @@ export const createEncryptedPersistence = (
         }
       });
       if (generation !== unlockGeneration) throw createPersistenceLockedError();
-      if (hydrate !== undefined) await hydrate();
+      if (hydrate !== undefined)
+        await hydrate(
+          () =>
+            generation === unlockGeneration &&
+            activeGeneration === unlockGeneration,
+        );
       if (generation !== unlockGeneration) throw createPersistenceLockedError();
       session.setSnapshot({
         status: 'unlocked',
@@ -559,6 +556,8 @@ export const createEncryptedPersistence = (
       });
       channel.broadcast('session-unlocked');
     } catch (error) {
+      const isCurrentUnlock = generation === unlockGeneration;
+      if (!isCurrentUnlock) throw error;
       key = undefined;
       syncKey = undefined;
       signingKey = undefined;
@@ -628,6 +627,8 @@ export const createEncryptedPersistence = (
         throw createPersistenceLockedError();
       key = vaultKeys.local;
       syncKey = vaultKeys.sync;
+      clearActiveVmk();
+      if (rotation !== undefined) activeVmk = rotation.nextVmk.slice();
       vaultContext = context;
       persistenceSyncMetadata.resetForRotation();
     });
@@ -716,6 +717,7 @@ export const createEncryptedPersistence = (
 
   const lock = (): void => {
     generation += 1;
+    passkeyUnlockHandoff.clear();
     key = undefined;
     syncKey = undefined;
     signingKey = undefined;
@@ -736,6 +738,7 @@ export const createEncryptedPersistence = (
 
   const failClosed = (error: unknown): void => {
     generation += 1;
+    passkeyUnlockHandoff.clear();
     key = undefined;
     syncKey = undefined;
     signingKey = undefined;
@@ -796,14 +799,45 @@ export const createEncryptedPersistence = (
     await databaseLock(async () => {
       const currentKey = requireKey();
       if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
-        await Promise.all(
-          writes.map((write) =>
-            repository(
-              write.collection,
-              isObjectRecord,
-              getPersistenceRecordId,
-            ).replace(write.records),
-          ),
+        const vaultDatabase = activeVaultDatabase;
+        const context = vaultContext;
+        const encryptedWrites = await Promise.all(
+          writes.map(async (write) => ({
+            collection: write.collection,
+            records: await Promise.all(
+              write.records.map(async (record) => {
+                const id = getPersistenceRecordId(record);
+                const envelope = await vaultProtocol.encryptRecord(
+                  JSON.stringify(record),
+                  { ...context, collection: write.collection, recordId: id },
+                  currentKey,
+                );
+                return {
+                  id,
+                  collection: write.collection,
+                  header: envelope.header,
+                  ciphertext: envelope.ciphertext,
+                  updatedAt: Date.now(),
+                };
+              }),
+            ),
+          })),
+        );
+        if (generation !== activeGeneration) throw createPersistenceLockedError();
+        await vaultDatabase.transaction(
+          'rw',
+          vaultDatabase.records,
+          async () => {
+            if (generation !== activeGeneration)
+              throw createPersistenceLockedError();
+            for (const write of encryptedWrites) {
+              await vaultDatabase.records
+                .where('collection')
+                .equals(write.collection)
+                .delete();
+              await vaultDatabase.records.bulkPut(write.records);
+            }
+          },
         );
         persistenceSyncMetadata.markDirty();
         return;
@@ -919,25 +953,48 @@ export const createEncryptedPersistence = (
     putManyIfAbsentWithRelated,
     deleteMatchingRecords: async (deletions) => {
       if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+        const vaultDatabase = activeVaultDatabase;
+        const context = vaultContext;
         await databaseLock(async () => {
-          await Promise.all(
-            deletions.map(async (deletion) => {
-              const records = await repository(
-                deletion.collection,
-                deletion.validator,
-                getPersistenceRecordId,
-              ).getAll();
-              const matching = records.filter(deletion.shouldDelete);
-              await Promise.all(
-                matching.map((record) =>
-                  repository(
-                    deletion.collection,
-                    deletion.validator,
-                    getPersistenceRecordId,
-                  ).delete(getPersistenceRecordId(record)),
-                ),
-              );
-            }),
+          const keysToDelete: Array<[string, string]> = (
+            await Promise.all(
+              deletions.map(async (deletion) => {
+                const envelopes = await vaultDatabase.records
+                  .where('collection')
+                  .equals(deletion.collection)
+                  .toArray();
+                const records = await Promise.all(
+                  envelopes.map(async (envelope) => {
+                    const plaintext = await vaultProtocol.decryptRecord(
+                      { header: envelope.header, ciphertext: envelope.ciphertext },
+                      {
+                        ...context,
+                        collection: deletion.collection,
+                        recordId: envelope.id,
+                      },
+                      requireKey(),
+                    );
+                    const parsed: unknown = JSON.parse(plaintext);
+                    if (!deletion.validator(parsed))
+                      throw new Error('Vault record validation failed');
+                    return { id: envelope.id, value: parsed };
+                  }),
+                );
+                return records
+                  .filter((record) => deletion.shouldDelete(record.value))
+                  .map((record) => [deletion.collection, record.id] as [string, string]);
+              }),
+            )
+          ).flat();
+          if (generation !== activeGeneration) throw createPersistenceLockedError();
+          await vaultDatabase.transaction(
+            'rw',
+            vaultDatabase.records,
+            async () => {
+              if (generation !== activeGeneration)
+                throw createPersistenceLockedError();
+              await vaultDatabase.records.bulkDelete(keysToDelete);
+            },
           );
         });
         persistenceSyncMetadata.markDirty();

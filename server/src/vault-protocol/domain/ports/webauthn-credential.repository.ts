@@ -15,6 +15,8 @@ export interface StoredWebauthnCredential {
   readonly counter: number;
   readonly transports: ReadonlyArray<string>;
   readonly supportsPrf: boolean;
+  readonly credentialDeviceType?: 'singleDevice' | 'multiDevice';
+  readonly credentialBackedUp?: boolean;
   readonly revokedAt?: Date;
 }
 
@@ -25,6 +27,8 @@ export interface CreateWebauthnCredential {
   readonly counter: number;
   readonly transports: ReadonlyArray<string>;
   readonly supportsPrf: boolean;
+  readonly credentialDeviceType?: 'singleDevice' | 'multiDevice';
+  readonly credentialBackedUp?: boolean;
 }
 
 export interface WebauthnCredentialRepository {

@@ -46,10 +46,10 @@ describe('legacy financial-data cutover', () => {
 
     expect(result.status).toBe('completed');
     expect(storage.values.get('legacy-sync')).toBeUndefined();
-    expect(storage.values.get('budgetflow-v2-cutover-marker')).toBe(
+    expect(storage.values.get('budgetflow-v2-cutover-marker:default')).toBe(
       'v2-reset-complete',
     );
-    expect(storage.broadcast).toHaveBeenCalledWith('budgetflow-v2-reset');
+    expect(storage.broadcast).toHaveBeenCalledWith({ type: 'database-deleting' });
     expect(await indexedDB.databases()).not.toContainEqual(
       expect.objectContaining({ name: databaseName }),
     );
@@ -58,7 +58,7 @@ describe('legacy financial-data cutover', () => {
   it('is idempotent and does not touch unrelated storage', async () => {
     const storage = buildStorage();
     storage.values.set('unrelated', 'keep');
-    storage.values.set('budgetflow-v2-cutover-marker', 'v2-reset-complete');
+    storage.values.set('budgetflow-v2-cutover-marker:default', 'v2-reset-complete');
 
     const result = await performLegacyCutover(
       ['not-created'],
@@ -92,7 +92,7 @@ describe('legacy financial-data cutover', () => {
       deletedDatabases: ['legacy-db'],
       deletedStorageKeys: ['legacy-key'],
     });
-    expect(storage.values.get('budgetflow-v2-cutover-marker')).toBeUndefined();
+    expect(storage.values.get('budgetflow-v2-cutover-marker:default')).toBeUndefined();
     expect(storage.broadcast).not.toHaveBeenCalled();
   });
 
@@ -126,7 +126,7 @@ describe('legacy financial-data cutover', () => {
       }),
     ).rejects.toThrow('Legacy database deletion failed');
     expect(lockOnFailure).toHaveBeenCalledOnce();
-    expect(values.get('budgetflow-v2-cutover-marker')).toBeUndefined();
+    expect(values.get('budgetflow-v2-cutover-marker:default')).toBeUndefined();
     expect(values.get('legacy-restore-a-key')).toBeUndefined();
 
     const retryStorage = {
@@ -150,7 +150,7 @@ describe('legacy financial-data cutover', () => {
       performLegacyCutover(['legacy-restore-a-db'], ['legacy-restore-a-key'], retryStorage),
     ).resolves.toMatchObject({ status: 'completed' });
     expect(values.get('legacy-restore-a-key')).toBeUndefined();
-    expect(values.get('budgetflow-v2-cutover-marker')).toBe('v2-reset-complete');
+    expect(values.get('budgetflow-v2-cutover-marker:default')).toBe('v2-reset-complete');
   });
 
   it('rehearses two isolated restore inventories without sharing markers or control-plane data', async () => {
@@ -186,7 +186,7 @@ describe('legacy financial-data cutover', () => {
       ).resolves.toMatchObject({ status: 'completed' });
       expect(restore.values.get('control-plane')).toBe('preserve');
       expect(restore.values.get('legacy-financial')).toBeUndefined();
-      expect(restore.values.get('budgetflow-v2-cutover-marker')).toBe(
+      expect(restore.values.get('budgetflow-v2-cutover-marker:default')).toBe(
         'v2-reset-complete',
       );
     }

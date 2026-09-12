@@ -84,6 +84,13 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
       );
       if (initiator === undefined)
         throw new NotFoundException('Vault device not found');
+      if (
+        initiator.status === 'high-security' &&
+        request.envelopePurpose !== 'passkey-wrap'
+      )
+        throw new ConflictException(
+          'High-security rotation requires passkey PRF',
+        );
       const otherDevices = devices.filter(
         (device) => device.id !== initiator.id,
       );

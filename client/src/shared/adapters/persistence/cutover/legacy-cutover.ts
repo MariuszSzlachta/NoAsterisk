@@ -1,6 +1,5 @@
-const CUTOVER_MARKER_KEY = 'budgetflow-v2-cutover-marker';
+const CUTOVER_MARKER_KEY_PREFIX = 'budgetflow-v2-cutover-marker';
 const CUTOVER_MARKER = 'v2-reset-complete';
-const RESET_EVENT = 'budgetflow-v2-reset';
 
 interface LegacyDatabaseFactory {
   readonly deleteDatabase: (name: string) => IDBOpenDBRequest;
@@ -10,7 +9,7 @@ interface LegacyDatabaseFactory {
 interface CutoverStorage {
   readonly indexedDb: LegacyDatabaseFactory;
   readonly localStorage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
-  readonly broadcast: (message: string) => void;
+  readonly broadcast: (message: { readonly type: 'database-deleting' }) => void;
 }
 
 interface CutoverResult {
@@ -20,6 +19,9 @@ interface CutoverResult {
 }
 
 interface CutoverOptions {
+  readonly scope?: string;
+  readonly allowlistedDatabaseNames?: ReadonlyArray<string>;
+  readonly allowlistedStorageKeys?: ReadonlyArray<string>;
   readonly dryRun?: boolean;
   /**
    * The caller must keep the application locked while the destructive
@@ -60,6 +62,9 @@ const verifyDeleted = async (
   }
 };
 
+const getMarkerKey = (scope: string): string =>
+  `${CUTOVER_MARKER_KEY_PREFIX}:${scope}`;
+
 const performLegacyCutover = async (
   databaseNames: ReadonlyArray<string>,
   storageKeys: ReadonlyArray<string>,
@@ -70,15 +75,20 @@ const performLegacyCutover = async (
       if (typeof BroadcastChannel === 'undefined') {
         return;
       }
-      const channel = new BroadcastChannel('budgetflow-persistence');
-      channel.postMessage(message);
+      const channel = new BroadcastChannel('budgetflow-encrypted-persistence');
+      channel.postMessage({ type: message.type });
       channel.close();
     },
   },
   options: CutoverOptions = {},
 ): Promise<CutoverResult> => {
   try {
-    if (storage.localStorage.getItem(CUTOVER_MARKER_KEY) === CUTOVER_MARKER) {
+    const scope = options.scope ?? 'default';
+    if (!/^[a-zA-Z0-9_-]+$/.test(scope)) {
+      throw new Error('Legacy cutover scope is invalid');
+    }
+    const markerKey = getMarkerKey(scope);
+    if (storage.localStorage.getItem(markerKey) === CUTOVER_MARKER) {
       return {
         status: 'already-completed',
         deletedDatabases: [],
@@ -86,11 +96,24 @@ const performLegacyCutover = async (
       };
     }
     const names = databaseNames.filter(
-      (name, index, values) => name.length > 0 && values.indexOf(name) === index,
+      (name, index, values) =>
+        name.length > 0 && values.indexOf(name) === index,
     );
     const keys = storageKeys.filter(
       (key, index, values) => key.length > 0 && values.indexOf(key) === index,
     );
+    if (
+      options.allowlistedDatabaseNames !== undefined &&
+      names.some((name) => !options.allowlistedDatabaseNames?.includes(name))
+    ) {
+      throw new Error('Legacy database is not allowlisted');
+    }
+    if (
+      options.allowlistedStorageKeys !== undefined &&
+      keys.some((key) => !options.allowlistedStorageKeys?.includes(key))
+    ) {
+      throw new Error('Legacy storage key is not allowlisted');
+    }
     if (
       [...names, ...keys].some(
         (value) =>
@@ -106,13 +129,13 @@ const performLegacyCutover = async (
         deletedStorageKeys: keys,
       };
     }
-    storage.broadcast(RESET_EVENT);
+    storage.broadcast({ type: 'database-deleting' });
     await Promise.all(
       names.map((name) => deleteDatabase(storage.indexedDb, name)),
     );
     await verifyDeleted(storage.indexedDb, names);
     keys.forEach((key) => storage.localStorage.removeItem(key));
-    storage.localStorage.setItem(CUTOVER_MARKER_KEY, CUTOVER_MARKER);
+    storage.localStorage.setItem(markerKey, CUTOVER_MARKER);
     return {
       status: 'completed',
       deletedDatabases: names,

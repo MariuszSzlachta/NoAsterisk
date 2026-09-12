@@ -5,7 +5,7 @@ export interface PersistenceSyncMetadataService {
   readonly get: () => PersistenceSyncMetadata;
   readonly subscribe: (listener: () => void) => () => void;
   readonly markDirty: () => void;
-  readonly markSynced: (revision: number, syncedAt: string, envelopeHash?: string) => void;
+  readonly markSynced: (revision: number, syncedAt: string, envelopeHash?: string, coveredMutationVersion?: number) => void;
   readonly rememberRevision: (revision: number, envelopeHash?: string) => void;
   readonly resetForRotation: () => void;
 }

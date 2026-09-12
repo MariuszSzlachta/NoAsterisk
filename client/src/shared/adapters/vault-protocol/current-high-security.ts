@@ -21,9 +21,14 @@ const enable = async (recoveryCode: string): Promise<void> => {
   };
   const localShare = await encryptedPersistence.readVaultLocalShare(context);
   if (localShare === undefined) throw new Error('LocalShare is unavailable');
+  const envelopeHeader = JSON.parse(bootstrap.deviceEnvelope).header;
+  const credentialId =
+    typeof envelopeHeader?.credentialId === 'string'
+      ? envelopeHeader.credentialId
+      : undefined;
+  const passkey = await vaultPasskeyCeremony.run(context, credentialId);
   const serverShare = await issueServerShare(context.deviceId);
   try {
-    const passkey = await vaultPasskeyCeremony.run(context);
     await highSecurity.enable({
       context: { ...context, credentialId: passkey.credentialId },
       localShare,
@@ -52,9 +57,14 @@ const disable = async (recoveryCode: string): Promise<void> => {
     vaultId: bootstrap.vaultId,
     keyId: bootstrap.keyId,
   };
+  const envelopeHeader = JSON.parse(bootstrap.passkeyEnvelope).header;
+  const credentialId =
+    typeof envelopeHeader?.credentialId === 'string'
+      ? envelopeHeader.credentialId
+      : undefined;
+  const passkey = await vaultPasskeyCeremony.run(context, credentialId);
   const serverShare = await issueServerShare(context.deviceId);
   try {
-    const passkey = await vaultPasskeyCeremony.run(context);
     await highSecurity.disable({
       context: { ...context, credentialId: passkey.credentialId },
       serverShare,

@@ -34,8 +34,9 @@ import {
   persistenceSyncMetadata,
 } from '#shared/adapters/persistence';
 import { currentHighSecurity } from '#shared/adapters/vault-protocol/current-high-security';
-import { passkeyUnlock } from '#shared/adapters/vault-protocol/passkey-unlock';
+import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
 import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
+import { passkeyUnlock } from '#shared/adapters/vault-protocol/passkey-unlock';
 import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { ApiError } from '#shared/api';
 import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
@@ -207,11 +208,14 @@ export const useVaultSection = (): UseVaultSectionResult => {
         const snapshot = await loadRemoteSnapshot();
         if (snapshot === undefined) throw new Error('No remote snapshot');
         const material = encryptedPersistence.requireVaultSyncMaterial();
+        const senderVerifyKey = await deviceSigningKey.importPublicJwk(
+          JSON.parse(snapshot.signingPublicKey),
+        );
         const plaintext = await opaqueSyncSnapshot.openEnvelope(
           toEnvelope(snapshot),
           material.context,
           material.syncKey,
-          material.verifyKey,
+          senderVerifyKey,
           {
             revision: syncMetadata.observedRevision ?? 0,
             envelopeHash: syncMetadata.highWaterEnvelopeHash ?? '',
@@ -281,10 +285,7 @@ export const useVaultSection = (): UseVaultSectionResult => {
     setIsChangingSecurity(true);
     void (async () => {
       const bootstrap = await vaultBootstrap.get();
-      if (
-        bootstrap.status !== 'available' ||
-        bootstrap.vaultId === undefined
-      )
+      if (bootstrap.status !== 'available' || bootstrap.vaultId === undefined)
         throw new Error('Vault is unavailable');
       await webauthnCredentials.register({
         vaultId: bootstrap.vaultId,
@@ -307,7 +308,14 @@ export const useVaultSection = (): UseVaultSectionResult => {
         ? vaultRotation.rotateWithPasskey(code)
         : vaultRotation.rotate({ recoveryCode: code })
     )
-      .then(() => addToast(t('settings.vault.rotationSuccess'), 'success'))
+      .then((result) => {
+        addToast(t('settings.vault.rotationSuccess'), 'success');
+        window.alert(
+          t('settings.vault.rotationNewRecovery', {
+            recoveryCode: result.recoveryCode,
+          }),
+        );
+      })
       .catch(() => addToast(t('settings.vault.rotationError'), 'error'))
       .finally(() => setIsRotating(false));
   };

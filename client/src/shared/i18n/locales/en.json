@@ -604,6 +604,7 @@
       "rotationChanging": "Rotating vault key…",
       "rotationRecoveryPrompt": "Enter your recovery code to confirm vault key rotation:",
       "rotationSuccess": "Vault key rotated and other devices revoked.",
+      "rotationNewRecovery": "Save this new recovery code now. It will not be shown again: {{recoveryCode}}",
       "rotationError": "Vault key rotation failed. Your data remains protected and you can retry.",
       "trustedDeviceTitle": "Trusted-device enrollment",
       "trustedDeviceDescription": "Approve a new browser by scanning its one-time request QR code. The VMK is transferred only in encrypted, signed form.",
@@ -611,6 +612,9 @@
       "trustedDeviceScanRequest": "Scan new-device request",
       "trustedDeviceResponseReady": "Show this approval QR code on the new browser.",
       "trustedDeviceStop": "Stop approval",
+      "trustedDeviceConfirm": "Review the new device before approving: {{deviceId}}",
+      "trustedDeviceConfirmAction": "Approve this device",
+      "trustedDeviceCancel": "Cancel approval",
       "trustedDeviceError": "Trusted-device approval failed. Use recovery or try again.",
       "stats": {
         "transactions": "Transactions",

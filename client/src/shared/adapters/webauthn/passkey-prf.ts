@@ -9,6 +9,7 @@ interface PasskeyPrfInput {
   readonly requirePrf?: boolean;
 }
 
+
 const toBuffer = (value: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(value.length);
   copy.set(value);
