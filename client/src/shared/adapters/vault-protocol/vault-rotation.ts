@@ -1,4 +1,5 @@
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { assertVaultSessionCurrent } from '#shared/adapters/persistence/session/assert-vault-session-current';
 import { recoveryCode as recoveryCodeProtocol } from '#shared/adapters/vault-protocol/recovery-code';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
@@ -9,17 +10,21 @@ import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 
 interface RotateVaultInput {
   readonly recoveryCode: string;
+  readonly confirmRecoveryCode: (code: string) => Promise<boolean>;
 }
 
 const rotate = async ({
   recoveryCode: code,
+  confirmRecoveryCode,
 }: RotateVaultInput): Promise<{ readonly recoveryCode: string }> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
+  const generation = encryptedPersistence.getGeneration();
   const bootstrap = await vaultBootstrap.get();
   if (
     bootstrap.status !== 'available' ||
     bootstrap.vaultId === undefined ||
-    bootstrap.keyId === undefined
+    bootstrap.keyId === undefined ||
+    bootstrap.recoveryPublicKey !== undefined
   )
     throw new Error('Vault rotation requires an enrolled device');
   const context = {
@@ -38,12 +43,22 @@ const rotate = async ({
   if (localShare === undefined)
     throw new Error('Vault rotation requires LocalShare');
   const currentVmk = await recoveryCodeProtocol.restore(code);
-  await encryptedPersistence.verifyVaultVmk(currentVmk, context);
-  const nextVmk = vaultProtocol.generateVmk();
-  const serverShare = await issueServerShare(context.deviceId);
-  const nextContext = { ...context, keyId: crypto.randomUUID() };
-  const idempotencyKey = crypto.randomUUID();
+  let nextVmk: Uint8Array | undefined;
+  let serverShare: Uint8Array | undefined;
   try {
+    await encryptedPersistence.verifyVaultVmk(currentVmk, context);
+    nextVmk = vaultProtocol.generateVmk();
+    const nextRecoveryCode = await recoveryCodeProtocol.encode(nextVmk);
+    if (!(await confirmRecoveryCode(nextRecoveryCode)))
+      throw new Error('Recovery backup was not confirmed');
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
+    serverShare = await issueServerShare(context.deviceId);
+    const nextContext = { ...context, keyId: crypto.randomUUID() };
+    const idempotencyKey = crypto.randomUUID();
     const nextKeys = await vaultProtocol.deriveKeys(nextVmk, nextContext);
     const nextWrappingKey = await vaultProtocol.deriveDeviceKey(
       localShare,
@@ -88,6 +103,11 @@ const rotate = async ({
         // is unavailable or the optional ceremony is cancelled.
       }
     }
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
     await encryptedPersistence.rotateVaultKeys(
       { ...nextKeys, localShare },
       nextContext,
@@ -99,8 +119,10 @@ const rotate = async ({
           ? {}
           : { passkeyEnvelope: nextPasskeyEnvelope }),
         nextVmk,
+        recoveryBackupConfirmed: true,
       },
     );
+    assertVaultSessionCurrent(encryptedPersistence, generation, nextContext);
     const result = await rotateVault.rotate({
       vaultId: context.vaultId,
       deviceId: context.deviceId,
@@ -115,24 +137,28 @@ const rotate = async ({
     });
     if (result.keyId !== nextContext.keyId)
       throw new Error('Vault rotation key confirmation mismatch');
+    assertVaultSessionCurrent(encryptedPersistence, generation, nextContext);
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
-    return { recoveryCode: await recoveryCodeProtocol.encode(nextVmk) };
+    return { recoveryCode: nextRecoveryCode };
   } finally {
     currentVmk.fill(0);
-    nextVmk.fill(0);
-    serverShare.fill(0);
+    nextVmk?.fill(0);
+    serverShare?.fill(0);
   }
 };
 
 const rotateWithPasskey = async (
   code: string,
+  confirmRecoveryCode: (code: string) => Promise<boolean>,
 ): Promise<{ readonly recoveryCode: string }> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
+  const generation = encryptedPersistence.getGeneration();
   const bootstrap = await vaultBootstrap.get();
   if (
     bootstrap.status !== 'available' ||
     bootstrap.vaultId === undefined ||
-    bootstrap.keyId === undefined
+    bootstrap.keyId === undefined ||
+    bootstrap.recoveryPublicKey !== undefined
   )
     throw new Error('Vault rotation requires an enrolled device');
   const context = {
@@ -148,10 +174,20 @@ const rotateWithPasskey = async (
   )
     throw new Error('Pending vault rotation must be resumed first');
   const currentVmk = await recoveryCodeProtocol.restore(code);
-  await encryptedPersistence.verifyVaultVmk(currentVmk, context);
-  const serverShare = await issueServerShare(context.deviceId);
-  const nextVmk = vaultProtocol.generateVmk();
+  let serverShare: Uint8Array | undefined;
+  let nextVmk: Uint8Array | undefined;
   try {
+    await encryptedPersistence.verifyVaultVmk(currentVmk, context);
+    nextVmk = vaultProtocol.generateVmk();
+    const nextRecoveryCode = await recoveryCodeProtocol.encode(nextVmk);
+    if (!(await confirmRecoveryCode(nextRecoveryCode)))
+      throw new Error('Recovery backup was not confirmed');
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
+    serverShare = await issueServerShare(context.deviceId);
     const passkey = await vaultPasskeyCeremony.run(context);
     const nextContext = { ...context, keyId: crypto.randomUUID() };
     const nextKeys = await vaultProtocol.deriveKeys(nextVmk, nextContext);
@@ -175,6 +211,11 @@ const rotateWithPasskey = async (
       vaultProtocolConstants.passkeyWrapPurpose,
     );
     const idempotencyKey = crypto.randomUUID();
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
     await encryptedPersistence.rotateVaultKeys(
       { ...nextKeys, localShare: null },
       nextContext,
@@ -183,8 +224,10 @@ const rotateWithPasskey = async (
         envelopePurpose: vaultProtocolConstants.passkeyWrapPurpose,
         envelope: JSON.stringify(nextEnvelope),
         nextVmk,
+        recoveryBackupConfirmed: true,
       },
     );
+    assertVaultSessionCurrent(encryptedPersistence, generation, nextContext);
     const result = await rotateVault.rotate({
       vaultId: context.vaultId,
       deviceId: context.deviceId,
@@ -196,19 +239,55 @@ const rotateWithPasskey = async (
     });
     if (result.keyId !== nextContext.keyId)
       throw new Error('Vault rotation key confirmation mismatch');
+    assertVaultSessionCurrent(encryptedPersistence, generation, nextContext);
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
-    return { recoveryCode: await recoveryCodeProtocol.encode(nextVmk) };
+    return { recoveryCode: nextRecoveryCode };
   } finally {
     currentVmk.fill(0);
-    nextVmk.fill(0);
-    serverShare.fill(0);
+    nextVmk?.fill(0);
+    serverShare?.fill(0);
   }
 };
 
-const resumePending = async (): Promise<boolean> => {
-  const pending = await encryptedPersistence.getPendingVaultRotation();
-  if (pending === undefined) return false;
+const resumePending = async (
+  confirmRecoveryCode?: (code: string) => Promise<boolean>,
+): Promise<boolean> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
+  const generation = encryptedPersistence.getGeneration();
+  const pending = await encryptedPersistence.getPendingVaultRotation();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
+  if (pending === undefined) return false;
+  const bootstrap = await vaultBootstrap.get();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
+  if (bootstrap.status !== 'empty' && bootstrap.recoveryPublicKey !== undefined)
+    throw new Error(
+      'Pending vault rotation requires recovery authority support',
+    );
+  if (material.context.keyId !== pending.nextKeyId)
+    throw new Error('Pending rotation key does not match the active vault');
+  if (pending.recoveryBackupConfirmed !== true) {
+    if (confirmRecoveryCode === undefined)
+      throw new Error('Pending rotation has no confirmed recovery backup');
+    const transfer = encryptedPersistence.getVaultTransferMaterial(
+      material.context,
+    );
+    try {
+      const code = await recoveryCodeProtocol.encode(transfer.vmk);
+      if (!(await confirmRecoveryCode(code)))
+        throw new Error('Recovery backup was not confirmed');
+      assertVaultSessionCurrent(
+        encryptedPersistence,
+        generation,
+        material.context,
+      );
+      await encryptedPersistence.confirmPendingVaultRotationBackup(
+        pending.idempotencyKey,
+      );
+    } finally {
+      transfer.vmk.fill(0);
+    }
+  }
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   const result = await rotateVault.rotate({
     vaultId: material.context.vaultId,
     deviceId: material.context.deviceId,
@@ -223,6 +302,7 @@ const resumePending = async (): Promise<boolean> => {
   });
   if (result.keyId !== pending.nextKeyId)
     throw new Error('Pending vault rotation confirmation mismatch');
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   await encryptedPersistence.clearPendingVaultRotation(pending.idempotencyKey);
   return true;
 };

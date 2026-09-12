@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Download, Lock, RefreshCw, RotateCcw, Upload } from 'lucide-react';
 
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
+import { RotationRecoveryDialog } from '#features/user-settings/ui/RotationRecoveryDialog';
+import { TrustedDeviceApproval } from '#features/user-settings/ui/TrustedDeviceApproval';
 import { STATUS_COLORS } from '#features/user-settings/ui/VaultSection/constants/status-colors';
 import { STATUS_I18N } from '#features/user-settings/ui/VaultSection/constants/status-i18n';
 import { STATUS_ICONS } from '#features/user-settings/ui/VaultSection/constants/status-icons';
 import { StatCard } from '#features/user-settings/ui/VaultSection/StatCard';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
-import { TrustedDeviceApproval } from '#features/user-settings/ui/TrustedDeviceApproval';
 
 export const VaultSection = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -32,11 +33,13 @@ export const VaultSection = (): React.JSX.Element => {
     handleEnableHighSecurity,
     handleEnablePasskeyUnlock,
     handleRotateVmk,
+    rotationRecoveryConfirmation,
   } = useVaultSection();
 
   return (
     <>
       <TrustedDeviceApproval />
+      <RotationRecoveryDialog confirmation={rotationRecoveryConfirmation} />
       <Card className="">
         <div className="mb-4">
           <h2 className="text-sm font-semibold text-foreground">
@@ -128,9 +131,7 @@ export const VaultSection = (): React.JSX.Element => {
             <Button
               variant="secondary"
               onClick={handleEnablePasskeyUnlock}
-              disabled={
-                isSyncing || isChangingSecurity || isPasskeyUnlock
-              }
+              disabled={isSyncing || isChangingSecurity || isPasskeyUnlock}
             >
               {isPasskeyUnlock
                 ? t('settings.vault.passkeyEnabledLabel')

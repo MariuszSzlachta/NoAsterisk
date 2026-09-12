@@ -1,0 +1,1 @@
+export { verifyRecoveryMessage } from './verify';

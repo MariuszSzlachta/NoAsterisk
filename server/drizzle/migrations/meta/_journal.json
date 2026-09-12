@@ -120,6 +120,13 @@
       "when": 1788978000000,
       "tag": "0016_webauthn_backup_metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1789248000000,
+      "tag": "0017_independent_recovery_authority",
+      "breakpoints": true
     }
   ]
 }

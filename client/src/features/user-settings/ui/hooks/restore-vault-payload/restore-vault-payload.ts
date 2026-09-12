@@ -1,61 +1,59 @@
-import { useRulesStore } from '#entities/rule';
-import { useTransactionsStore } from '#entities/transaction';
-import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
-import { useImportHistoryStore } from '#entities/import-batch';
+import { createVaultCollectionWrites } from '#features/user-settings/model/create-vault-collection-writes';
 import { createVaultRestorePlan } from '#features/user-settings/model/create-vault-restore-plan';
+import type { DecryptedVaultPayload } from '#features/user-settings/model/vault-payload';
 import { VaultPayloadError } from '#features/user-settings/model/vault-payload-error';
+import { captureVaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope';
 import type {
-  DecryptedVaultPayload,
-  RestorableVaultPayload,
-} from '#features/user-settings/model/vault-payload';
-import { useCategoriesStore } from '#entities/category';
+  VaultRestoreAcknowledgement,
+  VaultRestoreScope,
+} from '#features/user-settings/ui/hooks/capture-vault-restore-scope/types';
+import { publishRestoredVault } from '#features/user-settings/ui/hooks/publish-restored-vault';
 import {
-  IMPORT_HISTORY_COLLECTION,
-  TRANSACTIONS_COLLECTION,
-  type EncryptedCollectionWrite,
-} from '#shared/adapters/persistence/ports';
-import { encryptedPersistence } from '#shared/adapters/persistence/session';
-
-const toWrites = (
-  payload: RestorableVaultPayload,
-): ReadonlyArray<EncryptedCollectionWrite> => {
-  if (payload.schemaVersion === 0) {
-    return [
-      { collection: TRANSACTIONS_COLLECTION, records: payload.transactions },
-      { collection: 'rules', records: payload.rules },
-    ];
-  }
-
-  return [
-    { collection: TRANSACTIONS_COLLECTION, records: payload.transactions },
-    { collection: 'rules', records: payload.rules },
-    { collection: 'categories', records: payload.categories },
-    { collection: 'budgets', records: payload.budgets },
-    { collection: 'period-history', records: payload.periodHistory },
-    { collection: IMPORT_HISTORY_COLLECTION, records: payload.importHistory },
-  ];
-};
-
-const applyPayloadToStores = (payload: RestorableVaultPayload): void => {
-  useTransactionsStore.setState({ transactions: payload.transactions });
-  useRulesStore.setState({ rules: payload.rules });
-
-  if (payload.schemaVersion === 1) {
-    useCategoriesStore.setState({ categories: payload.categories });
-    useBudgetsStore.setState({ budgets: payload.budgets });
-    usePeriodHistoryStore.setState({ history: payload.periodHistory });
-    useImportHistoryStore.getState().setHistory(payload.importHistory);
-  }
-};
+  encryptedPersistence,
+  persistenceSyncMetadata,
+} from '#shared/adapters/persistence';
 
 export const restoreVaultPayload = async (
   payload: DecryptedVaultPayload,
+  scope: VaultRestoreScope = captureVaultRestoreScope(),
+  acknowledgement?: VaultRestoreAcknowledgement,
 ): Promise<void> => {
   const plan = createVaultRestorePlan(payload);
   if (plan === undefined) {
     throw new VaultPayloadError('Vault payload failed validation');
   }
 
-  await encryptedPersistence.replaceCollections(toWrites(plan.payload));
-  applyPayloadToStores(plan.payload);
+  scope.assertCurrent();
+  await encryptedPersistence.replaceCollections(
+    createVaultCollectionWrites(plan.payload),
+    {
+      assertCurrent: scope.assertCurrent,
+      // Publish and acknowledge before releasing the persistence write queue.
+      publish: (committedMutationVersion): void => {
+        if (
+          !encryptedPersistence.isUnlocked() ||
+          encryptedPersistence.getGeneration() !== scope.generation ||
+          committedMutationVersion !== scope.mutationVersion + 1 ||
+          persistenceSyncMetadata.get().mutationVersion !==
+            committedMutationVersion
+        )
+          throw new Error('Vault restore publication scope changed');
+        publishRestoredVault(plan.payload);
+        if (
+          !encryptedPersistence.isUnlocked() ||
+          encryptedPersistence.getGeneration() !== scope.generation ||
+          persistenceSyncMetadata.get().mutationVersion !==
+            committedMutationVersion
+        )
+          throw new Error('Vault restore publication scope changed');
+        if (acknowledgement !== undefined)
+          persistenceSyncMetadata.markSynced(
+            acknowledgement.revision,
+            acknowledgement.createdAt,
+            acknowledgement.envelopeHash,
+            committedMutationVersion,
+          );
+      },
+    },
+  );
 };

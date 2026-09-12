@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@budget/domain": "*",
+    "@noble/curves": "2.4.0",
     "@nestjs/common": "11.1.27",
     "@nestjs/core": "11.1.27",
     "@nestjs/jwt": "11.0.2",
@@ -87,10 +88,15 @@
       "^.+\\.(t|j)s$": [
         "ts-jest",
         {
-          "tsconfig": "tsconfig.json"
+          "tsconfig": {
+            "allowJs": true
+          }
         }
       ]
     },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@noble/(?:curves|hashes)/)"
+    ],
     "moduleNameMapper": {
       "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",
       "^#domain/shared/(.*)$": "<rootDir>/../../packages/domain/src/shared/$1",

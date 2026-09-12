@@ -22,20 +22,22 @@ import {
   type VaultRecords,
 } from '#features/user-settings/model/vault-payload';
 import { VaultPayloadError } from '#features/user-settings/model/vault-payload-error';
+import { captureVaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope';
+import { restoreRemoteVault } from '#features/user-settings/ui/hooks/restore-remote-vault';
 import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
+import { useRotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
 import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
 import { useCategoriesStore } from '#entities/category';
 import { useImportHistoryStore } from '#entities/import-batch';
 import { useRulesStore } from '#entities/rule';
 import { useTransactionsStore } from '#entities/transaction';
+import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,
 } from '#shared/adapters/persistence';
 import { currentHighSecurity } from '#shared/adapters/vault-protocol/current-high-security';
-import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
-import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
 import { passkeyUnlock } from '#shared/adapters/vault-protocol/passkey-unlock';
 import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { ApiError } from '#shared/api';
@@ -44,18 +46,13 @@ import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 import { webauthnCredentials } from '#shared/api/vault-protocol/webauthn-credentials';
 import { useToast } from '#shared/hooks/useToast';
 
-const toEnvelope = (snapshot: RemoteVaultSnapshot): unknown => ({
-  header: JSON.parse(snapshot.header),
-  ciphertext: snapshot.ciphertext,
-  signature: snapshot.signature,
-});
-
 export const useVaultSection = (): UseVaultSectionResult => {
   const { t } = useTranslation();
   const addToast = useToast((s) => s.addToast);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isChangingSecurity, setIsChangingSecurity] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
+  const rotationRecoveryConfirmation = useRotationRecoveryConfirmation();
   const [isHighSecurity, setIsHighSecurity] = useState(false);
   const [isPasskeyUnlock, setIsPasskeyUnlock] = useState(false);
   const [remoteSnapshot, setRemoteSnapshot] = useState<RemoteVaultSnapshot>();
@@ -123,7 +120,10 @@ export const useVaultSection = (): UseVaultSectionResult => {
                 bootstrap.passkeyEnvelope !== undefined &&
                 bootstrap.deviceEnvelope === undefined)),
         );
-        setIsPasskeyUnlock(bootstrap.passkeyEnvelope !== undefined);
+        setIsPasskeyUnlock(
+          bootstrap.status === 'available' &&
+            bootstrap.passkeyEnvelope !== undefined,
+        );
       })
       .catch(() => setIsHighSecurity(false));
   }, []);
@@ -202,42 +202,20 @@ export const useVaultSection = (): UseVaultSectionResult => {
   };
 
   const handleRestore = (): void => {
-    void (async () => {
-      setIsSyncing(true);
-      try {
-        const snapshot = await loadRemoteSnapshot();
-        if (snapshot === undefined) throw new Error('No remote snapshot');
-        const material = encryptedPersistence.requireVaultSyncMaterial();
-        const senderVerifyKey = await deviceSigningKey.importPublicJwk(
-          JSON.parse(snapshot.signingPublicKey),
-        );
-        const plaintext = await opaqueSyncSnapshot.openEnvelope(
-          toEnvelope(snapshot),
-          material.context,
-          material.syncKey,
-          senderVerifyKey,
-          {
-            revision: syncMetadata.observedRevision ?? 0,
-            envelopeHash: syncMetadata.highWaterEnvelopeHash ?? '',
-          },
-        );
-        await restoreVaultPayload(parseVaultPayload(plaintext));
-        const coveredMutationVersion =
-          persistenceSyncMetadata.get().mutationVersion;
-        persistenceSyncMetadata.markSynced(
-          snapshot.revision,
-          snapshot.createdAt,
-          snapshot.envelopeHash,
-          coveredMutationVersion,
-        );
+    if (isSyncing || isRotating || isChangingSecurity) return;
+    setIsSyncing(true);
+    void restoreRemoteVault()
+      .then(() => {
         setHasConflict(false);
         addToast(t('settings.vault.restoreSuccess'), 'success');
-      } catch {
+        void loadRemoteSnapshot();
+      })
+      .catch(() => {
         addToast(t('settings.vault.restoreError'), 'error');
-      } finally {
+      })
+      .finally(() => {
         setIsSyncing(false);
-      }
-    })();
+      });
   };
 
   const handleExport = (): void => {
@@ -306,18 +284,26 @@ export const useVaultSection = (): UseVaultSectionResult => {
     const code = window.prompt(t('settings.vault.rotationRecoveryPrompt'));
     if (code === null || code.length === 0 || isRotating || isSyncing) return;
     setIsRotating(true);
-    void (
-      isHighSecurity
-        ? vaultRotation.rotateWithPasskey(code)
-        : vaultRotation.rotate({ recoveryCode: code })
-    )
-      .then((result) => {
-        addToast(t('settings.vault.rotationSuccess'), 'success');
-        window.alert(
-          t('settings.vault.rotationNewRecovery', {
-            recoveryCode: result.recoveryCode,
-          }),
+    void (async () => {
+      if (
+        await vaultRotation.resumePending(
+          rotationRecoveryConfirmation.confirmRecoveryCode,
+        )
+      )
+        return;
+      if (isHighSecurity)
+        await vaultRotation.rotateWithPasskey(
+          code,
+          rotationRecoveryConfirmation.confirmRecoveryCode,
         );
+      else
+        await vaultRotation.rotate({
+          recoveryCode: code,
+          confirmRecoveryCode: rotationRecoveryConfirmation.confirmRecoveryCode,
+        });
+    })()
+      .then(() => {
+        addToast(t('settings.vault.rotationSuccess'), 'success');
       })
       .catch(() => addToast(t('settings.vault.rotationError'), 'error'))
       .finally(() => setIsRotating(false));
@@ -325,12 +311,15 @@ export const useVaultSection = (): UseVaultSectionResult => {
 
   const importVaultFile = async (file: File): Promise<void> => {
     try {
+      const scope = captureVaultRestoreScope();
       const text = await file.text();
+      scope.assertCurrent();
       if (new TextEncoder().encode(text).length > MAX_PLAINTEXT_VAULT_LENGTH) {
         setImportError(t('settings.vault.tooLarge'));
         return;
       }
-      await restoreVaultPayload(parseVaultPayload(text));
+      const payload = parseVaultPayload(text);
+      await vaultOperationQueue(() => restoreVaultPayload(payload, scope));
       addToast(t('settings.vault.importSuccess'), 'success');
     } catch (error) {
       setImportError(
@@ -342,6 +331,7 @@ export const useVaultSection = (): UseVaultSectionResult => {
   };
 
   return {
+    rotationRecoveryConfirmation,
     vaultInfo,
     dataStats,
     isSyncing,

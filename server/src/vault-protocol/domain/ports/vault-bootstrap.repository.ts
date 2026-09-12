@@ -8,6 +8,7 @@ export interface VaultBootstrap {
   readonly securityProfile?: 'standard' | 'high-security';
   readonly deviceEnvelope?: string;
   readonly passkeyEnvelope?: string;
+  readonly recoveryPublicKey?: string;
 }
 
 export interface VaultBootstrapRepository {

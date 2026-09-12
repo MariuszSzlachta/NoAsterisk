@@ -54,7 +54,11 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
       }
 
       const keysets = await transaction
-        .select({ keysetId: vaultKeysets.id, keyId: vaultKeysets.keyId })
+        .select({
+          keysetId: vaultKeysets.id,
+          keyId: vaultKeysets.keyId,
+          recoveryPublicKey: vaultKeysets.recoveryPublicKey,
+        })
         .from(vaultKeysets)
         .innerJoin(vaults, eq(vaultKeysets.vaultId, vaults.id))
         .where(
@@ -67,6 +71,10 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
       const keyset = keysets[0];
       if (keyset === undefined)
         throw new ConflictException('Vault key has changed');
+      if (keyset.recoveryPublicKey !== null)
+        throw new ConflictException(
+          'Vault rotation requires recovery authority support',
+        );
 
       const devices = await transaction
         .select({

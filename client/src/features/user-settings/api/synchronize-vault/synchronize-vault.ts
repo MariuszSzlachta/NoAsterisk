@@ -1,10 +1,18 @@
+import { VAULT_NETWORK_TIMEOUT_MS } from '#features/user-settings/api/constants/vault-network-timeout';
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
 import { serializeVaultPayload } from '#features/user-settings/model/vault-payload';
-import { encryptedPersistence, persistenceSyncMetadata } from '#shared/adapters/persistence';
-import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
+import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
+import {
+  encryptedPersistence,
+  persistenceSyncMetadata,
+} from '#shared/adapters/persistence';
+import { assertVaultSessionCurrent } from '#shared/adapters/persistence/session/assert-vault-session-current';
+import { assertSnapshotBinding } from '#shared/adapters/vault-protocol/assert-snapshot-binding';
 import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
-import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
+import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
 import { ApiError } from '#shared/api';
+import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
+
 import { buildVaultRecords } from './build-vault-records';
 import type { RemoteVaultSnapshot } from './types';
 
@@ -64,11 +72,15 @@ const verifyRemote = async (
   } catch {
     throw new Error('Invalid remote signing key');
   }
-  const remoteVerifyKey = await deviceSigningKey.importPublicJwk(signingPublicKey);
+  const remoteVerifyKey =
+    await deviceSigningKey.importPublicJwk(signingPublicKey);
+  await assertSnapshotBinding(toEnvelope(remote), remote);
   const metadata = persistenceSyncMetadata.get();
   if (!force) {
     if (!isRemoteCompatibleWithLocalHighWater(remote))
-      throw new Error('Remote snapshot is newer or local high-water mark is missing');
+      throw new Error(
+        'Remote snapshot is newer or local high-water mark is missing',
+      );
     await opaqueSyncSnapshot.openEnvelope(
       toEnvelope(remote),
       material.context,
@@ -105,77 +117,102 @@ export const synchronizeVault = async (
 ): Promise<VaultSyncResult> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const generation = encryptedPersistence.getGeneration();
-  const abortController = new AbortController();
-  const unsubscribe = encryptedPersistence.subscribe(() => {
-    if (
-      !encryptedPersistence.isUnlocked() ||
-      encryptedPersistence.getGeneration() !== generation
-    )
-      abortController.abort();
-  });
-  const metadata = persistenceSyncMetadata.get();
-  try {
-    const response = await syncSnapshotApi.get(
-      material.context.vaultId,
-      abortController.signal,
+  return vaultOperationQueue(async (): Promise<VaultSyncResult> => {
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
     );
-    const remote = response.status === 'available' ? response.snapshot : undefined;
-    const force = options.force === true;
-
-    if (remote !== undefined) {
-      if (!force && !isRemoteCompatibleWithLocalHighWater(remote))
-        return { status: 'conflict', snapshot: remote };
-      await verifyRemote(remote, material, force);
-    }
-
-    if (!metadata.isDirty)
-      return {
-        status: 'noop',
-        ...(remote === undefined ? {} : { snapshot: remote }),
-      };
-
-    const baseRevision = remote?.revision ?? metadata.observedRevision ?? 0;
-    const previousEnvelopeHash =
-      remote?.envelopeHash ?? metadata.highWaterEnvelopeHash ?? '';
-    if (baseRevision > 0 && previousEnvelopeHash.length === 0)
-      throw new Error('Sync high-water mark is missing');
-
-    const payload = createValidatedVaultPayload(buildVaultRecords());
-    const coveredMutationVersion =
-      persistenceSyncMetadata.get().mutationVersion;
-    const created = await opaqueSyncSnapshot.create({
-      plaintext: serializeVaultPayload(payload),
-      context: material.context,
-      revision: baseRevision + 1,
-      previousEnvelopeHash,
-      signingKey: material.signingKey,
-      syncKey: material.syncKey,
-    });
-    const nextSnapshot = await toSnapshot(material, created);
-    try {
-      const saved = await syncSnapshotApi.put(
-        nextSnapshot,
-        baseRevision,
-        abortController.signal,
-      );
+    const abortController = new AbortController();
+    const timeout = setTimeout(
+      () => abortController.abort(),
+      VAULT_NETWORK_TIMEOUT_MS,
+    );
+    const unsubscribe = encryptedPersistence.subscribe(() => {
       if (
         !encryptedPersistence.isUnlocked() ||
         encryptedPersistence.getGeneration() !== generation
       )
-        throw new Error('Vault locked during sync');
-      persistenceSyncMetadata.markSynced(
-        saved.revision,
-        nextSnapshot.createdAt,
-        saved.envelopeHash,
-        coveredMutationVersion,
+        abortController.abort();
+    });
+    const metadata = persistenceSyncMetadata.get();
+    try {
+      const response = await syncSnapshotApi.get(
+        material.context.vaultId,
+        abortController.signal,
       );
-      return { status: 'saved', snapshot: nextSnapshot };
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 409)
-        return { status: 'conflict', snapshot: remote };
-      throw error;
+      const remote =
+        response.status === 'available' ? response.snapshot : undefined;
+      const force = options.force === true;
+
+      if (remote !== undefined) {
+        if (!force && !isRemoteCompatibleWithLocalHighWater(remote))
+          return { status: 'conflict', snapshot: remote };
+        await verifyRemote(remote, material, force);
+      }
+
+      if (!metadata.isDirty)
+        return {
+          status: 'noop',
+          ...(remote === undefined ? {} : { snapshot: remote }),
+        };
+
+      const baseRevision = remote?.revision ?? metadata.observedRevision ?? 0;
+      const previousEnvelopeHash =
+        remote?.envelopeHash ?? metadata.highWaterEnvelopeHash ?? '';
+      if (baseRevision > 0 && previousEnvelopeHash.length === 0)
+        throw new Error('Sync high-water mark is missing');
+
+      const payload = createValidatedVaultPayload(buildVaultRecords());
+      const coveredMutationVersion =
+        persistenceSyncMetadata.get().mutationVersion;
+      const created = await opaqueSyncSnapshot.create({
+        plaintext: serializeVaultPayload(payload),
+        context: material.context,
+        revision: baseRevision + 1,
+        previousEnvelopeHash,
+        signingKey: material.signingKey,
+        syncKey: material.syncKey,
+      });
+      const nextSnapshot = await toSnapshot(material, created);
+      assertVaultSessionCurrent(
+        encryptedPersistence,
+        generation,
+        material.context,
+      );
+      try {
+        const saved = await syncSnapshotApi.put(
+          nextSnapshot,
+          baseRevision,
+          abortController.signal,
+        );
+        if (
+          saved.revision !== nextSnapshot.revision ||
+          saved.envelopeHash !== nextSnapshot.envelopeHash
+        )
+          throw new Error(
+            'Sync acknowledgement does not match the uploaded snapshot',
+          );
+        assertVaultSessionCurrent(
+          encryptedPersistence,
+          generation,
+          material.context,
+        );
+        persistenceSyncMetadata.markSynced(
+          saved.revision,
+          nextSnapshot.createdAt,
+          saved.envelopeHash,
+          coveredMutationVersion,
+        );
+        return { status: 'saved', snapshot: nextSnapshot };
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 409)
+          return { status: 'conflict', snapshot: remote };
+        throw error;
+      }
+    } finally {
+      clearTimeout(timeout);
+      unsubscribe();
     }
-  } finally {
-    unsubscribe();
-  }
+  });
 };

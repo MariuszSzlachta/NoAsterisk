@@ -8,6 +8,7 @@ import type {
   EncryptedWriteResult,
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
+import type { CollectionReplacementPublication } from '#shared/adapters/persistence/ports/collection-replacement-publication';
 
 type PersistenceSessionStatus = 'locked' | 'unlocking' | 'unlocked' | 'error';
 type PersistentStorageStatus = 'unknown' | 'granted' | 'denied' | 'unavailable';
@@ -121,6 +122,7 @@ interface EncryptedPersistence {
       readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
       readonly envelope: string;
       readonly nextVmk: Uint8Array;
+      readonly recoveryBackupConfirmed: true;
     },
   ) => Promise<void>;
   readonly verifyVaultVmk: (
@@ -144,6 +146,10 @@ interface EncryptedPersistence {
   }) => Promise<void>;
   readonly replaceCollections: (
     writes: ReadonlyArray<EncryptedCollectionWrite>,
+    publication?: CollectionReplacementPublication,
+  ) => Promise<void>;
+  readonly confirmPendingVaultRotationBackup: (
+    idempotencyKey: string,
   ) => Promise<void>;
   readonly putManyIfAbsentWithRelated: <
     TRecord extends object,

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiClient } from '#shared/api';
-import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 import { vaultDeviceId } from '#shared/api/vault-protocol/device-id';
+import { getVaultBootstrap } from '#shared/api/vault-protocol/get-vault-bootstrap';
 
 vi.mock('#shared/api', () => ({ apiClient: { get: vi.fn() } }));
 vi.mock('#shared/api/vault-protocol/device-id', () => ({
@@ -19,7 +19,9 @@ describe('vaultBootstrap', () => {
       protocolVersion: 2,
       cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
     });
-    await expect(vaultBootstrap.get()).resolves.toMatchObject({ status: 'enrollment-required' });
+    await expect(getVaultBootstrap()).resolves.toMatchObject({
+      status: 'enrollment-required',
+    });
     expect(vaultDeviceId.get).toHaveBeenCalled();
   });
 
@@ -33,6 +35,6 @@ describe('vaultBootstrap', () => {
       cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       deviceEnvelope: 'opaque',
     });
-    await expect(vaultBootstrap.get()).rejects.toThrow();
+    await expect(getVaultBootstrap()).rejects.toThrow();
   });
 });

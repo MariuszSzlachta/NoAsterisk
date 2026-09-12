@@ -1,0 +1,1 @@
+export const VAULT_NETWORK_TIMEOUT_MS = 30_000;

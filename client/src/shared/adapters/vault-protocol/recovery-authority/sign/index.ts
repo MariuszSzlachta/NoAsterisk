@@ -1,0 +1,1 @@
+export { signRecoveryMessage } from './sign';

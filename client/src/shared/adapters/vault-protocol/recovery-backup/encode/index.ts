@@ -1,0 +1,1 @@
+export { encodeRecoveryBackup } from './encode';

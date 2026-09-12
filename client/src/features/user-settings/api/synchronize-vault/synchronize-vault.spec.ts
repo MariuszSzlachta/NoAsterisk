@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { synchronizeVault } from './synchronize-vault';
+
 const mocks = vi.hoisted(() => {
   const metadata = {
     observedRevision: 1,
@@ -84,7 +86,9 @@ vi.mock('#entities/import-batch', () => ({
   useImportHistoryStore: { getState: () => ({ history: [] }) },
 }));
 
-import { synchronizeVault } from './synchronize-vault';
+vi.mock('#shared/adapters/vault-protocol/assert-snapshot-binding', () => ({
+  assertSnapshotBinding: vi.fn().mockResolvedValue(undefined),
+}));
 
 const remote = {
   vaultId: 'vault',
@@ -203,6 +207,7 @@ describe('synchronizeVault', () => {
     );
 
     const pending = synchronizeVault();
+    await vi.waitFor(() => expect(mocks.syncGet).toHaveBeenCalled());
     mocks.isUnlocked.mockReturnValueOnce(false);
     onSessionChange?.();
     await expect(pending).rejects.toThrow('aborted');

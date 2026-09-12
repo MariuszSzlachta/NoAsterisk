@@ -1,12 +1,14 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createVaultPayload } from '#features/user-settings/model/vault-payload';
+import { captureVaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope';
+import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
+import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
+import { useCategoriesStore } from '#entities/category';
+import { useImportHistoryStore } from '#entities/import-batch';
 import { useRulesStore } from '#entities/rule';
 import { useTransactionsStore } from '#entities/transaction';
-import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
-import { useImportHistoryStore } from '#entities/import-batch';
-import { createVaultPayload } from '#features/user-settings/model/vault-payload';
-import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
-import { useCategoriesStore } from '#entities/category';
+import { persistenceSyncMetadata } from '#shared/adapters/persistence';
 import { encryptedPersistence } from '#shared/adapters/persistence/session';
 
 const buildPayload = () =>
@@ -94,6 +96,11 @@ const seedStaleStores = (): void => {
 };
 
 describe('restoreVaultPayload', () => {
+  beforeEach(() => {
+    persistenceSyncMetadata.setNamespace('restore-test');
+    vi.spyOn(encryptedPersistence, 'isUnlocked').mockReturnValue(true);
+    vi.spyOn(encryptedPersistence, 'getGeneration').mockReturnValue(1);
+  });
   afterEach(() => {
     vi.restoreAllMocks();
     useTransactionsStore.setState({ transactions: [] });
@@ -108,7 +115,11 @@ describe('restoreVaultPayload', () => {
     seedStaleStores();
     const replaceCollections = vi
       .spyOn(encryptedPersistence, 'replaceCollections')
-      .mockResolvedValue(undefined);
+      .mockImplementation(async (_writes, publication) => {
+        publication?.assertCurrent();
+        persistenceSyncMetadata.markDirty();
+        publication?.publish(persistenceSyncMetadata.get().mutationVersion);
+      });
 
     await restoreVaultPayload(buildPayload());
 
@@ -159,7 +170,11 @@ describe('restoreVaultPayload', () => {
     seedStaleStores();
     const replaceCollections = vi
       .spyOn(encryptedPersistence, 'replaceCollections')
-      .mockResolvedValue(undefined);
+      .mockImplementation(async (_writes, publication) => {
+        publication?.assertCurrent();
+        persistenceSyncMetadata.markDirty();
+        publication?.publish(persistenceSyncMetadata.get().mutationVersion);
+      });
 
     await restoreVaultPayload({
       schemaVersion: 0,
@@ -210,5 +225,54 @@ describe('restoreVaultPayload', () => {
       'stale-category',
     );
     expect(useBudgetsStore.getState().budgets[0]?.id).toBe('stale-budget');
+  });
+
+  it('does not publish plaintext when the session changes during the persistence await', async () => {
+    seedStaleStores();
+    const scope = captureVaultRestoreScope();
+    vi.spyOn(encryptedPersistence, 'replaceCollections').mockImplementation(
+      async (_writes, publication) => {
+        persistenceSyncMetadata.markDirty();
+        vi.mocked(encryptedPersistence.getGeneration).mockReturnValue(2);
+        publication?.publish(persistenceSyncMetadata.get().mutationVersion);
+      },
+    );
+    await expect(restoreVaultPayload(buildPayload(), scope)).rejects.toThrow(
+      'publication scope',
+    );
+    expect(useTransactionsStore.getState().transactions[0]?.id).toBe(
+      'stale-tx',
+    );
+  });
+
+  it('does not replace newer local state when the user edits while restore is prepared', async () => {
+    const scope = captureVaultRestoreScope();
+    seedStaleStores();
+    const replace = vi.spyOn(encryptedPersistence, 'replaceCollections');
+    await expect(restoreVaultPayload(buildPayload(), scope)).rejects.toThrow(
+      'Vault changed',
+    );
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('acknowledges only the mutation version produced by its own replacement', async () => {
+    vi.spyOn(encryptedPersistence, 'replaceCollections').mockImplementation(
+      async (_writes, publication) => {
+        publication?.assertCurrent();
+        persistenceSyncMetadata.markDirty();
+        publication?.publish(persistenceSyncMetadata.get().mutationVersion);
+      },
+    );
+    const scope = captureVaultRestoreScope();
+    await restoreVaultPayload(buildPayload(), scope, {
+      revision: 100,
+      createdAt: '2026-09-12T00:00:00.000Z',
+      envelopeHash: 'restored',
+    });
+    expect(persistenceSyncMetadata.get()).toMatchObject({
+      mutationVersion: scope.mutationVersion + 1,
+      isDirty: false,
+      observedRevision: 100,
+    });
   });
 });

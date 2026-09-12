@@ -1,7 +1,9 @@
 import type { DataStats } from '#features/user-settings/model/types/data-stats';
 import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
+import type { RotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation/types';
 
 export interface UseVaultSectionResult {
+  readonly rotationRecoveryConfirmation: RotationRecoveryConfirmation;
   readonly vaultInfo: VaultInfo;
   readonly dataStats: DataStats;
   readonly isSyncing: boolean;

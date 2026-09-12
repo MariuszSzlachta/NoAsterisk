@@ -26,6 +26,7 @@ interface RotateVaultRecordsInput {
     readonly envelope: string;
     readonly passkeyEnvelope?: string;
     readonly nextVmk: Uint8Array;
+    readonly recoveryBackupConfirmed: true;
   };
   readonly isSessionActive: () => boolean;
 }
@@ -57,6 +58,8 @@ const rotate = async (input: RotateVaultRecordsInput): Promise<void> => {
           idempotencyKey: input.pendingRotation.idempotencyKey,
           envelopePurpose: input.pendingRotation.envelopePurpose,
           envelope: input.pendingRotation.envelope,
+          recoveryBackupConfirmed:
+            input.pendingRotation.recoveryBackupConfirmed,
           ...(input.pendingRotation.passkeyEnvelope === undefined
             ? {}
             : { passkeyEnvelope: input.pendingRotation.passkeyEnvelope }),

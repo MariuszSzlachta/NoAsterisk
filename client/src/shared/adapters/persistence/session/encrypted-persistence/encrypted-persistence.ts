@@ -15,6 +15,8 @@ import {
   VaultV2Database,
   type VaultV2RotationJournal,
 } from '#shared/adapters/persistence/dexie';
+import { clearVaultRotationJournal } from '#shared/adapters/persistence/dexie/clear-vault-rotation-journal';
+import { confirmVaultRotationBackup } from '#shared/adapters/persistence/dexie/confirm-vault-rotation-backup';
 import { migrateLegacyLocalStorage } from '#shared/adapters/persistence/migrations';
 import type {
   EncryptedCollectionWrite,
@@ -24,6 +26,7 @@ import type {
   EncryptedWriteResult,
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
+import type { CollectionReplacementPublication } from '#shared/adapters/persistence/ports/collection-replacement-publication';
 import { createDatabaseLock } from '#shared/adapters/persistence/session/database-lock';
 import { initializePersistenceMetadata } from '#shared/adapters/persistence/session/initialize-metadata';
 import { createPersistenceChannel } from '#shared/adapters/persistence/session/persistence-channel';
@@ -606,10 +609,13 @@ export const createEncryptedPersistence = (
       readonly envelope: string;
       readonly passkeyEnvelope?: string;
       readonly nextVmk: Uint8Array;
+      readonly recoveryBackupConfirmed: true;
     },
   ): Promise<void> => {
+    const requestedGeneration = generation;
     await databaseLock(async () => {
       if (
+        generation !== requestedGeneration ||
         activeVaultDatabase === undefined ||
         vaultContext === undefined ||
         key === undefined
@@ -650,13 +656,21 @@ export const createEncryptedPersistence = (
       readonly deviceId: string;
     },
   ): Promise<void> => {
+    const requestedGeneration = generation;
     await databaseLock(async () => {
-      if (activeVaultDatabase === undefined)
+      if (
+        generation !== requestedGeneration ||
+        activeVaultDatabase === undefined
+      )
         throw createPersistenceLockedError();
       const metadata = await activeVaultDatabase.metadata.get('vault');
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
       if (metadata === undefined)
         throw createPersistenceCryptoError('Vault metadata is missing');
       const keys = await vaultProtocol.deriveKeys(vmk, context);
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
       if (metadata.keyId === context.keyId) {
         await vaultProtocol.verifySentinel(
           metadata.sentinel,
@@ -668,6 +682,8 @@ export const createEncryptedPersistence = (
           },
           keys.check,
         );
+        if (generation !== requestedGeneration)
+          throw createPersistenceLockedError();
         return;
       }
       if (
@@ -691,33 +707,102 @@ export const createEncryptedPersistence = (
       if (
         !Array.isArray(parsed) ||
         parsed.length !== vmk.length ||
-        !parsed.every((value, index): value is number => value === vmk[index])
+        !parsed.every(
+          (value): value is number =>
+            typeof value === 'number' &&
+            Number.isInteger(value) &&
+            value >= 0 &&
+            value <= 255,
+        )
       )
         throw createPersistenceCryptoError(
           'Vault recovery does not match active key',
         );
+      const nextVmk = new Uint8Array(parsed);
+      try {
+        const nextContext = { ...context, keyId: metadata.keyId };
+        const nextKeys = await vaultProtocol.deriveKeys(nextVmk, nextContext);
+        if (generation !== requestedGeneration)
+          throw createPersistenceLockedError();
+        await vaultProtocol.verifySentinel(
+          metadata.sentinel,
+          nextContext,
+          nextKeys.check,
+        );
+        if (generation !== requestedGeneration)
+          throw createPersistenceLockedError();
+      } finally {
+        nextVmk.fill(0);
+      }
     });
   };
 
   const getPendingVaultRotation = async (): Promise<
     VaultV2RotationJournal | undefined
   > => {
-    if (activeVaultDatabase === undefined) return undefined;
-    return activeVaultDatabase.metadata
-      .get('vault')
-      .then((metadata) => metadata?.pendingRotation);
+    const database = activeVaultDatabase;
+    const requestedGeneration = generation;
+    if (database === undefined) return undefined;
+    const metadata = await database.metadata.get('vault');
+    if (generation !== requestedGeneration || activeVaultDatabase !== database)
+      throw createPersistenceLockedError();
+    return metadata?.pendingRotation;
   };
 
   const clearPendingVaultRotation = async (
     idempotencyKey: string,
   ): Promise<void> => {
+    const requestedGeneration = generation;
+    const database = activeVaultDatabase;
+    const context = vaultContext;
     await databaseLock(async () => {
-      if (activeVaultDatabase === undefined) return;
-      const metadata = await activeVaultDatabase.metadata.get('vault');
-      if (metadata?.pendingRotation?.idempotencyKey !== idempotencyKey) return;
-      const { pendingRotation: _pendingRotation, ...withoutPendingRotation } =
-        metadata;
-      await activeVaultDatabase.metadata.put(withoutPendingRotation);
+      if (
+        database === undefined ||
+        context === undefined ||
+        generation !== requestedGeneration ||
+        activeVaultDatabase !== database ||
+        vaultContext !== context
+      )
+        throw createPersistenceLockedError();
+      await clearVaultRotationJournal(database, idempotencyKey, () => {
+        if (
+          generation !== requestedGeneration ||
+          activeVaultDatabase !== database ||
+          vaultContext !== context
+        )
+          throw createPersistenceLockedError();
+      });
+    });
+  };
+
+  const confirmPendingVaultRotationBackup = async (
+    idempotencyKey: string,
+  ): Promise<void> => {
+    const requestedGeneration = generation;
+    const database = activeVaultDatabase;
+    const context = vaultContext;
+    await databaseLock(async () => {
+      if (
+        database === undefined ||
+        context === undefined ||
+        generation !== requestedGeneration ||
+        activeVaultDatabase !== database ||
+        vaultContext !== context
+      )
+        throw createPersistenceLockedError();
+      await confirmVaultRotationBackup(
+        database,
+        idempotencyKey,
+        context.keyId,
+        () => {
+          if (
+            generation !== requestedGeneration ||
+            activeVaultDatabase !== database ||
+            vaultContext !== context
+          )
+            throw createPersistenceLockedError();
+        },
+      );
     });
   };
 
@@ -801,8 +886,13 @@ export const createEncryptedPersistence = (
 
   const replaceCollections = async (
     writes: ReadonlyArray<EncryptedCollectionWrite>,
+    publication?: CollectionReplacementPublication,
   ): Promise<void> => {
+    const requestedGeneration = generation;
     await databaseLock(async () => {
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
+      publication?.assertCurrent();
       const currentKey = requireKey();
       if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
         const vaultDatabase = activeVaultDatabase;
@@ -829,24 +919,42 @@ export const createEncryptedPersistence = (
             ),
           })),
         );
-        if (generation !== activeGeneration)
+        if (generation !== requestedGeneration)
           throw createPersistenceLockedError();
+        publication?.assertCurrent();
         await vaultDatabase.transaction(
           'rw',
           vaultDatabase.records,
           async () => {
-            if (generation !== activeGeneration)
+            if (generation !== requestedGeneration)
               throw createPersistenceLockedError();
+            publication?.assertCurrent();
             for (const write of encryptedWrites) {
               await vaultDatabase.records
                 .where('collection')
                 .equals(write.collection)
                 .delete();
               await vaultDatabase.records.bulkPut(write.records);
+              if (generation !== requestedGeneration)
+                throw createPersistenceLockedError();
+              publication?.assertCurrent();
             }
           },
         );
+        if (generation !== requestedGeneration)
+          throw createPersistenceLockedError();
+        try {
+          publication?.assertCurrent();
+        } catch (error) {
+          // The IDB transaction committed. Never leave that replacement clean
+          // merely because publication was superseded by an optimistic edit.
+          persistenceSyncMetadata.markDirty();
+          throw error;
+        }
         persistenceSyncMetadata.markDirty();
+        if (generation !== requestedGeneration)
+          throw createPersistenceLockedError();
+        publication?.publish(persistenceSyncMetadata.get().mutationVersion);
         return;
       }
       // Encryption runs in parallel without side effects. The IndexedDB transaction
@@ -867,21 +975,41 @@ export const createEncryptedPersistence = (
         })),
       );
 
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
+      publication?.assertCurrent();
       await activeDatabase.transaction(
         'rw',
         activeDatabase.records,
         async () => {
           await encryptedWrites.reduce(async (previous, write) => {
             await previous;
+            if (generation !== requestedGeneration)
+              throw createPersistenceLockedError();
+            publication?.assertCurrent();
             await activeDatabase.records
               .where('collection')
               .equals(write.collection)
               .delete();
             await activeDatabase.records.bulkPut(write.records);
+            if (generation !== requestedGeneration)
+              throw createPersistenceLockedError();
+            publication?.assertCurrent();
           }, Promise.resolve());
         },
       );
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
+      try {
+        publication?.assertCurrent();
+      } catch (error) {
+        persistenceSyncMetadata.markDirty();
+        throw error;
+      }
       persistenceSyncMetadata.markDirty();
+      if (generation !== requestedGeneration)
+        throw createPersistenceLockedError();
+      publication?.publish(persistenceSyncMetadata.get().mutationVersion);
     });
   };
 
@@ -955,6 +1083,7 @@ export const createEncryptedPersistence = (
     verifyVaultVmk,
     getPendingVaultRotation,
     clearPendingVaultRotation,
+    confirmPendingVaultRotationBackup,
     lock,
     failClosed,
     clearLocalData,

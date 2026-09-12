@@ -3,6 +3,7 @@ export { users } from './users.schema';
 export { permissions } from './permissions.schema';
 export { vaults } from './vaults.schema';
 export { vaultKeysets } from './vault-keysets.schema';
+export { vaultRecoveryAuthorityChallenges } from './vault-recovery-authority-challenges';
 export { vaultDevices } from './vault-devices.schema';
 export { webauthnCredentials } from './webauthn-credentials.schema';
 export { vaultServerShares } from './vault-server-shares.schema';

@@ -1,0 +1,1 @@
+export { decodeRecoveryBackup } from './decode';

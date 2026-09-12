@@ -29,6 +29,7 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
         keyId: vaultKeysets.keyId,
         protocolVersion: vaultKeysets.protocolVersion,
         cryptoSuite: vaultKeysets.cryptoSuite,
+        recoveryPublicKey: vaultKeysets.recoveryPublicKey,
       })
       .from(vaultKeysets)
       .innerJoin(vaults, eq(vaultKeysets.vaultId, vaults.id))
@@ -84,6 +85,9 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
         vaultId: keyset.vaultId,
         keyId: keyset.keyId,
         deviceId,
+        ...(keyset.recoveryPublicKey === null
+          ? {}
+          : { recoveryPublicKey: keyset.recoveryPublicKey }),
         protocolVersion: 2,
         cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       };
@@ -109,6 +113,9 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
       vaultId: keyset.vaultId,
       keyId: keyset.keyId,
       deviceId,
+      ...(keyset.recoveryPublicKey === null
+        ? {}
+        : { recoveryPublicKey: keyset.recoveryPublicKey }),
       protocolVersion: 2,
       cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       securityProfile:

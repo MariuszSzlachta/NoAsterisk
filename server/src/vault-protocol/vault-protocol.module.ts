@@ -54,6 +54,14 @@ import { VAULT_ROTATION_REPOSITORY } from '@vault-protocol/domain/ports/vault-ro
 import { InMemoryVaultRotationRepository } from '@vault-protocol/infrastructure/in-memory-vault-rotation.repository';
 import { InMemoryVaultProtocolState } from '@vault-protocol/infrastructure/in-memory-vault-protocol-state';
 import { PostgresVaultRotationRepository } from '@vault-protocol/infrastructure/postgres-vault-rotation.repository';
+import { PrepareRecoveryRegistrationHandler } from '@vault-protocol/application/commands/prepare-recovery-registration';
+import { ConfirmRecoveryRegistrationHandler } from '@vault-protocol/application/commands/confirm-recovery-registration';
+import { RECOVERY_REGISTRATION_REPOSITORY } from '@vault-protocol/domain/ports/recovery-registration';
+import { VAULT_SIGNATURE_VERIFIER } from '@vault-protocol/domain/ports/vault-signature-verifier';
+import { VaultSignatureVerifierAdapter } from '@vault-protocol/infrastructure/adapters/vault-signature-verifier';
+import { PostgresRecoveryRegistrationRepository } from '@vault-protocol/infrastructure/repositories/postgres-recovery-registration';
+import { UnavailableMemoryRecoveryRegistrationRepository } from '@vault-protocol/infrastructure/repositories/unavailable-memory-recovery-registration';
+import { RecoveryRegistrationController } from '@vault-protocol/presentation/controllers/recovery-registration';
 
 @Module({
   imports: [AuthModule],
@@ -67,6 +75,7 @@ import { PostgresVaultRotationRepository } from '@vault-protocol/infrastructure/
     WebauthnCredentialController,
     PasskeyAuthController,
     VaultDeviceController,
+    RecoveryRegistrationController,
   ],
   providers: [
     IssueServerShareHandler,
@@ -79,8 +88,19 @@ import { PostgresVaultRotationRepository } from '@vault-protocol/infrastructure/
     PasskeyLoginHandler,
     VaultDeviceHandler,
     RotateVaultHandler,
+    PrepareRecoveryRegistrationHandler,
+    ConfirmRecoveryRegistrationHandler,
     InMemoryVaultProtocolState,
     { provide: WEBAUTHN_VERIFIER, useClass: WebauthnVerifierAdapter },
+    {
+      provide: VAULT_SIGNATURE_VERIFIER,
+      useClass: VaultSignatureVerifierAdapter,
+    },
+    createRepositoryProvider(
+      RECOVERY_REGISTRATION_REPOSITORY,
+      PostgresRecoveryRegistrationRepository,
+      UnavailableMemoryRecoveryRegistrationRepository,
+    ),
     { provide: PASSKEY_USER_REPOSITORY, useExisting: USER_REPOSITORY },
     { provide: PASSKEY_TOKEN_PORT, useExisting: TOKEN_PORT },
     createRepositoryProvider(

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { encryptedPersistence } from '#shared/adapters/persistence';
 import { recoveryCode } from '#shared/adapters/vault-protocol/recovery-code';
+import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { passkeyPrf } from '#shared/adapters/webauthn/passkey-prf';
 import { issueServerShare } from '#shared/api/vault-protocol/issue-server-share';
 import { rotateVault } from '#shared/api/vault-protocol/rotate-vault';
@@ -9,16 +10,18 @@ import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 import { webauthnChallenge } from '#shared/api/vault-protocol/webauthn-challenge';
 import { webauthnCredentials } from '#shared/api/vault-protocol/webauthn-credentials';
 
-import { vaultRotation } from './vault-rotation';
-
 const { persistence, protocol } = vi.hoisted(() => ({
   persistence: {
     requireVaultSyncMaterial: vi.fn(),
+    getGeneration: vi.fn(() => 1),
+    isUnlocked: vi.fn(() => true),
     readVaultLocalShare: vi.fn(),
     verifyVaultVmk: vi.fn(),
     rotateVaultKeys: vi.fn(),
     getPendingVaultRotation: vi.fn(),
     clearPendingVaultRotation: vi.fn(),
+    confirmPendingVaultRotationBackup: vi.fn(),
+    getVaultTransferMaterial: vi.fn(),
   },
   protocol: {
     generateVmk: vi.fn(),
@@ -29,6 +32,13 @@ const { persistence, protocol } = vi.hoisted(() => ({
     canonicalize: vi.fn(() => 'canonical'),
   },
 }));
+
+const buildRotationInput = (
+  confirmRecoveryCode = async (): Promise<boolean> => true,
+) => ({
+  recoveryCode: 'recovery',
+  confirmRecoveryCode,
+});
 
 vi.mock('#shared/adapters/persistence', () => ({
   encryptedPersistence: persistence,
@@ -59,8 +69,36 @@ vi.mock('#shared/adapters/webauthn/passkey-prf', () => ({
 }));
 
 describe('vaultRotation', () => {
+  it('should reject legacy rotation before backup prompts or key writes when independent authority is registered', async () => {
+    const bootstrap = await vaultBootstrap.get();
+    vi.mocked(vaultBootstrap.get).mockResolvedValue({
+      ...bootstrap,
+      recoveryPublicKey: 'a'.repeat(64),
+    });
+    const confirm = vi.fn(async () => true);
+    await expect(
+      vaultRotation.rotate(buildRotationInput(confirm)),
+    ).rejects.toThrow();
+    await expect(
+      vaultRotation.rotateWithPasskey('recovery', confirm),
+    ).rejects.toThrow();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(encryptedPersistence.rotateVaultKeys).not.toHaveBeenCalled();
+    expect(rotateVault.rotate).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(encryptedPersistence.getPendingVaultRotation).mockResolvedValue(
+      undefined,
+    );
+    vi.mocked(encryptedPersistence.rotateVaultKeys).mockImplementation(
+      async (_keys, context) => {
+        const material = encryptedPersistence.requireVaultSyncMaterial();
+        vi.mocked(
+          encryptedPersistence.requireVaultSyncMaterial,
+        ).mockReturnValue({ ...material, context });
+      },
+    );
     vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
       syncKey: {},
       signingKey: {},
@@ -128,7 +166,7 @@ describe('vaultRotation', () => {
   });
 
   it('verifies recovery locally, re-encrypts locally, then commits opaque server rotation', async () => {
-    await vaultRotation.rotate({ recoveryCode: 'recovery' });
+    await vaultRotation.rotate(buildRotationInput());
     expect(encryptedPersistence.verifyVaultVmk).toHaveBeenCalled();
     expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
       expect.any(Object),
@@ -153,9 +191,9 @@ describe('vaultRotation', () => {
 
   it('leaves the encrypted pending journal when the server commit fails', async () => {
     vi.mocked(rotateVault.rotate).mockRejectedValue(new Error('transport'));
-    await expect(
-      vaultRotation.rotate({ recoveryCode: 'recovery' }),
-    ).rejects.toThrow('transport');
+    await expect(vaultRotation.rotate(buildRotationInput())).rejects.toThrow(
+      'transport',
+    );
     expect(
       encryptedPersistence.clearPendingVaultRotation,
     ).not.toHaveBeenCalled();
@@ -171,7 +209,7 @@ describe('vaultRotation', () => {
       passkeyEnvelope: 'opaque-passkey',
     });
 
-    await vaultRotation.rotate({ recoveryCode: 'recovery' });
+    await vaultRotation.rotate(buildRotationInput());
 
     expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
       expect.any(Object),
@@ -184,6 +222,11 @@ describe('vaultRotation', () => {
   });
 
   it('resumes a pending idempotent commit after local unlock', async () => {
+    const material = encryptedPersistence.requireVaultSyncMaterial();
+    vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
+      ...material,
+      context: { ...material.context, keyId: 'key-2' },
+    });
     vi.mocked(encryptedPersistence.getPendingVaultRotation).mockResolvedValue({
       currentKeyId: 'key-1',
       nextKeyId: 'key-2',
@@ -192,6 +235,7 @@ describe('vaultRotation', () => {
       envelope: 'opaque',
       currentVmkEnvelope: { header: {}, ciphertext: 'opaque' },
       nextVmkEnvelope: { header: {}, ciphertext: 'opaque' },
+      recoveryBackupConfirmed: true,
     });
     vi.mocked(rotateVault.rotate).mockResolvedValue({
       status: 'rotated',
@@ -205,12 +249,60 @@ describe('vaultRotation', () => {
   });
 
   it('uses PRF only and removes LocalShare from high-security rotation input', async () => {
-    await vaultRotation.rotateWithPasskey('recovery');
+    await vaultRotation.rotateWithPasskey('recovery', async () => true);
     expect(protocol.derivePrfKey).toHaveBeenCalled();
     expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
       expect.objectContaining({ localShare: null }),
       expect.any(Object),
       expect.objectContaining({ envelopePurpose: 'passkey-wrap' }),
     );
+  });
+
+  it('does not change either database when recovery backup is declined', async () => {
+    await expect(
+      vaultRotation.rotate(buildRotationInput(async () => false)),
+    ).rejects.toThrow('Recovery backup');
+    expect(encryptedPersistence.rotateVaultKeys).not.toHaveBeenCalled();
+    expect(rotateVault.rotate).not.toHaveBeenCalled();
+    expect(issueServerShare).not.toHaveBeenCalled();
+  });
+
+  it('does not rotate before the new recovery backup is confirmed', async () => {
+    let confirm: ((confirmed: boolean) => void) | undefined;
+    const backup = new Promise<boolean>((resolve) => {
+      confirm = resolve;
+    });
+    const rotation = vaultRotation.rotate(buildRotationInput(() => backup));
+    await vi.waitFor(() => expect(recoveryCode.encode).toHaveBeenCalled());
+    expect(encryptedPersistence.rotateVaultKeys).not.toHaveBeenCalled();
+    expect(rotateVault.rotate).not.toHaveBeenCalled();
+    confirm?.(true);
+    await expect(rotation).resolves.toEqual({
+      recoveryCode: 'new-recovery-code',
+    });
+  });
+
+  it('does not silently commit a legacy journal without recovery confirmation', async () => {
+    const material = encryptedPersistence.requireVaultSyncMaterial();
+    vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
+      ...material,
+      context: { ...material.context, keyId: 'key-2' },
+    });
+    vi.mocked(encryptedPersistence.getPendingVaultRotation).mockResolvedValue({
+      currentKeyId: 'key-1',
+      nextKeyId: 'key-2',
+      idempotencyKey: 'rotation-1',
+      envelopePurpose: 'device-wrap',
+      envelope: 'opaque',
+      currentVmkEnvelope: { header: {}, ciphertext: 'opaque' },
+      nextVmkEnvelope: { header: {}, ciphertext: 'opaque' },
+    });
+    await expect(vaultRotation.resumePending()).rejects.toThrow(
+      'confirmed recovery backup',
+    );
+    expect(rotateVault.rotate).not.toHaveBeenCalled();
+    expect(
+      encryptedPersistence.clearPendingVaultRotation,
+    ).not.toHaveBeenCalled();
   });
 });

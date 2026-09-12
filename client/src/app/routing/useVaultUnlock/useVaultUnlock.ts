@@ -209,8 +209,12 @@ const enrollVmk = async (
   assertCurrent: FlowGuard,
   trustedDeviceProof?: string,
 ): Promise<void> => {
-  const vaultId = bootstrap.vaultId ?? crypto.randomUUID();
-  const keyId = bootstrap.keyId ?? crypto.randomUUID();
+  const existingVaultId =
+    bootstrap.status === 'empty' ? undefined : bootstrap.vaultId;
+  const vaultId = existingVaultId ?? crypto.randomUUID();
+  const keyId =
+    (bootstrap.status === 'empty' ? undefined : bootstrap.keyId) ??
+    crypto.randomUUID();
   const context = {
     accountId,
     workspaceId,
@@ -222,7 +226,7 @@ const enrollVmk = async (
   assertCurrent();
   const prepared = await vaultEnrollment.prepare(
     bootstrap.deviceId,
-    bootstrap.vaultId,
+    existingVaultId,
   );
   assertCurrent();
   const serverShare = decodeServerShare(prepared.serverShare);
@@ -502,6 +506,7 @@ export const useVaultUnlock = (
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
       setBootstrap(currentBootstrap);
       if (
+        currentBootstrap.status === 'empty' ||
         currentBootstrap.vaultId === undefined ||
         currentBootstrap.keyId === undefined
       )

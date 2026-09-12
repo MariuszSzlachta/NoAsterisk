@@ -9,6 +9,7 @@ interface VaultV2RecordEnvelope {
 }
 
 export interface VaultV2RotationJournal {
+  readonly recoveryBackupConfirmed?: true;
   readonly currentKeyId: string;
   readonly nextKeyId: string;
   readonly idempotencyKey: string;

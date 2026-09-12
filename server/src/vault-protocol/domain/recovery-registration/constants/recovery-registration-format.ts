@@ -1,0 +1,16 @@
+export const recoveryRegistrationFormat = Object.freeze({
+  domain: 'budgetflow/recovery-authority-registration/v2',
+  version: 2,
+  cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
+  ttlMs: 60_000,
+  maxIdentifierLength: 128,
+  maxSigningPublicKeyLength: 10_000,
+  publicKeyBytes: 32,
+  challengeBytes: 32,
+  challengeLength: 43,
+  publicKeyLength: 64,
+  signatureLength: 128,
+  signatureBytes: 64,
+  maxMessageBytes: 65_536,
+  maxTimestampMs: 8_640_000_000_000_000,
+});
