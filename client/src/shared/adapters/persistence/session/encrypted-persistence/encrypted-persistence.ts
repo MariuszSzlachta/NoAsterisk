@@ -415,12 +415,6 @@ export const createEncryptedPersistence = (
           activeVaultDatabase = undefined;
           throw createPersistenceLockedError();
         }
-        const contextWithoutDevice = {
-          accountId: context.accountId,
-          workspaceId: context.workspaceId,
-          vaultId: context.vaultId,
-          keyId: context.keyId,
-        };
         const existingMetadata = await database.metadata.get('vault');
         let effectiveVaultKeys = vaultKeys;
         let effectiveContext = context;
@@ -494,6 +488,18 @@ export const createEncryptedPersistence = (
           existingMetadata?.signingKeyPair ??
           effectiveVaultKeys.signingKeyPair ??
           (await generateSigningKeyPair());
+        const newSentinel =
+          existingMetadata === undefined
+            ? await vaultProtocol.createSentinel(
+                {
+                  accountId: effectiveContext.accountId,
+                  workspaceId: effectiveContext.workspaceId,
+                  vaultId: effectiveContext.vaultId,
+                  keyId: effectiveContext.keyId,
+                },
+                effectiveVaultKeys.check,
+              )
+            : undefined;
         if (generation !== unlockGeneration)
           throw createPersistenceLockedError();
         key = effectiveVaultKeys.local;
@@ -505,6 +511,8 @@ export const createEncryptedPersistence = (
         vaultContext = effectiveContext;
         activeGeneration = unlockGeneration;
         if (existingMetadata === undefined) {
+          if (newSentinel === undefined)
+            throw createPersistenceCryptoError('Vault sentinel is unavailable');
           if (generation !== unlockGeneration)
             throw createPersistenceLockedError();
           await database.metadata.put({
@@ -520,10 +528,7 @@ export const createEncryptedPersistence = (
               ? {}
               : { localShare: vaultKeys.localShare }),
             signingKeyPair,
-            sentinel: await vaultProtocol.createSentinel(
-              contextWithoutDevice,
-              vaultKeys.check,
-            ),
+            sentinel: newSentinel,
           });
         } else {
           if (generation !== unlockGeneration)
@@ -823,7 +828,8 @@ export const createEncryptedPersistence = (
             ),
           })),
         );
-        if (generation !== activeGeneration) throw createPersistenceLockedError();
+        if (generation !== activeGeneration)
+          throw createPersistenceLockedError();
         await vaultDatabase.transaction(
           'rw',
           vaultDatabase.records,
@@ -966,7 +972,10 @@ export const createEncryptedPersistence = (
                 const records = await Promise.all(
                   envelopes.map(async (envelope) => {
                     const plaintext = await vaultProtocol.decryptRecord(
-                      { header: envelope.header, ciphertext: envelope.ciphertext },
+                      {
+                        header: envelope.header,
+                        ciphertext: envelope.ciphertext,
+                      },
                       {
                         ...context,
                         collection: deletion.collection,
@@ -982,11 +991,15 @@ export const createEncryptedPersistence = (
                 );
                 return records
                   .filter((record) => deletion.shouldDelete(record.value))
-                  .map((record) => [deletion.collection, record.id] as [string, string]);
+                  .map(
+                    (record) =>
+                      [deletion.collection, record.id] as [string, string],
+                  );
               }),
             )
           ).flat();
-          if (generation !== activeGeneration) throw createPersistenceLockedError();
+          if (generation !== activeGeneration)
+            throw createPersistenceLockedError();
           await vaultDatabase.transaction(
             'rw',
             vaultDatabase.records,

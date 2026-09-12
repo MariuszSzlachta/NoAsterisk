@@ -4,7 +4,7 @@ export interface TokenPayload {
   sub: string;
   workspaceId: string;
   role: string;
-  tokenVersion?: number;
+  tokenVersion: number;
   authTime?: number;
   amr?: 'password' | 'webauthn';
   vaultUnlockGrant?: string;

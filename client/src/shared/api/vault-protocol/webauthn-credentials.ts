@@ -121,6 +121,27 @@ const isOptions = (value: unknown): value is RegistrationOptionsResponse => {
     value.attestation !== 'enterprise'
   )
     return false;
+  if (value.excludeCredentials !== undefined) {
+    if (
+      !Array.isArray(value.excludeCredentials) ||
+      value.excludeCredentials.length > 128 ||
+      !value.excludeCredentials.every(
+        (item) =>
+          isRecord(item) &&
+          hasOnlyKeys(item, ['id', 'transports']) &&
+          isBoundedText(item.id, 16_384) &&
+          (item.transports === undefined ||
+            (Array.isArray(item.transports) &&
+              item.transports.length <= 5 &&
+              item.transports.every(
+                (transport) =>
+                  typeof transport === 'string' &&
+                  isAuthenticatorTransport(transport),
+              ))),
+      )
+    )
+      return false;
+  }
   return true;
 };
 

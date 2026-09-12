@@ -49,7 +49,11 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    if (payload.tokenVersion === undefined) {
+    const tokenVersion: unknown = payload.tokenVersion;
+    if (
+      typeof tokenVersion !== 'number' ||
+      !Number.isSafeInteger(tokenVersion)
+    ) {
       throw new UnauthorizedException('Token is missing revocation version');
     }
 
@@ -63,7 +67,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Account is blocked');
     }
 
-    if (payload.tokenVersion !== user.tokenVersion) {
+    if (tokenVersion !== user.tokenVersion) {
       throw new UnauthorizedException('Token has been revoked');
     }
 

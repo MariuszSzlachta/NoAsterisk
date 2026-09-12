@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 
 interface BarcodeDetectorLike {
-  detect: (source: HTMLVideoElement) => Promise<ReadonlyArray<{ rawValue?: string }>>;
+  detect: (
+    source: HTMLVideoElement,
+  ) => Promise<ReadonlyArray<{ rawValue?: string }>>;
 }
 
 interface BarcodeDetectorConstructorLike {
@@ -61,8 +63,10 @@ export const TrustedDeviceQrScanner = ({
       if (cancelled) return;
       try {
         const results = await detector.detect(video);
+        if (cancelled) return;
         const value = results.find(
-          (result) => typeof result.rawValue === 'string' && result.rawValue.length > 0,
+          (result) =>
+            typeof result.rawValue === 'string' && result.rawValue.length > 0,
         )?.rawValue;
         if (value !== undefined) {
           onScanRef.current(value);
@@ -86,12 +90,15 @@ export const TrustedDeviceQrScanner = ({
         }
         video.srcObject = stream;
         await video.play();
+        if (cancelled) return;
         frame = requestAnimationFrame(() => void scan());
       } catch {
         const wasCancelled = cancelled;
         stop();
         if (!wasCancelled)
-          onErrorRef.current('Camera permission is required to scan the QR code');
+          onErrorRef.current(
+            'Camera permission is required to scan the QR code',
+          );
       }
     })();
     return () => {

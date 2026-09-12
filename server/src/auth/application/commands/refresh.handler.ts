@@ -32,9 +32,11 @@ export class RefreshHandler {
       throw new UnauthorizedException('User not found');
     }
 
+    const tokenVersion: unknown = payload.tokenVersion;
     if (
-      payload.tokenVersion === undefined ||
-      payload.tokenVersion !== user.tokenVersion
+      typeof tokenVersion !== 'number' ||
+      !Number.isSafeInteger(tokenVersion) ||
+      tokenVersion !== user.tokenVersion
     ) {
       throw new UnauthorizedException('Token has been revoked');
     }

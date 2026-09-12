@@ -57,7 +57,9 @@ const readMetadata = (): PersistenceSyncMetadata => {
         parsed.mutationVersion >= 0
           ? parsed.mutationVersion
           : 0,
-      ...(typeof highWaterEnvelopeHash === 'string' ? { highWaterEnvelopeHash } : {}),
+      ...(typeof highWaterEnvelopeHash === 'string'
+        ? { highWaterEnvelopeHash }
+        : {}),
     };
   } catch {
     return INITIAL_METADATA;
@@ -103,6 +105,12 @@ const markPersistenceSynced = (
   envelopeHash?: string,
   coveredMutationVersion?: number,
 ): void => {
+  if (
+    cachedMetadata.observedRevision !== undefined &&
+    revision < cachedMetadata.observedRevision
+  ) {
+    return;
+  }
   const hasUncoveredMutations =
     coveredMutationVersion !== undefined &&
     cachedMetadata.mutationVersion !== coveredMutationVersion;
@@ -112,15 +120,22 @@ const markPersistenceSynced = (
     lastSuccessfulSyncAt: syncedAt,
     isDirty: hasUncoveredMutations,
     mutationVersion: cachedMetadata.mutationVersion,
-    ...(envelopeHash === undefined ? {} : { highWaterEnvelopeHash: envelopeHash }),
+    ...(envelopeHash === undefined
+      ? {}
+      : { highWaterEnvelopeHash: envelopeHash }),
   });
 };
 
-const rememberPersistenceRevision = (revision: number, envelopeHash?: string): void => {
+const rememberPersistenceRevision = (
+  revision: number,
+  envelopeHash?: string,
+): void => {
   writeMetadata({
     ...cachedMetadata,
     observedRevision: revision,
-    ...(envelopeHash === undefined ? {} : { highWaterEnvelopeHash: envelopeHash }),
+    ...(envelopeHash === undefined
+      ? {}
+      : { highWaterEnvelopeHash: envelopeHash }),
   });
 };
 

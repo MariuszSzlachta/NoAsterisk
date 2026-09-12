@@ -234,6 +234,7 @@ const validateWrapEnvelope = (
     return false;
   return (
     value.header.formatVersion === vaultProtocolConstants.vmkEnvelopeVersion &&
+    value.header.cryptoSuite === vaultProtocolConstants.cryptoSuite &&
     typeof value.header.purpose === 'string' &&
     typeof value.header.accountId === 'string' &&
     typeof value.header.workspaceId === 'string' &&
@@ -275,11 +276,14 @@ const validateSnapshot = (
       Number.isSafeInteger(header.revision) &&
       header.revision > 0 &&
       typeof header.previousEnvelopeHash === 'string' &&
+      header.previousEnvelopeHash.length <= 256 &&
       typeof header.createdByDeviceId === 'string' &&
       typeof header.createdAt === 'string' &&
       typeof header.nonce === 'string' &&
       fromBase64(header.nonce).length === vaultProtocolConstants.nonceLength &&
-      fromBase64(value.signature).length > 0
+      fromBase64(value.signature).length > 0 &&
+      fromBase64(value.signature).length <= 512 &&
+      hasOnlyKeys(value, ['header', 'ciphertext', 'signature'])
     );
   } catch {
     return false;

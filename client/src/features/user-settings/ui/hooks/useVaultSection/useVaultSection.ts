@@ -222,10 +222,13 @@ export const useVaultSection = (): UseVaultSectionResult => {
           },
         );
         await restoreVaultPayload(parseVaultPayload(plaintext));
+        const coveredMutationVersion =
+          persistenceSyncMetadata.get().mutationVersion;
         persistenceSyncMetadata.markSynced(
           snapshot.revision,
           snapshot.createdAt,
           snapshot.envelopeHash,
+          coveredMutationVersion,
         );
         setHasConflict(false);
         addToast(t('settings.vault.restoreSuccess'), 'success');

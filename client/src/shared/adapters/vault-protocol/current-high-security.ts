@@ -21,12 +21,11 @@ const enable = async (recoveryCode: string): Promise<void> => {
   };
   const localShare = await encryptedPersistence.readVaultLocalShare(context);
   if (localShare === undefined) throw new Error('LocalShare is unavailable');
-  const envelopeHeader = JSON.parse(bootstrap.deviceEnvelope).header;
-  const credentialId =
-    typeof envelopeHeader?.credentialId === 'string'
-      ? envelopeHeader.credentialId
-      : undefined;
-  const passkey = await vaultPasskeyCeremony.run(context, credentialId);
+  // Device-wrap has no passkey identity. Selecting a credential from its
+  // header would turn an empty/nonexistent credential id into an allow-list
+  // entry. High-security enablement therefore performs a discoverable,
+  // user-selected PRF ceremony and binds the resulting credential below.
+  const passkey = await vaultPasskeyCeremony.run(context);
   const serverShare = await issueServerShare(context.deviceId);
   try {
     await highSecurity.enable({

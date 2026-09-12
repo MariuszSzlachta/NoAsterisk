@@ -35,7 +35,7 @@ export const vaultRotations = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   },
   (table) => [
-    unique('vault_rotations_vault_idempotency_unique').on(
+    unique('vault_rotations_vault_id_idempotency_key_unique').on(
       table.vaultId,
       table.idempotencyKey,
     ),

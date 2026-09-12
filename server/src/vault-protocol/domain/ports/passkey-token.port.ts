@@ -4,7 +4,7 @@ export interface PasskeyTokenPayload {
   readonly sub: string;
   readonly workspaceId: string;
   readonly role: string;
-  readonly tokenVersion?: number;
+  readonly tokenVersion: number;
   readonly authTime?: number;
   readonly amr?: 'password' | 'webauthn';
   readonly vaultUnlockGrant?: string;

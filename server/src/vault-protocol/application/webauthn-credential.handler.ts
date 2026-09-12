@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { TOKEN_PORT, type TokenPort } from '@auth/domain/ports/token.port';
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
@@ -20,6 +19,10 @@ import {
 import { WEBAUTHN_VERIFIER } from '@vault-protocol/domain/ports/webauthn-verifier.token';
 import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
 import { webauthnUserHandle } from '@vault-protocol/application/webauthn-user-handle';
+import {
+  PASSKEY_TOKEN_PORT,
+  type PasskeyTokenPort,
+} from '@vault-protocol/domain/ports/passkey-token.port';
 
 interface CredentialContext {
   readonly vaultId: string;
@@ -62,7 +65,7 @@ export class WebauthnCredentialHandler {
     private readonly credentials: WebauthnCredentialRepository,
     @Inject(WEBAUTHN_VERIFIER)
     private readonly verifier: WebauthnVerifierPort,
-    @Inject(TOKEN_PORT) private readonly token: TokenPort,
+    @Inject(PASSKEY_TOKEN_PORT) private readonly token: PasskeyTokenPort,
   ) {}
 
   async createRegistrationOptions(
@@ -185,11 +188,15 @@ export class WebauthnCredentialHandler {
       verified.credentialId,
       verified.newCounter,
     );
+    const account = await this.users.findById(user.userId);
+    if (account === undefined)
+      throw new BadRequestException('WebAuthn assertion rejected');
     return {
       accessToken: this.token.sign({
         sub: user.userId,
         workspaceId: user.workspaceId,
         role: user.role,
+        tokenVersion: account.tokenVersion,
         authTime: Date.now(),
         amr: 'webauthn',
         vaultUnlockGrant: randomUUID(),

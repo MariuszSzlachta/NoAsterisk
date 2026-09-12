@@ -73,7 +73,6 @@ describe('currentHighSecurity', () => {
 
     expect(vaultPasskeyCeremony.run).toHaveBeenCalledWith(
       expect.objectContaining({ keyId: 'key-1' }),
-      undefined,
     );
     expect(highSecurity.enable).toHaveBeenCalledWith(
       expect.objectContaining({
