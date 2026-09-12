@@ -5,6 +5,8 @@ export interface TokenPayload {
   workspaceId: string;
   role: string;
   tokenVersion?: number;
+  authTime?: number;
+  amr?: 'password' | 'webauthn';
 }
 
 export interface TokenPort {

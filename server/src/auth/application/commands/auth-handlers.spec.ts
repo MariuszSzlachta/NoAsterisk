@@ -396,6 +396,36 @@ describe('RefreshHandler', () => {
     );
   });
 
+  it('preserves the original interactive auth time during refresh', async () => {
+    token.verifyRefresh.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+      tokenVersion: 0,
+      authTime: 123456,
+      amr: 'password',
+    });
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-1',
+        'test@test.com',
+        'hash',
+        UserRole.Member,
+        'ws-1',
+        new Date(),
+        undefined,
+        undefined,
+        0,
+      ),
+    );
+
+    await handler.execute('valid-refresh-token');
+
+    expect(token.sign).toHaveBeenCalledWith(
+      expect.objectContaining({ authTime: 123456, amr: 'password' }),
+    );
+  });
+
   it('throws UnauthorizedException for invalid refresh token', async () => {
     token.verifyRefresh.mockReturnValue(undefined);
 

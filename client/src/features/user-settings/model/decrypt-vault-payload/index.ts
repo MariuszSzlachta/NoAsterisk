@@ -1,4 +1,1 @@
-export {
-  decryptVaultPayload,
-  parseVaultPayload,
-} from './decrypt-vault-payload';
+export { parseVaultPayload } from '#features/user-settings/model/parse-vault-payload';

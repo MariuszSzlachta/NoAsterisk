@@ -11,7 +11,9 @@ export const createPersistenceChannel = (onInvalidation: () => void) => {
     if (!isRecord(event.data) || typeof event.data.type !== 'string') {
       return;
     }
-    if (!PERSISTENCE_EVENTS.invalidatingMessageTypes.includes(event.data.type)) {
+    if (
+      !PERSISTENCE_EVENTS.invalidatingMessageTypes.includes(event.data.type)
+    ) {
       return;
     }
     onInvalidation();

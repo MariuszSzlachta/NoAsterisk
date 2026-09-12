@@ -10,6 +10,7 @@ import type { AuthResponse } from '#features/auth/model/types/auth-response';
 import type { LoginRequestBody } from '#features/auth/model/types/login-request-body';
 import { useAuthStore } from '#features/auth/store/useAuthStore';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 import { apiClient, ApiError } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
@@ -19,6 +20,7 @@ export const useLoginMutation = (): UseLoginMutationResult => {
   const setLoginSubmitting = useAuthStore((s) => s.setLoginSubmitting);
 
   const mutateAsync = async (body: LoginRequestBody): Promise<AuthResponse> => {
+    passkeyUnlockHandoff.clear();
     setIsLoading(true);
     setError(undefined);
     setLoginSubmitting(true);

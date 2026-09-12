@@ -19,7 +19,9 @@
       "#domain/shared/*": ["../../packages/domain/src/shared/*"],
       "#domain/transaction/*": ["../../packages/domain/src/transaction/*"],
       "#domain/account/*": ["../../packages/domain/src/account/*"],
-      "#domain/categorization-rule/*": ["../../packages/domain/src/categorization-rule/*"],
+      "#domain/categorization-rule/*": [
+        "../../packages/domain/src/categorization-rule/*"
+      ],
       "#domain/category/*": ["../../packages/domain/src/category/*"],
       "#domain/budget/*": ["../../packages/domain/src/budget/*"],
       "@shared/*": ["shared/*"],
@@ -32,7 +34,8 @@
       "@user-settings/*": ["user-settings/*"],
       "@invite-codes/*": ["invite-codes/*"],
       "@dictionaries/*": ["dictionaries/*"],
-      "@dictionaries/*": ["dictionaries/*"]
+      "@dictionaries/*": ["dictionaries/*"],
+      "@vault-protocol/*": ["vault-protocol/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

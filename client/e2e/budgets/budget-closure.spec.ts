@@ -1,66 +1,36 @@
 import { expect, test } from '@playwright/test';
 import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
 
+const createV2BudgetFixtures = async (page: Parameters<typeof setupAuthenticatedUser>[0]): Promise<void> => {
+  const periodDateTo = new Date();
+  periodDateTo.setDate(1);
+  periodDateTo.setDate(periodDateTo.getDate() - 1);
+  const periodDateFrom = new Date(periodDateTo);
+  periodDateFrom.setDate(periodDateFrom.getDate() - 30);
+  const formatDate = (date: Date): string => date.toISOString().slice(0, 10);
+
+  await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+  await page.getByRole('button', { name: 'Standardowy', exact: true }).click();
+  await page.getByLabel('Nazwa budżetu').fill('Zakupy spożywcze');
+  await page.getByLabel(/Limit/).fill('2000');
+  await page.getByRole('button', { name: 'Własny', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Od', exact: true }).fill(formatDate(periodDateFrom));
+  await page.getByRole('textbox', { name: 'Do', exact: true }).fill(formatDate(periodDateTo));
+  await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
+
+  await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+  await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
+  await page.getByLabel('Nazwa budżetu').fill('Wakacje');
+  await page.getByLabel(/Cel oszczędności/).fill('10000');
+  await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
+};
+
 test.describe('Budgets Page — Period Closure & Savings E2E', () => {
   test.beforeEach(async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
-
-    // Seed legacy localStorage before the first vault unlock so the migration
-    // path is exercised instead of bypassed by an already-created metadata row.
-    const standardBudgetId = 'e2e-budget-std';
-    const savingsBudgetId = 'e2e-budget-sav';
-    const periodDateTo = new Date();
-    periodDateTo.setDate(periodDateTo.getDate() - 1);
-    const periodDateFrom = new Date(periodDateTo);
-    periodDateFrom.setDate(periodDateFrom.getDate() - 30);
-    const formatDate = (date: Date): string => date.toISOString().slice(0, 10);
-
-    const budgetsState = {
-      state: {
-        budgets: [
-          {
-            id: standardBudgetId,
-            workspaceId: 'ws-1',
-            budgetType: 'standard',
-            name: 'Zakupy spożywcze',
-            color: '#34d399',
-            limitAmount: 2000,
-            limitCurrency: 'PLN',
-            period: { type: 'custom', dateFrom: formatDate(periodDateFrom), dateTo: formatDate(periodDateTo) },
-            categoryIds: [],
-            createdAt: '2025-01-01T00:00:00.000Z',
-            isArchived: false,
-          },
-          {
-            id: savingsBudgetId,
-            workspaceId: 'ws-1',
-            budgetType: 'savings',
-            name: 'Wakacje',
-            color: '#10b981',
-            limitAmount: 10000,
-            limitCurrency: 'PLN',
-            period: null,
-            categoryIds: [],
-            createdAt: '2025-01-01T00:00:00.000Z',
-            isArchived: false,
-          },
-        ],
-      },
-      version: 0,
-    };
-
-    const historyState = {
-      state: { history: [] },
-      version: 0,
-    };
-
-    await page.addInitScript((data) => {
-      localStorage.setItem('budget-budgets', JSON.stringify(data.budgets));
-      localStorage.setItem('budget-period-history', JSON.stringify(data.history));
-    }, { budgets: budgetsState, history: historyState });
-
     await page.goto('/budgets');
     await unlockVault(page);
+    await createV2BudgetFixtures(page);
     await page.getByRole('tab', { name: 'Własny' }).click();
     await page.getByRole('button', { name: 'Wybierz zakres dat' }).click();
     await page.getByRole('button', { name: 'Ostatni miesiąc' }).click();

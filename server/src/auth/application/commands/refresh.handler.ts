@@ -1,5 +1,9 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
-import { TOKEN_PORT, TokenPort } from '@auth/domain/ports/token.port';
+import {
+  TOKEN_PORT,
+  TokenPayload,
+  TokenPort,
+} from '@auth/domain/ports/token.port';
 import {
   USER_REPOSITORY,
   UserRepository,
@@ -38,11 +42,13 @@ export class RefreshHandler {
     const rotatedUser = user.incrementTokenVersion();
     await this.userRepo.save(rotatedUser);
 
-    const tokenPayload = {
+    const tokenPayload: TokenPayload = {
       sub: rotatedUser.id,
       workspaceId: rotatedUser.workspaceId,
       role: rotatedUser.role,
       tokenVersion: rotatedUser.tokenVersion,
+      ...(payload.authTime === undefined ? {} : { authTime: payload.authTime }),
+      ...(payload.amr === undefined ? {} : { amr: payload.amr }),
     };
 
     return {

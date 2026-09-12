@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { isSha256Hex } from '#shared/adapters/persistence/crypto/is-sha-256-hex';
 import { SHA_256_HEX_LENGTH } from '#shared/adapters/persistence/crypto/constants';
+import { isSha256Hex } from '#shared/adapters/persistence/crypto/is-sha-256-hex';
 
 describe('isSha256Hex', () => {
   it('accepts a canonical lowercase SHA-256 digest', () => {

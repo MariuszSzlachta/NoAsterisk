@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Download, Lock, RefreshCw, RotateCcw, Upload } from 'lucide-react';
 
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
-import { VaultPasswordDialog } from '#features/user-settings/ui/VaultPasswordDialog';
 import { STATUS_COLORS } from '#features/user-settings/ui/VaultSection/constants/status-colors';
 import { STATUS_I18N } from '#features/user-settings/ui/VaultSection/constants/status-i18n';
 import { STATUS_ICONS } from '#features/user-settings/ui/VaultSection/constants/status-icons';
 import { StatCard } from '#features/user-settings/ui/VaultSection/StatCard';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
+import { TrustedDeviceApproval } from '#features/user-settings/ui/TrustedDeviceApproval';
 
 export const VaultSection = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -18,22 +18,25 @@ export const VaultSection = (): React.JSX.Element => {
     vaultInfo,
     dataStats,
     isSyncing,
+    isChangingSecurity,
+    isRotating,
+    isHighSecurity,
+    isPasskeyUnlock,
     importError,
     fileInputRef,
-    showPasswordDialog,
-    passwordDialogMode,
-    passwordError,
     handleSync,
     handleRestore,
     handleExport,
     handleTriggerImport,
     handleFileInputChange,
-    handlePasswordSubmit,
-    handlePasswordCancel,
+    handleEnableHighSecurity,
+    handleEnablePasskeyUnlock,
+    handleRotateVmk,
   } = useVaultSection();
 
   return (
     <>
+      <TrustedDeviceApproval />
       <Card className="">
         <div className="mb-4">
           <h2 className="text-sm font-semibold text-foreground">
@@ -79,6 +82,15 @@ export const VaultSection = (): React.JSX.Element => {
           </Button>
           <Button
             variant="secondary"
+            onClick={handleRotateVmk}
+            disabled={isSyncing || isChangingSecurity || isRotating}
+          >
+            {isRotating
+              ? t('settings.vault.rotationChanging')
+              : t('settings.vault.rotateKey')}
+          </Button>
+          <Button
+            variant="secondary"
             onClick={handleRestore}
             icon={<RotateCcw size={14} />}
             disabled={vaultInfo.status === 'never-synced' || isSyncing}
@@ -99,6 +111,32 @@ export const VaultSection = (): React.JSX.Element => {
           >
             {t('settings.vault.import')}
           </Button>
+          <Button
+            variant="secondary"
+            onClick={handleEnableHighSecurity}
+            disabled={isSyncing || isChangingSecurity}
+          >
+            {isChangingSecurity
+              ? t('settings.vault.highSecurityChanging')
+              : t(
+                  isHighSecurity
+                    ? 'settings.vault.highSecurityDisable'
+                    : 'settings.vault.highSecurityEnable',
+                )}
+          </Button>
+          {!isHighSecurity && (
+            <Button
+              variant="secondary"
+              onClick={handleEnablePasskeyUnlock}
+              disabled={
+                isSyncing || isChangingSecurity || isPasskeyUnlock
+              }
+            >
+              {isPasskeyUnlock
+                ? t('settings.vault.passkeyEnabledLabel')
+                : t('settings.vault.passkeyEnable')}
+            </Button>
+          )}
         </div>
 
         <input
@@ -160,16 +198,6 @@ export const VaultSection = (): React.JSX.Element => {
           />
         </div>
       </Card>
-
-      {showPasswordDialog && (
-        <VaultPasswordDialog
-          mode={passwordDialogMode}
-          error={passwordError}
-          isLoading={isSyncing}
-          onSubmit={handlePasswordSubmit}
-          onCancel={handlePasswordCancel}
-        />
-      )}
     </>
   );
 };

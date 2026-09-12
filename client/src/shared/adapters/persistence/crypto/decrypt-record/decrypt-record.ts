@@ -1,6 +1,6 @@
-import { createPersistenceCryptoError } from '#shared/adapters/persistence/crypto/errors';
 import { composeRecordAad } from '#shared/adapters/persistence/crypto/compose-record-aad';
 import { decryptBytes } from '#shared/adapters/persistence/crypto/decrypt-bytes';
+import { createPersistenceCryptoError } from '#shared/adapters/persistence/crypto/errors';
 import { isEncryptedRecordEnvelope } from '#shared/adapters/persistence/crypto/is-encrypted-record-envelope';
 import type { PersistenceCollection } from '#shared/adapters/persistence/ports';
 
@@ -22,10 +22,16 @@ export const decryptRecord = async <TRecord extends object>(
       key,
       envelope.ciphertext,
       envelope.iv,
-      composeRecordAad(envelope.collection, envelope.id, envelope.cryptoVersion),
+      composeRecordAad(
+        envelope.collection,
+        envelope.id,
+        envelope.cryptoVersion,
+      ),
     );
   } catch {
-    throw createPersistenceCryptoError('Encrypted record authentication failed');
+    throw createPersistenceCryptoError(
+      'Encrypted record authentication failed',
+    );
   }
 
   let parsed: unknown;

@@ -7,8 +7,8 @@ export const clearPersistenceStorage = (removePreferences: boolean): void => {
 
   [
     ...Object.values(PERSISTENCE_STORAGE_KEYS.legacy),
-    ...(removePreferences ? Object.values(PERSISTENCE_STORAGE_KEYS.preferences) : []),
-  ].forEach(
-    (key) => localStorage.removeItem(key),
-  );
+    ...(removePreferences
+      ? Object.values(PERSISTENCE_STORAGE_KEYS.preferences)
+      : []),
+  ].forEach((key) => localStorage.removeItem(key));
 };

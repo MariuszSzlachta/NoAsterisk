@@ -1,0 +1,1 @@
+export { TrustedDeviceQrScanner } from './TrustedDeviceQrScanner';

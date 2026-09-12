@@ -8,6 +8,8 @@ export interface UseLoginFormResult {
   readonly errors: FieldErrors;
   readonly serverError: string | undefined;
   readonly isSubmitting: boolean;
+  readonly isPasskeySubmitting: boolean;
+  readonly handlePasskeyLogin: () => void;
   readonly handleEmailChange: (e: ChangeEvent<HTMLInputElement>) => void;
   readonly handlePasswordChange: (e: ChangeEvent<HTMLInputElement>) => void;
   readonly handleSubmit: (e: FormEvent) => void;

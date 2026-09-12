@@ -20,7 +20,8 @@ test.describe('Budgets Page — CRUD E2E', () => {
   });
 
   test('creates a savings budget via form', async ({ page }) => {
-    await page.getByRole('button', { name: 'Utwórz budżet oszczędnościowy' }).click();
+    await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+    await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
 
     // Modal should open
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -39,7 +40,8 @@ test.describe('Budgets Page — CRUD E2E', () => {
   });
 
   test('validates form — shows error for missing name', async ({ page }) => {
-    await page.getByRole('button', { name: 'Utwórz budżet oszczędnościowy' }).click();
+    await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+    await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
 
     // Submit without filling
     await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
@@ -49,7 +51,8 @@ test.describe('Budgets Page — CRUD E2E', () => {
   });
 
   test('closes form modal with cancel button', async ({ page }) => {
-    await page.getByRole('button', { name: 'Utwórz budżet oszczędnościowy' }).click();
+    await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+    await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
 
@@ -71,7 +74,8 @@ test.describe('Budgets Page — CRUD E2E', () => {
   });
 
   test('creates savings budget and shows progress toward goal', async ({ page }) => {
-    await page.getByRole('button', { name: 'Utwórz budżet oszczędnościowy' }).click();
+    await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
+    await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
 
     await page.getByLabel('Nazwa budżetu').fill('Fundusz awaryjny');
     await page.getByLabel(/Cel oszczędności/).fill('10000');

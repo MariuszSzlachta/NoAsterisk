@@ -12,21 +12,25 @@ describe('useInfiniteScroll', () => {
     observe.mockReset();
     disconnect.mockReset();
     callback = undefined;
-    vi.stubGlobal(
-      'IntersectionObserver',
-      vi.fn((nextCallback: IntersectionObserverCallback) => {
+    class MockIntersectionObserver {
+      readonly observe = observe;
+      readonly disconnect = disconnect;
+
+      constructor(nextCallback: IntersectionObserverCallback) {
         callback = nextCallback;
-        return { observe, disconnect };
-      }),
-    );
+      }
+    }
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
 
   it('loads more when the sentinel intersects', () => {
     const onLoadMore = vi.fn();
+    let rootMargin = '0px 0px 160px';
     const { result, rerender } = renderHook(() =>
-      useInfiniteScroll({ hasMore: true, onLoadMore }),
+      useInfiniteScroll({ hasMore: true, onLoadMore, rootMargin }),
     );
     result.current.current = document.createElement('div');
+    rootMargin = '0px 0px 161px';
     rerender();
 
     callback?.(

@@ -1,5 +1,6 @@
 import {
   Controller,
+  GoneException,
   Get,
   Patch,
   Post,
@@ -125,20 +126,19 @@ export class UserSettingsController {
     @CurrentUser() user: CurrentUserPayload,
     @Body(new ZodValidationPipe(uploadVaultSchema)) dto: UploadVaultDto,
   ): Promise<UploadVaultResult> {
-    return this.uploadVaultHandler.execute({
-      workspaceId: user.workspaceId,
-      encryptedBlob: dto.encryptedBlob,
-      baseRevision: dto.baseRevision,
-    });
+    void user;
+    void dto;
+    void this.uploadVaultHandler;
+    throw new GoneException('Vault protocol v1 sync is disabled');
   }
 
   @Get('vault')
   async getVault(
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<VaultResult> {
-    return this.getVaultHandler.execute({
-      workspaceId: user.workspaceId,
-    });
+    void user;
+    void this.getVaultHandler;
+    throw new GoneException('Vault protocol v1 sync is disabled');
   }
 
   @Post('logout')

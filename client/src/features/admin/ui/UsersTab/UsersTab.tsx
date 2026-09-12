@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { ConfirmDeleteModal } from '#features/admin/ui/ConfirmDeleteModal';
+import { ConfirmDeleteModal } from '#shared/ui/ConfirmDeleteModal';
 import { useUsersTab } from '#features/admin/ui/hooks/useUsersTab';
 import { UserRow } from '#features/admin/ui/UserRow';
 import { Button } from '#shared/ui/Button';

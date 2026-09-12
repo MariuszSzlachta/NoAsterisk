@@ -1,6 +1,10 @@
-import { SENTINEL_COLLECTION, SENTINEL_ID, SENTINEL_VALUE } from '#shared/adapters/persistence/crypto/constants';
-import { createPersistenceCryptoError } from '#shared/adapters/persistence/crypto/errors';
+import {
+  SENTINEL_COLLECTION,
+  SENTINEL_ID,
+  SENTINEL_VALUE,
+} from '#shared/adapters/persistence/crypto/constants';
 import { decryptRecord } from '#shared/adapters/persistence/crypto/decrypt-record';
+import { createPersistenceCryptoError } from '#shared/adapters/persistence/crypto/errors';
 import type { EncryptedRecordEnvelope } from '#shared/adapters/persistence/ports';
 
 export const verifySentinel = async (
@@ -16,7 +20,11 @@ export const verifySentinel = async (
     SENTINEL_COLLECTION,
     key,
     (candidate): candidate is { readonly value: string } => {
-      if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) {
+      if (
+        typeof candidate !== 'object' ||
+        candidate === null ||
+        Array.isArray(candidate)
+      ) {
         return false;
       }
       return 'value' in candidate && typeof candidate.value === 'string';

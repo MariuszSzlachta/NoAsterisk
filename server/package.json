@@ -34,10 +34,12 @@
     "@nestjs/jwt": "11.0.2",
     "@nestjs/platform-express": "^11.2.1",
     "@nestjs/throttler": "6.5.0",
+    "@simplewebauthn/server": "^14.0.1",
     "bcrypt": "6.0.0",
     "dotenv": "16.5.0",
-    "drizzle-orm": "0.40.0",
+    "drizzle-orm": "^0.45.2",
     "helmet": "^8.0.0",
+    "multer": "2.3.0",
     "pg": "8.13.3",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
@@ -69,7 +71,7 @@
     "ts-node": "10.9.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "4.2.0",
-    "tsx": "4.19.0",
+    "tsx": "^4.23.13",
     "typescript": "6.0.3",
     "typescript-eslint": "8.62.0"
   },
@@ -106,7 +108,8 @@
       "^@import-profiles/(.*)$": "<rootDir>/import-profiles/$1",
       "^@user-settings/(.*)$": "<rootDir>/user-settings/$1",
       "^@dictionaries/(.*)$": "<rootDir>/dictionaries/$1",
-      "^@invite-codes/(.*)$": "<rootDir>/invite-codes/$1"
+      "^@invite-codes/(.*)$": "<rootDir>/invite-codes/$1",
+      "^@vault-protocol/(.*)$": "<rootDir>/vault-protocol/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

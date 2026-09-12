@@ -1,0 +1,216 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { encryptedPersistence } from '#shared/adapters/persistence';
+import { recoveryCode } from '#shared/adapters/vault-protocol/recovery-code';
+import { passkeyPrf } from '#shared/adapters/webauthn/passkey-prf';
+import { issueServerShare } from '#shared/api/vault-protocol/issue-server-share';
+import { rotateVault } from '#shared/api/vault-protocol/rotate-vault';
+import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
+import { webauthnChallenge } from '#shared/api/vault-protocol/webauthn-challenge';
+import { webauthnCredentials } from '#shared/api/vault-protocol/webauthn-credentials';
+
+import { vaultRotation } from './vault-rotation';
+
+const { persistence, protocol } = vi.hoisted(() => ({
+  persistence: {
+    requireVaultSyncMaterial: vi.fn(),
+    readVaultLocalShare: vi.fn(),
+    verifyVaultVmk: vi.fn(),
+    rotateVaultKeys: vi.fn(),
+    getPendingVaultRotation: vi.fn(),
+    clearPendingVaultRotation: vi.fn(),
+  },
+  protocol: {
+    generateVmk: vi.fn(),
+    deriveKeys: vi.fn(),
+    deriveDeviceKey: vi.fn(),
+    derivePrfKey: vi.fn(),
+    wrapVmk: vi.fn(),
+    canonicalize: vi.fn(() => 'canonical'),
+  },
+}));
+
+vi.mock('#shared/adapters/persistence', () => ({
+  encryptedPersistence: persistence,
+}));
+vi.mock('#shared/adapters/vault-protocol/vault-protocol', () => ({
+  vaultProtocol: protocol,
+}));
+vi.mock('#shared/adapters/vault-protocol/recovery-code', () => ({
+  recoveryCode: { restore: vi.fn() },
+}));
+vi.mock('#shared/api/vault-protocol/issue-server-share', () => ({
+  issueServerShare: vi.fn(),
+}));
+vi.mock('#shared/api/vault-protocol/rotate-vault', () => ({
+  rotateVault: { rotate: vi.fn() },
+}));
+vi.mock('#shared/api/vault-protocol/vault-bootstrap', () => ({
+  vaultBootstrap: { get: vi.fn() },
+}));
+vi.mock('#shared/api/vault-protocol/webauthn-challenge', () => ({
+  webauthnChallenge: { createAuthenticationChallengeRecord: vi.fn() },
+}));
+vi.mock('#shared/api/vault-protocol/webauthn-credentials', () => ({
+  webauthnCredentials: { verifyAuthentication: vi.fn() },
+}));
+vi.mock('#shared/adapters/webauthn/passkey-prf', () => ({
+  passkeyPrf: { run: vi.fn() },
+}));
+
+describe('vaultRotation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
+      syncKey: {},
+      signingKey: {},
+      verifyKey: {},
+      context: {
+        accountId: 'account-1',
+        workspaceId: 'workspace-1',
+        vaultId: 'vault-1',
+        keyId: 'key-1',
+        deviceId: 'device-1',
+      },
+    });
+    vi.mocked(vaultBootstrap.get).mockResolvedValue({
+      status: 'available',
+      vaultId: 'vault-1',
+      keyId: 'key-1',
+      deviceId: 'device-1',
+      deviceEnvelope: 'opaque',
+    });
+    vi.mocked(encryptedPersistence.readVaultLocalShare).mockResolvedValue({});
+    vi.mocked(recoveryCode.restore).mockResolvedValue(
+      new Uint8Array(32).fill(1),
+    );
+    vi.mocked(issueServerShare).mockResolvedValue(new Uint8Array(32).fill(2));
+    vi.mocked(protocol.generateVmk).mockReturnValue(new Uint8Array(32).fill(3));
+    vi.mocked(protocol.deriveKeys).mockResolvedValue({
+      local: {},
+      sync: {},
+      check: {},
+    });
+    vi.mocked(protocol.deriveDeviceKey).mockResolvedValue({});
+    vi.mocked(protocol.derivePrfKey).mockResolvedValue({});
+    vi.mocked(protocol.wrapVmk).mockResolvedValue({
+      header: { purpose: 'device-wrap' },
+      ciphertext: 'opaque-envelope',
+    });
+    vi.mocked(rotateVault.rotate).mockImplementation(async (request) => ({
+      status: 'rotated',
+      keyId: request.nextKeyId,
+      revokedDeviceCount: 1,
+    }));
+    vi.mocked(
+      webauthnChallenge.createAuthenticationChallengeRecord,
+    ).mockResolvedValue({
+      bytes: new Uint8Array([1]),
+      encoded: 'challenge',
+    });
+    vi.mocked(passkeyPrf.run).mockResolvedValue({
+      prfKey: {},
+      credentialId: 'credential-1',
+      assertion: {
+        id: 'credential-1',
+        rawId: 'raw-id',
+        response: {
+          clientDataJSON: 'client',
+          authenticatorData: 'auth',
+          signature: 'sig',
+        },
+        type: 'public-key',
+      },
+    });
+    vi.mocked(webauthnCredentials.verifyAuthentication).mockResolvedValue(
+      undefined,
+    );
+  });
+
+  it('verifies recovery locally, re-encrypts locally, then commits opaque server rotation', async () => {
+    await vaultRotation.rotate({ recoveryCode: 'recovery' });
+    expect(encryptedPersistence.verifyVaultVmk).toHaveBeenCalled();
+    expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ vaultId: 'vault-1' }),
+      expect.objectContaining({
+        envelope: JSON.stringify({
+          header: { purpose: 'device-wrap' },
+          ciphertext: 'opaque-envelope',
+        }),
+      }),
+    );
+    expect(rotateVault.rotate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        envelope: JSON.stringify({
+          header: { purpose: 'device-wrap' },
+          ciphertext: 'opaque-envelope',
+        }),
+      }),
+    );
+    expect(encryptedPersistence.clearPendingVaultRotation).toHaveBeenCalled();
+  });
+
+  it('leaves the encrypted pending journal when the server commit fails', async () => {
+    vi.mocked(rotateVault.rotate).mockRejectedValue(new Error('transport'));
+    await expect(
+      vaultRotation.rotate({ recoveryCode: 'recovery' }),
+    ).rejects.toThrow('transport');
+    expect(
+      encryptedPersistence.clearPendingVaultRotation,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('preserves the optional PRF envelope during standard rotation', async () => {
+    vi.mocked(vaultBootstrap.get).mockResolvedValue({
+      status: 'available',
+      vaultId: 'vault-1',
+      keyId: 'key-1',
+      deviceId: 'device-1',
+      deviceEnvelope: 'opaque-device',
+      passkeyEnvelope: 'opaque-passkey',
+    });
+
+    await vaultRotation.rotate({ recoveryCode: 'recovery' });
+
+    expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      expect.objectContaining({ passkeyEnvelope: expect.any(String) }),
+    );
+    expect(rotateVault.rotate).toHaveBeenCalledWith(
+      expect.objectContaining({ passkeyEnvelope: expect.any(String) }),
+    );
+  });
+
+  it('resumes a pending idempotent commit after local unlock', async () => {
+    vi.mocked(encryptedPersistence.getPendingVaultRotation).mockResolvedValue({
+      currentKeyId: 'key-1',
+      nextKeyId: 'key-2',
+      idempotencyKey: 'rotation-1',
+      envelopePurpose: 'device-wrap',
+      envelope: 'opaque',
+      currentVmkEnvelope: { header: {}, ciphertext: 'opaque' },
+      nextVmkEnvelope: { header: {}, ciphertext: 'opaque' },
+    });
+    vi.mocked(rotateVault.rotate).mockResolvedValue({
+      status: 'rotated',
+      keyId: 'key-2',
+      revokedDeviceCount: 1,
+    });
+    await expect(vaultRotation.resumePending()).resolves.toBe(true);
+    expect(encryptedPersistence.clearPendingVaultRotation).toHaveBeenCalledWith(
+      'rotation-1',
+    );
+  });
+
+  it('uses PRF only and removes LocalShare from high-security rotation input', async () => {
+    await vaultRotation.rotateWithPasskey('recovery');
+    expect(protocol.derivePrfKey).toHaveBeenCalled();
+    expect(encryptedPersistence.rotateVaultKeys).toHaveBeenCalledWith(
+      expect.objectContaining({ localShare: null }),
+      expect.any(Object),
+      expect.objectContaining({ envelopePurpose: 'passkey-wrap' }),
+    );
+  });
+});

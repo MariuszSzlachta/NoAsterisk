@@ -3,4 +3,5 @@ export interface PersistenceSyncMetadata {
   readonly lastSuccessfulSyncRevision: number | undefined;
   readonly lastSuccessfulSyncAt: string | undefined;
   readonly isDirty: boolean;
+  readonly highWaterEnvelopeHash?: string;
 }

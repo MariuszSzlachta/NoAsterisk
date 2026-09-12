@@ -15,6 +15,7 @@ test.describe('Admin Rules — CRUD', () => {
           id: 'user-e2e',
           email: 'admin@budget.local',
           role: 'Superuser',
+          workspaceId: 'workspace-e2e',
           preferences: { language: 'pl', currency: 'PLN', theme: 'dark' },
         }),
       }),
@@ -49,7 +50,7 @@ test.describe('Admin Rules — CRUD', () => {
     await page.getByRole('button', { name: /dodaj$/i }).click();
 
     // Rule appears in table
-    await expect(page.getByText('LIDL')).toBeVisible();
+    await expect(page.getByRole('table').getByText('LIDL')).toBeVisible();
   });
 
   test('edit rule flow: click edit → form shows values → save', async ({ page }) => {
@@ -75,8 +76,8 @@ test.describe('Admin Rules — CRUD', () => {
     await page.getByRole('button', { name: /zapisz/i }).click();
 
     // Updated in table
-    await expect(page.getByText('BOLT')).toBeVisible();
-    await expect(page.getByText('UBER')).not.toBeVisible();
+    await expect(page.getByRole('table').getByText('BOLT')).toBeVisible();
+    await expect(page.getByRole('table').getByText('UBER')).not.toBeVisible();
   });
 
   test('delete rule flow: click delete → removed from table', async ({ page }) => {
@@ -89,13 +90,14 @@ test.describe('Admin Rules — CRUD', () => {
     await page.getByRole('button', { name: /dodaj$/i }).click();
 
     // Verify it's there
-    await expect(page.getByText('NETFLIX')).toBeVisible();
+    await expect(page.getByRole('table').getByText('NETFLIX')).toBeVisible();
 
     // Delete
     await page.getByRole('button', { name: /usuń regułę netflix/i }).click();
+    await page.getByRole('dialog').getByRole('button', { name: /usuń|delete/i }).click();
 
     // Gone
-    await expect(page.getByText('NETFLIX')).not.toBeVisible();
+    await expect(page.getByRole('table').getByText('NETFLIX')).not.toBeVisible();
     await expect(page.getByText(/brak reguł/i)).toBeVisible();
   });
 });

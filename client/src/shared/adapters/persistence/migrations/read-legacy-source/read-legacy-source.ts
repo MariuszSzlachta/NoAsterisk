@@ -1,5 +1,8 @@
+import type {
+  LegacySource,
+  ValidatedLegacySource,
+} from '#shared/adapters/persistence/migrations/legacy-types';
 import { isRecord } from '#shared/lib/is-record';
-import type { LegacySource, ValidatedLegacySource } from '#shared/adapters/persistence/migrations/legacy-types';
 
 export const readLegacySource = (
   source: LegacySource,

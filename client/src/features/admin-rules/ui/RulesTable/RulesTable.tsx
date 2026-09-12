@@ -5,9 +5,9 @@ import { Pencil, Trash2 } from 'lucide-react';
 import type { RuleViewModel } from '#features/admin-rules/model/types';
 import { buildRulesColumns } from '#features/admin-rules/ui/constants/rules-columns';
 import { useRulesTable } from '#features/admin-rules/ui/hooks/useRulesTable';
-import { ConfirmDeleteModal } from '#features/admin/ui/ConfirmDeleteModal';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
+import { ConfirmDeleteModal } from '#shared/ui/ConfirmDeleteModal';
 import { DataTable } from '#shared/ui/DataTable';
 
 interface RulesTableProps {

@@ -11,6 +11,7 @@ import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { THROTTLE_DEFAULT } from '@shared/presentation/throttle.constants';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { VaultProtocolModule } from '@vault-protocol/vault-protocol.module';
 
 const imports: Array<Type | DynamicModule> = [
   ThrottlerModule.forRoot([THROTTLE_DEFAULT]),
@@ -18,6 +19,7 @@ const imports: Array<Type | DynamicModule> = [
   InviteCodesModule,
   UserSettingsModule,
   DictionariesModule,
+  VaultProtocolModule,
 ];
 
 if (process.env.PERSISTENCE_MODE === 'postgres') {

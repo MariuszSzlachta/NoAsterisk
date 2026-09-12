@@ -1,6 +1,4 @@
-export {
-  LEGACY_SOURCES,
-} from '#shared/adapters/persistence/migrations/legacy-sources';
+export { LEGACY_SOURCES } from '#shared/adapters/persistence/migrations/legacy-sources';
 export { migrateLegacyLocalStorage } from '#shared/adapters/persistence/migrations/legacy-local-storage';
 export type { LegacyMigrationResult } from '#shared/adapters/persistence/migrations/legacy-types';
 export { isBudgetRecord } from '#shared/adapters/persistence/migrations/legacy-validators/is-budget-record';

@@ -5,6 +5,7 @@ import { AppShellSkeleton } from '#app/layouts/AppShell';
 import { VaultUnlockScreen } from '#app/routing/VaultUnlockScreen';
 import { useProfileQuery } from '#features/user-settings';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { useVaultAutomaticSync } from '#app/routing/useVaultAutomaticSync';
 
 export const RequireVault = (): React.JSX.Element => {
   const { data: profile, isLoading: isProfileLoading } = useProfileQuery();
@@ -13,6 +14,8 @@ export const RequireVault = (): React.JSX.Element => {
     encryptedPersistence.getSnapshot,
     encryptedPersistence.getSnapshot,
   );
+
+  useVaultAutomaticSync(snapshot.status === 'unlocked');
 
   // Establish the account database namespace before opening the unlock screen.
   // Otherwise the first unlock can succeed against `anonymous`, then Sidebar's
@@ -25,5 +28,11 @@ export const RequireVault = (): React.JSX.Element => {
     return <Outlet />;
   }
 
-  return <VaultUnlockScreen snapshot={snapshot} />;
+  return (
+    <VaultUnlockScreen
+      snapshot={snapshot}
+      accountId={profile.id}
+      workspaceId={profile.workspaceId}
+    />
+  );
 };

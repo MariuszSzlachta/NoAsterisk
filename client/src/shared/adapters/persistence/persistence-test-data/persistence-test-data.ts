@@ -1,11 +1,13 @@
-import type { CategoryInfo } from '#entities/category';
 import type { RuleRecord } from '#features/admin-rules/model/rule-record';
-import type { StandardBudgetRecord } from '#features/budgets/model/types/standard-budget-record';
 import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
+import type { StandardBudgetRecord } from '#features/budgets/model/types/standard-budget-record';
 import type { StoredTransaction } from '#features/transactions/model/types';
+import type { CategoryInfo } from '#entities/category';
 import type { ImportProfileRecord } from '#shared/adapters/persistence/ports';
 
-const createTransaction = (overrides: Partial<StoredTransaction> = {}): StoredTransaction => ({
+const createTransaction = (
+  overrides: Partial<StoredTransaction> = {},
+): StoredTransaction => ({
   id: 'tx-1',
   date: '2026-09-07',
   description: 'Secret merchant',
@@ -27,14 +29,18 @@ const createRule = (overrides: Partial<RuleRecord> = {}): RuleRecord => ({
   ...overrides,
 });
 
-const createCategory = (overrides: Partial<CategoryInfo> = {}): CategoryInfo => ({
+const createCategory = (
+  overrides: Partial<CategoryInfo> = {},
+): CategoryInfo => ({
   id: 'cat-1',
   label: 'Food',
   color: '#fff',
   ...overrides,
 });
 
-const createBudget = (overrides: Partial<StandardBudgetRecord> = {}): StandardBudgetRecord => ({
+const createBudget = (
+  overrides: Partial<StandardBudgetRecord> = {},
+): StandardBudgetRecord => ({
   id: 'budget-1',
   workspaceId: 'workspace-1',
   name: 'Food',
@@ -49,7 +55,9 @@ const createBudget = (overrides: Partial<StandardBudgetRecord> = {}): StandardBu
   ...overrides,
 });
 
-const createHistory = (overrides: Partial<PeriodHistoryRecord> = {}): PeriodHistoryRecord => ({
+const createHistory = (
+  overrides: Partial<PeriodHistoryRecord> = {},
+): PeriodHistoryRecord => ({
   id: 'history-1',
   budgetId: 'budget-1',
   periodFrom: '2026-09-01',
@@ -62,7 +70,9 @@ const createHistory = (overrides: Partial<PeriodHistoryRecord> = {}): PeriodHist
   ...overrides,
 });
 
-const createImportProfile = (overrides: Partial<ImportProfileRecord> = {}): ImportProfileRecord => ({
+const createImportProfile = (
+  overrides: Partial<ImportProfileRecord> = {},
+): ImportProfileRecord => ({
   id: 'profile-1',
   name: 'Bank CSV',
   columnMapping: { date: 'Date' },

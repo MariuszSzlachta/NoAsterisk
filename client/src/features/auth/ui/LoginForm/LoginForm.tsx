@@ -15,6 +15,8 @@ export const LoginForm = (): React.JSX.Element => {
     handleEmailChange,
     handlePasswordChange,
     handleSubmit,
+    handlePasskeyLogin,
+    isPasskeySubmitting,
   } = useLoginForm();
 
   return (
@@ -53,6 +55,18 @@ export const LoginForm = (): React.JSX.Element => {
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}
+      </Button>
+
+      <Button
+        type="button"
+        variant="secondary"
+        disabled={isSubmitting}
+        onClick={handlePasskeyLogin}
+        className="w-full"
+      >
+        {isPasskeySubmitting
+          ? t('auth.login.passkeySubmitting')
+          : t('auth.login.passkeySubmit')}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">

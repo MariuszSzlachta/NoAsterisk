@@ -2,7 +2,9 @@ import type { StoredTransaction } from '#features/transactions/model/types';
 import { isRecord } from '#shared/lib/is-record';
 import { recordGuards } from '#shared/lib/record-guards';
 
-export const isStoredTransaction = (value: unknown): value is StoredTransaction =>
+export const isStoredTransaction = (
+  value: unknown,
+): value is StoredTransaction =>
   isRecord(value) &&
   recordGuards.hasString(value, 'id') &&
   recordGuards.hasString(value, 'date') &&

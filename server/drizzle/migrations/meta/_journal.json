@@ -50,6 +50,69 @@
       "when": 1788966260000,
       "tag": "0006_retire_financial_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788977100000,
+      "tag": "0007_vault_protocol_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788977200000,
+      "tag": "0008_webauthn_challenges",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788977300000,
+      "tag": "0009_vault_sync_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788977400000,
+      "tag": "0010_vault_enrollment_challenges",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1788977500000,
+      "tag": "0011_webauthn_credential_revocation",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1788977600000,
+      "tag": "0012_public_passkey_login",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788977700000,
+      "tag": "0013_vault_rotations",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1788977800000,
+      "tag": "0014_enrollment_vault_fk",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1788977900000,
+      "tag": "0015_enrollment_confirmation",
+      "breakpoints": true
     }
   ]
 }

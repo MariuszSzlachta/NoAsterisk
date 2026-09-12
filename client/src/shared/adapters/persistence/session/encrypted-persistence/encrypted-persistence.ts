@@ -6,10 +6,14 @@ import {
 import {
   BudgetDatabase,
   createEncryptedDexieRepository,
+  createVaultV2Repository,
   deleteMatchingRecords,
   encryptedDatabase,
   getAccountDatabaseName,
   putManyIfAbsentWithRelated as putManyIfAbsentWithRelatedInDexie,
+  rotateVaultRecords,
+  VaultV2Database,
+  type VaultV2RotationJournal,
 } from '#shared/adapters/persistence/dexie';
 import { migrateLegacyLocalStorage } from '#shared/adapters/persistence/migrations';
 import type {
@@ -31,18 +35,75 @@ import {
   type PersistentStorageStatus,
 } from '#shared/adapters/persistence/session/session-types';
 import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
+import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 
 export const createEncryptedPersistence = (
   database: BudgetDatabase = encryptedDatabase,
 ): EncryptedPersistence => {
+  const generateSigningKeyPair = async (): Promise<CryptoKeyPair> => {
+    const generated = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      true,
+      ['sign', 'verify'],
+    );
+    const privateJwk = await crypto.subtle.exportKey(
+      'jwk',
+      generated.privateKey,
+    );
+    const publicJwk = await crypto.subtle.exportKey('jwk', generated.publicKey);
+    const privateKey = await crypto.subtle.importKey(
+      'jwk',
+      privateJwk,
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['sign'],
+    );
+    const publicKey = await crypto.subtle.importKey(
+      'jwk',
+      publicJwk,
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      true,
+      ['verify'],
+    );
+    return { privateKey, publicKey };
+  };
   const databaseLock = createDatabaseLock();
   const session = createPersistenceSnapshot();
   let activeDatabase = database;
   let accountNamespace = 'anonymous';
   // Mutable by design: locking and fail-closed paths must be able to erase the in-memory key.
   let key: CryptoKey | undefined;
+  let syncKey: CryptoKey | undefined;
+  let signingKey: CryptoKey | undefined;
+  let verifyKey: CryptoKey | undefined;
+  let activeVmk: Uint8Array | undefined;
+  const clearActiveVmk = (): void => {
+    activeVmk?.fill(0);
+    activeVmk = undefined;
+  };
+  let generation = 0;
+  let activeVaultDatabase: VaultV2Database | undefined;
+  let activeGeneration = -1;
+  let vaultContext:
+    | {
+        readonly accountId: string;
+        readonly workspaceId: string;
+        readonly vaultId: string;
+        readonly keyId: string;
+        readonly deviceId: string;
+      }
+    | undefined;
   const channel = createPersistenceChannel(() => {
+    generation += 1;
     key = undefined;
+    syncKey = undefined;
+    signingKey = undefined;
+    verifyKey = undefined;
+    clearActiveVmk();
+    activeVaultDatabase?.close();
+    activeVaultDatabase = undefined;
+    activeGeneration = -1;
+    vaultContext = undefined;
     activeDatabase.close();
     session.setSnapshot({
       status: 'locked',
@@ -58,6 +119,103 @@ export const createEncryptedPersistence = (
     throw createPersistenceLockedError();
   };
 
+  const readVaultLocalShare = async (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }): Promise<CryptoKey | undefined> => {
+    const database = new VaultV2Database(
+      context.accountId,
+      context.workspaceId,
+      context.vaultId,
+    );
+    await database.open();
+    try {
+      const metadata = await database.metadata.get('vault');
+      const contextMatchesPendingRotation =
+        metadata?.pendingRotation?.currentKeyId === context.keyId &&
+        metadata.keyId === metadata.pendingRotation.nextKeyId;
+      if (
+        metadata === undefined ||
+        metadata.accountId !== context.accountId ||
+        metadata.workspaceId !== context.workspaceId ||
+        metadata.vaultId !== context.vaultId ||
+        (metadata.keyId !== context.keyId && !contextMatchesPendingRotation) ||
+        metadata.deviceId !== context.deviceId
+      )
+        return undefined;
+      return metadata.localShare;
+    } finally {
+      database.close();
+    }
+  };
+
+  const removeVaultLocalShare = async (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }): Promise<void> => {
+    const database = new VaultV2Database(
+      context.accountId,
+      context.workspaceId,
+      context.vaultId,
+    );
+    await database.open();
+    try {
+      const metadata = await database.metadata.get('vault');
+      if (
+        metadata === undefined ||
+        metadata.accountId !== context.accountId ||
+        metadata.workspaceId !== context.workspaceId ||
+        metadata.vaultId !== context.vaultId ||
+        metadata.keyId !== context.keyId ||
+        metadata.deviceId !== context.deviceId
+      )
+        return;
+      const { localShare: _localShare, ...withoutLocalShare } = metadata;
+      await database.metadata.put(withoutLocalShare);
+    } finally {
+      database.close();
+    }
+  };
+
+  const storeVaultLocalShare = async (
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    localShare: CryptoKey,
+  ): Promise<void> => {
+    const database = new VaultV2Database(
+      context.accountId,
+      context.workspaceId,
+      context.vaultId,
+    );
+    await database.open();
+    try {
+      const metadata = await database.metadata.get('vault');
+      if (
+        metadata === undefined ||
+        metadata.accountId !== context.accountId ||
+        metadata.workspaceId !== context.workspaceId ||
+        metadata.vaultId !== context.vaultId ||
+        metadata.keyId !== context.keyId ||
+        metadata.deviceId !== context.deviceId
+      )
+        throw new Error('Vault metadata context mismatch');
+      await database.metadata.put({ ...metadata, localShare });
+    } finally {
+      database.close();
+    }
+  };
+
   const setAccountContext = (userId: string, workspaceId: string): void => {
     if (userId.length === 0 || workspaceId.length === 0) {
       throw new Error('Persistence account context cannot be empty');
@@ -66,7 +224,16 @@ export const createEncryptedPersistence = (
     if (accountNamespace === nextNamespace) {
       return;
     }
+    generation += 1;
     key = undefined;
+    syncKey = undefined;
+    signingKey = undefined;
+    verifyKey = undefined;
+    clearActiveVmk();
+    activeVaultDatabase?.close();
+    activeVaultDatabase = undefined;
+    activeGeneration = -1;
+    vaultContext = undefined;
     activeDatabase.close();
     activeDatabase = new BudgetDatabase(
       getAccountDatabaseName(userId, workspaceId),
@@ -80,12 +247,50 @@ export const createEncryptedPersistence = (
     });
   };
 
+  const getVaultTransferMaterial = (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }) => {
+    if (
+      activeVmk === undefined ||
+      signingKey === undefined ||
+      verifyKey === undefined ||
+      vaultContext === undefined ||
+      vaultContext.accountId !== context.accountId ||
+      vaultContext.workspaceId !== context.workspaceId ||
+      vaultContext.vaultId !== context.vaultId ||
+      vaultContext.keyId !== context.keyId ||
+      vaultContext.deviceId !== context.deviceId
+    )
+      throw createPersistenceLockedError();
+    return {
+      vmk: activeVmk.slice(),
+      signingKey,
+      signingPublicKey: verifyKey,
+    };
+  };
+
   const repository = <TRecord extends object>(
     collection: PersistenceCollection,
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
-  ): EncryptedRepository<TRecord> =>
-    createEncryptedDexieRepository(
+  ): EncryptedRepository<TRecord> => {
+    if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+      return createVaultV2Repository(
+        activeVaultDatabase,
+        collection,
+        requireKey,
+        validator,
+        getId,
+        vaultContext,
+        databaseLock,
+        () => generation === activeGeneration,
+      );
+    }
+    return createEncryptedDexieRepository(
       () => activeDatabase,
       collection,
       requireKey,
@@ -93,6 +298,13 @@ export const createEncryptedPersistence = (
       getId,
       databaseLock,
     );
+  };
+
+  const isObjectRecord = (value: unknown): value is object =>
+    typeof value === 'object' && value !== null && !Array.isArray(value);
+  const isRelatedObjectRecord = <TRecord extends object>(
+    value: unknown,
+  ): value is TRecord => isObjectRecord(value);
 
   const requestPersistentStorage =
     async (): Promise<PersistentStorageStatus> => {
@@ -120,10 +332,19 @@ export const createEncryptedPersistence = (
     passphrase: string,
     hydrate?: () => Promise<void>,
   ): Promise<void> => {
+    if (accountNamespace !== 'anonymous') {
+      throw createPersistenceCryptoError(
+        'Passphrase unlock is unavailable for Vault Protocol v2 accounts',
+      );
+    }
     if (passphrase.length === 0) {
       throw createPersistenceCryptoError('Vault passphrase cannot be empty');
     }
 
+    const unlockGeneration = ++generation;
+    syncKey = undefined;
+    signingKey = undefined;
+    verifyKey = undefined;
     session.setSnapshot({
       status: 'unlocking',
       error: undefined,
@@ -132,6 +353,8 @@ export const createEncryptedPersistence = (
     try {
       const warning = await databaseLock(async () => {
         await activeDatabase.open();
+        if (generation !== unlockGeneration)
+          throw createPersistenceLockedError();
         const initialized = await initializePersistenceMetadata(
           activeDatabase,
           passphrase,
@@ -145,6 +368,8 @@ export const createEncryptedPersistence = (
         if (hydrate !== undefined) {
           await hydrate();
         }
+        if (generation !== unlockGeneration)
+          throw createPersistenceLockedError();
         return migration.warning;
       });
 
@@ -152,6 +377,9 @@ export const createEncryptedPersistence = (
       channel.broadcast('session-unlocked');
     } catch (error) {
       key = undefined;
+      syncKey = undefined;
+      signingKey = undefined;
+      verifyKey = undefined;
       activeDatabase.close();
       const message =
         error instanceof Error ? error.message : 'Unable to unlock local data';
@@ -164,8 +392,339 @@ export const createEncryptedPersistence = (
     }
   };
 
+  const unlockWithVaultKeys = async (
+    vaultKeys: {
+      readonly local: CryptoKey;
+      readonly sync: CryptoKey;
+      readonly check: CryptoKey;
+      readonly localShare?: CryptoKey;
+      readonly signingKeyPair?: CryptoKeyPair;
+      readonly vmk?: Uint8Array;
+    },
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    hydrate?: () => Promise<void>,
+  ): Promise<void> => {
+    const unlockGeneration = ++generation;
+    session.setSnapshot({
+      status: 'unlocking',
+      error: undefined,
+      warning: undefined,
+    });
+    try {
+      await databaseLock(async () => {
+        const database = new VaultV2Database(
+          context.accountId,
+          context.workspaceId,
+          context.vaultId,
+        );
+        await database.open();
+        activeVaultDatabase = database;
+        if (generation !== unlockGeneration) {
+          database.close();
+          activeVaultDatabase = undefined;
+          throw createPersistenceLockedError();
+        }
+        const contextWithoutDevice = {
+          accountId: context.accountId,
+          workspaceId: context.workspaceId,
+          vaultId: context.vaultId,
+          keyId: context.keyId,
+        };
+        const existingMetadata = await database.metadata.get('vault');
+        let effectiveVaultKeys = vaultKeys;
+        let effectiveContext = context;
+        if (
+          existingMetadata?.pendingRotation !== undefined &&
+          existingMetadata.keyId ===
+            existingMetadata.pendingRotation.nextKeyId &&
+          context.keyId === existingMetadata.pendingRotation.currentKeyId
+        ) {
+          const currentRotationContext = {
+            accountId: context.accountId,
+            workspaceId: context.workspaceId,
+            vaultId: context.vaultId,
+            keyId: existingMetadata.pendingRotation.currentKeyId,
+          };
+          const serializedVmk = await vaultProtocol.decryptRecord(
+            existingMetadata.pendingRotation.currentVmkEnvelope,
+            {
+              ...currentRotationContext,
+              collection: '__vault_rotation__',
+              recordId: 'next-vmk',
+            },
+            vaultKeys.local,
+          );
+          const parsedVmk: unknown = JSON.parse(serializedVmk);
+          if (
+            !Array.isArray(parsedVmk) ||
+            parsedVmk.length !== 32 ||
+            !parsedVmk.every(
+              (value): value is number =>
+                Number.isInteger(value) && value >= 0 && value <= 255,
+            )
+          )
+            throw createPersistenceCryptoError(
+              'Invalid pending vault rotation',
+            );
+          const pendingVmk = new Uint8Array(parsedVmk);
+          const nextRotationContext = {
+            ...context,
+            keyId: existingMetadata.pendingRotation.nextKeyId,
+          };
+          effectiveVaultKeys = {
+            ...(await vaultProtocol.deriveKeys(
+              pendingVmk,
+              nextRotationContext,
+            )),
+            ...(vaultKeys.localShare === undefined
+              ? {}
+              : { localShare: vaultKeys.localShare }),
+            ...(vaultKeys.signingKeyPair === undefined
+              ? {}
+              : { signingKeyPair: vaultKeys.signingKeyPair }),
+          };
+          pendingVmk.fill(0);
+          effectiveContext = nextRotationContext;
+        }
+        if (existingMetadata !== undefined) {
+          await vaultProtocol.verifySentinel(
+            existingMetadata.sentinel,
+            {
+              accountId: effectiveContext.accountId,
+              workspaceId: effectiveContext.workspaceId,
+              vaultId: effectiveContext.vaultId,
+              keyId: effectiveContext.keyId,
+            },
+            effectiveVaultKeys.check,
+          );
+        }
+        const signingKeyPair =
+          existingMetadata?.signingKeyPair ??
+          effectiveVaultKeys.signingKeyPair ??
+          (await generateSigningKeyPair());
+        key = effectiveVaultKeys.local;
+        syncKey = effectiveVaultKeys.sync;
+        signingKey = signingKeyPair.privateKey;
+        verifyKey = signingKeyPair.publicKey;
+        clearActiveVmk();
+        activeVmk = effectiveVaultKeys.vmk?.slice();
+        vaultContext = effectiveContext;
+        activeGeneration = unlockGeneration;
+        if (existingMetadata === undefined) {
+          await database.metadata.put({
+            id: 'vault',
+            protocolVersion: 2,
+            accountId: context.accountId,
+            workspaceId: context.workspaceId,
+            vaultId: context.vaultId,
+            keyId: context.keyId,
+            deviceId: context.deviceId,
+            createdAt: Date.now(),
+            ...(vaultKeys.localShare === undefined
+              ? {}
+              : { localShare: vaultKeys.localShare }),
+            signingKeyPair,
+            sentinel: await vaultProtocol.createSentinel(
+              contextWithoutDevice,
+              vaultKeys.check,
+            ),
+          });
+        } else {
+          const {
+            localShare: _existingLocalShare,
+            ...metadataWithoutLocalShare
+          } = existingMetadata;
+          await database.metadata.put({
+            ...metadataWithoutLocalShare,
+            ...(vaultKeys.localShare === undefined
+              ? {}
+              : { localShare: vaultKeys.localShare }),
+            signingKeyPair,
+          });
+        }
+      });
+      if (generation !== unlockGeneration) throw createPersistenceLockedError();
+      if (hydrate !== undefined) await hydrate();
+      if (generation !== unlockGeneration) throw createPersistenceLockedError();
+      session.setSnapshot({
+        status: 'unlocked',
+        error: undefined,
+        warning: undefined,
+      });
+      channel.broadcast('session-unlocked');
+    } catch (error) {
+      key = undefined;
+      syncKey = undefined;
+      signingKey = undefined;
+      verifyKey = undefined;
+      clearActiveVmk();
+      activeVaultDatabase?.close();
+      activeVaultDatabase = undefined;
+      activeGeneration = -1;
+      vaultContext = undefined;
+      activeDatabase.close();
+      session.setSnapshot({
+        status: 'error',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unable to unlock local data',
+        warning: undefined,
+      });
+      throw error;
+    }
+  };
+
+  const rotateVaultKeys = async (
+    vaultKeys: {
+      readonly local: CryptoKey;
+      readonly sync: CryptoKey;
+      readonly check: CryptoKey;
+      readonly localShare: CryptoKey | null;
+    },
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    rotation?: {
+      readonly idempotencyKey: string;
+      readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
+      readonly envelope: string;
+      readonly passkeyEnvelope?: string;
+      readonly nextVmk: Uint8Array;
+    },
+  ): Promise<void> => {
+    await databaseLock(async () => {
+      if (
+        activeVaultDatabase === undefined ||
+        vaultContext === undefined ||
+        key === undefined
+      )
+        throw createPersistenceLockedError();
+      const rotationGeneration = activeGeneration;
+      await rotateVaultRecords.rotate({
+        database: activeVaultDatabase,
+        currentKey: key,
+        nextKey: vaultKeys.local,
+        nextCheckKey: vaultKeys.check,
+        currentContext: vaultContext,
+        nextContext: context,
+        nextLocalShare: vaultKeys.localShare,
+        ...(rotation === undefined ? {} : { pendingRotation: rotation }),
+        isSessionActive: () =>
+          generation === rotationGeneration &&
+          activeGeneration === rotationGeneration,
+      });
+      if (generation !== rotationGeneration)
+        throw createPersistenceLockedError();
+      key = vaultKeys.local;
+      syncKey = vaultKeys.sync;
+      vaultContext = context;
+      persistenceSyncMetadata.resetForRotation();
+    });
+  };
+
+  const verifyVaultVmk = async (
+    vmk: Uint8Array,
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+  ): Promise<void> => {
+    await databaseLock(async () => {
+      if (activeVaultDatabase === undefined)
+        throw createPersistenceLockedError();
+      const metadata = await activeVaultDatabase.metadata.get('vault');
+      if (metadata === undefined)
+        throw createPersistenceCryptoError('Vault metadata is missing');
+      const keys = await vaultProtocol.deriveKeys(vmk, context);
+      if (metadata.keyId === context.keyId) {
+        await vaultProtocol.verifySentinel(
+          metadata.sentinel,
+          {
+            accountId: context.accountId,
+            workspaceId: context.workspaceId,
+            vaultId: context.vaultId,
+            keyId: context.keyId,
+          },
+          keys.check,
+        );
+        return;
+      }
+      if (
+        metadata.pendingRotation?.currentKeyId !== context.keyId ||
+        metadata.pendingRotation.nextKeyId !== metadata.keyId
+      )
+        throw createPersistenceCryptoError('Vault key context mismatch');
+      const serializedVmk = await vaultProtocol.decryptRecord(
+        metadata.pendingRotation.currentVmkEnvelope,
+        {
+          accountId: context.accountId,
+          workspaceId: context.workspaceId,
+          vaultId: context.vaultId,
+          keyId: context.keyId,
+          collection: '__vault_rotation__',
+          recordId: 'next-vmk',
+        },
+        keys.local,
+      );
+      const parsed: unknown = JSON.parse(serializedVmk);
+      if (
+        !Array.isArray(parsed) ||
+        parsed.length !== vmk.length ||
+        !parsed.every((value, index): value is number => value === vmk[index])
+      )
+        throw createPersistenceCryptoError(
+          'Vault recovery does not match active key',
+        );
+    });
+  };
+
+  const getPendingVaultRotation = async (): Promise<
+    VaultV2RotationJournal | undefined
+  > => {
+    if (activeVaultDatabase === undefined) return undefined;
+    return activeVaultDatabase.metadata
+      .get('vault')
+      .then((metadata) => metadata?.pendingRotation);
+  };
+
+  const clearPendingVaultRotation = async (
+    idempotencyKey: string,
+  ): Promise<void> => {
+    await databaseLock(async () => {
+      if (activeVaultDatabase === undefined) return;
+      const metadata = await activeVaultDatabase.metadata.get('vault');
+      if (metadata?.pendingRotation?.idempotencyKey !== idempotencyKey) return;
+      const { pendingRotation: _pendingRotation, ...withoutPendingRotation } =
+        metadata;
+      await activeVaultDatabase.metadata.put(withoutPendingRotation);
+    });
+  };
+
   const lock = (): void => {
+    generation += 1;
     key = undefined;
+    syncKey = undefined;
+    signingKey = undefined;
+    verifyKey = undefined;
+    clearActiveVmk();
+    activeVaultDatabase?.close();
+    activeVaultDatabase = undefined;
+    activeGeneration = -1;
+    vaultContext = undefined;
     activeDatabase.close();
     session.setSnapshot({
       status: 'locked',
@@ -176,7 +735,16 @@ export const createEncryptedPersistence = (
   };
 
   const failClosed = (error: unknown): void => {
+    generation += 1;
     key = undefined;
+    syncKey = undefined;
+    signingKey = undefined;
+    verifyKey = undefined;
+    clearActiveVmk();
+    activeVaultDatabase?.close();
+    activeVaultDatabase = undefined;
+    activeGeneration = -1;
+    vaultContext = undefined;
     activeDatabase.close();
     const message =
       error instanceof Error
@@ -194,7 +762,20 @@ export const createEncryptedPersistence = (
     readonly removePreferences?: boolean;
   }): Promise<void> => {
     await databaseLock(async () => {
+      generation += 1;
       key = undefined;
+      syncKey = undefined;
+      signingKey = undefined;
+      verifyKey = undefined;
+      clearActiveVmk();
+      if (activeVaultDatabase !== undefined) {
+        activeVaultDatabase.close();
+        await activeVaultDatabase.delete();
+        activeVaultDatabase = undefined;
+        vaultContext = undefined;
+        channel.broadcast('database-deleted');
+        return;
+      }
       activeDatabase.close();
       channel.broadcast('database-deleting');
       await activeDatabase.delete();
@@ -214,6 +795,19 @@ export const createEncryptedPersistence = (
   ): Promise<void> => {
     await databaseLock(async () => {
       const currentKey = requireKey();
+      if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+        await Promise.all(
+          writes.map((write) =>
+            repository(
+              write.collection,
+              isObjectRecord,
+              getPersistenceRecordId,
+            ).replace(write.records),
+          ),
+        );
+        persistenceSyncMetadata.markDirty();
+        return;
+      }
       // Encryption runs in parallel without side effects. The IndexedDB transaction
       // starts only after every record is encrypted, so one rejected promise writes nothing.
       const encryptedWrites = await Promise.all(
@@ -259,6 +853,23 @@ export const createEncryptedPersistence = (
       result: EncryptedWriteResult<TRecord>,
     ) => EncryptedRelatedWrite<TRelated>,
   ): Promise<EncryptedWriteResult<TRecord>> => {
+    if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+      const result = await repository(
+        primaryWrite.collection,
+        primaryWrite.validator,
+        primaryWrite.getId,
+      ).putManyIfAbsent(primaryWrite.records, primaryWrite.getDuplicateKey);
+      if (result.written.length > 0) {
+        const relatedWrite = createRelatedWrite(result);
+        await repository(
+          relatedWrite.collection,
+          isRelatedObjectRecord<TRelated>,
+          relatedWrite.getId,
+        ).putMany(relatedWrite.records);
+      }
+      if (result.written.length > 0) persistenceSyncMetadata.markDirty();
+      return result;
+    }
     const result = await putManyIfAbsentWithRelatedInDexie(
       activeDatabase,
       requireKey,
@@ -277,16 +888,61 @@ export const createEncryptedPersistence = (
     getSnapshot: session.getSnapshot,
     subscribe: session.subscribe,
     isUnlocked: () => key !== undefined,
+    getGeneration: () => generation,
     requireKey,
+    requireVaultSyncMaterial: () => {
+      if (
+        syncKey === undefined ||
+        signingKey === undefined ||
+        verifyKey === undefined ||
+        vaultContext === undefined
+      )
+        throw createPersistenceLockedError();
+      return { syncKey, signingKey, verifyKey, context: vaultContext };
+    },
+    getVaultTransferMaterial,
+    readVaultLocalShare,
+    removeVaultLocalShare,
+    storeVaultLocalShare,
     repository,
     requestPersistentStorage,
     unlock,
+    unlockWithVaultKeys,
+    rotateVaultKeys,
+    verifyVaultVmk,
+    getPendingVaultRotation,
+    clearPendingVaultRotation,
     lock,
     failClosed,
     clearLocalData,
     replaceCollections,
     putManyIfAbsentWithRelated,
     deleteMatchingRecords: async (deletions) => {
+      if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+        await databaseLock(async () => {
+          await Promise.all(
+            deletions.map(async (deletion) => {
+              const records = await repository(
+                deletion.collection,
+                deletion.validator,
+                getPersistenceRecordId,
+              ).getAll();
+              const matching = records.filter(deletion.shouldDelete);
+              await Promise.all(
+                matching.map((record) =>
+                  repository(
+                    deletion.collection,
+                    deletion.validator,
+                    getPersistenceRecordId,
+                  ).delete(getPersistenceRecordId(record)),
+                ),
+              );
+            }),
+          );
+        });
+        persistenceSyncMetadata.markDirty();
+        return;
+      }
       await deleteMatchingRecords(
         activeDatabase,
         requireKey,

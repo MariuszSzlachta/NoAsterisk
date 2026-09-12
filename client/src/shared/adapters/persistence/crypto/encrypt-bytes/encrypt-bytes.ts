@@ -11,7 +11,9 @@ export const encryptBytes = async (
     {
       name: AES_GCM_ALGORITHM,
       iv: iv.slice().buffer,
-      ...(additionalData ? { additionalData: additionalData.slice().buffer } : {}),
+      ...(additionalData
+        ? { additionalData: additionalData.slice().buffer }
+        : {}),
     },
     key,
     plaintext.slice().buffer,

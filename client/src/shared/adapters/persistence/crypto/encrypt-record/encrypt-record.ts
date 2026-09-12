@@ -1,7 +1,13 @@
-import { CRYPTO_VERSION, IV_LENGTH } from '#shared/adapters/persistence/crypto/constants';
 import { composeRecordAad } from '#shared/adapters/persistence/crypto/compose-record-aad';
+import {
+  CRYPTO_VERSION,
+  IV_LENGTH,
+} from '#shared/adapters/persistence/crypto/constants';
 import { encryptBytes } from '#shared/adapters/persistence/crypto/encrypt-bytes';
-import type { EncryptedRecordEnvelope, PersistenceCollection } from '#shared/adapters/persistence/ports';
+import type {
+  EncryptedRecordEnvelope,
+  PersistenceCollection,
+} from '#shared/adapters/persistence/ports';
 
 const encoder = new TextEncoder();
 

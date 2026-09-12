@@ -29,9 +29,9 @@ test.describe('Analytics Page', () => {
   });
 
   test('renders KPI cards', async ({ page }) => {
-    // At least one KPI card should be visible
-    const kpiSection = page.locator('.grid');
-    await expect(kpiSection.first()).toBeVisible();
+    // Target the KPI content rather than the responsive toolbar's hidden
+    // mobile grid, which also uses the generic `grid` class.
+    await expect(page.locator('.kpi-label').first()).toBeVisible();
   });
 
   test('period buttons switch chart range', async ({ page }) => {

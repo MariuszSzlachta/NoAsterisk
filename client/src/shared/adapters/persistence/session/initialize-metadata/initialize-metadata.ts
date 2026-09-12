@@ -1,8 +1,8 @@
 import {
   createSentinel,
   derivePersistenceKey,
-  verifySentinel,
   SALT_LENGTH,
+  verifySentinel,
 } from '#shared/adapters/persistence/crypto';
 import { createPersistenceCryptoError } from '#shared/adapters/persistence/crypto/errors';
 import type { BudgetDatabase } from '#shared/adapters/persistence/dexie';
@@ -17,7 +17,10 @@ import { isDatabaseMetadata } from '#shared/adapters/persistence/session/is-data
 export const initializePersistenceMetadata = async (
   database: BudgetDatabase,
   passphrase: string,
-): Promise<{ readonly metadata: DatabaseMetadataRecord; readonly key: CryptoKey }> => {
+): Promise<{
+  readonly metadata: DatabaseMetadataRecord;
+  readonly key: CryptoKey;
+}> => {
   const storedMetadata = await database.metadata.get(DATABASE_METADATA_ID);
 
   if (storedMetadata !== undefined) {
@@ -30,7 +33,9 @@ export const initializePersistenceMetadata = async (
     return { metadata: storedMetadata, key };
   }
 
-  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH)).slice().buffer;
+  const salt = crypto
+    .getRandomValues(new Uint8Array(SALT_LENGTH))
+    .slice().buffer;
   const key = await derivePersistenceKey(passphrase, salt);
   const metadata: DatabaseMetadataRecord = {
     id: DATABASE_METADATA_ID,

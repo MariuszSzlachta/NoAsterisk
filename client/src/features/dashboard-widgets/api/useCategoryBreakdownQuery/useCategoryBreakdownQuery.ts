@@ -6,7 +6,7 @@ import type { QueryState } from '#shared/api';
 import {
   createCategoryLabelMap,
   getDashboardCategoryLabel,
-} from '../../model/category-label';
+} from '#features/dashboard-widgets/model/category-label';
 
 // ARCH-EXCEPTION: cross-feature import — read-only access to useTransactionsStore public API.
 // Planned resolution: migrate to TanStack Query when backend provides aggregation endpoints.

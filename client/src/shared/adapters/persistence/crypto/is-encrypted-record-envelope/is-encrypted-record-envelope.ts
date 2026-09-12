@@ -1,5 +1,11 @@
-import { CRYPTO_VERSION, IV_LENGTH } from '#shared/adapters/persistence/crypto/constants';
-import type { EncryptedRecordEnvelope, PersistenceCollection } from '#shared/adapters/persistence/ports';
+import {
+  CRYPTO_VERSION,
+  IV_LENGTH,
+} from '#shared/adapters/persistence/crypto/constants';
+import type {
+  EncryptedRecordEnvelope,
+  PersistenceCollection,
+} from '#shared/adapters/persistence/ports';
 import { isArrayBuffer } from '#shared/lib/is-array-buffer';
 import { isRecord } from '#shared/lib/is-record';
 

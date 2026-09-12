@@ -21,47 +21,43 @@ import {
   type CategoryInfo,
 } from '#entities/category';
 import { isCategoryInfo } from '#entities/category/is-category-info';
+import { encryptedPersistence } from '#shared/adapters/persistence/session';
 import {
   IMPORT_HISTORY_COLLECTION,
   TRANSACTIONS_COLLECTION,
 } from '#shared/adapters/persistence/ports';
-import { encryptedPersistence } from '#shared/adapters/persistence/session';
 
-const transactionRepository =
-  encryptedPersistence.repository<StoredTransaction>(
+export const hydrateFinancialStores = async (): Promise<void> => {
+  const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
     TRANSACTIONS_COLLECTION,
     isStoredTransaction,
     (record) => record.id,
   );
-const ruleRepository = encryptedPersistence.repository<RuleRecord>(
-  'rules',
-  isRuleRecord,
-  (record) => record.id,
-);
-const categoryRepository = encryptedPersistence.repository<CategoryInfo>(
-  'categories',
-  isCategoryInfo,
-  (record) => record.id,
-);
-const budgetRepository = encryptedPersistence.repository<BudgetRecord>(
-  'budgets',
-  isBudgetRecord,
-  (record) => record.id,
-);
-const periodHistoryRepository =
-  encryptedPersistence.repository<PeriodHistoryRecord>(
+  const ruleRepository = encryptedPersistence.repository<RuleRecord>(
+    'rules',
+    isRuleRecord,
+    (record) => record.id,
+  );
+  const categoryRepository = encryptedPersistence.repository<CategoryInfo>(
+    'categories',
+    isCategoryInfo,
+    (record) => record.id,
+  );
+  const budgetRepository = encryptedPersistence.repository<BudgetRecord>(
+    'budgets',
+    isBudgetRecord,
+    (record) => record.id,
+  );
+  const periodHistoryRepository = encryptedPersistence.repository<PeriodHistoryRecord>(
     'period-history',
     isPeriodHistoryRecord,
     (record) => record.id,
   );
-const importHistoryRepository =
-  encryptedPersistence.repository<ImportHistoryRecord>(
+  const importHistoryRepository = encryptedPersistence.repository<ImportHistoryRecord>(
     IMPORT_HISTORY_COLLECTION,
     isImportHistoryRecord,
     (record) => record.batchId,
   );
-
-export const hydrateFinancialStores = async (): Promise<void> => {
   const [transactions, rules, categories, budgets, history, importHistory] =
     await Promise.all([
       transactionRepository.getAll(),

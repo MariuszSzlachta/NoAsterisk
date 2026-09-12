@@ -38,5 +38,6 @@ describe('InMemoryAccountDeletionRepository', () => {
     await repository.deleteUserOwnedData('user-1', 'workspace-1');
 
     expect(dependencies.deleteWorkspace).not.toHaveBeenCalled();
+    expect(dependencies.deleteVault).not.toHaveBeenCalled();
   });
 });

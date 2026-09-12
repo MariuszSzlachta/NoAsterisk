@@ -1,3 +1,5 @@
+/* oxlint-disable react/only-export-components -- registry entries are colocated for dashboard composition. */
+
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
 

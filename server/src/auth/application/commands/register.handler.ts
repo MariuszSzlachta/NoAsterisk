@@ -7,7 +7,11 @@ import {
   PASSWORD_HASHER,
   PasswordHasherPort,
 } from '@auth/domain/ports/password-hasher.port';
-import { TOKEN_PORT, TokenPort } from '@auth/domain/ports/token.port';
+import {
+  TOKEN_PORT,
+  TokenPayload,
+  TokenPort,
+} from '@auth/domain/ports/token.port';
 import {
   PERMISSION_REPOSITORY,
   PermissionRepository,
@@ -119,11 +123,13 @@ export class RegisterHandler {
     });
     await this.permissionRepo.save(permission);
 
-    const tokenPayload = {
+    const tokenPayload: TokenPayload = {
       sub: user.id,
       workspaceId: user.workspaceId,
       role: user.role,
       tokenVersion: user.tokenVersion,
+      authTime: Date.now(),
+      amr: 'password',
     };
     const accessToken = this.token.sign(tokenPayload);
     const refreshToken = this.token.signRefresh(tokenPayload);

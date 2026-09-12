@@ -1,6 +1,4 @@
-export {
-  createEncryptedPersistence,
-} from '#shared/adapters/persistence/session/encrypted-persistence';
+export { createEncryptedPersistence } from '#shared/adapters/persistence/session/encrypted-persistence';
 export { encryptedPersistence } from '#shared/adapters/persistence/session/encrypted-persistence-instance';
 export type {
   EncryptedPersistence,

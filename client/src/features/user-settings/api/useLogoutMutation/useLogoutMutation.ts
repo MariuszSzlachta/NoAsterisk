@@ -4,6 +4,7 @@ import { USERS_ME_LOGOUT_PATH } from '#features/user-settings/api/constants/user
 import type { MutationState } from '#features/user-settings/api/useLogoutMutation/mutation-state';
 import type { UseLogoutMutationResult } from '#features/user-settings/api/useLogoutMutation/use-logout-mutation-result';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 import { apiClient } from '#shared/api';
 import { authTokens } from '#shared/api/auth-tokens';
 
@@ -28,6 +29,7 @@ export const useLogoutMutation = (): UseLogoutMutationResult => {
     } catch {}
 
     authTokens.clear();
+    passkeyUnlockHandoff.clear();
     setState({ isLoading: false, error: undefined });
     return true;
   };

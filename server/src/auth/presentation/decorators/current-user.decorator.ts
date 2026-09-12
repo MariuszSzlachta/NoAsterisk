@@ -4,6 +4,8 @@ export interface CurrentUserPayload {
   userId: string;
   workspaceId: string;
   role: string;
+  authTime?: number;
+  amr?: 'password' | 'webauthn';
 }
 
 export const CurrentUser = createParamDecorator(

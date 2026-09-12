@@ -10,11 +10,18 @@ export const verifyLegacySources = async (
 ): Promise<void> => {
   await Promise.all(
     encryptedSources.map(async ({ source, envelopes }) => {
-      const stored = await database.records.where('collection').equals(source.collection).toArray();
+      const stored = await database.records
+        .where('collection')
+        .equals(source.collection)
+        .toArray();
       if (stored.length !== envelopes.length) {
         throw new Error(LEGACY_MIGRATION_MESSAGES.verificationFailed);
       }
-      await Promise.all(stored.map((envelope) => decryptRecord(envelope, source.collection, key, source.validator)));
+      await Promise.all(
+        stored.map((envelope) =>
+          decryptRecord(envelope, source.collection, key, source.validator),
+        ),
+      );
     }),
   );
 };

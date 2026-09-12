@@ -1,3 +1,4 @@
+import type { VaultV2RotationJournal } from '#shared/adapters/persistence/dexie';
 import type {
   EncryptedCollectionWrite,
   EncryptedCollectionWriteIfAbsent,
@@ -23,17 +24,119 @@ interface EncryptedPersistence {
   readonly getSnapshot: () => PersistenceSessionSnapshot;
   readonly subscribe: (listener: () => void) => () => void;
   readonly isUnlocked: () => boolean;
+  readonly getGeneration: () => number;
   readonly requireKey: () => CryptoKey;
+  readonly requireVaultSyncMaterial: () => {
+    readonly syncKey: CryptoKey;
+    readonly signingKey: CryptoKey;
+    readonly verifyKey: CryptoKey;
+    readonly context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    };
+  };
+  readonly getVaultTransferMaterial: (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }) => {
+    readonly vmk: Uint8Array;
+    readonly signingKey: CryptoKey;
+    readonly signingPublicKey: CryptoKey;
+  };
+  readonly readVaultLocalShare: (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }) => Promise<CryptoKey | undefined>;
+  readonly removeVaultLocalShare: (context: {
+    readonly accountId: string;
+    readonly workspaceId: string;
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly deviceId: string;
+  }) => Promise<void>;
+  readonly storeVaultLocalShare: (
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    localShare: CryptoKey,
+  ) => Promise<void>;
   readonly repository: <TRecord extends object>(
     collection: PersistenceCollection,
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
   ) => EncryptedRepository<TRecord>;
   readonly requestPersistentStorage: () => Promise<PersistentStorageStatus>;
+  /** Legacy-only compatibility path; v2 accounts must use unlockWithVaultKeys. */
   readonly unlock: (
     passphrase: string,
     hydrate?: () => Promise<void>,
   ) => Promise<void>;
+  readonly unlockWithVaultKeys: (
+    vaultKeys: {
+      readonly local: CryptoKey;
+      readonly sync: CryptoKey;
+      readonly check: CryptoKey;
+      readonly localShare?: CryptoKey;
+      readonly signingKeyPair?: CryptoKeyPair;
+      readonly vmk?: Uint8Array;
+    },
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    hydrate?: () => Promise<void>,
+  ) => Promise<void>;
+  readonly rotateVaultKeys: (
+    vaultKeys: {
+      readonly local: CryptoKey;
+      readonly sync: CryptoKey;
+      readonly check: CryptoKey;
+      readonly localShare: CryptoKey | null;
+    },
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+    rotation?: {
+      readonly idempotencyKey: string;
+      readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
+      readonly envelope: string;
+      readonly nextVmk: Uint8Array;
+    },
+  ) => Promise<void>;
+  readonly verifyVaultVmk: (
+    vmk: Uint8Array,
+    context: {
+      readonly accountId: string;
+      readonly workspaceId: string;
+      readonly vaultId: string;
+      readonly keyId: string;
+      readonly deviceId: string;
+    },
+  ) => Promise<void>;
+  readonly getPendingVaultRotation: () => Promise<
+    VaultV2RotationJournal | undefined
+  >;
+  readonly clearPendingVaultRotation: (idempotencyKey: string) => Promise<void>;
   readonly lock: () => void;
   readonly failClosed: (error: unknown) => void;
   readonly clearLocalData: (options?: {

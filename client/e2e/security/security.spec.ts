@@ -31,4 +31,26 @@ test.describe('Security baseline', () => {
     expect(storage.localStorageKeys).toEqual(['budget-theme']);
     expect(storage.sessionStorageKeys).toEqual([]);
   });
+
+  test('exposes the required browser capability baseline without inferring credential PRF support', async ({ page }) => {
+    await page.goto('/login');
+
+    const capabilities = await page.evaluate(() => ({
+      secureContext: window.isSecureContext,
+      webCrypto: typeof crypto?.subtle?.encrypt === 'function',
+      indexedDb: typeof indexedDB?.open === 'function',
+      webAuthn: typeof PublicKeyCredential !== 'undefined' &&
+        typeof navigator.credentials?.get === 'function',
+      prfCapabilityApi: typeof PublicKeyCredential !== 'undefined' &&
+        typeof PublicKeyCredential.getClientCapabilities === 'function',
+    }));
+
+    expect(capabilities).toMatchObject({
+      secureContext: true,
+      webCrypto: true,
+      indexedDb: true,
+    });
+    // PRF support is confirmed only by the concrete credential ceremony.
+    expect(typeof capabilities.prfCapabilityApi).toBe('boolean');
+  });
 });

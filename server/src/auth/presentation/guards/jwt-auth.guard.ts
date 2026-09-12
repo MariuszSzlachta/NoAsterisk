@@ -71,6 +71,8 @@ export class JwtAuthGuard implements CanActivate {
       userId: user.id,
       workspaceId: user.workspaceId,
       role: user.role,
+      authTime: payload.authTime,
+      amr: payload.amr,
     };
 
     return true;

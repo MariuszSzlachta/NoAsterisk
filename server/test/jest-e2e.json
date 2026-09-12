@@ -16,6 +16,7 @@
     "^@workspaces/(.*)$": "<rootDir>/../src/workspaces/$1",
     "^@user-settings/(.*)$": "<rootDir>/../src/user-settings/$1",
     "^@invite-codes/(.*)$": "<rootDir>/../src/invite-codes/$1",
-    "^@dictionaries/(.*)$": "<rootDir>/../src/dictionaries/$1"
+    "^@dictionaries/(.*)$": "<rootDir>/../src/dictionaries/$1",
+    "^@vault-protocol/(.*)$": "<rootDir>/../src/vault-protocol/$1"
   }
 }

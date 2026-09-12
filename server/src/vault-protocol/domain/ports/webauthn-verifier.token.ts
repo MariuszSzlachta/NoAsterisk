@@ -1,0 +1,1 @@
+export const WEBAUTHN_VERIFIER = Symbol('WEBAUTHN_VERIFIER');

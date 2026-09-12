@@ -3,7 +3,9 @@ import { isLegacyRollover } from '#shared/adapters/persistence/migrations/is-leg
 import { isRecord } from '#shared/lib/is-record';
 import { recordGuards } from '#shared/lib/record-guards';
 
-export const isPeriodHistoryRecord = (value: unknown): value is PeriodHistoryRecord =>
+export const isPeriodHistoryRecord = (
+  value: unknown,
+): value is PeriodHistoryRecord =>
   isRecord(value) &&
   recordGuards.hasString(value, 'id') &&
   recordGuards.hasString(value, 'budgetId') &&

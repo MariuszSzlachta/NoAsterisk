@@ -30,6 +30,19 @@ const touch = (clientX: number, clientY: number) => ({
   clientY,
 });
 
+const dispatchTouchEvent = (
+  type: 'touchstart' | 'touchend',
+  property: 'touches' | 'changedTouches',
+  point: ReturnType<typeof touch>,
+): void => {
+  const event = new TouchEvent(type);
+  Object.defineProperty(event, property, {
+    configurable: true,
+    value: [point],
+  });
+  window.dispatchEvent(event);
+};
+
 describe('useSwipeBack', () => {
   beforeEach(() => {
     mockNavigate.mockReset();
@@ -41,14 +54,8 @@ describe('useSwipeBack', () => {
     renderHook(() => useSwipeBack());
 
     act(() => {
-      window.dispatchEvent(
-        new TouchEvent('touchstart', { touches: [touch(20, 200)] as any }),
-      );
-      window.dispatchEvent(
-        new TouchEvent('touchend', {
-          changedTouches: [touch(120, 205)] as any,
-        }),
-      );
+      dispatchTouchEvent('touchstart', 'touches', touch(20, 200));
+      dispatchTouchEvent('touchend', 'changedTouches', touch(120, 205));
     });
 
     expect(mockNavigate).toHaveBeenCalledWith(-1);
@@ -59,14 +66,8 @@ describe('useSwipeBack', () => {
     renderHook(() => useSwipeBack());
 
     act(() => {
-      window.dispatchEvent(
-        new TouchEvent('touchstart', { touches: [touch(80, 200)] as any }),
-      );
-      window.dispatchEvent(
-        new TouchEvent('touchend', {
-          changedTouches: [touch(180, 200)] as any,
-        }),
-      );
+      dispatchTouchEvent('touchstart', 'touches', touch(80, 200));
+      dispatchTouchEvent('touchend', 'changedTouches', touch(180, 200));
     });
 
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -77,14 +78,8 @@ describe('useSwipeBack', () => {
     renderHook(() => useSwipeBack());
 
     act(() => {
-      window.dispatchEvent(
-        new TouchEvent('touchstart', { touches: [touch(20, 200)] as any }),
-      );
-      window.dispatchEvent(
-        new TouchEvent('touchend', {
-          changedTouches: [touch(70, 280)] as any,
-        }),
-      );
+      dispatchTouchEvent('touchstart', 'touches', touch(20, 200));
+      dispatchTouchEvent('touchend', 'changedTouches', touch(70, 280));
     });
 
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -95,14 +90,8 @@ describe('useSwipeBack', () => {
     renderHook(() => useSwipeBack());
 
     act(() => {
-      window.dispatchEvent(
-        new TouchEvent('touchstart', { touches: [touch(20, 200)] as any }),
-      );
-      window.dispatchEvent(
-        new TouchEvent('touchend', {
-          changedTouches: [touch(120, 200)] as any,
-        }),
-      );
+      dispatchTouchEvent('touchstart', 'touches', touch(20, 200));
+      dispatchTouchEvent('touchend', 'changedTouches', touch(120, 200));
     });
 
     expect(mockNavigate).not.toHaveBeenCalled();

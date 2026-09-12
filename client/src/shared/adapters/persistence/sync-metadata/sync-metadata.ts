@@ -36,6 +36,7 @@ const readMetadata = (): PersistenceSyncMetadata => {
       lastSuccessfulSyncRevision,
       lastSuccessfulSyncAt,
       isDirty,
+      highWaterEnvelopeHash,
     } = parsed;
     return {
       observedRevision:
@@ -49,6 +50,7 @@ const readMetadata = (): PersistenceSyncMetadata => {
           ? lastSuccessfulSyncAt
           : undefined,
       isDirty: isDirty === true,
+      ...(typeof highWaterEnvelopeHash === 'string' ? { highWaterEnvelopeHash } : {}),
     };
   } catch {
     return INITIAL_METADATA;
@@ -84,17 +86,35 @@ const markPersistenceDirty = (): void => {
   writeMetadata({ ...cachedMetadata, isDirty: true });
 };
 
-const markPersistenceSynced = (revision: number, syncedAt: string): void => {
+const markPersistenceSynced = (
+  revision: number,
+  syncedAt: string,
+  envelopeHash?: string,
+): void => {
   writeMetadata({
     observedRevision: revision,
     lastSuccessfulSyncRevision: revision,
     lastSuccessfulSyncAt: syncedAt,
     isDirty: false,
+    ...(envelopeHash === undefined ? {} : { highWaterEnvelopeHash: envelopeHash }),
   });
 };
 
-const rememberPersistenceRevision = (revision: number): void => {
-  writeMetadata({ ...cachedMetadata, observedRevision: revision });
+const rememberPersistenceRevision = (revision: number, envelopeHash?: string): void => {
+  writeMetadata({
+    ...cachedMetadata,
+    observedRevision: revision,
+    ...(envelopeHash === undefined ? {} : { highWaterEnvelopeHash: envelopeHash }),
+  });
+};
+
+const resetPersistenceForRotation = (): void => {
+  writeMetadata({
+    observedRevision: undefined,
+    lastSuccessfulSyncRevision: undefined,
+    lastSuccessfulSyncAt: undefined,
+    isDirty: true,
+  });
 };
 
 export const persistenceSyncMetadata: PersistenceSyncMetadataService = {
@@ -108,4 +128,5 @@ export const persistenceSyncMetadata: PersistenceSyncMetadataService = {
   markDirty: markPersistenceDirty,
   markSynced: markPersistenceSynced,
   rememberRevision: rememberPersistenceRevision,
+  resetForRotation: resetPersistenceForRotation,
 };

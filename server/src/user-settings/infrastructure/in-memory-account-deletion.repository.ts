@@ -21,7 +21,9 @@ export class InMemoryAccountDeletionRepository implements AccountDeletionReposit
       workspaceUsers.length === 1 && workspaceUsers[0]?.id === userId;
     await this.dependencies.deleteInviteReferences(userId);
     await this.dependencies.deletePermissions(userId);
-    await this.dependencies.deleteVault(workspaceId);
+    if (isSoleWorkspaceUser) {
+      await this.dependencies.deleteVault(workspaceId);
+    }
     await this.dependencies.deleteUser(userId);
     if (isSoleWorkspaceUser) {
       await this.dependencies.deleteWorkspace(workspaceId);
