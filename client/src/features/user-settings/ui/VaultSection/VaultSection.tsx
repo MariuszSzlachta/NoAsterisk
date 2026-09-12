@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, Lock, RefreshCw, RotateCcw, Upload } from 'lucide-react';
 
 import { useVaultSection } from '#features/user-settings/ui/hooks/useVaultSection';
+import { RecoveryBackupUpgrade } from '#features/user-settings/ui/RecoveryBackupUpgrade';
 import { RotationRecoveryDialog } from '#features/user-settings/ui/RotationRecoveryDialog';
 import { TrustedDeviceApproval } from '#features/user-settings/ui/TrustedDeviceApproval';
 import { STATUS_COLORS } from '#features/user-settings/ui/VaultSection/constants/status-colors';
@@ -38,6 +39,7 @@ export const VaultSection = (): React.JSX.Element => {
 
   return (
     <>
+      <RecoveryBackupUpgrade />
       <TrustedDeviceApproval />
       <RotationRecoveryDialog confirmation={rotationRecoveryConfirmation} />
       <Card className="">

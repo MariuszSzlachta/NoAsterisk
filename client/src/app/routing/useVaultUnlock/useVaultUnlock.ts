@@ -1,35 +1,35 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { hydrateFinancialStores } from '#app/providers/hydrate-financial-stores';
+import { createSignedTrustedRequest } from '#app/routing/useVaultUnlock/create-signed-trusted-request';
+import { enrollVmk } from '#app/routing/useVaultUnlock/enroll-vmk';
+import { hydrateUnlockedVault } from '#app/routing/useVaultUnlock/hydrate-unlocked-vault';
+import { recoverWithCode } from '#app/routing/useVaultUnlock/recover-with-code';
 import { vaultUnlockPolicy } from '#app/routing/useVaultUnlock/vault-unlock-policy';
 import { shouldResetVaultUnlockAttempt } from '#app/routing/useVaultUnlock/vault-unlock-state';
-import { parseVaultPayload } from '#features/user-settings/model/parse-vault-payload';
 import {
   encryptedPersistence,
   type PersistenceSessionSnapshot,
 } from '#shared/adapters/persistence';
-import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
-import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
-import { recoveryCode as recoveryCodeProtocol } from '#shared/adapters/vault-protocol/recovery-code';
+import { createRecoveryBackup } from '#shared/adapters/vault-protocol/recovery-backup';
 import { recoveryQr } from '#shared/adapters/vault-protocol/recovery-qr';
 import {
-  trustedDeviceEnrollment,
-  type TrustedDeviceRequest,
-} from '#shared/adapters/vault-protocol/trusted-device-enrollment';
-import { trustedDeviceQr } from '#shared/adapters/vault-protocol/trusted-device-qr';
-import { trustedDeviceTransfer } from '#shared/adapters/vault-protocol/trusted-device-transfer';
+  parseSignedTrustedResponse,
+  restoreSignedTrustedApproval,
+  type SignedTrustedPending,
+} from '#shared/adapters/vault-protocol/signed-trusted-enrollment';
+import {
+  parseSignedTrustedQr,
+  renderSignedTrustedQr,
+} from '#shared/adapters/vault-protocol/signed-trusted-qr';
+import { trustedDeviceEnrollment } from '#shared/adapters/vault-protocol/trusted-device-enrollment';
 import { unlockCoordinator } from '#shared/adapters/vault-protocol/unlock-coordinator';
-import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
-import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
 import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 import { vaultPasskeyCeremony } from '#shared/adapters/webauthn/vault-passkey-ceremony';
 import { issueServerShare } from '#shared/api/vault-protocol/issue-server-share';
-import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
 import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 import { vaultDevices } from '#shared/api/vault-protocol/vault-devices';
-import { vaultEnrollment } from '#shared/api/vault-protocol/vault-enrollment';
 
 interface VaultUnlockState {
   readonly error: string | undefined;
@@ -65,26 +65,10 @@ interface BootstrapState {
   readonly securityProfile?: 'standard' | 'high-security';
   readonly deviceEnvelope?: string;
   readonly passkeyEnvelope?: string;
+  readonly recoveryPublicKey?: string;
 }
 
 type FlowGuard = () => void;
-
-const decodeServerShare = (value: string): Uint8Array<ArrayBuffer> => {
-  if (
-    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
-      value,
-    )
-  )
-    throw new Error('Invalid ServerShare response');
-  const decoded = atob(value);
-  const bytes = new Uint8Array(new ArrayBuffer(decoded.length));
-  decoded.split('').forEach((character, index) => {
-    bytes[index] = character.charCodeAt(0);
-  });
-  if (bytes.length !== vaultProtocolConstants.maxShareLength)
-    throw new Error('Invalid ServerShare response');
-  return bytes;
-};
 
 const unlockFromBootstrap = async (
   accountId: string,
@@ -184,7 +168,7 @@ const unlockFromBootstrap = async (
           ...(localShare === undefined ? {} : { localShare }),
         },
         context,
-        hydrateFinancialStores,
+        hydrateUnlockedVault,
       );
       assertCurrent();
     } finally {
@@ -198,143 +182,6 @@ const unlockFromBootstrap = async (
     }
   } finally {
     serverShare?.fill(0);
-  }
-};
-
-const enrollVmk = async (
-  accountId: string,
-  workspaceId: string,
-  bootstrap: BootstrapState,
-  vmk: Uint8Array,
-  assertCurrent: FlowGuard,
-  trustedDeviceProof?: string,
-): Promise<void> => {
-  const existingVaultId =
-    bootstrap.status === 'empty' ? undefined : bootstrap.vaultId;
-  const vaultId = existingVaultId ?? crypto.randomUUID();
-  const keyId =
-    (bootstrap.status === 'empty' ? undefined : bootstrap.keyId) ??
-    crypto.randomUUID();
-  const context = {
-    accountId,
-    workspaceId,
-    vaultId,
-    keyId,
-    deviceId: bootstrap.deviceId,
-  };
-  const localShare = await vaultProtocol.generateLocalShare();
-  assertCurrent();
-  const prepared = await vaultEnrollment.prepare(
-    bootstrap.deviceId,
-    existingVaultId,
-  );
-  assertCurrent();
-  const serverShare = decodeServerShare(prepared.serverShare);
-  try {
-    const wrappingKey = await vaultProtocol.deriveDeviceKey(
-      localShare,
-      serverShare,
-      context,
-    );
-    assertCurrent();
-    const envelope = await vaultProtocol.wrapVmk(
-      vmk,
-      wrappingKey,
-      context,
-      vaultProtocolConstants.deviceWrapPurpose,
-    );
-    const signingKeyPair = await deviceSigningKey.generate();
-    const signingPublicKey = JSON.stringify(
-      await deviceSigningKey.exportPublicJwk(signingKeyPair.publicKey),
-    );
-    assertCurrent();
-    await vaultEnrollment.finalize({
-      challenge: prepared.challenge,
-      deviceId: bootstrap.deviceId,
-      vaultId,
-      keyId,
-      deviceEnvelope: JSON.stringify(envelope),
-      signingPublicKey,
-      ...(trustedDeviceProof === undefined ? {} : { trustedDeviceProof }),
-    });
-    assertCurrent();
-    const vaultKeys = await vaultProtocol.deriveKeys(vmk, context);
-    assertCurrent();
-    try {
-      await encryptedPersistence.unlockWithVaultKeys(
-        { ...vaultKeys, localShare, signingKeyPair, vmk },
-        context,
-        hydrateFinancialStores,
-      );
-      assertCurrent();
-      await vaultEnrollment.confirm({
-        challenge: prepared.challenge,
-        deviceId: bootstrap.deviceId,
-        vaultId,
-        keyId,
-      });
-    } catch (error) {
-      encryptedPersistence.lock();
-      throw error;
-    }
-  } finally {
-    serverShare.fill(0);
-  }
-};
-
-const recoverWithCode = async (
-  accountId: string,
-  workspaceId: string,
-  bootstrap: BootstrapState,
-  code: string,
-  assertCurrent: FlowGuard = () => undefined,
-): Promise<void> => {
-  const vmk = await recoveryCodeProtocol.restore(code);
-  try {
-    assertCurrent();
-    if (
-      bootstrap.status === 'available' &&
-      bootstrap.vaultId !== undefined &&
-      bootstrap.keyId !== undefined
-    ) {
-      const remote = await syncSnapshotApi.get(bootstrap.vaultId);
-      assertCurrent();
-      if (remote.status !== 'available' || remote.snapshot === undefined)
-        throw new Error('Recovery authority is unavailable');
-      const context = {
-        accountId,
-        workspaceId,
-        vaultId: bootstrap.vaultId,
-        keyId: bootstrap.keyId,
-        deviceId: bootstrap.deviceId,
-      };
-      const keys = await vaultProtocol.deriveKeys(vmk, context);
-      assertCurrent();
-      const senderKey = await deviceSigningKey.importPublicJwk(
-        JSON.parse(remote.snapshot.signingPublicKey),
-      );
-      assertCurrent();
-      const plaintext = await opaqueSyncSnapshot.openEnvelope(
-        {
-          header: JSON.parse(remote.snapshot.header),
-          ciphertext: remote.snapshot.ciphertext,
-          signature: remote.snapshot.signature,
-        },
-        context,
-        keys.sync,
-        senderKey,
-        {
-          revision: Math.max(0, remote.snapshot.revision - 1),
-          envelopeHash: remote.snapshot.previousEnvelopeHash,
-        },
-      );
-      assertCurrent();
-      parseVaultPayload(plaintext);
-    }
-    await enrollVmk(accountId, workspaceId, bootstrap, vmk, assertCurrent);
-    assertCurrent();
-  } finally {
-    vmk.fill(0);
   }
 };
 
@@ -361,12 +208,19 @@ export const useVaultUnlock = (
     useState<string>();
   const [trustedDeviceError, setTrustedDeviceError] = useState<string>();
   const pendingSetup = useRef<
-    { readonly code: string; readonly vmk: Uint8Array } | undefined
+    | {
+        readonly code: string;
+        readonly vmk: Uint8Array;
+        readonly recoverySeed: Uint8Array;
+      }
+    | undefined
   >(undefined);
   const trustedDeviceRequest = useRef<
     | {
-        readonly request: TrustedDeviceRequest;
+        readonly request: SignedTrustedPending['request'];
         readonly privateKey: CryptoKey;
+        readonly prepared: SignedTrustedPending['prepared'];
+        readonly signingKeyPair: CryptoKeyPair;
         readonly signingPublicKey: JsonWebKey;
       }
     | undefined
@@ -441,9 +295,10 @@ export const useVaultUnlock = (
       setBootstrap(currentBootstrap);
       if (currentBootstrap.status !== 'empty')
         throw new Error('Vault already exists');
-      const created = await recoveryCodeProtocol.create();
+      const created = await createRecoveryBackup();
       if (flowGeneration.current !== startedGeneration) {
         created.vmk.fill(0);
+        created.recoverySeed.fill(0);
         throw new Error('Vault setup flow was cancelled');
       }
       pendingSetup.current = created;
@@ -468,10 +323,12 @@ export const useVaultUnlock = (
           if (flowGeneration.current !== startedGeneration)
             throw new Error('Vault setup flow was cancelled');
         },
+        { purpose: 'initial', recoverySeed: pending.recoverySeed },
       );
       if (flowGeneration.current !== startedGeneration)
         throw new Error('Vault setup flow was cancelled');
       pending.vmk.fill(0);
+      pending.recoverySeed.fill(0);
       pendingSetup.current = undefined;
       setRecoverySetupCode(undefined);
       setRequiresRecovery(false);
@@ -501,9 +358,14 @@ export const useVaultUnlock = (
   const handleStartTrustedDeviceEnrollment = useCallback((): void => {
     if (isUnlocking) return;
     setTrustedDeviceError(undefined);
+    const startedGeneration = flowGeneration.current;
     void (async () => {
-      const startedGeneration = flowGeneration.current;
+      const assertCurrent = (): void => {
+        if (flowGeneration.current !== startedGeneration)
+          throw new Error('Trusted-device flow was cancelled');
+      };
       const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
+      assertCurrent();
       setBootstrap(currentBootstrap);
       if (
         currentBootstrap.status === 'empty' ||
@@ -530,10 +392,13 @@ export const useVaultUnlock = (
         vaultId: currentBootstrap.vaultId,
         keyId: currentBootstrap.keyId,
         oldDeviceId: trusted.deviceId,
-        newDeviceId: currentBootstrap.deviceId,
-      } as const;
-      const created = await trustedDeviceEnrollment.createRequest(context);
-      const requestQr = await trustedDeviceQr.render(created.request);
+        newDeviceId:
+          currentBootstrap.status === 'available'
+            ? crypto.randomUUID()
+            : currentBootstrap.deviceId,
+      };
+      const created = await createSignedTrustedRequest(context, assertCurrent);
+      const requestQr = await renderSignedTrustedQr(created.request);
       if (flowGeneration.current !== startedGeneration)
         throw new Error('Trusted-device flow was cancelled');
       const signingPublicKey: unknown = JSON.parse(trusted.signingPublicKey);
@@ -542,11 +407,14 @@ export const useVaultUnlock = (
       trustedDeviceRequest.current = {
         request: created.request,
         privateKey: created.privateKey,
+        prepared: created.prepared,
+        signingKeyPair: created.signingKeyPair,
         signingPublicKey,
       };
       setTrustedDeviceRequestQrSvg(requestQr);
       setTrustedDeviceFlow('show-request');
     })().catch((error: unknown) => {
+      if (flowGeneration.current !== startedGeneration) return;
       setTrustedDeviceError(
         error instanceof Error
           ? error.message
@@ -575,10 +443,10 @@ export const useVaultUnlock = (
         };
         const currentBootstrap = bootstrap ?? (await vaultBootstrap.get());
         assertCurrent();
-        const response = trustedDeviceEnrollment.parseResponse(
-          trustedDeviceQr.parse(value),
+        const response = parseSignedTrustedResponse(
+          parseSignedTrustedQr(value),
         );
-        const vmk = await trustedDeviceTransfer.restoreApproval(
+        const vmk = await restoreSignedTrustedApproval(
           response,
           pending.request,
           pending.privateKey,
@@ -592,7 +460,7 @@ export const useVaultUnlock = (
             currentBootstrap,
             vmk,
             assertCurrent,
-            JSON.stringify(response),
+            { purpose: 'trusted', pending, response },
           );
           trustedDeviceRequest.current = undefined;
           setTrustedDeviceRequestQrSvg(undefined);
@@ -629,7 +497,17 @@ export const useVaultUnlock = (
 
   useEffect(() => {
     const unsubscribe = encryptedPersistence.subscribe(() => {
+      const status = encryptedPersistence.getSnapshot().status;
+      if (status !== 'locked' && status !== 'error') return;
       flowGeneration.current += 1;
+      pendingSetup.current?.vmk.fill(0);
+      pendingSetup.current?.recoverySeed.fill(0);
+      pendingSetup.current = undefined;
+      trustedDeviceRequest.current = undefined;
+      setRecoverySetupCode(undefined);
+      setRecoverySetupQrSvg(undefined);
+      setTrustedDeviceRequestQrSvg(undefined);
+      setTrustedDeviceFlow('idle');
     });
     return unsubscribe;
   }, []);
@@ -660,6 +538,7 @@ export const useVaultUnlock = (
   useEffect(
     () => () => {
       pendingSetup.current?.vmk.fill(0);
+      pendingSetup.current?.recoverySeed.fill(0);
       pendingSetup.current = undefined;
     },
     [],
@@ -667,6 +546,10 @@ export const useVaultUnlock = (
 
   useEffect(() => {
     flowGeneration.current += 1;
+    pendingSetup.current?.vmk.fill(0);
+    pendingSetup.current?.recoverySeed.fill(0);
+    pendingSetup.current = undefined;
+    trustedDeviceRequest.current = undefined;
     return () => {
       flowGeneration.current += 1;
     };

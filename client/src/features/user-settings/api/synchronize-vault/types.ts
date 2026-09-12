@@ -11,3 +11,16 @@ export interface RemoteVaultSnapshot {
   readonly signingPublicKey: string;
   readonly createdAt: string;
 }
+
+export type VaultSyncResult =
+  | { readonly status: 'saved'; readonly snapshot: RemoteVaultSnapshot }
+  | { readonly status: 'noop'; readonly snapshot?: RemoteVaultSnapshot }
+  | { readonly status: 'conflict'; readonly snapshot?: RemoteVaultSnapshot };
+export interface VaultSyncHighWater {
+  readonly observedRevision: number | undefined;
+  readonly highWaterEnvelopeHash?: string;
+}
+
+export interface VaultSyncOptions {
+  readonly force?: boolean;
+}

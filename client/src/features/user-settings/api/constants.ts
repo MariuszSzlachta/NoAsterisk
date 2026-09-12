@@ -14,5 +14,7 @@ export const API_CONTRACT = {
     USERS_ME_PREFERENCES: USERS_ME_PREFERENCES_PATH,
     USERS_ME_VAULT: USERS_ME_VAULT_PATH,
   },
-  QUERY_KEYS: {},
+  QUERY_KEYS: {
+    RECOVERY_BACKUP: 'vault-recovery-backup-availability',
+  },
 };

@@ -26,11 +26,15 @@ import { WebauthnChallengeController } from '@vault-protocol/presentation/webaut
 import { WebauthnChallengeHandler } from '@vault-protocol/application/webauthn-challenge.handler';
 import { WEBAUTHN_CHALLENGE_STORE } from '@vault-protocol/domain/ports/webauthn-challenge.token';
 import { PostgresWebauthnChallengeStore } from '@vault-protocol/infrastructure/postgres-webauthn-challenge.store';
-import { VaultEnrollmentHandler } from '@vault-protocol/application/vault-enrollment.handler';
-import { VaultEnrollmentController } from '@vault-protocol/presentation/vault-enrollment.controller';
-import { VAULT_ENROLLMENT_REPOSITORY } from '@vault-protocol/domain/ports/vault-enrollment.token';
-import { InMemoryVaultEnrollmentRepository } from '@vault-protocol/infrastructure/in-memory-vault-enrollment.repository';
-import { PostgresVaultEnrollmentRepository } from '@vault-protocol/infrastructure/postgres-vault-enrollment.repository';
+import { PrepareSignedEnrollmentHandler } from '@vault-protocol/application/commands/prepare-signed-enrollment';
+import { FinalizeSignedEnrollmentHandler } from '@vault-protocol/application/commands/finalize-signed-enrollment';
+import { ConfirmSignedEnrollmentHandler } from '@vault-protocol/application/commands/confirm-signed-enrollment';
+import { SignedEnrollmentController } from '@vault-protocol/presentation/controllers/signed-enrollment';
+import { SIGNED_ENROLLMENT_REPOSITORY } from '@vault-protocol/domain/ports/signed-enrollment';
+import { ENROLLMENT_PROOF_VERIFIER } from '@vault-protocol/domain/ports/enrollment-proof-verifier';
+import { EnrollmentProofVerifierAdapter } from '@vault-protocol/infrastructure/adapters/enrollment-proof-verifier';
+import { PostgresSignedEnrollmentRepository } from '@vault-protocol/infrastructure/repositories/postgres-signed-enrollment';
+import { UnavailableMemorySignedEnrollmentRepository } from '@vault-protocol/infrastructure/repositories/unavailable-memory-signed-enrollment';
 import { EnableHighSecurityHandler } from '@vault-protocol/application/enable-high-security.handler';
 import { VaultSecurityController } from '@vault-protocol/presentation/vault-security.controller';
 import { VAULT_SECURITY_REPOSITORY } from '@vault-protocol/domain/ports/vault-security.repository';
@@ -70,7 +74,7 @@ import { RecoveryRegistrationController } from '@vault-protocol/presentation/con
     SyncSnapshotController,
     VaultBootstrapController,
     WebauthnChallengeController,
-    VaultEnrollmentController,
+    SignedEnrollmentController,
     VaultSecurityController,
     WebauthnCredentialController,
     PasskeyAuthController,
@@ -81,7 +85,9 @@ import { RecoveryRegistrationController } from '@vault-protocol/presentation/con
     IssueServerShareHandler,
     SyncSnapshotHandler,
     GetVaultBootstrapHandler,
-    VaultEnrollmentHandler,
+    PrepareSignedEnrollmentHandler,
+    FinalizeSignedEnrollmentHandler,
+    ConfirmSignedEnrollmentHandler,
     EnableHighSecurityHandler,
     WebauthnCredentialHandler,
     WebauthnChallengeHandler,
@@ -109,10 +115,14 @@ import { RecoveryRegistrationController } from '@vault-protocol/presentation/con
       WebauthnChallengeStore,
     ),
     createRepositoryProvider(
-      VAULT_ENROLLMENT_REPOSITORY,
-      PostgresVaultEnrollmentRepository,
-      InMemoryVaultEnrollmentRepository,
+      SIGNED_ENROLLMENT_REPOSITORY,
+      PostgresSignedEnrollmentRepository,
+      UnavailableMemorySignedEnrollmentRepository,
     ),
+    {
+      provide: ENROLLMENT_PROOF_VERIFIER,
+      useClass: EnrollmentProofVerifierAdapter,
+    },
     createRepositoryProvider(
       SERVER_SHARE_REPOSITORY,
       PostgresServerShareRepository,

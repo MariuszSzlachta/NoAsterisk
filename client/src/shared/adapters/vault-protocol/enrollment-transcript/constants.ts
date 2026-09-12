@@ -1,0 +1,16 @@
+export const enrollmentTranscriptFormat = Object.freeze({
+  version: 2,
+  suite: 'HKDF-SHA256/AES-256-GCM',
+  finalizeDomain: 'budgetflow/enrollment-finalize/v2',
+  delegationDomain: 'budgetflow/enrollment-delegation/v2',
+  confirmationDomain: 'budgetflow/enrollment-confirm/v2',
+  ttlMs: 60_000,
+  maxTimestampMs: 8_640_000_000_000_000,
+  maxIdentifierLength: 128,
+  maxPublicKeyLength: 10_000,
+  maxEnvelopeLength: 20_000,
+  maxSigningBytes: 65_536,
+  challengeLength: 43,
+  digestLength: 64,
+  signatureBytes: 64,
+});

@@ -16,6 +16,8 @@ export type {
   VaultRecords,
 } from './model/vault-payload';
 export { restoreVaultPayload } from './ui/hooks/restore-vault-payload';
+export { captureVaultRestoreScope } from './ui/hooks/capture-vault-restore-scope';
+export { createVaultRestorePlan } from './model/create-vault-restore-plan';
 export {
   MAX_ENCRYPTED_VAULT_LENGTH,
   MAX_PLAINTEXT_VAULT_LENGTH,

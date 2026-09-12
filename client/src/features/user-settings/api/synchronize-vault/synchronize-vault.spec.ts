@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { synchronizeVault } from './synchronize-vault';
+import { synchronizeVault } from '#features/user-settings/api/synchronize-vault';
+import type { encryptedPersistence } from '#shared/adapters/persistence';
+import type { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
 
 const mocks = vi.hoisted(() => {
   const metadata = {
@@ -17,22 +19,12 @@ const mocks = vi.hoisted(() => {
     openEnvelope: vi.fn(),
     create: vi.fn(),
     markSynced: vi.fn(),
-    subscribe: vi.fn(() => () => undefined),
+    subscribe: vi.fn<typeof encryptedPersistence.subscribe>(),
     isUnlocked: vi.fn(() => true),
     getGeneration: vi.fn(() => 1),
-    importPublicJwk: vi.fn().mockResolvedValue({}),
-    requireVaultSyncMaterial: vi.fn(() => ({
-      context: {
-        accountId: 'account',
-        workspaceId: 'workspace',
-        vaultId: 'vault',
-        keyId: 'key',
-        deviceId: 'device',
-      },
-      syncKey: {} as CryptoKey,
-      signingKey: {} as CryptoKey,
-      verifyKey: {} as CryptoKey,
-    })),
+    importPublicJwk: vi.fn<typeof deviceSigningKey.importPublicJwk>(),
+    requireVaultSyncMaterial:
+      vi.fn<typeof encryptedPersistence.requireVaultSyncMaterial>(),
   };
 });
 
@@ -118,13 +110,36 @@ const remote = {
 };
 
 describe('synchronizeVault', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    const syncKey = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
+    const pair = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['sign', 'verify'],
+    );
+    mocks.requireVaultSyncMaterial.mockReturnValue({
+      context: {
+        accountId: 'account',
+        workspaceId: 'workspace',
+        vaultId: 'vault',
+        keyId: 'key',
+        deviceId: 'device',
+      },
+      syncKey,
+      signingKey: pair.privateKey,
+      verifyKey: pair.publicKey,
+    });
+    mocks.subscribe.mockReturnValue(() => undefined);
     mocks.metadata.observedRevision = 1;
     mocks.metadata.highWaterEnvelopeHash = 'hash-1';
     mocks.metadata.isDirty = true;
     mocks.syncGet.mockReset();
     mocks.syncPut.mockReset();
-    mocks.importPublicJwk.mockReset().mockResolvedValue({});
+    mocks.importPublicJwk.mockReset().mockResolvedValue(pair.publicKey);
     mocks.openEnvelope.mockReset().mockResolvedValue('{}');
     mocks.create.mockReset().mockResolvedValue({
       envelope: {

@@ -12,6 +12,9 @@ export interface RecoveryRegistrationRepositoryPort {
     scope: RecoveryRegistrationScope,
     challenge: string,
   ): Promise<RecoveryAuthorityRegistration | undefined>;
-  /** Rechecks current device/key/authority and consumes the challenge atomically. */
-  register(registration: RecoveryAuthorityRegistration): Promise<void>;
+  /** Rechecks authority, challenge expiry and interactive-auth deadline atomically. */
+  register(
+    registration: RecoveryAuthorityRegistration,
+    authDeadline: number,
+  ): Promise<void>;
 }

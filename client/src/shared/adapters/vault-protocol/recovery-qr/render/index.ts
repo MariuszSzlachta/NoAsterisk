@@ -1,0 +1,1 @@
+export { renderRecoveryQr } from './render';

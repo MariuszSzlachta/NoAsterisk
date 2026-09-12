@@ -49,7 +49,7 @@ export const restoreRemoteVault = async (): Promise<void> => {
         senderKey,
         {
           revision: metadata.observedRevision ?? 0,
-          envelopeHash: metadata.highWaterEnvelopeHash ?? '',
+          envelopeHash: metadata.highWaterEnvelopeHash,
         },
       );
       networkScope.assertCurrent();

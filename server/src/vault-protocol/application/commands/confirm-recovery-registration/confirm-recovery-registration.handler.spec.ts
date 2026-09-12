@@ -6,6 +6,7 @@ import { buildRecoveryRegistration } from '@vault-protocol/testing/build-recover
 import { buildRecoveryRegistrationCommand } from '@vault-protocol/testing/build-recovery-registration-command';
 import { buildRecoveryRegistrationRepositoryDouble } from '@vault-protocol/testing/build-recovery-registration-repository-double';
 import { buildVaultSignatureVerifierDouble } from '@vault-protocol/testing/build-vault-signature-verifier-double';
+import { interactiveAuthMaxAgeMs } from '@shared/auth/interactive-auth-window';
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -36,7 +37,10 @@ describe('ConfirmRecoveryRegistrationHandler', () => {
       registration.toSigningBytes(),
       command.recoverySignature,
     );
-    expect(register).toHaveBeenCalledWith(registration);
+    expect(register).toHaveBeenCalledWith(
+      registration,
+      (command.user.authTime ?? 0) + interactiveAuthMaxAgeMs,
+    );
   });
 
   it.each(['verifyDevice', 'verifyRecovery'])(

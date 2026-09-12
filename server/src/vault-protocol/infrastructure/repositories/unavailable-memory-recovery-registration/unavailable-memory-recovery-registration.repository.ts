@@ -23,7 +23,10 @@ export class UnavailableMemoryRecoveryRegistrationRepository implements Recovery
     throw new DomainError('Recovery authority registration is unavailable');
   }
 
-  async register(_registration: RecoveryAuthorityRegistration): Promise<void> {
+  async register(
+    _registration: RecoveryAuthorityRegistration,
+    _authDeadline: number,
+  ): Promise<void> {
     throw new DomainError('Recovery authority registration is unavailable');
   }
 }

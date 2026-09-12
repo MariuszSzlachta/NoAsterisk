@@ -1,6 +1,7 @@
 import { DomainError } from '@budget/domain';
 import { Inject, Injectable } from '@nestjs/common';
 import { assertFreshInteractiveAuth } from '@shared/auth/auth-freshness';
+import { getInteractiveAuthDeadline } from '@shared/auth/get-interactive-auth-deadline';
 import {
   RECOVERY_REGISTRATION_REPOSITORY,
   type RecoveryRegistrationRepositoryPort,
@@ -21,7 +22,7 @@ export class ConfirmRecoveryRegistrationHandler {
   ) {}
 
   async execute(command: ConfirmRecoveryRegistrationCommand): Promise<void> {
-    assertFreshInteractiveAuth(command.user);
+    const authDeadline = getInteractiveAuthDeadline(command.user);
     const scope = {
       userId: command.user.userId,
       workspaceId: command.user.workspaceId,
@@ -52,6 +53,6 @@ export class ConfirmRecoveryRegistrationHandler {
     if (!isRecoveryProofValid)
       throw new DomainError('Recovery authority registration is unavailable');
     assertFreshInteractiveAuth(command.user);
-    await this.repository.register(registration);
+    await this.repository.register(registration, authDeadline);
   }
 }

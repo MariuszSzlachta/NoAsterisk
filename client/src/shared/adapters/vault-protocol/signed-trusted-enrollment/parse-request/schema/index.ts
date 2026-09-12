@@ -1,0 +1,1 @@
+export { signedTrustedRequestSchema } from './schema';

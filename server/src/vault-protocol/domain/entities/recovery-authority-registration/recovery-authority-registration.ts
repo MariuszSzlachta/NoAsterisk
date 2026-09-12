@@ -59,6 +59,15 @@ export class RecoveryAuthorityRegistration {
     });
   }
 
+  assertAuthorizationLive(now: number, authDeadline: number): void {
+    if (
+      !Number.isSafeInteger(now) ||
+      !Number.isSafeInteger(authDeadline) ||
+      now > authDeadline
+    )
+      throw new DomainError('Recovery authority registration is unavailable');
+  }
+
   toSigningBytes(): Uint8Array<ArrayBuffer> {
     return new TextEncoder().encode(
       JSON.stringify([

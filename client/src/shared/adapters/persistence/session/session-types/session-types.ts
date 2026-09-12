@@ -93,6 +93,7 @@ interface EncryptedPersistence {
       readonly localShare?: CryptoKey;
       readonly signingKeyPair?: CryptoKeyPair;
       readonly vmk?: Uint8Array;
+      readonly requiresRemoteRestore?: boolean;
     },
     context: {
       readonly accountId: string;

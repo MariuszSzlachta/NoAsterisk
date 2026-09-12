@@ -15,6 +15,7 @@ import { PostgresVaultRotationRepository } from '@vault-protocol/infrastructure/
 import { buildPostgresRecoveryFixture } from '@vault-protocol/testing/build-postgres-recovery-fixture';
 import { signRecoveryRegistration } from '@vault-protocol/testing/sign-recovery-registration';
 import { createVaultSecurityTestConnection } from '@vault-protocol/testing/vault-security-test-connection';
+import { recoveryRegistrationFormat } from '@vault-protocol/domain/recovery-registration/constants';
 
 const describePostgres =
   process.env.VAULT_SECURITY_TEST_DATABASE_NAME === undefined
@@ -283,8 +284,8 @@ describePostgres('PostgresRecoveryRegistrationRepository', () => {
       recoveryPublicKey: fixture.signature.recoveryPublicKey,
     });
     const outcomes = await Promise.allSettled([
-      repository.register(registration),
-      repository.register(registration),
+      repository.register(registration, registration.snapshot.expiresAt),
+      repository.register(registration, registration.snapshot.expiresAt),
     ]);
     expect(
       outcomes.filter((outcome) => outcome.status === 'fulfilled'),
@@ -305,5 +306,36 @@ describePostgres('PostgresRecoveryRegistrationRepository', () => {
         ),
       );
     expect(rows[0]?.consumedAt).toBeInstanceOf(Date);
+  });
+
+  it('should roll back registration when the database auth deadline has passed even if the application clock lags', async () => {
+    const fixture = await buildPostgresRecoveryFixture(database);
+    const repository = new PostgresRecoveryRegistrationRepository(database);
+    const laggingClock = Date.now() - recoveryRegistrationFormat.ttlMs / 2;
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(laggingClock);
+    try {
+      const registration = await repository.prepare({
+        ...fixture.scope,
+        recoveryPublicKey: fixture.signature.recoveryPublicKey,
+      });
+      const expiredDatabaseDeadline =
+        laggingClock + recoveryRegistrationFormat.ttlMs / 4;
+      await expect(
+        repository.register(registration, expiredDatabaseDeadline),
+      ).rejects.toThrow(DomainError);
+      expect(
+        await repository.findPending(
+          fixture.scope,
+          registration.snapshot.challenge,
+        ),
+      ).toBeDefined();
+      const keysets = await database
+        .select()
+        .from(vaultKeysets)
+        .where(eq(vaultKeysets.id, fixture.keysetId));
+      expect(keysets[0]?.recoveryPublicKey).toBeNull();
+    } finally {
+      clock.mockRestore();
+    }
   });
 });

@@ -1,0 +1,1 @@
+export { parseSignedTrustedQr } from './parse';

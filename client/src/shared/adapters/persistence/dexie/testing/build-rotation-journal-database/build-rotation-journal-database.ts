@@ -1,8 +1,6 @@
 import type { RotationJournalDatabaseFixture } from '#shared/adapters/persistence/dexie/testing/build-rotation-journal-database/types';
-import {
-  VaultV2Database,
-  type VaultV2Metadata,
-} from '#shared/adapters/persistence/dexie/vault-v2-database/vault-v2-database';
+import { VaultV2Database } from '#shared/adapters/persistence/dexie/vault-v2-database';
+import type { VaultV2Metadata } from '#shared/adapters/persistence/dexie/vault-v2-database/types';
 
 export const buildRotationJournalDatabase =
   async (): Promise<RotationJournalDatabaseFixture> => {

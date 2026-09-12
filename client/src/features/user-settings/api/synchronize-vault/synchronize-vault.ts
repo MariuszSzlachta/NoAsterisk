@@ -1,4 +1,12 @@
 import { VAULT_NETWORK_TIMEOUT_MS } from '#features/user-settings/api/constants/vault-network-timeout';
+import { buildVaultRecords } from '#features/user-settings/api/synchronize-vault/build-vault-records';
+import { isRemoteAtHighWater } from '#features/user-settings/api/synchronize-vault/is-remote-at-high-water';
+import { mapCreatedSnapshot } from '#features/user-settings/api/synchronize-vault/map-created-snapshot';
+import type {
+  VaultSyncOptions,
+  VaultSyncResult,
+} from '#features/user-settings/api/synchronize-vault/types';
+import { verifyRemoteSnapshot } from '#features/user-settings/api/synchronize-vault/verify-remote-snapshot';
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
 import { serializeVaultPayload } from '#features/user-settings/model/vault-payload';
 import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
@@ -7,113 +15,13 @@ import {
   persistenceSyncMetadata,
 } from '#shared/adapters/persistence';
 import { assertVaultSessionCurrent } from '#shared/adapters/persistence/session/assert-vault-session-current';
-import { assertSnapshotBinding } from '#shared/adapters/vault-protocol/assert-snapshot-binding';
-import { deviceSigningKey } from '#shared/adapters/vault-protocol/device-signing-key';
+import { createVaultAbortScope } from '#shared/adapters/persistence/session/create-vault-abort-scope';
 import { opaqueSyncSnapshot } from '#shared/adapters/vault-protocol/opaque-sync-snapshot';
 import { ApiError } from '#shared/api';
 import { syncSnapshotApi } from '#shared/api/vault-protocol/sync-snapshot-api';
 
-import { buildVaultRecords } from './build-vault-records';
-import type { RemoteVaultSnapshot } from './types';
-
-type VaultSyncResult =
-  | { readonly status: 'saved'; readonly snapshot: RemoteVaultSnapshot }
-  | { readonly status: 'noop'; readonly snapshot?: RemoteVaultSnapshot }
-  | { readonly status: 'conflict'; readonly snapshot?: RemoteVaultSnapshot };
-
-const toEnvelope = (snapshot: RemoteVaultSnapshot): unknown => ({
-  header: JSON.parse(snapshot.header),
-  ciphertext: snapshot.ciphertext,
-  signature: snapshot.signature,
-});
-
-const toSnapshot = async (
-  material: ReturnType<typeof encryptedPersistence.requireVaultSyncMaterial>,
-  created: Awaited<ReturnType<typeof opaqueSyncSnapshot.create>>,
-): Promise<RemoteVaultSnapshot> => ({
-  vaultId: material.context.vaultId,
-  keyId: material.context.keyId,
-  deviceId: material.context.deviceId,
-  revision: created.envelope.header.revision,
-  previousEnvelopeHash: created.envelope.header.previousEnvelopeHash,
-  envelopeHash: created.state.envelopeHash,
-  header: JSON.stringify(created.envelope.header),
-  ciphertext: created.envelope.ciphertext,
-  signature: created.envelope.signature,
-  signingPublicKey: JSON.stringify(
-    await deviceSigningKey.exportPublicJwk(material.verifyKey),
-  ),
-  createdAt: created.envelope.header.createdAt,
-});
-
-const isRemoteCompatibleWithLocalHighWater = (
-  remote: RemoteVaultSnapshot,
-): boolean => {
-  const metadata = persistenceSyncMetadata.get();
-  if (
-    metadata.observedRevision === undefined ||
-    metadata.highWaterEnvelopeHash === undefined
-  )
-    return false;
-  return (
-    remote.revision === metadata.observedRevision &&
-    remote.envelopeHash === metadata.highWaterEnvelopeHash
-  );
-};
-
-const verifyRemote = async (
-  remote: RemoteVaultSnapshot,
-  material: ReturnType<typeof encryptedPersistence.requireVaultSyncMaterial>,
-  force: boolean,
-): Promise<void> => {
-  let signingPublicKey: unknown;
-  try {
-    signingPublicKey = JSON.parse(remote.signingPublicKey);
-  } catch {
-    throw new Error('Invalid remote signing key');
-  }
-  const remoteVerifyKey =
-    await deviceSigningKey.importPublicJwk(signingPublicKey);
-  await assertSnapshotBinding(toEnvelope(remote), remote);
-  const metadata = persistenceSyncMetadata.get();
-  if (!force) {
-    if (!isRemoteCompatibleWithLocalHighWater(remote))
-      throw new Error(
-        'Remote snapshot is newer or local high-water mark is missing',
-      );
-    await opaqueSyncSnapshot.openEnvelope(
-      toEnvelope(remote),
-      material.context,
-      material.syncKey,
-      remoteVerifyKey,
-      {
-        revision: metadata.observedRevision ?? 0,
-        envelopeHash: metadata.highWaterEnvelopeHash ?? '',
-      },
-    );
-    return;
-  }
-
-  if (
-    metadata.observedRevision !== undefined &&
-    remote.revision < metadata.observedRevision
-  )
-    throw new Error('Remote snapshot rollback detected');
-
-  await opaqueSyncSnapshot.openEnvelope(
-    toEnvelope(remote),
-    material.context,
-    material.syncKey,
-    remoteVerifyKey,
-    {
-      revision: metadata.observedRevision ?? 0,
-      envelopeHash: metadata.highWaterEnvelopeHash ?? '',
-    },
-  );
-};
-
 export const synchronizeVault = async (
-  options: { readonly force?: boolean } = {},
+  options: VaultSyncOptions = {},
 ): Promise<VaultSyncResult> => {
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const generation = encryptedPersistence.getGeneration();
@@ -123,32 +31,31 @@ export const synchronizeVault = async (
       generation,
       material.context,
     );
-    const abortController = new AbortController();
-    const timeout = setTimeout(
-      () => abortController.abort(),
+    const scope = createVaultAbortScope(
+      encryptedPersistence,
       VAULT_NETWORK_TIMEOUT_MS,
     );
-    const unsubscribe = encryptedPersistence.subscribe(() => {
-      if (
-        !encryptedPersistence.isUnlocked() ||
-        encryptedPersistence.getGeneration() !== generation
-      )
-        abortController.abort();
-    });
     const metadata = persistenceSyncMetadata.get();
     try {
       const response = await syncSnapshotApi.get(
         material.context.vaultId,
-        abortController.signal,
+        scope.signal,
       );
+      scope.assertCurrent();
       const remote =
         response.status === 'available' ? response.snapshot : undefined;
       const force = options.force === true;
 
       if (remote !== undefined) {
-        if (!force && !isRemoteCompatibleWithLocalHighWater(remote))
+        if (!force && !isRemoteAtHighWater(remote, metadata))
           return { status: 'conflict', snapshot: remote };
-        await verifyRemote(remote, material, force);
+        await verifyRemoteSnapshot(
+          remote,
+          material,
+          force,
+          metadata,
+          scope.assertCurrent,
+        );
       }
 
       if (!metadata.isDirty)
@@ -174,7 +81,9 @@ export const synchronizeVault = async (
         signingKey: material.signingKey,
         syncKey: material.syncKey,
       });
-      const nextSnapshot = await toSnapshot(material, created);
+      scope.assertCurrent();
+      const nextSnapshot = await mapCreatedSnapshot(material, created);
+      scope.assertCurrent();
       assertVaultSessionCurrent(
         encryptedPersistence,
         generation,
@@ -184,8 +93,9 @@ export const synchronizeVault = async (
         const saved = await syncSnapshotApi.put(
           nextSnapshot,
           baseRevision,
-          abortController.signal,
+          scope.signal,
         );
+        scope.assertCurrent();
         if (
           saved.revision !== nextSnapshot.revision ||
           saved.envelopeHash !== nextSnapshot.envelopeHash
@@ -211,8 +121,7 @@ export const synchronizeVault = async (
         throw error;
       }
     } finally {
-      clearTimeout(timeout);
-      unsubscribe();
+      scope.dispose();
     }
   });
 };

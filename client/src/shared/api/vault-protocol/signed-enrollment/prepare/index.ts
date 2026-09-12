@@ -1,0 +1,1 @@
+export { prepareSignedEnrollment } from './prepare';

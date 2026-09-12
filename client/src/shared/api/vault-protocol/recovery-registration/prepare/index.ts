@@ -1,0 +1,1 @@
+export { prepareRecoveryRegistration } from './prepare';

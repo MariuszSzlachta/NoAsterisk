@@ -1,0 +1,1 @@
+export { encodeRecoveryRegistration } from './encode';

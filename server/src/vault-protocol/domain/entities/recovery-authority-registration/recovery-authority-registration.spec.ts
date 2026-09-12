@@ -62,3 +62,30 @@ describe('RecoveryAuthorityRegistration', () => {
     );
   });
 });
+describe('interactive authorization deadline', () => {
+  it('should accept the inclusive deadline and reject expired authorization', () => {
+    const registration = new RecoveryAuthorityRegistration(
+      buildRecoveryRegistration(),
+    );
+    expect(() => {
+      registration.assertAuthorizationLive(1000, 1000);
+    }).not.toThrow();
+    expect(() => {
+      registration.assertAuthorizationLive(1001, 1000);
+    }).toThrow(DomainError);
+  });
+  it.each([NaN, Infinity, 1000.5])(
+    'should reject invalid authorization clock=%s',
+    (clock) => {
+      const registration = new RecoveryAuthorityRegistration(
+        buildRecoveryRegistration(),
+      );
+      expect(() => {
+        registration.assertAuthorizationLive(clock, 1000);
+      }).toThrow(DomainError);
+      expect(() => {
+        registration.assertAuthorizationLive(1000, clock);
+      }).toThrow(DomainError);
+    },
+  );
+});

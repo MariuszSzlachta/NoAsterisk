@@ -389,6 +389,7 @@ export const createEncryptedPersistence = (
       readonly localShare?: CryptoKey;
       readonly signingKeyPair?: CryptoKeyPair;
       readonly vmk?: Uint8Array;
+      readonly requiresRemoteRestore?: boolean;
     },
     context: {
       readonly accountId: string;
@@ -489,8 +490,8 @@ export const createEncryptedPersistence = (
           );
         }
         const signingKeyPair =
-          existingMetadata?.signingKeyPair ??
           effectiveVaultKeys.signingKeyPair ??
+          existingMetadata?.signingKeyPair ??
           (await generateSigningKeyPair());
         const newSentinel =
           existingMetadata === undefined
@@ -533,6 +534,7 @@ export const createEncryptedPersistence = (
               : { localShare: vaultKeys.localShare }),
             signingKeyPair,
             sentinel: newSentinel,
+            requiresRemoteRestore: vaultKeys.requiresRemoteRestore ?? true,
           });
         } else {
           if (generation !== unlockGeneration)
@@ -543,6 +545,10 @@ export const createEncryptedPersistence = (
           } = existingMetadata;
           await database.metadata.put({
             ...metadataWithoutLocalShare,
+            deviceId: effectiveContext.deviceId,
+            requiresRemoteRestore:
+              vaultKeys.requiresRemoteRestore ??
+              existingMetadata.requiresRemoteRestore,
             ...(vaultKeys.localShare === undefined
               ? {}
               : { localShare: vaultKeys.localShare }),

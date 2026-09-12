@@ -1,0 +1,1 @@
+export { signedEnrollmentPreparationSchema } from './schema';

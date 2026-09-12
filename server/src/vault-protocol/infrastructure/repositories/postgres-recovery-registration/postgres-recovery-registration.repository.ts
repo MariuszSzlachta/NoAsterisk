@@ -108,7 +108,11 @@ export class PostgresRecoveryRegistrationRepository implements RecoveryRegistrat
       : mapRecoveryRegistrationRowToDomain(rows[0]);
   }
 
-  async register(registration: RecoveryAuthorityRegistration): Promise<void> {
+  async register(
+    registration: RecoveryAuthorityRegistration,
+    authDeadline: number,
+  ): Promise<void> {
+    registration.assertAuthorizationLive(Date.now(), authDeadline);
     await this.database.transaction(async (transaction) => {
       const snapshot = registration.snapshot;
       await transaction.execute(
@@ -136,6 +140,7 @@ export class PostgresRecoveryRegistrationRepository implements RecoveryRegistrat
       if (pending === undefined)
         throw new DomainError('Recovery authority registration is unavailable');
       const stored = mapRecoveryRegistrationRowToDomain(pending);
+      stored.assertAuthorizationLive(Date.now(), authDeadline);
       if (
         !Buffer.from(stored.toSigningBytes()).equals(
           Buffer.from(registration.toSigningBytes()),
@@ -166,6 +171,7 @@ export class PostgresRecoveryRegistrationRepository implements RecoveryRegistrat
               vaultRecoveryAuthorityChallenges.expiresAt,
               sql`clock_timestamp()`,
             ),
+            sql`${new Date(authDeadline)}::timestamptz >= clock_timestamp()`,
           ),
         )
         .returning({ id: vaultRecoveryAuthorityChallenges.id });
@@ -188,6 +194,7 @@ export class PostgresRecoveryRegistrationRepository implements RecoveryRegistrat
               vaultRecoveryAuthorityChallenges.expiresAt,
               sql`clock_timestamp()`,
             ),
+            sql`${new Date(authDeadline)}::timestamptz >= clock_timestamp()`,
           ),
         )
         .returning({ id: vaultKeysets.id });
