@@ -8,7 +8,7 @@ import {
   USER_REPOSITORY,
   UserRepository,
 } from '@auth/domain/ports/user.repository';
-import { isTokenPayload } from '@auth/domain/ports/token-payload.guard';
+import { parseTokenPayload } from '@auth/domain/token-payload/token-payload.schema';
 
 export interface RefreshResult {
   accessToken: string;
@@ -24,21 +24,17 @@ export class RefreshHandler {
 
   async execute(refreshToken: string): Promise<RefreshResult> {
     const payload = this.token.verifyRefresh(refreshToken);
-    if (!isTokenPayload(payload)) {
+    const validatedPayload = parseTokenPayload(payload);
+    if (validatedPayload === undefined) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const user = await this.userRepo.findById(payload.sub);
+    const user = await this.userRepo.findById(validatedPayload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    const tokenVersion: unknown = payload.tokenVersion;
-    if (
-      typeof tokenVersion !== 'number' ||
-      !Number.isSafeInteger(tokenVersion) ||
-      tokenVersion !== user.tokenVersion
-    ) {
+    if (validatedPayload.tokenVersion !== user.tokenVersion) {
       throw new UnauthorizedException('Token has been revoked');
     }
 
@@ -50,8 +46,12 @@ export class RefreshHandler {
       workspaceId: rotatedUser.workspaceId,
       role: rotatedUser.role,
       tokenVersion: rotatedUser.tokenVersion,
-      ...(payload.authTime === undefined ? {} : { authTime: payload.authTime }),
-      ...(payload.amr === undefined ? {} : { amr: payload.amr }),
+      ...(validatedPayload.authTime === undefined
+        ? {}
+        : { authTime: validatedPayload.authTime }),
+      ...(validatedPayload.amr === undefined
+        ? {}
+        : { amr: validatedPayload.amr }),
     };
 
     return {

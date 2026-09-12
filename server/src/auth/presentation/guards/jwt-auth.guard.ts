@@ -14,7 +14,7 @@ import {
 import { UserRole } from '@auth/domain/user-role.enum';
 import { IS_PUBLIC_KEY } from '@auth/presentation/decorators/public.decorator';
 import { CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
-import { isTokenPayload } from '@auth/domain/ports/token-payload.guard';
+import { parseTokenPayload } from '@auth/domain/token-payload/token-payload.schema';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -46,19 +46,12 @@ export class JwtAuthGuard implements CanActivate {
     const jwt = authHeader.slice(7);
     const payload = this.token.verify(jwt);
 
-    if (!isTokenPayload(payload)) {
+    const validatedPayload = parseTokenPayload(payload);
+    if (validatedPayload === undefined) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    const tokenVersion: unknown = payload.tokenVersion;
-    if (
-      typeof tokenVersion !== 'number' ||
-      !Number.isSafeInteger(tokenVersion)
-    ) {
-      throw new UnauthorizedException('Token is missing revocation version');
-    }
-
-    const user = await this.userRepo.findById(payload.sub);
+    const user = await this.userRepo.findById(validatedPayload.sub);
 
     if (!user) {
       throw new UnauthorizedException('Invalid or expired token');
@@ -68,7 +61,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Account is blocked');
     }
 
-    if (tokenVersion !== user.tokenVersion) {
+    if (validatedPayload.tokenVersion !== user.tokenVersion) {
       throw new UnauthorizedException('Token has been revoked');
     }
 
@@ -76,9 +69,9 @@ export class JwtAuthGuard implements CanActivate {
       userId: user.id,
       workspaceId: user.workspaceId,
       role: user.role,
-      authTime: payload.authTime,
-      amr: payload.amr,
-      vaultUnlockGrant: payload.vaultUnlockGrant,
+      authTime: validatedPayload.authTime,
+      amr: validatedPayload.amr,
+      vaultUnlockGrant: validatedPayload.vaultUnlockGrant,
     };
 
     return true;

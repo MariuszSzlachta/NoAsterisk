@@ -560,10 +560,10 @@ export const useVaultUnlock = (
     (value: string): void => {
       const pending = trustedDeviceRequest.current;
       if (pending === undefined || isUnlocking) return;
+      const startedGeneration = flowGeneration.current;
       setIsUnlocking(true);
       setTrustedDeviceError(undefined);
       void (async () => {
-        const startedGeneration = flowGeneration.current;
         const assertCurrent = (): void => {
           if (flowGeneration.current !== startedGeneration)
             throw new Error('Trusted-device enrollment flow was cancelled');
@@ -579,8 +579,8 @@ export const useVaultUnlock = (
           pending.privateKey,
           pending.signingPublicKey,
         );
-        assertCurrent();
         try {
+          assertCurrent();
           await enrollVmk(
             accountId,
             workspaceId,
@@ -598,11 +598,12 @@ export const useVaultUnlock = (
         }
       })()
         .catch((error: unknown) => {
-          setTrustedDeviceError(
-            error instanceof Error
-              ? error.message
-              : 'Trusted-device enrollment failed',
-          );
+          if (flowGeneration.current === startedGeneration)
+            setTrustedDeviceError(
+              error instanceof Error
+                ? error.message
+                : 'Trusted-device enrollment failed',
+            );
         })
         .finally(() => setIsUnlocking(false));
     },
@@ -610,6 +611,7 @@ export const useVaultUnlock = (
   );
 
   const handleCancelTrustedDeviceEnrollment = useCallback((): void => {
+    flowGeneration.current += 1;
     trustedDeviceRequest.current = undefined;
     setTrustedDeviceRequestQrSvg(undefined);
     setTrustedDeviceError(undefined);
@@ -618,6 +620,13 @@ export const useVaultUnlock = (
 
   const handleTrustedDeviceError = useCallback((message: string): void => {
     setTrustedDeviceError(message);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = encryptedPersistence.subscribe(() => {
+      flowGeneration.current += 1;
+    });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

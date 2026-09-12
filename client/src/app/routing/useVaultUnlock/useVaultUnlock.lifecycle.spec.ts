@@ -1,6 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
+import { vaultPasskeyCeremony } from '#shared/adapters/webauthn/vault-passkey-ceremony';
+
+import { useVaultUnlock } from './useVaultUnlock';
+
 const { bootstrapGet, unlockWithVaultKeys } = vi.hoisted(() => ({
   bootstrapGet: vi.fn(),
   unlockWithVaultKeys: vi.fn().mockResolvedValue(undefined),
@@ -17,6 +22,7 @@ vi.mock('#app/providers/hydrate-financial-stores', () => ({
 vi.mock('#shared/adapters/persistence', () => ({
   encryptedPersistence: {
     readVaultLocalShare: vi.fn().mockResolvedValue({} as CryptoKey),
+    subscribe: vi.fn(() => vi.fn()),
     unlockWithVaultKeys,
     lock: vi.fn(),
   },
@@ -75,10 +81,6 @@ vi.mock('#shared/api/vault-protocol/vault-bootstrap', () => ({
 vi.mock('#shared/api/vault-protocol/vault-enrollment', () => ({
   vaultEnrollment: {},
 }));
-
-import { useVaultUnlock } from './useVaultUnlock';
-import { vaultPasskeyCeremony } from '#shared/adapters/webauthn/vault-passkey-ceremony';
-import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 
 const snapshot = {
   status: 'locked' as const,
