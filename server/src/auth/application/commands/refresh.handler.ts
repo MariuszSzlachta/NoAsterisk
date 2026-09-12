@@ -8,6 +8,7 @@ import {
   USER_REPOSITORY,
   UserRepository,
 } from '@auth/domain/ports/user.repository';
+import { isTokenPayload } from '@auth/domain/ports/token-payload.guard';
 
 export interface RefreshResult {
   accessToken: string;
@@ -23,7 +24,7 @@ export class RefreshHandler {
 
   async execute(refreshToken: string): Promise<RefreshResult> {
     const payload = this.token.verifyRefresh(refreshToken);
-    if (!payload) {
+    if (!isTokenPayload(payload)) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 

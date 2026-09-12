@@ -263,15 +263,22 @@ export const createEncryptedPersistence = (
     getId: (record: TRecord) => string,
   ): EncryptedRepository<TRecord> => {
     if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+      const repositoryDatabase = activeVaultDatabase;
+      const repositoryContext = vaultContext;
+      const repositoryGeneration = activeGeneration;
       return createVaultV2Repository(
-        activeVaultDatabase,
+        repositoryDatabase,
         collection,
         requireKey,
         validator,
         getId,
         vaultContext,
         databaseLock,
-        () => generation === activeGeneration,
+        () =>
+          generation === repositoryGeneration &&
+          activeGeneration === repositoryGeneration &&
+          activeVaultDatabase === repositoryDatabase &&
+          vaultContext === repositoryContext,
         () => persistenceSyncMetadata.markDirty(),
       );
     }

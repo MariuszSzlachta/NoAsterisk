@@ -473,7 +473,7 @@ describe('RefreshHandler', () => {
       sub: 'user-1',
       workspaceId: 'ws-1',
       role: 'Member',
-    } as never);
+    });
     userRepo.findById.mockResolvedValue(
       new User(
         'user-1',
@@ -486,7 +486,7 @@ describe('RefreshHandler', () => {
     );
 
     await expect(handler.execute('legacy-refresh-token')).rejects.toThrow(
-      'Token has been revoked',
+      'Invalid refresh token',
     );
   });
 });

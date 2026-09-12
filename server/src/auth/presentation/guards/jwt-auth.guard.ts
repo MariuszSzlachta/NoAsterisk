@@ -14,6 +14,7 @@ import {
 import { UserRole } from '@auth/domain/user-role.enum';
 import { IS_PUBLIC_KEY } from '@auth/presentation/decorators/public.decorator';
 import { CurrentUserPayload } from '@auth/presentation/decorators/current-user.decorator';
+import { isTokenPayload } from '@auth/domain/ports/token-payload.guard';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -45,7 +46,7 @@ export class JwtAuthGuard implements CanActivate {
     const jwt = authHeader.slice(7);
     const payload = this.token.verify(jwt);
 
-    if (!payload) {
+    if (!isTokenPayload(payload)) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 

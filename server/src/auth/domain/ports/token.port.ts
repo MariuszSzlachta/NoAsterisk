@@ -13,6 +13,6 @@ export interface TokenPayload {
 export interface TokenPort {
   sign(payload: TokenPayload): string;
   signRefresh(payload: TokenPayload): string;
-  verify(token: string): TokenPayload | undefined;
-  verifyRefresh(token: string): TokenPayload | undefined;
+  verify(token: string): unknown;
+  verifyRefresh(token: string): unknown;
 }

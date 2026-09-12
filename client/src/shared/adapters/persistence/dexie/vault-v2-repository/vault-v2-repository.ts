@@ -69,6 +69,7 @@ export const createVaultV2Repository = <TRecord extends object>(
   const decrypt = async (
     envelope: VaultRecordEnvelope | undefined,
   ): Promise<TRecord> => {
+    assertSessionActive();
     if (envelope === undefined)
       return Promise.reject(new Error('Record not found'));
     const plaintext = await vaultProtocol.decryptRecord(
@@ -76,21 +77,29 @@ export const createVaultV2Repository = <TRecord extends object>(
       { ...context, collection, recordId: envelope.id },
       getKey(),
     );
+    assertSessionActive();
     const parsed: unknown = JSON.parse(plaintext);
     if (!validator(parsed)) throw new Error('Vault record validation failed');
     return parsed;
   };
   const get = async (id: string): Promise<TRecord | undefined> => {
+    assertSessionActive();
     const envelope = await database.records.get([collection, id]);
+    assertSessionActive();
     if (envelope === undefined) return undefined;
     return decrypt(envelope);
   };
-  const getAll = async (): Promise<ReadonlyArray<TRecord>> =>
-    Promise.all(
-      (
-        await database.records.where('collection').equals(collection).toArray()
-      ).map(decrypt),
-    );
+  const getAll = async (): Promise<ReadonlyArray<TRecord>> => {
+    assertSessionActive();
+    const envelopes = await database.records
+      .where('collection')
+      .equals(collection)
+      .toArray();
+    assertSessionActive();
+    const records = await Promise.all(envelopes.map(decrypt));
+    assertSessionActive();
+    return records;
+  };
   const put = async (record: TRecord): Promise<void> => {
     await runExclusive(() => writeMany([record]));
   };

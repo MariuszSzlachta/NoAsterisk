@@ -52,6 +52,9 @@ describe('WebauthnVerifierAdapter', () => {
         expectedRPID: 'budgetflow.test',
         expectedType: 'webauthn.get',
         requireUserVerification: true,
+        credential: expect.objectContaining({
+          id: 'authenticator-credential-id',
+        }),
       }),
     );
   });

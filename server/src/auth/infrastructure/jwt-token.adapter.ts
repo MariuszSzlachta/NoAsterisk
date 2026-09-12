@@ -15,7 +15,7 @@ export class JwtTokenAdapter implements TokenPort {
     return this.jwtService.sign(payload, { secret, expiresIn: '7d' });
   }
 
-  verify(token: string): TokenPayload | undefined {
+  verify(token: string): unknown {
     try {
       return this.jwtService.verify<TokenPayload>(token);
     } catch {
@@ -23,7 +23,7 @@ export class JwtTokenAdapter implements TokenPort {
     }
   }
 
-  verifyRefresh(token: string): TokenPayload | undefined {
+  verifyRefresh(token: string): unknown {
     try {
       const secret = this.getRefreshSecret();
       return this.jwtService.verify<TokenPayload>(token, { secret });
