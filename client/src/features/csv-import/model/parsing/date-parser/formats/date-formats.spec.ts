@@ -162,8 +162,10 @@ describe('ALL_FORMATS', () => {
     expect(formats).toContain('DD/MM/YYYY');
     expect(formats).toContain('DD-MM-YYYY');
     expect(formats).toContain('YYYY/MM/DD');
+    expect(formats).toContain('YYYY.MM.DD');
     expect(formats).toContain('DD.MM.YY');
     expect(formats).toContain('DD/MM/YY');
+    expect(formats).toContain('DD-MM-YY');
     expect(formats).toContain('DD-MMM-YYYY');
     expect(formats).toContain('DD Mon YYYY');
   });

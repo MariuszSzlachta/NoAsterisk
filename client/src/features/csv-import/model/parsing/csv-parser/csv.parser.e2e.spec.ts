@@ -10,12 +10,9 @@
  * 6. Row reassembly
  * 7. Header→value mapping correctness
  *
- * Test classification:
- * - PASS tests = parser works correctly for this stub
- * - it.fails() tests = known bugs in the parsing pipeline, documented for architect
- *
- * więc zielony pipeline CI nie oznacza poprawnego importu. Dla krytycznego
- * a test ma stać się zwykłym `it` natychmiast po naprawie.
+ * Every fixture in this suite is part of the supported parser contract. A failing
+ * assertion must fail the test command; known parser defects are never encoded as
+ * expected failures.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -101,8 +98,7 @@ describe('parseCsvFile e2e: 01-easy-revolut.csv', () => {
 // 02 — Medium: mBank (semicolon, Windows-1250, trailing separator,
 //       overflow in Nadawca/Odbiorca field)
 //
-// KNOWN BUG: overflow-merge strategy incorrectly picks #Opis operacji
-// (index 2) as overflow column. The real overflow comes from:
+// Unescaped separators may appear across the descriptive middle fields:
 // - Empty #Nadawca/Odbiorca + #Numer konta producing extra semicolons
 // - Semicolons INSIDE #Nadawca/Odbiorca (e.g. "NOVA DEVELOPMENT; SP. Z O.O.")
 // ═══════════════════════════════════════════════════════════════════
@@ -186,11 +182,21 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
     expect(row['#Saldo po operacji']).toBe('6 119,47');
   });
 
-  // This passes because the salary row (first) doesn't trigger overflow
-  it('maps all rows with correct #Kwota values — salary only (others broken)', async () => {
+  it('maps every amount without shifting the fixed monetary tail', async () => {
     const result = await parseCsvFile(loadStubAsFile('02-medium-mbank.csv'));
-    // Only salary row (index 0) has correct mapping — it has 9 tokens = no overflow
-    expect(result.rows[0]['#Kwota']).toBe('8 500,00');
+
+    expect(result.rows.map((row) => row['#Kwota'])).toEqual([
+      '8 500,00',
+      '-14,80',
+      '-2 100,00',
+      '-89,00',
+      '-75,00',
+      '-239,99',
+      '4 200,00',
+      '-187,43',
+      '-1 450,00',
+      '-300,00',
+    ]);
   });
 });
 
@@ -332,8 +338,8 @@ describe('parseCsvFile e2e: 04-mixed-easy-structure-hard-data.csv', () => {
 // ═══════════════════════════════════════════════════════════════════
 // 05 — Mixed: Santander (pipe separator, metadata, footer)
 //
-// KNOWN BUG: footer (=== PODSUMOWANIE ===) is NOT stripped from data.
-// The boundary detector finds data start but does NOT detect/remove footer.
+// Date-anchored rows define the transaction boundary; report footer rows are not
+// transaction records.
 // ═══════════════════════════════════════════════════════════════════
 
 describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
@@ -362,20 +368,17 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
     expect(firstRow['DATA WALUTY']).toMatch(/\d{2}\.\d{2}\.\d{4}/);
   });
 
-  // BUG: footer is included in parsed data
-  it.fails(
-    'excludes footer from parsed data (PODSUMOWANIE section)',
-    async () => {
-      const result = await parseCsvFile(
-        loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),
-      );
+  it('excludes footer from parsed data (PODSUMOWANIE section)', async () => {
+    const result = await parseCsvFile(
+      loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),
+    );
 
-      for (const row of result.rows) {
-        const values = Object.values(row);
-        expect(values.some((v) => v.includes('PODSUMOWANIE'))).toBe(false);
-      }
-    },
-  );
+    expect(result.rowCount).toBe(10);
+    for (const row of result.rows) {
+      const values = Object.values(row);
+      expect(values.some((v) => v.includes('PODSUMOWANIE'))).toBe(false);
+    }
+  });
 
   it('maps first transaction row correctly', async () => {
     const result = await parseCsvFile(
@@ -389,7 +392,7 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
     expect(row['SALDO']).toBe('22 140,55');
   });
 
-  it.fails('maps first 3 data rows with correct column alignment', async () => {
+  it('maps first 3 data rows with correct column alignment', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('05-mixed-hard-structure-mixed-data.csv'),
     );
@@ -445,12 +448,12 @@ describe('parseCsvFile e2e: 08-exotic-deceptive-simple.csv', () => {
     expect(row['Currency']).toBe('EUR');
   });
 
-  // BUG: CRLF line endings cause trailing \r in last column values
-  it.fails('maps all rows without column shift (CRLF issue)', async () => {
+  it('drops incomplete rows and trims padded values without column shifts', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('08-exotic-deceptive-simple.csv'),
     );
 
+    expect(result.rowCount).toBe(14);
     for (const row of result.rows) {
       expect(row['Currency']).toBe('EUR');
       expect(row['Date']).toMatch(/\d{4}-\d{2}-\d{2}/);
@@ -548,14 +551,11 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
 // ═══════════════════════════════════════════════════════════════════
 // 14 — Overflow: Vietnamese VCB (pipe separator, overflow in Title)
 //
-// KNOWN BUG: boundary detector does NOT find header row —
-// Vietnamese headers have no matching keywords in HEADER_KEYWORDS.
-// Parser falls into headerless mode using first data row as headers.
+// Vietnamese statement headers are detected through the normalized keyword set.
 // ═══════════════════════════════════════════════════════════════════
 
 describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
-  // BUG: Vietnamese keywords not recognized → header detection fails
-  it.fails('parses headers (Vietnamese keywords not in detector)', async () => {
+  it('parses Vietnamese headers', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('14-overflow-vietnamese-vcb.csv'),
     );
@@ -572,8 +572,7 @@ describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
-  // BUG: depends on correct header detection
-  it.fails('maps first row date correctly', async () => {
+  it('maps first row date correctly', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('14-overflow-vietnamese-vcb.csv'),
     );
@@ -587,14 +586,12 @@ describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
 // ═══════════════════════════════════════════════════════════════════
 // 15 — Overflow: Turkish Ziraat (semicolon, overflow in Description)
 //
-// KNOWN BUG: boundary detector does NOT find header row —
-// Turkish keywords (İşlem Tarihi, Açıklama, Bakiye) are not in
-// HEADER_KEYWORDS. Parser uses first data row as headers.
+// Turkish statement headers use Unicode case folding and diacritic-insensitive
+// keyword matching.
 // ═══════════════════════════════════════════════════════════════════
 
 describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
-  // BUG: Turkish keywords not recognized → header detection fails
-  it.fails('parses headers (Turkish keywords not in detector)', async () => {
+  it('parses Turkish headers', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('15-overflow-turkish-ziraat.csv'),
     );
@@ -611,8 +608,7 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
     expect(result.rowCount).toBeGreaterThan(0);
   });
 
-  // BUG: depends on correct header detection
-  it.fails('maps first row date correctly', async () => {
+  it('maps first row date correctly', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('15-overflow-turkish-ziraat.csv'),
     );
@@ -622,8 +618,7 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
     expect(row['İşlem Tarihi']).toBe('01.06.2025');
   });
 
-  // BUG: depends on correct header detection
-  it.fails('maps balance for first row', async () => {
+  it('maps balance for first row', async () => {
     const result = await parseCsvFile(
       loadStubAsFile('15-overflow-turkish-ziraat.csv'),
     );

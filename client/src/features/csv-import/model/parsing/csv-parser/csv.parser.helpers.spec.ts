@@ -257,4 +257,17 @@ describe('tokensToRow', () => {
     const result = tokensToRow([], ['1', '2']);
     expect(result).toEqual({});
   });
+
+  it('trims boundary whitespace without changing internal content', () => {
+    const result = tokensToRow(
+      [' Date ', 'Description', ' Currency '],
+      [' 2026-01-01 ', 'first line\nsecond line', 'EUR  '],
+    );
+
+    expect(result).toEqual({
+      Date: '2026-01-01',
+      Description: 'first line\nsecond line',
+      Currency: 'EUR',
+    });
+  });
 });

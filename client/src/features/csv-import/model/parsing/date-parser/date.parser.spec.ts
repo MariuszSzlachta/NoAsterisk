@@ -78,6 +78,11 @@ describe('parseDate', () => {
 });
 
 describe('parseDateFlexible — i18n month names', () => {
+  it('parses numeric formats shared with boundary detection', () => {
+    expect(parseDateFlexible('2025.06.09')).toBe('2025-06-09');
+    expect(parseDateFlexible('31-12-99')).toBe('2099-12-31');
+  });
+
   describe('Polish months', () => {
     it('parses abbreviation: 05-CZE-2025', () => {
       expect(parseDateFlexible('05-CZE-2025')).toBe('2025-06-05');

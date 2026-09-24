@@ -1,6 +1,6 @@
 /**
- * Known header keywords for PL/EN bank CSVs (mBank, PKO BP, ING, Santander,
- * Millennium, Revolut, Wise, N26). Exotic languages degrade to headerless mode.
+ * Known header keywords for supported PL/EN/VI/TR statement fixtures.
+ * Matching is case- and diacritic-insensitive.
  */
 export const HEADER_KEYWORDS = [
   'data',
@@ -48,4 +48,13 @@ export const HEADER_KEYWORDS = [
   'product',
   'withdrawal',
   'deposit',
+  'ngay',
+  'so tien',
+  'so du',
+  'ma gd',
+  'işlem',
+  'açıklama',
+  'borç',
+  'alacak',
+  'bakiye',
 ];

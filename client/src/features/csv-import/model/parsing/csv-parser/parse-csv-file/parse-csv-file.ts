@@ -1,3 +1,11 @@
+import { CsvParseError } from '#features/csv-import/model/parsing/csv-parser/helpers/csv-parse-error';
+import { generatePositionalHeaders } from '#features/csv-import/model/parsing/csv-parser/helpers/generate-positional-headers';
+import { normalizeTrailingSeparator } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator';
+import { selectDateAnchoredRows } from '#features/csv-import/model/parsing/csv-parser/helpers/select-date-anchored-rows';
+import { tokensToRow } from '#features/csv-import/model/parsing/csv-parser/helpers/tokens-to-row';
+import { validateFile } from '#features/csv-import/model/parsing/csv-parser/helpers/validate-file';
+import { ERROR_CODE_NO_DATA } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-data';
+import { ERROR_CODE_NO_HEADERS } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-headers';
 import { detectDataBoundaries } from '#features/csv-import/model/parsing/data-boundary-detector/detect-data-boundaries';
 import { decodeBuffer } from '#features/csv-import/model/parsing/encoding-detector/decode-buffer';
 import { detectEncoding } from '#features/csv-import/model/parsing/encoding-detector/detect-encoding';
@@ -9,14 +17,6 @@ import { resolveStrategy } from '#features/csv-import/model/parsing/strategies/r
 import type { CsvRow } from '#features/csv-import/model/parsing/types/csv-row';
 import type { ParsedCsvData } from '#features/csv-import/model/parsing/types/parsed-csv-data';
 import { parseCsv } from '#shared/adapters/csv';
-
-import { CsvParseError } from '#features/csv-import/model/parsing/csv-parser/helpers/csv-parse-error';
-import { generatePositionalHeaders } from '#features/csv-import/model/parsing/csv-parser/helpers/generate-positional-headers';
-import { normalizeTrailingSeparator } from '#features/csv-import/model/parsing/csv-parser/helpers/normalize-trailing-separator';
-import { tokensToRow } from '#features/csv-import/model/parsing/csv-parser/helpers/tokens-to-row';
-import { validateFile } from '#features/csv-import/model/parsing/csv-parser/helpers/validate-file';
-import { ERROR_CODE_NO_DATA } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-data';
-import { ERROR_CODE_NO_HEADERS } from '#features/csv-import/model/parsing/csv-parser/parse-csv-file/constants/error-code-no-headers';
 
 export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
   Promise.resolve()
@@ -41,7 +41,10 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
       });
 
       if (result.data.length === 0) {
-        throw new CsvParseError('CSV contains no data rows', ERROR_CODE_NO_DATA);
+        throw new CsvParseError(
+          'CSV contains no data rows',
+          ERROR_CODE_NO_DATA,
+        );
       }
 
       const { headers: rawHeaders, dataRows: rawDataRows } =
@@ -62,7 +65,10 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
           : (() => {
               const firstRow = result.data[0];
               if (!firstRow || firstRow.length === 0) {
-                throw new CsvParseError('No data detected in CSV', ERROR_CODE_NO_DATA);
+                throw new CsvParseError(
+                  'No data detected in CSV',
+                  ERROR_CODE_NO_DATA,
+                );
               }
               return {
                 headers: generatePositionalHeaders(firstRow),
@@ -70,9 +76,13 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
               };
             })();
 
+      const dateAnchoredRows = selectDateAnchoredRows(
+        rawDataRows,
+        boundaries.hasDateAnchoredRows,
+      );
       const { headers, dataRows } = normalizeTrailingSeparator(
         rawHeaders,
-        rawDataRows,
+        dateAnchoredRows,
       );
       const { strategy, config } = resolveStrategy(
         headers,
@@ -85,7 +95,10 @@ export const parseCsvFile = (file: File): Promise<ParsedCsvData> =>
       );
 
       if (rows.length === 0) {
-        throw new CsvParseError('CSV contains no data rows', ERROR_CODE_NO_DATA);
+        throw new CsvParseError(
+          'CSV contains no data rows',
+          ERROR_CODE_NO_DATA,
+        );
       }
 
       return {

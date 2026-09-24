@@ -65,4 +65,23 @@ describe('resolveStrategy (integration)', () => {
     const result = resolveStrategy(headers, dataRows, ';');
     expect(result.config.fixedTailColumns).toBe(2);
   });
+
+  it('detects overflow beyond the heuristic sampling window', () => {
+    const headers = ['Date', 'Description', 'Amount', 'Balance', 'Currency'];
+    const dataRows = [
+      ...Array.from({ length: 10 }, () => [
+        '2025-06-01',
+        'Payment',
+        '-10.00',
+        '100.00',
+        'EUR',
+      ]),
+      ['2025-06-11', 'Payment', '-187', '43', '100.00', 'EUR'],
+    ];
+
+    const result = resolveStrategy(headers, dataRows, ',');
+
+    expect(result.strategy.type).toBe('overflow-merge');
+    expect(result.config.overflowColumnIndex).toBe(1);
+  });
 });

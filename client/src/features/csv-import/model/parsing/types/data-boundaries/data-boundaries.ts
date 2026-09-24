@@ -3,4 +3,5 @@ export interface DataBoundaries {
   readonly dataStartRow: number;
   readonly skipRows: number;
   readonly dataText: string;
+  readonly hasDateAnchoredRows: boolean;
 }
