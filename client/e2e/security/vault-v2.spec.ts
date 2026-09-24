@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test';
 
 import { setupAuthenticatedUser, unlockVault } from '../helpers/auth';
+import { recoveryVaultFixture } from '../helpers/recovery-vault-fixture';
 
-const readV2Storage = async (page: Parameters<typeof setupAuthenticatedUser>[0]) =>
+const readV2Storage = async (
+  page: Parameters<typeof setupAuthenticatedUser>[0],
+) =>
   page.evaluate(async () => {
     const databases = await indexedDB.databases();
     const name = databases.find((database) =>
@@ -14,16 +17,27 @@ const readV2Storage = async (page: Parameters<typeof setupAuthenticatedUser>[0])
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
-    const records = await new Promise<ReadonlyArray<Record<string, unknown>>>((resolve, reject) => {
-      const request = database.transaction('records', 'readonly').objectStore('records').getAll();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-    const metadata = await new Promise<Record<string, unknown> | undefined>((resolve, reject) => {
-      const request = database.transaction('metadata', 'readonly').objectStore('metadata').get('vault');
-      request.onsuccess = () => resolve(request.result as Record<string, unknown> | undefined);
-      request.onerror = () => reject(request.error);
-    });
+    const records = await new Promise<ReadonlyArray<Record<string, unknown>>>(
+      (resolve, reject) => {
+        const request = database
+          .transaction('records', 'readonly')
+          .objectStore('records')
+          .getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      },
+    );
+    const metadata = await new Promise<Record<string, unknown> | undefined>(
+      (resolve, reject) => {
+        const request = database
+          .transaction('metadata', 'readonly')
+          .objectStore('metadata')
+          .get('vault');
+        request.onsuccess = () =>
+          resolve(request.result as Record<string, unknown> | undefined);
+        request.onerror = () => reject(request.error);
+      },
+    );
     database.close();
     return { metadata, records };
   });
@@ -33,63 +47,35 @@ const createSavingsBudget = async (
   name: string,
   goal: string,
 ): Promise<void> => {
-  await page.getByRole('button', { name: 'Utwórz budżet', exact: true }).click();
-  await page.getByRole('button', { name: 'Oszczędnościowy', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Utwórz budżet', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Oszczędnościowy', exact: true })
+    .click();
   await page.getByLabel('Nazwa budżetu').fill(name);
   await page.getByLabel(/Cel oszczędności/).fill(goal);
   await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
 };
 
-const buildRecoverySnapshot = async (
-  page: Parameters<typeof setupAuthenticatedUser>[0],
-): Promise<Record<string, unknown>> =>
-  page.evaluate(async () => {
-    const { createVaultPayload, serializeVaultPayload } = await import('/src/features/user-settings/index.ts');
-    const { deviceSigningKey } = await import('/src/shared/adapters/vault-protocol/device-signing-key.ts');
-    const { vaultDeviceId } = await import('/src/shared/api/vault-protocol/device-id.ts');
-    const { vaultProtocol } = await import('/src/shared/adapters/vault-protocol/vault-protocol.ts');
-    const context = { accountId: 'user-e2e', workspaceId: 'workspace-e2e', vaultId: 'vault-e2e', keyId: 'key-e2e', deviceId: vaultDeviceId.get() };
-    const vmk = new Uint8Array(Array.from({ length: 32 }, (_, index) => index));
-    const keys = await vaultProtocol.deriveKeys(vmk, context);
-    const signing = await deviceSigningKey.generate();
-    const envelope = await vaultProtocol.createSnapshot(
-      serializeVaultPayload(createVaultPayload({ transactions: [], rules: [], categories: [], budgets: [], periodHistory: [], importHistory: [] })),
-      { accountId: context.accountId, workspaceId: context.workspaceId, vaultId: context.vaultId, keyId: context.keyId, formatVersion: 2, cryptoSuite: 'HKDF-SHA256/AES-256-GCM', revision: 1, previousEnvelopeHash: `${'A'.repeat(43)}=`, createdByDeviceId: context.deviceId, createdAt: '2026-01-01T00:00:00.000Z', nonce: '' },
-      keys.sync,
-      signing.privateKey,
-    );
-    const snapshot = { vaultId: context.vaultId, keyId: context.keyId, deviceId: context.deviceId, revision: 1, previousEnvelopeHash: envelope.header.previousEnvelopeHash, envelopeHash: await vaultProtocol.hashEnvelope(envelope), header: JSON.stringify(envelope.header), ciphertext: envelope.ciphertext, signature: envelope.signature, signingPublicKey: JSON.stringify(await deviceSigningKey.exportPublicJwk(signing.publicKey)), createdAt: envelope.header.createdAt };
-    vmk.fill(0);
-    return snapshot;
-  });
-
-const mockRecoverySnapshot = async (
-  page: Parameters<typeof setupAuthenticatedUser>[0],
-): Promise<void> => {
-  const snapshot = await buildRecoverySnapshot(page);
-  await page.route('**/api/users/me/vault/sync/vault-e2e', (route) =>
-    route.request().method() === 'GET'
-      ? route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ status: 'available', snapshot }),
-        })
-      : route.continue(),
-  );
-};
-
 test.describe('Vault Protocol v2', () => {
-  test('ordinary account login on a new browser cannot create or replace a vault', async ({ page }) => {
+  test('ordinary account login on a new browser cannot create or replace a vault', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
 
-    await expect(page.getByRole('button', { name: 'Odblokuj to urządzenie' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Odblokuj to urządzenie' }),
+    ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Utwórz budżet', exact: true }),
     ).not.toBeVisible();
   });
 
-  test('first trusted browser creates recovery before enrollment', async ({ page }) => {
+  test('first trusted browser creates recovery before enrollment', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', {
       unlock: false,
       vaultStatus: 'empty',
@@ -98,33 +84,46 @@ test.describe('Vault Protocol v2', () => {
     await page.getByRole('button', { name: 'Odblokuj to urządzenie' }).click();
     await page.getByRole('button', { name: 'Wygeneruj kod recovery' }).click();
     await expect(page.locator('code')).toHaveText(/^BF2:[0-9a-f]{136}$/i);
-    await expect(page.getByRole('img', { name: 'Kod QR kodu recovery' })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: 'Kod QR kodu recovery' }),
+    ).toBeVisible();
   });
 
-  test('new browser can start trusted-device QR enrollment and opens the scanner', async ({ page }) => {
+  test('new browser can start trusted-device QR enrollment and opens the scanner', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
     await page.getByRole('button', { name: 'Odblokuj to urządzenie' }).click();
-    await page.getByRole('button', { name: 'Użyj zaufanego urządzenia' }).click();
+    await page
+      .getByRole('button', { name: 'Użyj zaufanego urządzenia' })
+      .click();
     await expect(
       page.getByRole('img', {
         name: 'Zatwierdź tę przeglądarkę na zaufanym urządzeniu',
       }),
     ).toBeVisible({ timeout: 30_000 });
-    await page.getByRole('button', { name: 'Skanuj QR zaufanego urządzenia' }).click();
+    await page
+      .getByRole('button', { name: 'Skanuj QR zaufanego urządzenia' })
+      .click();
     await expect(page.getByLabel('Trusted-device QR scanner')).toBeVisible();
-    await page.getByRole('button', { name: 'Anuluj enrollment zaufanego urządzenia' }).click();
+    await page
+      .getByRole('button', { name: 'Anuluj enrollment zaufanego urządzenia' })
+      .click();
     await expect(page.getByLabel('Kod recovery')).toBeVisible();
   });
 
-  test('recovery unlocks without a vault-password prompt and stores opaque records', async ({ page }) => {
+  test('recovery unlocks without a vault-password prompt and stores opaque records', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
-    await mockRecoverySnapshot(page);
     await unlockVault(page);
     await createSavingsBudget(page, 'Private v2 budget', '15000');
 
-    await expect.poll(async () => (await readV2Storage(page)).records.length).toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await readV2Storage(page)).records.length)
+      .toBeGreaterThan(0);
     const storage = await readV2Storage(page);
     const serialized = JSON.stringify(storage);
     expect(serialized).not.toContain('Private v2 budget');
@@ -133,39 +132,85 @@ test.describe('Vault Protocol v2', () => {
     await expect(page.getByLabel('Kod recovery')).not.toBeVisible();
   });
 
-  test('sync request contains opaque ciphertext and no business plaintext', async ({ page }) => {
+  test('sync request contains opaque ciphertext and no business plaintext', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
-    await mockRecoverySnapshot(page);
     await unlockVault(page);
     await createSavingsBudget(page, 'Opaque sync secret', '1000');
     await page.getByRole('button', { name: 'Konto domowe' }).click();
     await page.getByRole('menuitem', { name: 'Ustawienia' }).click();
 
-    const requestPromise = page.waitForRequest((request) =>
-      request.url().includes('/api/users/me/vault/sync/') && request.method() === 'PUT',
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes('/api/users/me/vault/sync/') &&
+        request.method() === 'PUT',
     );
     await page.getByRole('button', { name: 'Wyślij lokalne dane' }).click();
-    const body = JSON.parse((await requestPromise).postData() ?? '{}') as Record<string, unknown>;
+    const body = JSON.parse(
+      (await requestPromise).postData() ?? '{}',
+    ) as Record<string, unknown>;
     expect(typeof body.ciphertext).toBe('string');
     expect(typeof body.signature).toBe('string');
     expect(JSON.stringify(body)).not.toContain('Opaque sync secret');
   });
 
-  test('local changes trigger automatic opaque sync after unlock', async ({ page }) => {
+  test('local changes trigger automatic opaque sync after unlock', async ({
+    page,
+  }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
-    await mockRecoverySnapshot(page);
     await unlockVault(page);
 
-    const requestPromise = page.waitForRequest((request) =>
-      request.url().includes('/api/users/me/vault/sync/') && request.method() === 'PUT',
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes('/api/users/me/vault/sync/') &&
+        request.method() === 'PUT',
     );
     await createSavingsBudget(page, 'Automatic sync secret', '2000');
     const request = await requestPromise;
-    const body = JSON.parse(request.postData() ?? '{}') as Record<string, unknown>;
+    const body = JSON.parse(request.postData() ?? '{}') as Record<
+      string,
+      unknown
+    >;
     expect(typeof body.ciphertext).toBe('string');
     expect(typeof body.signature).toBe('string');
     expect(JSON.stringify(body)).not.toContain('Automatic sync secret');
+  });
+
+  test('recovery fails closed when the remote snapshot is unavailable', async ({
+    page,
+  }) => {
+    await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
+    await page.route('**/api/users/me/vault/sync/vault-e2e', (route) =>
+      route.request().method() === 'GET'
+        ? route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ status: 'empty' }),
+          })
+        : route.fallback(),
+    );
+    await page.goto('/budgets');
+    await page
+      .getByRole('button', { name: 'Odblokuj to urządzenie' })
+      .click();
+
+    const recoveryInput = page.getByLabel('Kod recovery');
+    await recoveryInput.fill(recoveryVaultFixture.recoveryCode);
+    await page
+      .getByRole('button', { name: 'Odtwórz i zarejestruj urządzenie' })
+      .click();
+
+    await expect(
+      page.getByText(
+        'Odtwarzanie nie powiodło się. Sprawdź kod recovery i spróbuj ponownie.',
+      ),
+    ).toBeVisible();
+    await expect(recoveryInput).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Utwórz budżet', exact: true }),
+    ).not.toBeVisible();
   });
 });

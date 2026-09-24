@@ -782,6 +782,7 @@
       "generate": "Generate New Code",
       "lastGenerated": "LAST GENERATED",
       "copy": "Copy",
+      "copyUnavailable": "The code could not be copied. Copy it manually instead.",
       "expiryLabel": "Expiry date (optional)",
       "colCode": "CODE",
       "colStatus": "STATUS",

@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { recoveryVaultFixture } from './recovery-vault-fixture';
+
 /**
  * Mocks an authenticated e2e session:
  * 1. Intercepts login/profile endpoints with the requested role
@@ -19,13 +21,29 @@ export const setupAuthenticatedUser = async (
   await page.route('**/*', (route) => {
     const requestUrl = new URL(route.request().url());
     if (requestUrl.pathname.endsWith('/api/auth/refresh')) {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ accessToken: 'e2e-fake-token' }) });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ accessToken: 'e2e-fake-token' }),
+      });
     }
     if (requestUrl.pathname.endsWith('/api/auth/login')) {
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
-        accessToken: 'e2e-fake-token',
-        user: { id: 'user-e2e', email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local', role, workspaceId: 'workspace-e2e' },
-      }) });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          accessToken: 'e2e-fake-token',
+          user: {
+            id: 'user-e2e',
+            email:
+              role === 'Superuser'
+                ? 'admin@budget.local'
+                : 'member@budget.local',
+            role,
+            workspaceId: 'workspace-e2e',
+          },
+        }),
+      });
     }
     if (requestUrl.pathname.endsWith('/api/users/me/vault/bootstrap')) {
       const deviceId = requestUrl.searchParams.get('deviceId') ?? 'e2e-device';
@@ -46,7 +64,8 @@ export const setupAuthenticatedUser = async (
                 ...identity,
                 vaultId: 'vault-e2e',
                 keyId: 'key-e2e',
-                recoveryPublicKey: '29acbae141bccaf0b22e1a94d34d0bc7361e526d0bfe12c89794bc9322966dd7',
+                recoveryPublicKey:
+                  '29acbae141bccaf0b22e1a94d34d0bc7361e526d0bfe12c89794bc9322966dd7',
               },
         ),
       });
@@ -73,7 +92,9 @@ export const setupAuthenticatedUser = async (
         ]),
       });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/prepare')) {
+    if (
+      requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/prepare')
+    ) {
       const body = JSON.parse(route.request().postData() ?? '{}') as {
         intent?: Record<string, unknown>;
       };
@@ -99,10 +120,14 @@ export const setupAuthenticatedUser = async (
         }),
       });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/finalize')) {
+    if (
+      requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/finalize')
+    ) {
       return route.fulfill({ status: 204, body: '' });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/confirm')) {
+    if (
+      requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/confirm')
+    ) {
       return route.fulfill({ status: 204, body: '' });
     }
     if (requestUrl.pathname.includes('/api/users/me/vault/sync/')) {
@@ -116,11 +141,17 @@ export const setupAuthenticatedUser = async (
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ revision: 1, envelopeHash: 'e2e-envelope-hash' }),
+        body: JSON.stringify({
+          revision: 1,
+          envelopeHash: 'e2e-envelope-hash',
+        }),
       });
     }
-    if (requestUrl.pathname !== '/api/users/me' && requestUrl.pathname !== '/api/users/me/vault') {
-      return route.continue();
+    if (
+      requestUrl.pathname !== '/api/users/me' &&
+      requestUrl.pathname !== '/api/users/me/vault'
+    ) {
+      return route.fallback();
     }
 
     const pathname = requestUrl.pathname;
@@ -138,7 +169,8 @@ export const setupAuthenticatedUser = async (
       contentType: 'application/json',
       body: JSON.stringify({
         id: 'user-e2e',
-        email: role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local',
+        email:
+          role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local',
         displayName: 'E2E User',
         role,
         workspaceId: 'workspace-e2e',
@@ -149,10 +181,15 @@ export const setupAuthenticatedUser = async (
   });
 
   await page.goto('/login');
-  await page.getByLabel('Email').fill(role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local');
+  await page
+    .getByLabel('Email')
+    .fill(role === 'Superuser' ? 'admin@budget.local' : 'member@budget.local');
   await page.getByLabel('Hasło').fill('e2e-test-password');
   await page.getByRole('button', { name: 'Zaloguj', exact: true }).click();
   await page.waitForURL('**/dashboard');
+
+  if (options.vaultStatus !== 'empty')
+    await recoveryVaultFixture.installSnapshot(page);
 
   if (options.unlock !== false) {
     // Vault gating is mounted by a financial route. The post-login dashboard
@@ -172,16 +209,18 @@ export const unlockVault = async (page: Page): Promise<void> => {
   try {
     await recoveryInput.waitFor({ state: 'visible', timeout: 5_000 });
   } catch {
-    const unlockButton = page.getByRole('button', { name: 'Odblokuj to urządzenie' });
+    const unlockButton = page.getByRole('button', {
+      name: 'Odblokuj to urządzenie',
+    });
     if (!(await unlockButton.isVisible())) return;
     await unlockButton.click();
     await recoveryInput.waitFor({ state: 'visible' });
   }
 
-  await recoveryInput.fill(
-    'BF2:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f8663a88d',
-  );
-  await page.getByRole('button', { name: 'Odtwórz i zarejestruj urządzenie' }).click();
+  await recoveryInput.fill(recoveryVaultFixture.recoveryCode);
+  await page
+    .getByRole('button', { name: 'Odtwórz i zarejestruj urządzenie' })
+    .click();
   await page.getByLabel('Kod recovery').waitFor({ state: 'hidden' });
 };
 
@@ -207,9 +246,27 @@ export const setupAdminApiMocks = async (page: Page): Promise<void> => {
         contentType: 'application/json',
         body: JSON.stringify({
           users: [
-            { id: 'u-1', email: 'admin@budget.pl', role: 'Superuser', createdAt: '2024-01-01', hasVault: true },
-            { id: 'u-2', email: 'user@budget.pl', role: 'Member', createdAt: '2026-08-01', hasVault: false },
-            { id: 'u-3', email: 'blocked@budget.pl', role: 'Blocked', createdAt: '2026-08-03', hasVault: true },
+            {
+              id: 'u-1',
+              email: 'admin@budget.pl',
+              role: 'Superuser',
+              createdAt: '2024-01-01',
+              hasVault: true,
+            },
+            {
+              id: 'u-2',
+              email: 'user@budget.pl',
+              role: 'Member',
+              createdAt: '2026-08-01',
+              hasVault: false,
+            },
+            {
+              id: 'u-3',
+              email: 'blocked@budget.pl',
+              role: 'Blocked',
+              createdAt: '2026-08-03',
+              hasVault: true,
+            },
           ],
           total: 3,
         }),
@@ -244,8 +301,24 @@ export const setupAdminApiMocks = async (page: Page): Promise<void> => {
         contentType: 'application/json',
         body: JSON.stringify({
           codes: [
-            { id: 'c-1', code: 'ABC-123', status: 'Available', createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
-            { id: 'c-2', code: 'DEF-456', status: 'Used', createdAt: '2026-08-02', expiresAt: null, usedBy: 'user@x.pl', usedAt: '2026-08-03' },
+            {
+              id: 'c-1',
+              code: 'ABC-123',
+              status: 'Available',
+              createdAt: '2026-08-01',
+              expiresAt: null,
+              usedBy: null,
+              usedAt: null,
+            },
+            {
+              id: 'c-2',
+              code: 'DEF-456',
+              status: 'Used',
+              createdAt: '2026-08-02',
+              expiresAt: null,
+              usedBy: 'user@x.pl',
+              usedAt: '2026-08-03',
+            },
           ],
           total: 2,
         }),
@@ -255,7 +328,11 @@ export const setupAdminApiMocks = async (page: Page): Promise<void> => {
     return route.fulfill({
       status: 201,
       contentType: 'application/json',
-      body: JSON.stringify({ id: 'c-new', code: 'GEN-E2E-999', expiresAt: null }),
+      body: JSON.stringify({
+        id: 'c-new',
+        code: 'GEN-E2E-999',
+        expiresAt: null,
+      }),
     });
   });
 

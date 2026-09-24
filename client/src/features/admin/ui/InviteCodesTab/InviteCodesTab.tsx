@@ -1,5 +1,5 @@
-import { Copy, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Copy, Plus } from 'lucide-react';
 
 import { useInviteCodesTab } from '#features/admin/ui/hooks/useInviteCodesTab';
 import { InviteCodeRow } from '#features/admin/ui/InviteCodeRow';
@@ -7,7 +7,6 @@ import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
 import { Skeleton } from '#shared/ui/Skeleton';
-
 
 export const InviteCodesTab = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -28,6 +27,7 @@ export const InviteCodesTab = (): React.JSX.Element => {
   const {
     codes,
     generatedCode,
+    copyError,
     expiryDate,
     isGeneratePending,
     generateError,
@@ -50,7 +50,10 @@ export const InviteCodesTab = (): React.JSX.Element => {
         </p>
 
         {generateError && (
-          <div className="mb-4 rounded-md bg-expense-soft px-3 py-2" role="alert">
+          <div
+            className="mb-4 rounded-md bg-expense-soft px-3 py-2"
+            role="alert"
+          >
             <p className="text-xs text-expense">{generateError}</p>
           </div>
         )}
@@ -73,10 +76,24 @@ export const InviteCodesTab = (): React.JSX.Element => {
               <span className="font-mono text-lg font-bold text-foreground">
                 {generatedCode}
               </span>
-              <Button variant="ghost" size="icon" onClick={handleCopy} aria-label={t('admin.codes.copy')}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopy}
+                aria-label={t('admin.codes.copy')}
+              >
                 <Copy size={14} />
               </Button>
             </div>
+          </div>
+        )}
+
+        {copyError && (
+          <div
+            className="mb-4 rounded-md bg-expense-soft px-3 py-2"
+            role="alert"
+          >
+            <p className="text-xs text-expense">{copyError}</p>
           </div>
         )}
 
@@ -94,7 +111,10 @@ export const InviteCodesTab = (): React.JSX.Element => {
       {/* Right panel: Table */}
       <div className="lg:col-span-2">
         {deleteError && (
-          <div className="mb-4 rounded-md bg-expense-soft px-4 py-3" role="alert">
+          <div
+            className="mb-4 rounded-md bg-expense-soft px-4 py-3"
+            role="alert"
+          >
             <p className="text-sm text-expense">{deleteError}</p>
           </div>
         )}
@@ -111,7 +131,11 @@ export const InviteCodesTab = (): React.JSX.Element => {
             </thead>
             <tbody>
               {codes.map((code) => (
-                <InviteCodeRow key={code.id} code={code} onDelete={handleDelete} />
+                <InviteCodeRow
+                  key={code.id}
+                  code={code}
+                  onDelete={handleDelete}
+                />
               ))}
             </tbody>
           </table>

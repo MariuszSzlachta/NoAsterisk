@@ -7,13 +7,16 @@ export type UseInviteCodesTabResult =
       readonly status: 'loaded';
       readonly codes: readonly InviteCodeViewModel[];
       readonly generatedCode: string | undefined;
+      readonly copyError: string | undefined;
       readonly expiryDate: string;
       readonly isGeneratePending: boolean;
       readonly generateError: string | undefined;
       readonly isDeletePending: boolean;
       readonly deleteError: string | undefined;
       readonly handleGenerate: () => void;
-      readonly handleExpiryChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+      readonly handleExpiryChange: (
+        event: React.ChangeEvent<HTMLInputElement>,
+      ) => void;
       readonly handleCopy: () => void;
       readonly handleDelete: (codeId: string) => void;
     };

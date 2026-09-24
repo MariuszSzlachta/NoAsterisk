@@ -791,6 +791,7 @@
       "generate": "Wygeneruj nowy kod",
       "lastGenerated": "OSTATNIO WYGENEROWANY",
       "copy": "Kopiuj",
+      "copyUnavailable": "Nie udało się skopiować kodu. Skopiuj go ręcznie.",
       "expiryLabel": "Data wygaśnięcia (opcjonalna)",
       "colCode": "KOD",
       "colStatus": "STATUS",
