@@ -15,6 +15,12 @@ const listeners = new Set<() => void>();
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+const isValidRevision = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+
+const isValidEnvelopeHash = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0;
+
 let namespace = 'anonymous';
 
 const getStorageKey = (): string => `${SYNC_METADATA_KEY_PREFIX}:${namespace}`;
@@ -39,14 +45,20 @@ const readMetadata = (): PersistenceSyncMetadata => {
       isDirty,
       highWaterEnvelopeHash,
     } = parsed;
+    const safeObservedRevision = isValidRevision(observedRevision)
+      ? observedRevision
+      : undefined;
+    const safeLastSuccessfulSyncRevision =
+      isValidRevision(lastSuccessfulSyncRevision) &&
+      safeObservedRevision !== undefined &&
+      lastSuccessfulSyncRevision <= safeObservedRevision
+        ? lastSuccessfulSyncRevision
+        : undefined;
     return {
-      observedRevision:
-        typeof observedRevision === 'number' ? observedRevision : undefined,
-      lastSuccessfulSyncRevision:
-        typeof lastSuccessfulSyncRevision === 'number'
-          ? lastSuccessfulSyncRevision
-          : undefined,
+      observedRevision: safeObservedRevision,
+      lastSuccessfulSyncRevision: safeLastSuccessfulSyncRevision,
       lastSuccessfulSyncAt:
+        safeLastSuccessfulSyncRevision !== undefined &&
         typeof lastSuccessfulSyncAt === 'string'
           ? lastSuccessfulSyncAt
           : undefined,
@@ -57,7 +69,7 @@ const readMetadata = (): PersistenceSyncMetadata => {
         parsed.mutationVersion >= 0
           ? parsed.mutationVersion
           : 0,
-      ...(typeof highWaterEnvelopeHash === 'string'
+      ...(isValidEnvelopeHash(highWaterEnvelopeHash)
         ? { highWaterEnvelopeHash }
         : {}),
     };
@@ -106,8 +118,28 @@ const markPersistenceSynced = (
   coveredMutationVersion?: number,
 ): void => {
   if (
+    !isValidRevision(revision) ||
+    (envelopeHash !== undefined && !isValidEnvelopeHash(envelopeHash))
+  )
+    return;
+  if (
     cachedMetadata.observedRevision !== undefined &&
     revision < cachedMetadata.observedRevision
+  ) {
+    return;
+  }
+  if (
+    cachedMetadata.observedRevision === revision &&
+    cachedMetadata.highWaterEnvelopeHash !== undefined &&
+    envelopeHash !== undefined &&
+    cachedMetadata.highWaterEnvelopeHash !== envelopeHash
+  ) {
+    return;
+  }
+  if (
+    envelopeHash === undefined &&
+    cachedMetadata.observedRevision !== undefined &&
+    revision > cachedMetadata.observedRevision
   ) {
     return;
   }
@@ -121,7 +153,9 @@ const markPersistenceSynced = (
     isDirty: hasUncoveredMutations,
     mutationVersion: cachedMetadata.mutationVersion,
     ...(envelopeHash === undefined
-      ? {}
+      ? cachedMetadata.highWaterEnvelopeHash === undefined
+        ? {}
+        : { highWaterEnvelopeHash: cachedMetadata.highWaterEnvelopeHash }
       : { highWaterEnvelopeHash: envelopeHash }),
   });
 };
@@ -130,6 +164,11 @@ const rememberPersistenceRevision = (
   revision: number,
   envelopeHash?: string,
 ): void => {
+  if (
+    !isValidRevision(revision) ||
+    (envelopeHash !== undefined && !isValidEnvelopeHash(envelopeHash))
+  )
+    return;
   writeMetadata({
     ...cachedMetadata,
     observedRevision: revision,

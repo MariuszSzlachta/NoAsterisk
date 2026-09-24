@@ -25,11 +25,11 @@ export const TopBarBreadcrumb = ({
         className="hidden items-center gap-1.5 text-[11px] font-medium text-subtle lg:flex"
       >
         <span>{t('app.name')}</span>
-        {parentMeta && (
+        {parentPath && parentMeta && (
           <>
             <span className="text-border-strong">/</span>
             <Link
-              to={parentPath!}
+              to={parentPath}
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
               {t(parentMeta.breadcrumbKey)}

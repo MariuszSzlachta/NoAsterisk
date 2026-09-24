@@ -1,6 +1,8 @@
+import { API_CONTRACT } from '#features/auth/api/constants';
+import { PASSKEY_CHALLENGE_PATTERN } from '#features/auth/api/passkey-challenge-pattern';
+import { canonicalizeEmail } from '#features/auth/model/canonicalize-email';
 import { parseAuthResponse } from '#features/auth/model/parse-auth-response';
 import type { AuthResponse } from '#features/auth/model/types/auth-response';
-import { canonicalizeEmail } from '#features/auth/model/canonicalize-email';
 import { encryptedPersistence } from '#shared/adapters/persistence';
 import { allowlistedWebauthnDto } from '#shared/adapters/webauthn/allowlisted-webauthn-dto';
 import { passkeyPrf } from '#shared/adapters/webauthn/passkey-prf';
@@ -46,12 +48,12 @@ const isTransport = (value: unknown): value is AuthenticatorTransport =>
   value === 'usb';
 
 const decode = (value: string): ArrayBuffer => {
-  if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length > 16_384)
+  if (!PASSKEY_CHALLENGE_PATTERN.test(value) || value.length > 16_384)
     throw new Error('Invalid passkey challenge');
-  const padded = value.replaceAll('-', '+').replaceAll('_', '/').padEnd(
-    Math.ceil(value.length / 4) * 4,
-    '=',
-  );
+  const padded = value
+    .replaceAll('-', '+')
+    .replaceAll('_', '/')
+    .padEnd(Math.ceil(value.length / 4) * 4, '=');
   let binary: string;
   try {
     binary = atob(padded);
@@ -107,7 +109,7 @@ const run = async (email: string): Promise<AuthResponse> => {
     unknown,
     { readonly email: string; readonly deviceId: string }
   >(
-    '/auth/passkey/options',
+    API_CONTRACT.API_PATHS.PASSKEY_OPTIONS,
     { email: normalizedEmail, deviceId: vaultDeviceId.get() },
     { skipAuth: true },
   );
@@ -127,8 +129,8 @@ const run = async (email: string): Promise<AuthResponse> => {
           challenge: new Uint8Array(challenge),
           salt: await createPasskeyPrfSalt(optionsResponse.vaultContext),
           rpId: optionsResponse.rpId,
-          credentialIds: allowCredentials?.map((item) =>
-            new Uint8Array(item.id),
+          credentialIds: allowCredentials?.map(
+            (item) => new Uint8Array(item.id),
           ),
           requirePrf: false,
         });
@@ -145,15 +147,22 @@ const run = async (email: string): Promise<AuthResponse> => {
         },
       }),
     );
-  const response = await apiClient.post<unknown, {
-    readonly email: string;
-    readonly challenge: string;
-    readonly assertion: typeof assertion;
-  }>('/auth/passkey/verify', {
-    email: normalizedEmail,
-    challenge: optionsResponse.challenge,
-    assertion,
-  }, { skipAuth: true });
+  const response = await apiClient.post<
+    unknown,
+    {
+      readonly email: string;
+      readonly challenge: string;
+      readonly assertion: typeof assertion;
+    }
+  >(
+    API_CONTRACT.API_PATHS.PASSKEY_VERIFY,
+    {
+      email: normalizedEmail,
+      challenge: optionsResponse.challenge,
+      assertion,
+    },
+    { skipAuth: true },
+  );
   const authResponse = parseAuthResponse(response);
   authTokens.setAccessToken(authResponse.accessToken);
   encryptedPersistence.setAccountContext(

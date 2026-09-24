@@ -52,7 +52,14 @@ async function main(): Promise<void> {
 
       try {
         const raw = readFileSync(filePath, 'utf-8');
-        values = JSON.parse(raw) as string[];
+        const parsed: unknown = JSON.parse(raw);
+        if (
+          !Array.isArray(parsed) ||
+          !parsed.every((value): value is string => typeof value === 'string')
+        ) {
+          throw new Error('Invalid dictionary data');
+        }
+        values = parsed;
       } catch {
         console.warn(`WARN: Could not read ${mapping.file}, skipping.`);
         continue;

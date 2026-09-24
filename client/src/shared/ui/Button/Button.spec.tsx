@@ -21,7 +21,7 @@ describe('Button', () => {
       expect(button.className).toContain('bg-primary');
     });
 
-    it.each(['primary', 'secondary', 'ghost', 'destructive'] as const)(
+    it.each(['primary', 'secondary', 'ghost', 'destructive'])(
       'renders %s variant without error',
       (variant) => {
         render(<Button variant={variant}>Test</Button>);
@@ -30,7 +30,7 @@ describe('Button', () => {
       },
     );
 
-    it.each(['sm', 'md', 'lg'] as const)(
+    it.each(['sm', 'md', 'lg'])(
       'renders %s size without error',
       (size) => {
         render(<Button size={size}>Test</Button>);

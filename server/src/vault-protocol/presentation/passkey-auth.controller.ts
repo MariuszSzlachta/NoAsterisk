@@ -1,5 +1,6 @@
 import {
   Body,
+  Inject,
   Controller,
   HttpCode,
   HttpStatus,
@@ -48,7 +49,13 @@ type VerifyDto = z.infer<typeof verifySchema>;
 @Public()
 @Controller('auth/passkey')
 export class PasskeyAuthController {
-  constructor(private readonly handler: PasskeyLoginHandler) {}
+  constructor(
+    @Inject(PasskeyLoginHandler)
+    private readonly handler: Pick<
+      PasskeyLoginHandler,
+      'createOptions' | 'verify'
+    >,
+  ) {}
 
   @Post('options')
   @Throttle(THROTTLE_AUTH)
@@ -62,7 +69,8 @@ export class PasskeyAuthController {
   @HttpCode(HttpStatus.OK)
   async verify(
     @Body(new ZodValidationPipe(verifySchema)) dto: VerifyDto,
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true })
+    response: Pick<Response, 'cookie' | 'setHeader'>,
   ) {
     const result = await this.handler.verify(
       dto.email,

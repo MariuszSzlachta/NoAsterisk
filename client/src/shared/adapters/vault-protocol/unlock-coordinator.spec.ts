@@ -58,15 +58,17 @@ describe('unlockCoordinator', () => {
       prfContext,
       vaultProtocolConstants.passkeyWrapPurpose,
     );
+    const failedServerShare = new Uint8Array(32).fill(4);
     await expect(
       unlockCoordinator.unlock({
         mode: 'high-security',
         localShare,
-        serverShare,
+        serverShare: failedServerShare,
         envelope,
         context: prfContext,
       }),
     ).rejects.toThrow('requires confirmed passkey PRF');
+    expect(failedServerShare).toEqual(new Uint8Array(32));
     await expect(
       unlockCoordinator.unlock({
         mode: 'high-security',

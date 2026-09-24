@@ -1,4 +1,10 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '@shared/auth/current-user.decorator';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
@@ -20,7 +26,10 @@ const REQUIRED_USER_VERIFICATION = 'required';
 
 @Controller('users/me/vault/webauthn')
 export class WebauthnChallengeController {
-  constructor(private readonly handler: WebauthnChallengeHandler) {}
+  constructor(
+    @Inject(WebauthnChallengeHandler)
+    private readonly handler: Pick<WebauthnChallengeHandler, 'create'>,
+  ) {}
 
   @Post('challenge')
   @Throttle(THROTTLE_SENSITIVE)

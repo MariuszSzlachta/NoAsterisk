@@ -5,7 +5,7 @@ import type { StoredTransaction } from '#entities/transaction/types';
 import { computeCategoryBreakdown } from './category-breakdown';
 
 const tx = (amount: number, date: string, categoryId?: string): StoredTransaction =>
-  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId }) as StoredTransaction;
+  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId }) satisfies StoredTransaction;
 
 const dateRange = { from: '2026-01-01', to: '2026-01-31' };
 
@@ -44,8 +44,8 @@ describe('computeCategoryBreakdown', () => {
 
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
-    expect(result[0]!.percentage).toBe(75);
-    expect(result[1]!.percentage).toBe(25);
+    expect(result[0].percentage).toBe(75);
+    expect(result[1].percentage).toBe(25);
   });
 
   it('sorts by amount descending', () => {
@@ -57,9 +57,9 @@ describe('computeCategoryBreakdown', () => {
 
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
-    expect(result[0]!.categoryId).toBe('cat-groceries');
-    expect(result[1]!.categoryId).toBe('cat-entertainment');
-    expect(result[2]!.categoryId).toBe('cat-transport');
+    expect(result[0].categoryId).toBe('cat-groceries');
+    expect(result[1].categoryId).toBe('cat-entertainment');
+    expect(result[2].categoryId).toBe('cat-transport');
   });
 
   it('filters out transactions outside date range', () => {
@@ -72,7 +72,7 @@ describe('computeCategoryBreakdown', () => {
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
 
     expect(result).toHaveLength(1);
-    expect(result[0]!.amount).toBe(200);
+    expect(result[0].amount).toBe(200);
   });
 
   it('returns empty array when no matching transactions', () => {
@@ -84,7 +84,7 @@ describe('computeCategoryBreakdown', () => {
   it('labels uncategorized transactions', () => {
     const transactions = [tx(-100, '2026-01-10', undefined)];
     const result = computeCategoryBreakdown(transactions, dateRange, 'expenses');
-    expect(result[0]!.category).toBe('Bez kategorii');
-    expect(result[0]!.categoryId).toBe('__uncategorized__');
+    expect(result[0].category).toBe('Bez kategorii');
+    expect(result[0].categoryId).toBe('__uncategorized__');
   });
 });

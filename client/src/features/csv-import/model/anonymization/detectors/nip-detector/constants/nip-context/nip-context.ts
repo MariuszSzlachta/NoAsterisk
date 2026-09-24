@@ -4,4 +4,4 @@ export const NIP_CONTEXT = [
   'nr nip',
   'numer nip',
   'nip nr',
-] as const;
+];

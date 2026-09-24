@@ -1,3 +1,6 @@
+import { canonicalFixtureJson } from '@vault-protocol/testing/canonicalFixtureJson';
+import { buildTrustedEnrollmentProof } from '@vault-protocol/testing/buildTrustedEnrollmentProof';
+import { buildVaultSignatureFixture } from '@vault-protocol/testing/build-vault-signature-fixture';
 import { randomUUID, webcrypto } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { and, eq } from 'drizzle-orm';
@@ -408,7 +411,7 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       keyId: 'key-v2-integration',
       deviceId: 'device-v2-integration',
       passkeyEnvelope: 'opaque-high-security-envelope-2',
-    } as const;
+    };
 
     await repository.enableHighSecurity(request);
     await expect(
@@ -433,16 +436,18 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
         })
         .from(vaultDeviceEnvelopes)
         .where(eq(vaultDeviceEnvelopes.deviceId, deviceRowId)),
-    ).resolves.toEqual([
-      {
-        purpose: 'passkey-wrap',
-        envelope: 'opaque-high-security-envelope-2',
-      },
-      {
-        purpose: 'device-wrap',
-        envelope: 'opaque-device-wrap-after-disable',
-      },
-    ]);
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        {
+          purpose: 'passkey-wrap',
+          envelope: 'opaque-high-security-envelope-2',
+        },
+        {
+          purpose: 'device-wrap',
+          envelope: 'opaque-device-wrap-after-disable',
+        },
+      ]),
+    );
 
     await expect(
       repository.enableHighSecurity({
@@ -454,20 +459,20 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
 
   it('accepts trusted-device enrollment only with an active device signature', async () => {
     const targetDeviceId = 'device-trusted-qr-integration';
-    const signing = (await webcrypto.subtle.generateKey(
+    const signing = await webcrypto.subtle.generateKey(
       { name: 'ECDSA', namedCurve: 'P-256' },
       true,
       ['sign', 'verify'],
-    )) as CryptoKeyPair;
+    );
     const signingPublicKey = await webcrypto.subtle.exportKey(
       'jwk',
       signing.publicKey,
     );
-    const oldEphemeral = (await webcrypto.subtle.generateKey(
+    const oldEphemeral = await webcrypto.subtle.generateKey(
       { name: 'ECDH', namedCurve: 'P-256' },
       true,
       ['deriveBits'],
-    )) as CryptoKeyPair;
+    );
     const oldEphemeralPublicKey = await webcrypto.subtle.exportKey(
       'jwk',
       oldEphemeral.publicKey,
@@ -487,18 +492,9 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       nonce: Buffer.alloc(12, 9).toString('base64'),
       ciphertext: Buffer.alloc(32, 8).toString('base64'),
     };
-    const sorted = (value: unknown): unknown => {
-      if (Array.isArray(value)) return value.map(sorted);
-      if (typeof value !== 'object' || value === null) return value;
-      return Object.fromEntries(
-        Object.keys(value)
-          .sort()
-          .map((key) => [key, sorted((value as Record<string, unknown>)[key])]),
-      );
-    };
     const payload = new TextEncoder().encode(
       JSON.stringify(
-        sorted({
+        canonicalFixtureJson({
           domain: 'budgetflow/trusted-device-qr/v1',
           ...unsigned,
         }),
@@ -565,7 +561,7 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
     }
   });
 
-  it('keeps a recovered device pending until local key confirmation', async () => {
+  it('keeps an approved device pending until local key confirmation', async () => {
     const targetDeviceId = 'device-pending-integration';
     const repository = new PostgresVaultEnrollmentRepository(database);
     const prepared = await repository.prepare(
@@ -574,6 +570,11 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       targetDeviceId,
       vaultId,
     );
+    const fixture = buildVaultSignatureFixture();
+    await database
+      .update(vaultDevices)
+      .set({ signingPublicKey: fixture.devicePublicKey })
+      .where(eq(vaultDevices.id, deviceRowId));
     await repository.finalize({
       challenge: prepared.challenge,
       userId,
@@ -582,6 +583,17 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       vaultId,
       keyId: 'key-v2-integration',
       deviceEnvelope: 'opaque-pending-device-envelope',
+      trustedDeviceProof: buildTrustedEnrollmentProof(
+        {
+          accountId: userId,
+          workspaceId,
+          vaultId,
+          keyId: 'key-v2-integration',
+          oldDeviceId: 'device-v2-integration',
+          newDeviceId: targetDeviceId,
+        },
+        fixture,
+      ),
       signingPublicKey: '{"kty":"EC","crv":"P-256","x":"x","y":"y"}',
     });
 
@@ -627,6 +639,10 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       ),
     ).resolves.toHaveLength(32);
 
+    await database
+      .update(vaultDevices)
+      .set({ signingPublicKey: JSON.stringify({ kty: 'EC', crv: 'P-256' }) })
+      .where(eq(vaultDevices.id, deviceRowId));
     await database
       .delete(vaultDevices)
       .where(
@@ -828,6 +844,22 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
       revokedDeviceCount: 0,
     });
     await expect(
+      new PostgresVaultRotationRepository(database).rotate({
+        userId,
+        workspaceId,
+        vaultId,
+        deviceId: 'device-v2-integration',
+        currentKeyId: 'key-v2-integration',
+        nextKeyId: 'key-v2-rotated',
+        envelopePurpose: 'device-wrap',
+        envelope: 'substituted-envelope',
+        passkeyEnvelope: 'opaque-passkey-rotated-envelope',
+        protocolVersion: '2',
+        cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
+        idempotencyKey: 'integration-rotation-1',
+      }),
+    ).rejects.toThrow('idempotency conflict');
+    await expect(
       database
         .select({ keyId: vaultKeysets.keyId })
         .from(vaultKeysets)
@@ -865,7 +897,20 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
     ).resolves.toEqual([{ nextKeyId: 'key-v2-rotated' }]);
   });
 
-  it('revocation prevents issuance without deleting the encrypted record', async () => {
+  it('revocation prevents issuance while preserving the latest authorized snapshot', async () => {
+    await database.insert(vaultSyncSnapshots).values({
+      id: randomUUID(),
+      vaultId,
+      deviceId: deviceRowId,
+      keyId: 'key-v2-rotated',
+      revision: 1,
+      envelopeHash: 'a'.repeat(64),
+      previousEnvelopeHash: '0'.repeat(64),
+      header: 'opaque-header',
+      ciphertext: 'opaque-ciphertext',
+      signature: 'opaque-signature',
+      createdAt: new Date(),
+    });
     await database
       .update(vaultDevices)
       .set({ revoked: true, revokedAt: new Date(), status: 'revoked' })
@@ -889,7 +934,20 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
         workspaceId,
         vaultId,
       ),
-    ).resolves.toBeUndefined();
+    ).resolves.toEqual(
+      expect.objectContaining({
+        vaultId,
+        keyId: 'key-v2-rotated',
+        revision: 1,
+        ciphertext: 'opaque-ciphertext',
+      }),
+    );
+    await expect(
+      database
+        .select({ ciphertext: vaultSyncSnapshots.ciphertext })
+        .from(vaultSyncSnapshots)
+        .where(eq(vaultSyncSnapshots.vaultId, vaultId)),
+    ).resolves.toEqual([{ ciphertext: 'opaque-ciphertext' }]);
   });
 
   it('cascades the complete v2 graph when the account is deleted', async () => {

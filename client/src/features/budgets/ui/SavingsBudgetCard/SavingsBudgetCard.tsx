@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 
+import { useSavingsCard } from '#features/budgets/ui/hooks/useSavingsCard';
+import { useBoundAction } from '#shared/hooks/useBoundAction';
 import { formatAmount } from '#shared/lib';
-import { Progress } from '#shared/ui/Progress';
 import { Button } from '#shared/ui/Button';
-
-import { useSavingsCard } from '../hooks/useSavingsCard';
+import { Progress } from '#shared/ui/Progress';
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -17,9 +17,23 @@ interface SavingsBudgetCardProps {
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: SavingsBudgetCardProps): React.JSX.Element | null => {
+export const SavingsBudgetCard = ({
+  budgetId,
+  onEditBudget,
+  onDeleteBudget,
+}: SavingsBudgetCardProps): React.JSX.Element | null => {
   const { t } = useTranslation();
-  const { vm, inflowHistory, isHistoryExpanded, handleToggleHistory } = useSavingsCard({ budgetId });
+  const { vm, inflowHistory, isHistoryExpanded, handleToggleHistory } =
+    useSavingsCard({ budgetId });
+
+  const { handleAction: handleEditClick } = useBoundAction(
+    budgetId,
+    onEditBudget,
+  );
+  const { handleAction: handleDeleteClick } = useBoundAction(
+    budgetId,
+    onDeleteBudget,
+  );
 
   if (!vm) {
     return null;
@@ -31,7 +45,9 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-base">💰</span>
-          <span className="text-sm font-semibold text-foreground">{vm.name}</span>
+          <span className="text-sm font-semibold text-foreground">
+            {vm.name}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           {onEditBudget && (
@@ -40,7 +56,7 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
               variant="ghost"
               size="sm"
               icon={<Pencil size={14} />}
-              onClick={() => onEditBudget(budgetId)}
+              onClick={handleEditClick}
               aria-label={t('budgets.form.titleEdit')}
               className="h-12 w-12 sm:h-9 sm:w-9"
             />
@@ -51,7 +67,7 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
               variant="destructive"
               size="sm"
               icon={<Trash2 size={14} />}
-              onClick={() => onDeleteBudget(budgetId)}
+              onClick={handleDeleteClick}
               aria-label={t('budgets.form.delete')}
               className="h-12 w-12 sm:h-9 sm:w-9"
             />
@@ -67,14 +83,18 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
       {/* Amounts row */}
       <div className="mt-4 flex items-baseline justify-between">
         <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">{t('budgets.savings.accumulated')}</span>
+          <span className="text-xs text-muted-foreground">
+            {t('budgets.savings.accumulated')}
+          </span>
           <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
             {formatAmount(vm.accumulated)} {vm.currency}
           </span>
         </div>
         {vm.goalAmount > 0 && (
           <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">{t('budgets.savings.goal')}</span>
+            <span className="text-xs text-muted-foreground">
+              {t('budgets.savings.goal')}
+            </span>
             <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
               {formatAmount(vm.goalAmount)} {vm.currency}
             </span>
@@ -87,7 +107,9 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
         <div className="mt-3">
           <Progress value={vm.progressPercent} color="income" />
           <span className="mt-1.5 text-xs text-muted-foreground">
-            {t('budgets.savings.progressLabel', { percent: vm.progressPercent })}
+            {t('budgets.savings.progressLabel', {
+              percent: vm.progressPercent,
+            })}
           </span>
         </div>
       )}
@@ -97,7 +119,9 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
         <div className="mt-3 text-xs text-muted-foreground">
           {t('budgets.savings.lastInflow', {
             amount: formatAmount(vm.lastInflow.amount),
-            source: vm.lastInflow.sourceBudgetName ?? t('budgets.savings.unknownSource'),
+            source:
+              vm.lastInflow.sourceBudgetName ??
+              t('budgets.savings.unknownSource'),
           })}
         </div>
       )}
@@ -112,15 +136,24 @@ export const SavingsBudgetCard = ({ budgetId, onEditBudget, onDeleteBudget }: Sa
             aria-expanded={isHistoryExpanded}
           >
             {t('budgets.savings.inflowHistory')}
-            {isHistoryExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {isHistoryExpanded ? (
+              <ChevronUp size={14} />
+            ) : (
+              <ChevronDown size={14} />
+            )}
           </button>
 
           {isHistoryExpanded && (
             <div className="mt-2 space-y-1.5">
               {inflowHistory.map((inflow) => (
-                <div key={inflow.id} className="flex items-center justify-between text-xs">
+                <div
+                  key={inflow.id}
+                  className="flex items-center justify-between text-xs"
+                >
                   <span className="text-muted-foreground">
-                    {inflow.sourceBudgetName ?? t('budgets.savings.unknownSource')} · {inflow.displayDate}
+                    {inflow.sourceBudgetName ??
+                      t('budgets.savings.unknownSource')}{' '}
+                    · {inflow.displayDate}
                   </span>
                   <span className="font-mono tabular-nums text-income">
                     +{formatAmount(inflow.amount)} {vm.currency}

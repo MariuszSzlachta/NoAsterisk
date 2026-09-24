@@ -31,10 +31,10 @@ vi.mock('#features/auth/api/useRegisterMutation', () => ({
 const STRONG_PASSWORD = 'P@ssw0rd!x';
 
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-  ({ target: { value } } as ChangeEvent<HTMLInputElement>);
+  ({ target: { value } } satisfies ChangeEvent<HTMLInputElement>);
 
 const buildSubmitEvent = (): FormEvent =>
-  ({ preventDefault: vi.fn() } as unknown as FormEvent);
+  ({ preventDefault: vi.fn() } satisfies unknown satisfies FormEvent);
 
 // ─── Tests ───────────────────────────────────────────────────────
 
@@ -181,8 +181,8 @@ describe('useRegisterForm', () => {
       result.current.handleEmailChange(buildChangeEvent('  New@User.COM  '));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -202,8 +202,8 @@ describe('useRegisterForm', () => {
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -228,8 +228,8 @@ describe('useRegisterForm', () => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {

@@ -18,7 +18,7 @@ describe('createAddressPattern', () => {
     const match = pattern.exec(input);
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe(expected);
+    expect(match[0]).toBe(expected);
   });
 
   it.each([

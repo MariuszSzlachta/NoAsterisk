@@ -1,4 +1,3 @@
-import { Search, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   Popover,
@@ -6,12 +5,13 @@ import {
   PopoverPortal,
   PopoverTrigger,
 } from '@radix-ui/react-popover';
+import { Search, Tag } from 'lucide-react';
 
+import { useCategoryPicker } from '#features/transactions/ui/hooks/useCategoryPicker';
+import type { CategoryInfo } from '#entities/category';
+import { useActionFactory } from '#shared/hooks/useActionFactory';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
-import type { CategoryInfo } from '#entities/category';
-
-import { useCategoryPicker } from '../hooks/useCategoryPicker';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -39,6 +39,8 @@ export const CategoryPicker = ({
     handleCategorySelect,
     handleSearchChange,
   } = useCategoryPicker({ categories, onSelect });
+  const { createActionHandler: createCategorySelectHandler } =
+    useActionFactory(handleCategorySelect);
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -70,7 +72,7 @@ export const CategoryPicker = ({
                 key={category.id}
                 type="button"
                 data-category-id={category.id}
-                onClick={() => handleCategorySelect(category.id)}
+                onClick={createCategorySelectHandler(category.id)}
                 className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-foreground transition-colors hover:bg-surface-2"
               >
                 <span

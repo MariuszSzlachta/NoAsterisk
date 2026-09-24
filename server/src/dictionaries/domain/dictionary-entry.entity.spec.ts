@@ -115,13 +115,7 @@ describe('DictionaryEntry', () => {
 
     it('throws when type is invalid', () => {
       expect(
-        () =>
-          new DictionaryEntry(
-            'id-1',
-            'InvalidType' as DictionaryType,
-            'value',
-            new Date(),
-          ),
+        () => new DictionaryEntry('id-1', 'InvalidType', 'value', new Date()),
       ).toThrow(DomainError);
     });
   });

@@ -52,6 +52,11 @@ export class PostgresSyncSnapshotRepository implements SyncSnapshotRepository {
           eq(vaults.id, vaultId),
           eq(vaults.workspaceId, workspaceId),
           eq(vaultDevices.userId, userId),
+          // A revoked signer cannot write or obtain ServerShare, but its
+          // already-authenticated snapshot remains the vault's high-water
+          // record. Hiding it here would make a legitimate next CAS appear
+          // empty while saveIfCurrent correctly rejects a revision downgrade.
+          eq(vaultKeysets.keyId, vaultSyncSnapshots.keyId),
         ),
       )
       .orderBy(desc(vaultSyncSnapshots.revision))

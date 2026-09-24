@@ -31,7 +31,7 @@ const parserConfigRaw = {
 };
 const anonymizationConfigRaw = {
   fieldsToAnonymize: ['title'],
-  strategy: 'Hash' as const,
+  strategy: AnonymizationStrategy.Hash,
 };
 
 const buildProfile = (

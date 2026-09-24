@@ -5,7 +5,7 @@ import type { StoredTransaction } from '#entities/transaction/types';
 import { METRIC_LABEL_KEYS, computeKpi } from './kpi-computation';
 
 const tx = (amount: number, date: string): StoredTransaction =>
-  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId: undefined }) as StoredTransaction;
+  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId: undefined }) satisfies StoredTransaction;
 
 describe('computeKpi', () => {
   const range = { from: new Date(2026, 0, 1), to: new Date(2026, 0, 31) };

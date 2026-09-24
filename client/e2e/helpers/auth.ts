@@ -29,17 +29,26 @@ export const setupAuthenticatedUser = async (
     }
     if (requestUrl.pathname.endsWith('/api/users/me/vault/bootstrap')) {
       const deviceId = requestUrl.searchParams.get('deviceId') ?? 'e2e-device';
+      const status = options.vaultStatus ?? 'enrollment-required';
+      const identity = {
+        status,
+        deviceId,
+        protocolVersion: 2,
+        cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
+      };
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          status: options.vaultStatus ?? 'enrollment-required',
-          deviceId,
-          vaultId: 'vault-e2e',
-          keyId: 'key-e2e',
-          protocolVersion: 2,
-          cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-        }),
+        body: JSON.stringify(
+          status === 'empty'
+            ? identity
+            : {
+                ...identity,
+                vaultId: 'vault-e2e',
+                keyId: 'key-e2e',
+                recoveryPublicKey: '29acbae141bccaf0b22e1a94d34d0bc7361e526d0bfe12c89794bc9322966dd7',
+              },
+        ),
       });
     }
     if (requestUrl.pathname.endsWith('/api/users/me/vault/devices')) {
@@ -55,8 +64,8 @@ export const setupAuthenticatedUser = async (
             signingPublicKey: JSON.stringify({
               kty: 'EC',
               crv: 'P-256',
-              x: 'e2e-public-x',
-              y: 'e2e-public-y',
+              x: 'A'.repeat(43),
+              y: 'B'.repeat(43),
             }),
             createdAt: '2026-01-01T00:00:00.000Z',
             lastSeenAt: '2026-01-01T00:00:00.000Z',
@@ -64,23 +73,36 @@ export const setupAuthenticatedUser = async (
         ]),
       });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/prepare')) {
-      const body = JSON.parse(route.request().postData() ?? '{}') as { deviceId?: string };
+    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/prepare')) {
+      const body = JSON.parse(route.request().postData() ?? '{}') as {
+        intent?: Record<string, unknown>;
+      };
+      const now = Date.now();
+      const challenge = 'e'.repeat(43);
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          challenge: 'e2e-enrollment-challenge',
+          intent: {
+            ...(body.intent ?? {}),
+            accountId: 'user-e2e',
+            workspaceId: 'workspace-e2e',
+            challenge,
+            createdAt: now,
+            expiresAt: now + 60_000,
+            deviceEnvelope: '{}',
+            ...(body.intent?.purpose === 'trusted'
+              ? { delegationDigest: '0'.repeat(64) }
+              : {}),
+          },
           serverShare: btoa(String.fromCharCode(...new Uint8Array(32).fill(7))),
-          expiresAt: new Date(Date.now() + 60_000).toISOString(),
-          deviceId: body.deviceId,
         }),
       });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/finalize')) {
+    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/finalize')) {
       return route.fulfill({ status: 204, body: '' });
     }
-    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/confirm')) {
+    if (requestUrl.pathname.endsWith('/api/users/me/vault/enrollment/v2/confirm')) {
       return route.fulfill({ status: 204, body: '' });
     }
     if (requestUrl.pathname.includes('/api/users/me/vault/sync/')) {
@@ -150,11 +172,14 @@ export const unlockVault = async (page: Page): Promise<void> => {
   try {
     await recoveryInput.waitFor({ state: 'visible', timeout: 5_000 });
   } catch {
-    return;
+    const unlockButton = page.getByRole('button', { name: 'Odblokuj to urządzenie' });
+    if (!(await unlockButton.isVisible())) return;
+    await unlockButton.click();
+    await recoveryInput.waitFor({ state: 'visible' });
   }
 
   await recoveryInput.fill(
-    `${'00'.repeat(32)}66687aad`,
+    'BF2:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f8663a88d',
   );
   await page.getByRole('button', { name: 'Odtwórz i zarejestruj urządzenie' }).click();
   await page.getByLabel('Kod recovery').waitFor({ state: 'hidden' });

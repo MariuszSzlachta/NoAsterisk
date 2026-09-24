@@ -3,6 +3,7 @@ import { Category } from '@budget/domain';
 import { CreateTransactionHandler } from '@transactions/application/commands/create-transaction.handler';
 import { TransactionRepository } from '@transactions/application/ports/transaction.repository';
 import { CategoryRepository } from '@categories/application/ports/category.repository';
+import type { CreateTransactionCommand } from './create-transaction.handler';
 import {
   WORKSPACE_A,
   WORKSPACE_B,
@@ -34,12 +35,12 @@ describe('CreateTransactionHandler', () => {
       workspaceId: string;
       categoryIds: string[];
     }> = {},
-  ) => ({
+  ): CreateTransactionCommand => ({
     workspaceId: overrides.workspaceId ?? WORKSPACE_A,
     accountId: 'acc-1',
     amount: 100,
     currency: 'PLN',
-    type: 'expense' as const,
+    type: 'expense',
     categoryIds: overrides.categoryIds ?? [],
     description: 'Test transaction',
     date: new Date('2025-01-15'),

@@ -16,15 +16,18 @@ export interface EnrollmentRequiredVaultBootstrapMetadata extends VaultBootstrap
   readonly recoveryPublicKey?: string;
 }
 
-export interface AvailableVaultBootstrapMetadata extends VaultBootstrapIdentity {
-  readonly status: 'available';
-  readonly vaultId: string;
-  readonly keyId: string;
-  readonly securityProfile?: 'standard' | 'high-security';
-  readonly deviceEnvelope?: string;
-  readonly passkeyEnvelope?: string;
-  readonly recoveryPublicKey?: string;
-}
+type VaultEnvelopeMetadata =
+  | { readonly deviceEnvelope: string; readonly passkeyEnvelope?: string }
+  | { readonly deviceEnvelope?: string; readonly passkeyEnvelope: string };
+
+export type AvailableVaultBootstrapMetadata = VaultBootstrapIdentity &
+  VaultEnvelopeMetadata & {
+    readonly status: 'available';
+    readonly vaultId: string;
+    readonly keyId: string;
+    readonly securityProfile: 'standard' | 'high-security';
+    readonly recoveryPublicKey?: string;
+  };
 
 export type VaultBootstrapMetadata =
   | EmptyVaultBootstrapMetadata

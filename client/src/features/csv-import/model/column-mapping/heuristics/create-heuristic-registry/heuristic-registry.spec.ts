@@ -30,7 +30,7 @@ describe('defaultHeuristicRegistry', () => {
       ['sender', 'source'],
       ['from', 'source'],
       ['remitter', 'source'],
-    ] as const)('matches source column "%s" → %s', (header, expected) => {
+    ])('matches source column "%s" → %s', (header, expected) => {
       expect(defaultHeuristicRegistry.match(header)).toBe(expected);
     });
 
@@ -46,7 +46,7 @@ describe('defaultHeuristicRegistry', () => {
       ['recipient', 'recipient'],
       ['payee', 'recipient'],
       ['to', 'recipient'],
-    ] as const)('matches recipient column "%s" → %s', (header, expected) => {
+    ])('matches recipient column "%s" → %s', (header, expected) => {
       expect(defaultHeuristicRegistry.match(header)).toBe(expected);
     });
 
@@ -59,7 +59,7 @@ describe('defaultHeuristicRegistry', () => {
       ['reference', 'reference'],
       ['ref number', 'reference'],
       ['transaction id', 'reference'],
-    ] as const)('matches reference column "%s" → %s', (header, expected) => {
+    ])('matches reference column "%s" → %s', (header, expected) => {
       expect(defaultHeuristicRegistry.match(header)).toBe(expected);
     });
   });

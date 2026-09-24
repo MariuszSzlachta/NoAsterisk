@@ -13,4 +13,4 @@ export const ALL_DOMAIN_FIELDS = [
   'recipient',
   'counterpart',
   'reference',
-] as const satisfies readonly DomainField[];
+] satisfies readonly DomainField[];

@@ -35,7 +35,7 @@ vi.mock('#shared/api/auth-tokens', () => ({
 
 const buildAuthResponse = () => ({
   accessToken: 'test-access-token',
-  user: { id: 'u-1', email: 'test@example.com', role: 'Member' as const, workspaceId: 'ws-1' },
+  user: { id: 'u-1', email: 'test@example.com', role: 'Member', workspaceId: 'ws-1' },
 });
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ describe('useLoginMutation', () => {
     expect(result.current.isLoading).toBe(true);
 
     await act(async () => {
-      resolvePromise!(buildAuthResponse());
+      resolvePromise(buildAuthResponse());
     });
 
     expect(result.current.isLoading).toBe(false);

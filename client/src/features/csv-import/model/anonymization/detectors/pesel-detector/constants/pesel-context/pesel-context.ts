@@ -3,4 +3,4 @@ export const PESEL_CONTEXT = [
   'pesel:',
   'nr pesel',
   'numer pesel',
-] as const;
+];

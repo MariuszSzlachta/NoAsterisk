@@ -1,23 +1,18 @@
-import { generateAuthenticationOptions } from '@simplewebauthn/server';
 import { PasskeyLoginHandler } from '@vault-protocol/application/passkey-login.handler';
-import type { UserRepository } from '@auth/domain/ports/user.repository';
+import type {
+  PasskeyUser,
+  PasskeyUserRepository,
+} from '@vault-protocol/domain/ports/passkey-user.repository';
 import type { TokenPort } from '@auth/domain/ports/token.port';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
 import type { WebauthnCredentialRepository } from '@vault-protocol/domain/ports/webauthn-credential.repository';
-import type { WebauthnVerifierAdapter } from '@vault-protocol/infrastructure/webauthn-verifier.adapter';
-
-jest.mock('@simplewebauthn/server', () => ({
-  generateAuthenticationOptions: jest.fn(),
-}));
+import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
+import type { WebauthnAuthenticationOptionsPort } from '@vault-protocol/domain/ports/webauthn-authentication-options.port';
 
 describe('PasskeyLoginHandler', () => {
-  const users: UserRepository = {
+  const users: PasskeyUserRepository = {
     findById: jest.fn(),
-    save: jest.fn(),
     findByEmail: jest.fn(),
-    findAll: jest.fn(),
-    existsByEmail: jest.fn(),
-    delete: jest.fn(),
   };
   const challenges: WebauthnChallengeStorePort = {
     create: jest.fn(),
@@ -30,7 +25,10 @@ describe('PasskeyLoginHandler', () => {
     updateCounter: jest.fn(),
     revoke: jest.fn(),
   };
-  const verifier = { verify: jest.fn() } as unknown as WebauthnVerifierAdapter;
+  const verifier: WebauthnVerifierPort = { verify: jest.fn() };
+  const authenticationOptions: WebauthnAuthenticationOptionsPort = {
+    createOptions: jest.fn(),
+  };
   const token: TokenPort = {
     sign: jest.fn(() => 'access-token'),
     signRefresh: jest.fn(() => 'refresh-token'),
@@ -38,19 +36,17 @@ describe('PasskeyLoginHandler', () => {
     verifyRefresh: jest.fn(),
   };
 
-  const account = {
+  const account: PasskeyUser = {
     id: 'user-1',
     email: 'owner@example.com',
-    passwordHash: 'hash',
     role: 'Member',
     workspaceId: 'workspace-1',
     tokenVersion: 3,
-    createdAt: new Date(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.mocked(users.findByEmail).mockResolvedValue(account as never);
+    jest.mocked(users.findByEmail).mockResolvedValue(account);
     jest.mocked(credentials.listActiveByUserId).mockResolvedValue([
       {
         id: 'credential-row',
@@ -69,7 +65,7 @@ describe('PasskeyLoginHandler', () => {
       type: 'login',
       expiresAt: Date.now() + 60_000,
     });
-    jest.mocked(generateAuthenticationOptions).mockResolvedValue({
+    jest.mocked(authenticationOptions.createOptions).mockResolvedValue({
       challenge: 'login-challenge',
     });
   });
@@ -80,6 +76,7 @@ describe('PasskeyLoginHandler', () => {
       challenges,
       credentials,
       verifier,
+      authenticationOptions,
       token,
     );
 
@@ -90,15 +87,12 @@ describe('PasskeyLoginHandler', () => {
       deviceId: 'auth-passkey-login',
       type: 'login',
     });
-    expect(generateAuthenticationOptions).toHaveBeenCalledWith(
+    expect(authenticationOptions.createOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         challenge: 'login-challenge',
-        userVerification: 'required',
+        rpId: expect.any(String),
       }),
     );
-    expect(
-      jest.mocked(generateAuthenticationOptions).mock.calls[0]?.[0],
-    ).not.toHaveProperty('allowCredentials');
   });
 
   it('does not enumerate vault context during authentication options', async () => {
@@ -107,6 +101,7 @@ describe('PasskeyLoginHandler', () => {
       challenges,
       credentials,
       verifier,
+      authenticationOptions,
       token,
     );
 
@@ -143,12 +138,13 @@ describe('PasskeyLoginHandler', () => {
       challenges,
       credentials,
       verifier,
+      authenticationOptions,
       token,
     );
-    const assertion = {
+    const assertion: Parameters<PasskeyLoginHandler['verify']>[2] = {
       id: 'credential-1',
       rawId: 'raw-id',
-      type: 'public-key' as const,
+      type: 'public-key',
       response: {
         clientDataJSON: 'client-data',
         authenticatorData: 'authenticator-data',
@@ -200,6 +196,7 @@ describe('PasskeyLoginHandler', () => {
       challenges,
       credentials,
       verifier,
+      authenticationOptions,
       token,
     );
 

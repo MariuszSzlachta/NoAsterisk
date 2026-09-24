@@ -10,9 +10,9 @@ const mockGenerate = vi.fn().mockResolvedValue({ code: 'GEN-ABC', id: 'c1', expi
 const mockDeleteCode = vi.fn().mockResolvedValue({ id: 'c1', deleted: true });
 
 const MOCK_CODES = [
-  { id: 'c1', code: 'ABC-123', status: 'Available' as const, createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
-  { id: 'c2', code: 'DEF-456', status: 'Used' as const, createdAt: '2026-08-02', expiresAt: '2026-09-01', usedBy: 'user@test.pl', usedAt: '2026-08-05' },
-  { id: 'c3', code: 'GHI-789', status: 'Expired' as const, createdAt: '2026-07-01', expiresAt: '2026-07-15', usedBy: null, usedAt: null },
+  { id: 'c1', code: 'ABC-123', status: 'Available', createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
+  { id: 'c2', code: 'DEF-456', status: 'Used', createdAt: '2026-08-02', expiresAt: '2026-09-01', usedBy: 'user@test.pl', usedAt: '2026-08-05' },
+  { id: 'c3', code: 'GHI-789', status: 'Expired', createdAt: '2026-07-01', expiresAt: '2026-07-15', usedBy: null, usedAt: null },
 ];
 
 vi.mock('#features/admin/api/useInviteCodesQuery', () => ({
@@ -86,7 +86,7 @@ describe('useInviteCodesTab', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-12-31' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-12-31' } } satisfies React.ChangeEvent<HTMLInputElement>);
     });
     act(() => {
       getLoaded(result.current).handleGenerate();
@@ -109,7 +109,7 @@ describe('useInviteCodesTab', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-10-15' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-10-15' } } satisfies React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(getLoaded(result.current).expiryDate).toBe('2026-10-15');

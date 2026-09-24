@@ -28,17 +28,27 @@ describe('syncSnapshotApi', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('accepts only the server opaque snapshot contract', async () => {
-    vi.mocked(apiClient.get).mockResolvedValue({ status: 'available', snapshot });
+    vi.mocked(apiClient.get).mockResolvedValue({
+      status: 'available',
+      snapshot,
+    });
     await expect(syncSnapshotApi.get('vault-1')).resolves.toEqual({
       status: 'available',
       snapshot,
     });
-    vi.mocked(apiClient.get).mockResolvedValue({ status: 'available', snapshot: { ...snapshot, plaintext: 'secret' } });
+    vi.mocked(apiClient.get).mockResolvedValue({
+      status: 'available',
+      snapshot: { ...snapshot, plaintext: 'secret' },
+    });
     await expect(syncSnapshotApi.get('vault-1')).rejects.toThrow();
   });
 
   it('sends CAS revision metadata and rejects invalid responses', async () => {
-    vi.mocked(apiClient.put).mockResolvedValue({ status: 'saved', revision: 1, envelopeHash: 'hash-1' });
+    vi.mocked(apiClient.put).mockResolvedValue({
+      status: 'saved',
+      revision: 1,
+      envelopeHash: 'hash-1',
+    });
     await expect(syncSnapshotApi.put(snapshot, 0)).resolves.toEqual({
       status: 'saved',
       revision: 1,
@@ -51,5 +61,16 @@ describe('syncSnapshotApi', () => {
     );
     vi.mocked(apiClient.put).mockResolvedValue({ status: 'unexpected' });
     await expect(syncSnapshotApi.put(snapshot, 0)).rejects.toThrow();
+  });
+
+  it.each([
+    { status: 'saved', revision: Number.NaN, envelopeHash: 'hash-1' },
+    { status: 'saved', revision: 1.5, envelopeHash: 'hash-1' },
+    { status: 'saved', revision: 1, envelopeHash: '' },
+  ])('rejects a malformed CAS acknowledgement', async (response) => {
+    vi.mocked(apiClient.put).mockResolvedValue(response);
+    await expect(syncSnapshotApi.put(snapshot, 0)).rejects.toThrow(
+      'Invalid sync snapshot response',
+    );
   });
 });

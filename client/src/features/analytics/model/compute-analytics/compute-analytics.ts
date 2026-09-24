@@ -30,4 +30,4 @@ export const SERIES_LABELS: Record<MetricType, string> = {
 export const MONTH_LABELS_PL = [
   'Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze',
   'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru',
-] as const;
+];

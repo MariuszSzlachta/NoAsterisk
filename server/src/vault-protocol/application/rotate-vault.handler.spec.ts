@@ -1,22 +1,22 @@
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InMemoryVaultRotationRepository } from '@vault-protocol/infrastructure/in-memory-vault-rotation.repository';
-import { RotateVaultHandler } from './rotate-vault.handler';
+import { RotateVaultHandler } from '@vault-protocol/application/rotate-vault.handler';
 
-const user = {
+const user: Parameters<RotateVaultHandler['execute']>[0]['user'] = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Date.now(),
-  amr: 'password' as const,
+  amr: 'password',
 };
 
-const command = {
+const command: Parameters<RotateVaultHandler['execute']>[0] = {
   user,
   vaultId: 'vault-1',
   deviceId: 'device-1',
   currentKeyId: 'key-1',
   nextKeyId: 'key-2',
-  envelopePurpose: 'device-wrap' as const,
+  envelopePurpose: 'device-wrap',
   envelope: 'opaque-envelope',
   recoveryConfirmed: true,
   idempotencyKey: 'rotation-1',
@@ -70,6 +70,9 @@ describe('RotateVaultHandler', () => {
       keyId: 'key-2',
       revokedDeviceCount: 2,
     });
+    await expect(
+      handler.execute({ ...command, envelope: 'substituted-envelope' }),
+    ).rejects.toThrow('idempotency conflict');
   });
 
   it('rejects a stale key and equal key ids', async () => {

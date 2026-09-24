@@ -14,9 +14,9 @@ const CATEGORY_COLORS = [
   'var(--cat-dining)',
   'var(--cat-bills)',
   'var(--cat-entertainment)',
-] as const;
+];
 
-const DEFAULT_COLOR = CATEGORY_COLORS[0];
+const DEFAULT_COLOR = 'var(--cat-groceries)';
 
 const getCategoryColor = (index: number): string =>
   CATEGORY_COLORS[index % CATEGORY_COLORS.length] ?? DEFAULT_COLOR;

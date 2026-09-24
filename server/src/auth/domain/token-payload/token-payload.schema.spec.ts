@@ -1,6 +1,27 @@
-import { parseTokenPayload } from './token-payload.schema';
+import { parseTokenPayload } from '@auth/domain/token-payload/token-payload.schema';
 
 describe('parseTokenPayload', () => {
+  it('accepts verified JWT standard timestamps without weakening unknown claim rejection', () => {
+    expect(
+      parseTokenPayload({
+        sub: 'u',
+        workspaceId: 'w',
+        role: 'Member',
+        tokenVersion: 0,
+        iat: 1,
+        exp: 2,
+      }),
+    ).toMatchObject({ sub: 'u', tokenVersion: 0 });
+    expect(
+      parseTokenPayload({
+        sub: 'u',
+        workspaceId: 'w',
+        role: 'Member',
+        tokenVersion: 0,
+        iat: '1',
+      }),
+    ).toBeUndefined();
+  });
   it.each([
     undefined,
     null,

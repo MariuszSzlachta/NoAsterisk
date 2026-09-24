@@ -1,13 +1,14 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { VaultEnrollmentHandler } from './vault-enrollment.handler';
 import { InMemoryVaultEnrollmentRepository } from '@vault-protocol/infrastructure/in-memory-vault-enrollment.repository';
+import type { CurrentUserPayload } from '@shared/auth/current-user';
 
-const user = {
+const user: CurrentUserPayload = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Date.now(),
-  amr: 'password' as const,
+  amr: 'password',
 };
 
 describe('VaultEnrollmentHandler', () => {

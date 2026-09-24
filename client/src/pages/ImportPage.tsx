@@ -21,7 +21,7 @@ const WIZARD_STEP_KEYS = [
   'import.steps.anonymization',
   'import.steps.preview',
   'import.steps.import',
-] as const;
+];
 
 // ─── Page ────────────────────────────────────────────────────────
 

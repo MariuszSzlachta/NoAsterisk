@@ -28,7 +28,7 @@ describe('useRecentTransactionsWidget', () => {
           category: 'Zakupy',
           date: '27 cze',
           amount: '−50 zł',
-          direction: 'expense' as const,
+          direction: 'expense',
         },
       ],
     });

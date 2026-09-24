@@ -16,7 +16,7 @@ const TYPE_TABS = [
   { id: 'all', label: 'Wszystkie' },
   { id: 'income', label: 'Przychody' },
   { id: 'expense', label: 'Wydatki' },
-] as const;
+];
 
 // ─── Types ───────────────────────────────────────────────────────
 

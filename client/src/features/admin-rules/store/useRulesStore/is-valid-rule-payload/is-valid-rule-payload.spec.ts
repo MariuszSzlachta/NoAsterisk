@@ -5,7 +5,7 @@ import { isValidRulePayload } from '#features/admin-rules/store/useRulesStore/is
 describe('isValidRulePayload', () => {
   const validPayload = {
     keyword: 'BIEDRONKA',
-    matcherType: 'Contains' as const,
+    matcherType: 'Contains',
     categoryId: 'cat-groceries',
     priority: 1,
   };
@@ -27,7 +27,7 @@ describe('isValidRulePayload', () => {
   });
 
   it('returns false for invalid matcherType', () => {
-    expect(isValidRulePayload({ ...validPayload, matcherType: 'Invalid' as 'Contains' })).toBe(false);
+    expect(isValidRulePayload({ ...validPayload, matcherType: 'Invalid' satisfies 'Contains' })).toBe(false);
   });
 
   it('returns false for priority below 1', () => {

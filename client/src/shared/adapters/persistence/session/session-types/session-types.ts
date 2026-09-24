@@ -9,6 +9,7 @@ import type {
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
 import type { CollectionReplacementPublication } from '#shared/adapters/persistence/ports/collection-replacement-publication';
+import type { RotationTranscriptSnapshot } from '#shared/adapters/vault-protocol/rotation-transcript';
 
 type PersistenceSessionStatus = 'locked' | 'unlocking' | 'unlocked' | 'error';
 type PersistentStorageStatus = 'unknown' | 'granted' | 'denied' | 'unavailable';
@@ -124,6 +125,7 @@ interface EncryptedPersistence {
       readonly envelope: string;
       readonly nextVmk: Uint8Array;
       readonly recoveryBackupConfirmed: true;
+      readonly transcript?: RotationTranscriptSnapshot;
     },
   ) => Promise<void>;
   readonly verifyVaultVmk: (
@@ -139,6 +141,10 @@ interface EncryptedPersistence {
   readonly getPendingVaultRotation: () => Promise<
     VaultV2RotationJournal | undefined
   >;
+  readonly renewPendingVaultRotation: (
+    previousChallenge: string,
+    transcript: RotationTranscriptSnapshot,
+  ) => Promise<void>;
   readonly clearPendingVaultRotation: (idempotencyKey: string) => Promise<void>;
   readonly lock: () => void;
   readonly failClosed: (error: unknown) => void;

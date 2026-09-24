@@ -13,7 +13,7 @@ const SNAPSHOT_HEADER_KEYS = [
   'createdByDeviceId',
   'createdAt',
   'nonce',
-] as const;
+];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);

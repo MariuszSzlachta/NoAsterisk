@@ -54,7 +54,7 @@ describe('useImportWizardStore', () => {
     it('setDetectedMapping sets both detectedMapping and columnMapping', () => {
       const mapping = { date: 'date', title: 'title', amount: 'amount' };
 
-      useImportWizardStore.getState().setDetectedMapping(mapping as never);
+      useImportWizardStore.getState().setDetectedMapping(mapping satisfies never);
 
       const state = useImportWizardStore.getState();
       expect(state.detectedMapping).toEqual(mapping);
@@ -64,7 +64,7 @@ describe('useImportWizardStore', () => {
     it('updateColumnMapping adds a field mapping', () => {
       useImportWizardStore
         .getState()
-        .updateColumnMapping('col1', 'date' as never);
+        .updateColumnMapping('col1', 'date' satisfies never);
 
       expect(useImportWizardStore.getState().columnMapping).toEqual({
         col1: 'date',
@@ -73,7 +73,7 @@ describe('useImportWizardStore', () => {
 
     it('updateColumnMapping removes a field when undefined', () => {
       useImportWizardStore.setState({
-        columnMapping: { col1: 'date' } as never,
+        columnMapping: { col1: 'date' } satisfies never,
       });
 
       useImportWizardStore.getState().updateColumnMapping('col1', undefined);
@@ -192,7 +192,7 @@ describe('useImportWizardStore', () => {
     it('openBatchEditPanel sets panel state', () => {
       const pendingEdit = {
         editedRowId: 'r1',
-        field: 'category' as const,
+        field: 'category',
         originalValue: 'Old',
         newValue: 'New',
         similarRowIds: ['r2', 'r3'],
@@ -339,7 +339,7 @@ describe('useImportWizardStore', () => {
             similarRowIds: [],
           },
         },
-      } as never);
+      } satisfies never);
 
       useImportWizardStore.getState().reset();
 

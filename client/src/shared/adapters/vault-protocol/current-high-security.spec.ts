@@ -11,6 +11,8 @@ vi.mock('#shared/adapters/persistence', () => ({
   encryptedPersistence: {
     requireVaultSyncMaterial: vi.fn(),
     readVaultLocalShare: vi.fn(),
+    getGeneration: vi.fn(() => 1),
+    isUnlocked: vi.fn(() => true),
   },
 }));
 vi.mock('#shared/adapters/vault-protocol/high-security', () => ({
@@ -27,12 +29,17 @@ vi.mock('#shared/api/vault-protocol/vault-bootstrap', () => ({
 }));
 
 describe('currentHighSecurity', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    const key = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
     vi.clearAllMocks();
     vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
-      syncKey: {},
-      signingKey: {},
-      verifyKey: {},
+      syncKey: key,
+      signingKey: key,
+      verifyKey: key,
       context: {
         accountId: 'account-1',
         workspaceId: 'workspace-1',
@@ -43,6 +50,8 @@ describe('currentHighSecurity', () => {
     });
     vi.mocked(vaultBootstrap.get).mockResolvedValue({
       status: 'available',
+      protocolVersion: 2,
+      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
@@ -50,11 +59,11 @@ describe('currentHighSecurity', () => {
       passkeyEnvelope: '{"header":{},"ciphertext":"passkey"}',
       securityProfile: 'high-security',
     });
-    vi.mocked(encryptedPersistence.readVaultLocalShare).mockResolvedValue({});
+    vi.mocked(encryptedPersistence.readVaultLocalShare).mockResolvedValue(key);
     vi.mocked(issueServerShare).mockResolvedValue(new Uint8Array(32));
     vi.mocked(vaultPasskeyCeremony.run).mockResolvedValue({
       credentialId: 'credential-1',
-      prfKey: {},
+      prfKey: key,
       assertion: {
         id: 'credential-1',
         rawId: 'raw-id',
@@ -85,15 +94,48 @@ describe('currentHighSecurity', () => {
   it('requires the passkey envelope when disabling high-security', async () => {
     vi.mocked(vaultBootstrap.get).mockResolvedValue({
       status: 'available',
+      protocolVersion: 2,
+      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
       deviceEnvelope: '{"header":{},"ciphertext":"device"}',
+      securityProfile: 'standard',
     });
 
     await expect(currentHighSecurity.disable('recovery-code')).rejects.toThrow(
       'High-security envelope is unavailable',
     );
     expect(highSecurity.disable).not.toHaveBeenCalled();
+  });
+
+  it('rejects a session change before enabling high-security', async () => {
+    vi.mocked(encryptedPersistence.getGeneration)
+      .mockReturnValueOnce(1)
+      .mockReturnValue(2);
+
+    await expect(currentHighSecurity.enable('recovery-code')).rejects.toThrow(
+      'Vault operation session changed',
+    );
+    expect(highSecurity.enable).not.toHaveBeenCalled();
+  });
+
+  it('rejects a bootstrap from a different vault context', async () => {
+    vi.mocked(vaultBootstrap.get).mockResolvedValue({
+      status: 'available',
+      protocolVersion: 2,
+      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
+      vaultId: 'other-vault',
+      keyId: 'key-1',
+      deviceId: 'device-1',
+      deviceEnvelope: '{"header":{},"ciphertext":"device"}',
+      securityProfile: 'high-security',
+    });
+
+    await expect(currentHighSecurity.enable('recovery-code')).rejects.toThrow(
+      'Vault device envelope is unavailable',
+    );
+    expect(vaultPasskeyCeremony.run).not.toHaveBeenCalled();
+    expect(highSecurity.enable).not.toHaveBeenCalled();
   });
 });

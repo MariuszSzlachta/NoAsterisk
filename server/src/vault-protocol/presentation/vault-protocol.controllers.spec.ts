@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import type { Response } from 'express';
+import type { CurrentUserPayload } from '@shared/auth/current-user';
 import { PasskeyAuthController } from './passkey-auth.controller';
 import { SyncSnapshotController } from './sync-snapshot.controller';
 import { VaultBootstrapController } from './vault-bootstrap.controller';
@@ -10,12 +10,12 @@ import { VaultSecurityController } from './vault-security.controller';
 import { WebauthnChallengeController } from './webauthn-challenge.controller';
 import { WebauthnCredentialController } from './webauthn-credential.controller';
 
-const user = {
+const user: CurrentUserPayload = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Math.floor(Date.now() / 1000),
-  amr: 'password' as const,
+  amr: 'password',
 };
 
 const snapshot = {
@@ -41,14 +41,12 @@ describe('Vault Protocol HTTP controller contracts', () => {
         refreshToken: 'refresh-token',
         user: { id: 'user-1' },
       }),
-    } as unknown as InstanceType<
-      typeof import('../application/passkey-login.handler').PasskeyLoginHandler
-    >;
+    };
     const controller = new PasskeyAuthController(handler);
     const response = {
       cookie: jest.fn(),
       setHeader: jest.fn(),
-    } as unknown as Response;
+    };
 
     await expect(
       controller.options({ email: 'user@example.com', deviceId: 'device-1' }),
@@ -89,9 +87,7 @@ describe('Vault Protocol HTTP controller contracts', () => {
         revision: 1,
         envelopeHash: 'hash-1',
       }),
-    } as unknown as InstanceType<
-      typeof import('../application/sync-snapshot.handler').SyncSnapshotHandler
-    >;
+    };
     const controller = new SyncSnapshotController(handler);
 
     await expect(controller.get(user, 'vault-1')).resolves.toEqual({
@@ -121,9 +117,7 @@ describe('Vault Protocol HTTP controller contracts', () => {
   it('rejects missing device bootstrap context and forwards valid context', async () => {
     const handler = {
       execute: jest.fn().mockResolvedValue({ securityProfile: 'standard' }),
-    } as unknown as InstanceType<
-      typeof import('../application/get-vault-bootstrap.handler').GetVaultBootstrapHandler
-    >;
+    };
     const controller = new VaultBootstrapController(handler);
 
     expect(() => controller.get(user)).toThrow('Device ID is required');
@@ -141,9 +135,7 @@ describe('Vault Protocol HTTP controller contracts', () => {
     const handler = {
       list: jest.fn().mockResolvedValue([{ deviceId: 'device-1' }]),
       revoke: jest.fn().mockResolvedValue(undefined),
-    } as unknown as InstanceType<
-      typeof import('../application/vault-device.handler').VaultDeviceHandler
-    >;
+    };
     const controller = new VaultDeviceController(handler);
 
     await expect(controller.list(user)).resolves.toEqual([
@@ -160,11 +152,12 @@ describe('Vault Protocol HTTP controller contracts', () => {
       prepare: jest.fn().mockResolvedValue({ challenge: 'challenge' }),
       finalize: jest.fn().mockResolvedValue(undefined),
       confirm: jest.fn().mockResolvedValue(undefined),
-    } as unknown as InstanceType<
-      typeof import('../application/vault-enrollment.handler').VaultEnrollmentHandler
-    >;
+    };
     const controller = new VaultEnrollmentController(handler);
-    const prepare = { deviceId: 'device-2', recoveryConfirmed: true as const };
+    const prepare: Parameters<VaultEnrollmentController['prepare']>[1] = {
+      deviceId: 'device-2',
+      recoveryConfirmed: true,
+    };
     const finalize = {
       challenge: 'challenge',
       deviceId: 'device-2',
@@ -205,23 +198,19 @@ describe('Vault Protocol HTTP controller contracts', () => {
       execute: jest
         .fn()
         .mockResolvedValue({ serverShare: 'opaque', expiresAt: 'expiry' }),
-    } as unknown as InstanceType<
-      typeof import('../application/issue-server-share.handler').IssueServerShareHandler
-    >;
+    };
     const rotate = {
       execute: jest.fn().mockResolvedValue({ status: 'rotated' }),
-    } as unknown as InstanceType<
-      typeof import('../application/rotate-vault.handler').RotateVaultHandler
-    >;
+    };
     const controller = new VaultProtocolController(issue, rotate);
-    const command = {
+    const command: Parameters<VaultProtocolController['rotate']>[1] = {
       vaultId: 'vault-1',
       deviceId: 'device-1',
       currentKeyId: 'key-1',
       nextKeyId: 'key-2',
-      envelopePurpose: 'device-wrap' as const,
+      envelopePurpose: 'device-wrap',
       envelope: 'opaque-envelope',
-      recoveryConfirmed: true as const,
+      recoveryConfirmed: true,
       idempotencyKey: 'rotation-1',
     };
 
@@ -243,16 +232,14 @@ describe('Vault Protocol HTTP controller contracts', () => {
       execute: jest.fn().mockResolvedValue(undefined),
       enablePasskeyUnlock: jest.fn().mockResolvedValue(undefined),
       disable: jest.fn().mockResolvedValue(undefined),
-    } as unknown as InstanceType<
-      typeof import('../application/enable-high-security.handler').EnableHighSecurityHandler
-    >;
+    };
     const controller = new VaultSecurityController(handler);
-    const enable = {
+    const enable: Parameters<VaultSecurityController['enable']>[1] = {
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
       passkeyEnvelope: 'passkey-envelope',
-      recoveryConfirmed: true as const,
+      recoveryConfirmed: true,
     };
 
     await expect(controller.enable(user, enable)).resolves.toEqual({
@@ -287,14 +274,12 @@ describe('Vault Protocol HTTP controller contracts', () => {
         expiresAt: new Date('2026-09-12T00:00:00.000Z'),
         type: 'authentication',
       }),
-    } as unknown as InstanceType<
-      typeof import('../application/webauthn-challenge.handler').WebauthnChallengeHandler
-    >;
+    };
     const controller = new WebauthnChallengeController(handler);
-    const request = {
+    const request: Parameters<WebauthnChallengeController['create']>[1] = {
       vaultId: 'vault-1',
       deviceId: 'device-1',
-      type: 'authentication' as const,
+      type: 'authentication',
     };
 
     await expect(controller.create(user, request)).resolves.toEqual({
@@ -318,21 +303,23 @@ describe('Vault Protocol HTTP controller contracts', () => {
       list: jest.fn().mockResolvedValue([]),
       verifyAuthentication: jest.fn().mockResolvedValue(undefined),
       revoke: jest.fn().mockResolvedValue(undefined),
-    } as unknown as InstanceType<
-      typeof import('../application/webauthn-credential.handler').WebauthnCredentialHandler
-    >;
+    };
     const controller = new WebauthnCredentialController(handler);
     const context = { vaultId: 'vault-1', deviceId: 'device-1' };
-    const credential = {
+    const credential: Parameters<
+      WebauthnCredentialController['verify']
+    >[1]['credential'] = {
       id: 'credential-1',
       rawId: 'cmF3',
-      type: 'public-key' as const,
+      type: 'public-key',
       response: { clientDataJSON: 'Y2xpZW50', attestationObject: 'YXR0' },
     };
-    const assertion = {
+    const assertion: Parameters<
+      WebauthnCredentialController['verifyAuthentication']
+    >[1]['assertion'] = {
       id: 'credential-1',
       rawId: 'cmF3',
-      type: 'public-key' as const,
+      type: 'public-key',
       response: {
         clientDataJSON: 'Y2xpZW50',
         authenticatorData: 'YXV0aA',

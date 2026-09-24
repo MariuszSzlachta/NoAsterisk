@@ -14,4 +14,4 @@ export const LEGEND_ITEMS = [
     color: 'bg-expense',
     i18nKey: 'import.anonymization.legend.anonymized',
   },
-] as const;
+];

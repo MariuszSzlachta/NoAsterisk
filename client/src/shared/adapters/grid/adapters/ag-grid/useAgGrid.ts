@@ -123,7 +123,7 @@ export const useAgGrid = <TRow>({
       }
       const field = event.colDef.field;
       if (field) {
-        onCellEdit(getRowId(event.data), field, event.newValue as unknown);
+        onCellEdit(getRowId(event.data), field, event.newValue);
       }
     },
     [onCellEdit, getRowId],

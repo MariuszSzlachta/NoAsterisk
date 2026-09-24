@@ -10,7 +10,7 @@ describe('computeVaultStatus', () => {
     [true, false, undefined, 1, 'remote-newer'],
     [true, false, 1, 2, 'remote-newer'],
     [true, false, 2, 2, 'up-to-date'],
-  ] as const)(
+  ])(
     'returns %s for remote=%s dirty=%s syncedRevision=%s remoteRevision=%s',
     (
       hasRemoteSnapshot,

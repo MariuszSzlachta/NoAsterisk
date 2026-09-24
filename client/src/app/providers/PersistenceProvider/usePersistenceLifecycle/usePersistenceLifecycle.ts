@@ -9,7 +9,7 @@ const AUTO_LOCK_ENABLED = isAutoLockEnabled(
   import.meta.env.DEV,
   import.meta.env.VITE_AUTO_LOCK_ENABLED,
 );
-const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'] as const;
+const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'];
 
 export const usePersistenceLifecycle = (): void => {
   const autoLockTimer = useRef<ReturnType<typeof setTimeout> | undefined>(

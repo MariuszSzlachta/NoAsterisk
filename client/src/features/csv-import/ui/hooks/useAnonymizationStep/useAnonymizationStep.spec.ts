@@ -81,7 +81,7 @@ const buildRows = () => [
     title: 'PRZELEW •••• 5678 Jan ███',
     amount: -1200,
     currency: 'PLN',
-    status: 'ok' as const,
+    status: 'ok',
   },
   {
     id: 'r1',
@@ -89,7 +89,7 @@ const buildRows = () => [
     title: 'BIEDRONKA 1234 WARSZAWA',
     amount: -87.43,
     currency: 'PLN',
-    status: 'ok' as const,
+    status: 'ok',
   },
   {
     id: 'r2',
@@ -97,7 +97,7 @@ const buildRows = () => [
     title: 'PRZELEW Jan ███',
     amount: -50,
     currency: 'PLN',
-    status: 'ok' as const,
+    status: 'ok',
   },
   {
     id: 'r3',
@@ -105,7 +105,7 @@ const buildRows = () => [
     title: 'SPOTIFY PREMIUM',
     amount: -23.99,
     currency: 'PLN',
-    status: 'ok' as const,
+    status: 'ok',
   },
 ];
 

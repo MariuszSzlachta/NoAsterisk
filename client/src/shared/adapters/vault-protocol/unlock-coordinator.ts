@@ -29,21 +29,26 @@ interface VaultKeySet {
 }
 
 const unlock = async (input: UnlockInput): Promise<VaultKeySet> => {
-  const method = unlockPolicy.chooseMethod(
-    input.mode,
-    input.prfKey !== undefined,
-  );
   try {
+    const method = unlockPolicy.chooseMethod(
+      input.mode,
+      input.prfKey !== undefined,
+    );
     const wrappingKey =
       method === 'prf'
         ? await vaultProtocol.derivePrfKey(
-            input.prfKey ?? (() => { throw new Error('PRF key is required'); })(),
+            input.prfKey ??
+              (() => {
+                throw new Error('PRF key is required');
+              })(),
             input.serverShare,
             input.context,
           )
         : await vaultProtocol.deriveDeviceKey(
             input.localShare ??
-              (() => { throw new Error('LocalShare is required for split unlock'); })(),
+              (() => {
+                throw new Error('LocalShare is required for split unlock');
+              })(),
             input.serverShare,
             input.context,
           );

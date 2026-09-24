@@ -423,10 +423,10 @@ describe('useBudgetsStore', () => {
         budgetId,
         spentAmount: 1500,
         remainingAmount: 500,
-        rolloverOption: { type: 'carry_forward' as const },
+        rolloverOption: { type: 'carry_forward' },
         periodFrom: '2026-07-01',
         periodTo: '2026-07-31',
-        nextPeriod: { type: 'custom' as const, dateFrom: '2026-08-01', dateTo: '2026-08-31' },
+        nextPeriod: { type: 'custom', dateFrom: '2026-08-01', dateTo: '2026-08-31' },
       };
 
       useBudgetsStore.getState().closeBudgetPeriod(params);

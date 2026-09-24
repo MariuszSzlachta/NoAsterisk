@@ -18,7 +18,7 @@ describe('createBirthDatePattern', () => {
     const match = pattern.exec(input);
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe(expected);
+    expect(match[0]).toBe(expected);
   });
 
   it.each([
@@ -38,7 +38,7 @@ describe('createBirthDatePattern', () => {
     const match = pattern.exec('Wpłata Jan Kowalski ur. 22.11.1988 przelew');
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe('ur. 22.11.1988');
+    expect(match[0]).toBe('ur. 22.11.1988');
   });
 
   it('returns fresh instance (no shared lastIndex)', () => {

@@ -1,0 +1,1 @@
+export { useRulesTablePresentation } from './useRulesTablePresentation';

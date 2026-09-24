@@ -49,8 +49,9 @@ describe('DetectImportProfileHandler', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result!.id).toBe('profile-1');
-    expect(result!.name).toBe('Bank A');
+    if (!result) throw new Error('Expected matching profile');
+    expect(result.id).toBe('profile-1');
+    expect(result.name).toBe('Bank A');
   });
 
   it('returns undefined when no profile matches', async () => {
@@ -80,7 +81,8 @@ describe('DetectImportProfileHandler', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result!.id).toBe('p-1');
-    expect(result!.name).toBe('First');
+    if (!result) throw new Error('Expected matching profile');
+    expect(result.id).toBe('p-1');
+    expect(result.name).toBe('First');
   });
 });

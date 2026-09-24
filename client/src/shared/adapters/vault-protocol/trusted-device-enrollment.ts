@@ -1,8 +1,9 @@
 import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
 import { vaultProtocolUtils } from '#shared/adapters/vault-protocol/vault-protocol-utils';
 
-const FORMAT_VERSION = 1;
-const KIND = 'budgetflow/trusted-device-qr';
+const literal = <T extends string | number>(value: T): T => value;
+const FORMAT_VERSION = literal(1);
+const KIND = literal('budgetflow/trusted-device-qr');
 const DOMAIN = 'budgetflow/trusted-device-qr/v1';
 const MAX_REQUEST_BYTES = 8_192;
 const MAX_RESPONSE_BYTES = 32_768;
@@ -305,8 +306,8 @@ const createResponse = async (
   const nonce = crypto.getRandomValues(new Uint8Array(vaultProtocolConstants.nonceLength));
   const responseWithoutSignature = {
     ...context,
-    formatVersion: FORMAT_VERSION as typeof FORMAT_VERSION,
-    kind: KIND as typeof KIND,
+    formatVersion: FORMAT_VERSION,
+    kind: KIND,
     requestId: request.requestId,
     oldEphemeralPublicKey: oldPublicKey,
     signingPublicKey,
@@ -381,11 +382,12 @@ const decryptResponse = async (
     false,
     ['verify'],
   );
+  const { signature: _signature, ...unsignedResponse } = response;
   const valid = await crypto.subtle.verify(
     { name: 'ECDSA', hash: 'SHA-256' },
     signer,
     asBuffer(vaultProtocolUtils.fromBase64(response.signature)),
-    asBuffer(signaturePayload({ ...response, signature: undefined } as never)),
+    asBuffer(signaturePayload(unsignedResponse)),
   );
   if (!valid) throw new Error('Trusted-device response signature failed');
   const oldPublicKey = await importPublicKey(response.oldEphemeralPublicKey);
@@ -403,7 +405,7 @@ const decryptResponse = async (
         additionalData: asBuffer(
           asBytes(
             vaultProtocolUtils.canonicalize(
-              responseHeader({ ...response, signature: undefined } as never),
+              responseHeader(unsignedResponse),
             ),
           ),
         ),

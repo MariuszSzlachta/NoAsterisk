@@ -10,7 +10,7 @@ const mockFetchDictionaries = vi.fn<() => Promise<DictionarySet>>();
 
 vi.mock('../fetchDictionaries', () => ({
   fetchDictionaries: (...args: unknown[]) =>
-    mockFetchDictionaries(...(args as [])),
+    mockFetchDictionaries(...(args satisfies [])),
 }));
 
 // Must import AFTER mocks are set up

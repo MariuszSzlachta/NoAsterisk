@@ -11,7 +11,7 @@ const context = {
   keyId: 'key',
   oldDeviceId: 'old-device',
   newDeviceId: 'new-device',
-} as const;
+};
 
 describe('trustedDeviceTransfer', () => {
   it('does not expose the session VMK after creating an approval', async () => {

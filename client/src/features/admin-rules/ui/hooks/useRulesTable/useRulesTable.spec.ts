@@ -21,8 +21,8 @@ vi.mock('#entities/category', () => ({
 // ─── Setup ───────────────────────────────────────────────────────
 
 const SEED_RULES = [
-  { id: 'r1', keyword: 'BIEDRONKA', matcherType: 'Contains' as const, categoryId: 'cat-groceries', priority: 1, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'r2', keyword: 'UBER', matcherType: 'Exact' as const, categoryId: 'cat-transport', priority: 5, createdAt: '2026-01-02T00:00:00.000Z' },
+  { id: 'r1', keyword: 'BIEDRONKA', matcherType: 'Contains', categoryId: 'cat-groceries', priority: 1, createdAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'r2', keyword: 'UBER', matcherType: 'Exact', categoryId: 'cat-transport', priority: 5, createdAt: '2026-01-02T00:00:00.000Z' },
 ];
 
 beforeEach(() => {

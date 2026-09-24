@@ -39,6 +39,10 @@ const getInitialValues = (): CreateTransactionFormValues => ({
   categoryId: '',
 });
 
+const isErrorField = (
+  field: keyof CreateTransactionFormValues,
+): field is keyof CreateTransactionErrors => field !== 'categoryId';
+
 // ─── Hook ────────────────────────────────────────────────────────
 
 export const useTransactionForm = (onClose: () => void): UseTransactionFormResult => {
@@ -55,7 +59,7 @@ export const useTransactionForm = (onClose: () => void): UseTransactionFormResul
   ): void => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     // Clear error for field on change
-    if (errors[field as keyof CreateTransactionErrors]) {
+    if (isErrorField(field) && errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };

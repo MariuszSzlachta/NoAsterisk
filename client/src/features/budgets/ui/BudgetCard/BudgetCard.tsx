@@ -1,19 +1,29 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, Pencil, Plus, AlertTriangle, Trash2 } from 'lucide-react';
-
-import { formatAmount } from '#shared/lib';
-import { Badge } from '#shared/ui/Badge';
-import { Progress } from '#shared/ui/Progress';
-import { Button } from '#shared/ui/Button';
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 
 import type { BudgetStatus } from '#features/budgets/model/types/budget-status';
 import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
-import { useBudgetCard } from '../hooks/useBudgetCard';
-import { BudgetTransactionList } from './BudgetTransactionList';
+import { BudgetTransactionList } from '#features/budgets/ui/BudgetCard/BudgetTransactionList';
+import { useBudgetCard } from '#features/budgets/ui/hooks/useBudgetCard';
+import { useBoundAction } from '#shared/hooks/useBoundAction';
+import { formatAmount } from '#shared/lib';
+import { Badge } from '#shared/ui/Badge';
+import { Button } from '#shared/ui/Button';
+import { Progress } from '#shared/ui/Progress';
 
 // ─── Status → Design System Variant Mapping ──────────────────────
 
-const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' | 'blue' | 'neutral'> = {
+const STATUS_BADGE_COLOR: Record<
+  BudgetStatus,
+  'expense' | 'warning' | 'income' | 'blue' | 'neutral'
+> = {
   awaitingClosure: 'warning',
   overBudget: 'expense',
   warning: 'warning',
@@ -22,7 +32,10 @@ const STATUS_BADGE_COLOR: Record<BudgetStatus, 'expense' | 'warning' | 'income' 
   newPeriod: 'blue',
 };
 
-const STATUS_PROGRESS_COLOR: Record<BudgetStatus, 'primary' | 'income' | 'expense' | 'warning'> = {
+const STATUS_PROGRESS_COLOR: Record<
+  BudgetStatus,
+  'primary' | 'income' | 'expense' | 'warning'
+> = {
   awaitingClosure: 'warning',
   overBudget: 'expense',
   warning: 'warning',
@@ -43,7 +56,13 @@ interface BudgetCardProps {
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudget, onDeleteBudget }: BudgetCardProps): React.JSX.Element => {
+export const BudgetCard = ({
+  vm,
+  onAssignTransaction,
+  onClosePeriod,
+  onEditBudget,
+  onDeleteBudget,
+}: BudgetCardProps): React.JSX.Element => {
   const { t } = useTranslation();
   const {
     isExpanded,
@@ -60,6 +79,12 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
     onClosePeriod,
   });
 
+  const { handleAction: handleEditClick } = useBoundAction(vm.id, onEditBudget);
+  const { handleAction: handleDeleteClick } = useBoundAction(
+    vm.id,
+    onDeleteBudget,
+  );
+
   return (
     <div className="flex flex-col rounded-lg border border-border bg-surface p-5 shadow-card">
       {/* Header: color dot + name + status badge */}
@@ -69,10 +94,16 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
             className="h-2.5 w-2.5 rounded-full"
             style={{ backgroundColor: vm.color }}
           />
-          <span className="text-sm font-semibold text-foreground">{vm.name}</span>
+          <span className="text-sm font-semibold text-foreground">
+            {vm.name}
+          </span>
         </div>
         <div className="flex items-center gap-1">
-          <Badge variant="soft" color={STATUS_BADGE_COLOR[vm.status]} dot={false}>
+          <Badge
+            variant="soft"
+            color={STATUS_BADGE_COLOR[vm.status]}
+            dot={false}
+          >
             {t(`budgets.status.${vm.statusLabel}`)}
           </Badge>
           {onEditBudget && (
@@ -81,7 +112,7 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
               variant="ghost"
               size="sm"
               icon={<Pencil size={14} />}
-              onClick={() => onEditBudget(vm.id)}
+              onClick={handleEditClick}
               aria-label={t('budgets.form.titleEdit')}
               className="h-12 w-12 sm:h-9 sm:w-9"
             />
@@ -92,7 +123,7 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
               variant="destructive"
               size="sm"
               icon={<Trash2 size={14} />}
-              onClick={() => onDeleteBudget(vm.id)}
+              onClick={handleDeleteClick}
               aria-label={t('budgets.form.delete')}
               className="h-12 w-12 sm:h-9 sm:w-9"
             />
@@ -114,13 +145,17 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
       {/* Amounts row */}
       <div className="mt-4 flex items-baseline justify-between">
         <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">{t('budgets.card.spent')}</span>
+          <span className="text-xs text-muted-foreground">
+            {t('budgets.card.spent')}
+          </span>
           <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
             {formatAmount(vm.spent)} {vm.currency}
           </span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-xs text-muted-foreground">{t('budgets.card.remaining')}</span>
+          <span className="text-xs text-muted-foreground">
+            {t('budgets.card.remaining')}
+          </span>
           <span
             className={`font-mono text-sm font-semibold tabular-nums ${
               vm.remaining < 0 ? 'text-expense' : 'text-foreground'
@@ -141,7 +176,10 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
 
       {/* Subtitle */}
       <span className="mt-1.5 text-xs text-muted-foreground">
-        {t('budgets.card.progressSubtitle', { spentPercent: vm.spentPercent, timePercent: vm.timePercent })}
+        {t('budgets.card.progressSubtitle', {
+          spentPercent: vm.spentPercent,
+          timePercent: vm.timePercent,
+        })}
       </span>
 
       {/* Closure banner */}
@@ -190,7 +228,10 @@ export const BudgetCard = ({ vm, onAssignTransaction, onClosePeriod, onEditBudge
 
       {/* Expandable transactions list */}
       {isExpanded && (
-        <BudgetTransactionList transactions={vm.transactions} currency={vm.currency} />
+        <BudgetTransactionList
+          transactions={vm.transactions}
+          currency={vm.currency}
+        />
       )}
     </div>
   );

@@ -193,7 +193,12 @@ export class PostgresTransactionRepository implements TransactionRepository {
       row.accountId,
       Money.of(Number(row.amount), row.currency),
       row.type,
-      row.categoryIds as string[],
+      Array.isArray(row.categoryIds) &&
+        row.categoryIds.every(
+          (value): value is string => typeof value === 'string',
+        )
+        ? row.categoryIds
+        : [],
       row.title,
       row.date,
       row.createdAt,
@@ -209,7 +214,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
       amount: transactions.amount,
       type: transactions.type,
       createdAt: transactions.createdAt,
-    } as const;
+    };
     return map[field];
   }
 }

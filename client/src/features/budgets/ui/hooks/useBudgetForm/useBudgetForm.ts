@@ -51,7 +51,7 @@ export const COLOR_PALETTE = [
   '#ef4444',
   '#a855f7',
   '#06b6d4',
-] as const;
+];
 
 const DEFAULT_VALUES: BudgetFormValues = {
   budgetType: 'standard',
@@ -74,7 +74,7 @@ const ERROR_CODES = {
   dateFromRequired: 'budgets.form.errors.dateFromRequired',
   dateToRequired: 'budgets.form.errors.dateToRequired',
   dateRangeInvalid: 'budgets.form.errors.dateRangeInvalid',
-} as const;
+};
 
 // ─── Hook ────────────────────────────────────────────────────────
 

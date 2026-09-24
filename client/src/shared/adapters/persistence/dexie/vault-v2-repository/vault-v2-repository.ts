@@ -1,4 +1,7 @@
 import type { VaultV2Database } from '#shared/adapters/persistence/dexie/vault-v2-database';
+import type { VaultV2RecordEnvelope } from '#shared/adapters/persistence/dexie/vault-v2-database/types';
+import { createVaultRecordEnvelope } from '#shared/adapters/persistence/dexie/vault-v2-repository/create-vault-record-envelope';
+import type { VaultRecordContext } from '#shared/adapters/persistence/dexie/vault-v2-repository/create-vault-record-envelope/types';
 import type {
   EncryptedRepository,
   EncryptedWriteResult,
@@ -6,58 +9,13 @@ import type {
 } from '#shared/adapters/persistence/ports';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 
-interface VaultContext {
-  readonly accountId: string;
-  readonly workspaceId: string;
-  readonly vaultId: string;
-  readonly keyId: string;
-  readonly deviceId: string;
-}
-
-interface VaultRecordEnvelope {
-  readonly id: string;
-  readonly collection: string;
-  readonly header: Record<string, unknown>;
-  readonly ciphertext: string;
-  readonly updatedAt: number;
-}
-
-const createEnvelope = async <TRecord extends object>(
-  collection: PersistenceCollection,
-  record: TRecord,
-  getId: (value: TRecord) => string,
-  key: CryptoKey,
-  context: VaultContext,
-) => {
-  const id = getId(record);
-  const encrypted = await vaultProtocol.encryptRecord(
-    JSON.stringify(record),
-    {
-      accountId: context.accountId,
-      workspaceId: context.workspaceId,
-      vaultId: context.vaultId,
-      keyId: context.keyId,
-      collection,
-      recordId: id,
-    },
-    key,
-  );
-  return {
-    id,
-    collection,
-    header: encrypted.header,
-    ciphertext: encrypted.ciphertext,
-    updatedAt: Date.now(),
-  };
-};
-
 export const createVaultV2Repository = <TRecord extends object>(
   database: VaultV2Database,
   collection: Exclude<PersistenceCollection, 'sentinel'>,
   getKey: () => CryptoKey,
   validator: (value: unknown) => value is TRecord,
   getId: (record: TRecord) => string,
-  context: VaultContext,
+  context: VaultRecordContext,
   runExclusive: <TResult>(task: () => Promise<TResult>) => Promise<TResult>,
   isSessionActive: () => boolean,
   onMutation: () => void = () => undefined,
@@ -67,7 +25,7 @@ export const createVaultV2Repository = <TRecord extends object>(
       throw new Error('Encrypted persistence session is locked');
   };
   const decrypt = async (
-    envelope: VaultRecordEnvelope | undefined,
+    envelope: VaultV2RecordEnvelope | undefined,
   ): Promise<TRecord> => {
     assertSessionActive();
     if (envelope === undefined)
@@ -107,7 +65,13 @@ export const createVaultV2Repository = <TRecord extends object>(
     assertSessionActive();
     const envelopes = await Promise.all(
       records.map((record) =>
-        createEnvelope(collection, record, getId, getKey(), context),
+        createVaultRecordEnvelope({
+          collection,
+          record,
+          getId,
+          key: getKey(),
+          context,
+        }),
       ),
     );
     assertSessionActive();
@@ -164,18 +128,24 @@ export const createVaultV2Repository = <TRecord extends object>(
       const [primaryEnvelopes, relatedEnvelopes] = await Promise.all([
         Promise.all(
           written.map((record) =>
-            createEnvelope(collection, record, getId, getKey(), context),
+            createVaultRecordEnvelope({
+              collection,
+              record,
+              getId,
+              key: getKey(),
+              context,
+            }),
           ),
         ),
         Promise.all(
           related.records.map((record) =>
-            createEnvelope(
-              related.collection,
+            createVaultRecordEnvelope({
+              collection: related.collection,
               record,
-              related.getId,
-              getKey(),
+              getId: related.getId,
+              key: getKey(),
               context,
-            ),
+            }),
           ),
         ),
       ]);
@@ -195,7 +165,13 @@ export const createVaultV2Repository = <TRecord extends object>(
       assertSessionActive();
       const envelopes = await Promise.all(
         records.map((record) =>
-          createEnvelope(collection, record, getId, getKey(), context),
+          createVaultRecordEnvelope({
+            collection,
+            record,
+            getId,
+            key: getKey(),
+            context,
+          }),
         ),
       );
       assertSessionActive();

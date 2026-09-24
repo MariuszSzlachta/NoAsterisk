@@ -86,7 +86,7 @@ describe('ConfirmDeleteModal', () => {
     // Backdrop is the aria-hidden outer div
     const backdrop = screen.getByRole('dialog', {
       hidden: true,
-    }).parentElement!;
+    }).parentElement;
     fireEvent.click(backdrop);
 
     expect(onCancel).toHaveBeenCalledTimes(1);

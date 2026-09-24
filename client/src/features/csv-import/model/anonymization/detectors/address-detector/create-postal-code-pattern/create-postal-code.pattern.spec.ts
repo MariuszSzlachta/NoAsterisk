@@ -13,7 +13,7 @@ describe('createPostalCodePattern', () => {
     const match = pattern.exec(input);
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe(expected);
+    expect(match[0]).toBe(expected);
   });
 
   it.each(['12345 no dash', '1-234 wrong format', '00-001', 'przelew 12-345'])(

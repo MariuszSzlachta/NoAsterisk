@@ -141,7 +141,7 @@ describe('useDictionariesTab', () => {
       const { result } = renderHook(() => useDictionariesTab());
 
       act(() => {
-        result.current.handleSearchChange({ target: { value: 'test' } } as React.ChangeEvent<HTMLInputElement>);
+        result.current.handleSearchChange({ target: { value: 'test' } } satisfies React.ChangeEvent<HTMLInputElement>);
       });
       act(() => {
         result.current.handleSubTabChange('merchants');
@@ -166,7 +166,7 @@ describe('useDictionariesTab', () => {
       const { result } = renderHook(() => useDictionariesTab());
 
       act(() => {
-        result.current.handleSearchChange({ target: { value: 'Jan' } } as React.ChangeEvent<HTMLInputElement>);
+        result.current.handleSearchChange({ target: { value: 'Jan' } } satisfies React.ChangeEvent<HTMLInputElement>);
       });
 
       expect(result.current.searchQuery).toBe('Jan');
@@ -179,7 +179,7 @@ describe('useDictionariesTab', () => {
         result.current.handleNextPage();
       });
       act(() => {
-        result.current.handleSearchChange({ target: { value: 'x' } } as React.ChangeEvent<HTMLInputElement>);
+        result.current.handleSearchChange({ target: { value: 'x' } } satisfies React.ChangeEvent<HTMLInputElement>);
       });
 
       expect(result.current.currentPage).toBe(1);

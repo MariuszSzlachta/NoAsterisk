@@ -1,0 +1,1 @@
+export { mapRotationChallengeToTranscript } from './mapRotationChallengeToTranscript';

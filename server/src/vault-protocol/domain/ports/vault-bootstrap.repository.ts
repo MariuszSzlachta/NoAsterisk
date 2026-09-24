@@ -1,15 +1,5 @@
-export interface VaultBootstrap {
-  readonly status: 'empty' | 'enrollment-required' | 'available';
-  readonly vaultId?: string;
-  readonly keyId?: string;
-  readonly deviceId: string;
-  readonly protocolVersion: 2;
-  readonly cryptoSuite: 'HKDF-SHA256/AES-256-GCM';
-  readonly securityProfile?: 'standard' | 'high-security';
-  readonly deviceEnvelope?: string;
-  readonly passkeyEnvelope?: string;
-  readonly recoveryPublicKey?: string;
-}
+export type { VaultBootstrap } from './vault-bootstrap.types';
+import type { VaultBootstrap } from './vault-bootstrap.types';
 
 export interface VaultBootstrapRepository {
   get(

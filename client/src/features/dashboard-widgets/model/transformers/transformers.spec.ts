@@ -254,7 +254,7 @@ describe('getRateColor', () => {
     [10, 'var(--warning)'],
     [5, 'var(--expense)'],
     [0, 'var(--expense)'],
-  ] as const)('returns correct color for rate %d', (rate, expected) => {
+  ])('returns correct color for rate %d', (rate, expected) => {
     expect(getRateColor(rate)).toBe(expected);
   });
 });

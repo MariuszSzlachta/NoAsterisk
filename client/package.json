@@ -23,7 +23,8 @@
     "storybook:build": "storybook build",
     "e2e": "playwright test",
     "e2e:security": "playwright test --project=chromium e2e/security/security.spec.ts",
-    "e2e:ui": "playwright test --ui"
+    "e2e:ui": "playwright test --ui",
+    "test:types:vault-v2": "tsc --project tsconfig.vault-v2-tests.json"
   },
   "dependencies": {
     "@nivo/bar": "0.99.0",

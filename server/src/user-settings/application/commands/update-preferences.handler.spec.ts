@@ -3,6 +3,7 @@ import { UpdatePreferencesHandler } from './update-preferences.handler';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 import { DEFAULT_PREFERENCES } from '@auth/domain/user-preferences.vo';
+import type { UserPreferences } from '@auth/domain/user-preferences.vo';
 
 describe('UpdatePreferencesHandler', () => {
   const mockUserRepo = {
@@ -60,12 +61,12 @@ describe('UpdatePreferencesHandler', () => {
     mockUserRepo.findById.mockResolvedValue(testUser);
     mockUserRepo.save.mockResolvedValue(undefined);
 
-    const fullPrefs = {
-      currency: 'USD' as const,
-      dateFormat: 'YYYY-MM-DD' as const,
-      language: 'en' as const,
-      theme: 'system' as const,
-      homePage: 'transactions' as const,
+    const fullPrefs: UserPreferences = {
+      currency: 'USD',
+      dateFormat: 'YYYY-MM-DD',
+      language: 'en',
+      theme: 'system',
+      homePage: 'transactions',
     };
 
     const result = await handler.execute({

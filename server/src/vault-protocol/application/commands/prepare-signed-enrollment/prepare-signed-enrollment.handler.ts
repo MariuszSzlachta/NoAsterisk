@@ -15,6 +15,7 @@ export class PrepareSignedEnrollmentHandler {
   async execute(
     command: PrepareSignedEnrollmentCommand,
   ): Promise<SignedEnrollment> {
+    // ARCH-EXCEPTION: returned domain entity asserts the complete workspace scope — accepted permanently.
     const deadline = getInteractiveAuthDeadline(command.user);
     if (!command.recoveryConfirmed)
       throw new DomainError('Enrollment unavailable');

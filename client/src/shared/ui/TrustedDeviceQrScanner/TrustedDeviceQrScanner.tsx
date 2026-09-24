@@ -10,6 +10,10 @@ interface BarcodeDetectorConstructorLike {
   new (options?: { formats?: ReadonlyArray<string> }): BarcodeDetectorLike;
 }
 
+declare global {
+  var BarcodeDetector: BarcodeDetectorConstructorLike | undefined;
+}
+
 interface TrustedDeviceQrScannerProps {
   readonly onScan: (value: string) => void;
   readonly onError: (error: string) => void;
@@ -17,11 +21,7 @@ interface TrustedDeviceQrScannerProps {
 }
 
 const getDetector = (): BarcodeDetectorLike | undefined => {
-  const constructor = (
-    globalThis as typeof globalThis & {
-      BarcodeDetector?: BarcodeDetectorConstructorLike;
-    }
-  ).BarcodeDetector;
+  const constructor = globalThis.BarcodeDetector;
   return constructor === undefined
     ? undefined
     : new constructor({ formats: ['qr_code'] });

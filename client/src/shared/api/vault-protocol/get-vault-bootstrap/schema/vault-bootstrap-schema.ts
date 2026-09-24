@@ -32,7 +32,7 @@ export const vaultBootstrapSchema = z.discriminatedUnion('status', [
         .min(1)
         .max(vaultBootstrapContract.maxIdentifierLength),
       keyId: z.string().min(1).max(vaultBootstrapContract.maxIdentifierLength),
-      securityProfile: z.enum(['standard', 'high-security']).optional(),
+      securityProfile: z.enum(['standard', 'high-security']),
       deviceEnvelope: z
         .string()
         .min(2)

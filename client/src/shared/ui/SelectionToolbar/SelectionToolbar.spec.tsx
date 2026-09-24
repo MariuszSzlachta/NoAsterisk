@@ -10,7 +10,7 @@ describe('SelectionToolbar', () => {
     onClear: vi.fn(),
     actions: [
       { label: 'Export', onClick: vi.fn() },
-      { label: 'Delete', onClick: vi.fn(), variant: 'danger' as const },
+      { label: 'Delete', onClick: vi.fn(), variant: 'danger' },
     ],
   };
 

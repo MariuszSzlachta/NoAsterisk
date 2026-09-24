@@ -16,7 +16,7 @@ const DICTS: DictionarySet = {
 const span = (original: string, type = 'name'): DetectionSpan => ({
   start: 0,
   end: original.length,
-  type: type as DetectionSpan['type'],
+  type: type satisfies DetectionSpan['type'],
   confidence: 0.9,
   original,
   detectorId: type,

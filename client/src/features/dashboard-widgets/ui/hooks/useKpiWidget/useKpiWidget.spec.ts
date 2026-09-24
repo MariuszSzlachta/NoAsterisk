@@ -23,11 +23,11 @@ describe('useKpiWidget', () => {
       status: 'loaded',
       data: [
         {
-          id: 'balance' as const,
+          id: 'balance',
           label: 'Saldo',
           value: '100 zł',
           deltaPercent: '+5%',
-          trend: 'up' as const,
+          trend: 'up',
         },
       ],
     });
@@ -47,7 +47,7 @@ describe('useKpiWidget', () => {
   it('returns loaded with fallback icon for unknown id', () => {
     mockUseKpiQuery.mockReturnValue({
       status: 'loaded',
-      data: [{ id: 'balance' as const, label: 'Unknown', value: '0 zł' }],
+      data: [{ id: 'balance', label: 'Unknown', value: '0 zł' }],
     });
 
     const result = useKpiWidget();

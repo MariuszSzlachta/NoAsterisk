@@ -20,6 +20,7 @@ const rotate = async ({
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const generation = encryptedPersistence.getGeneration();
   const bootstrap = await vaultBootstrap.get();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   if (
     bootstrap.status !== 'available' ||
     bootstrap.vaultId === undefined ||
@@ -33,6 +34,7 @@ const rotate = async ({
     keyId: bootstrap.keyId,
   };
   const pending = await encryptedPersistence.getPendingVaultRotation();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   if (
     pending !== undefined &&
     material.context.keyId === pending.nextKeyId &&
@@ -40,12 +42,19 @@ const rotate = async ({
   )
     throw new Error('Pending vault rotation must be resumed first');
   const localShare = await encryptedPersistence.readVaultLocalShare(context);
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   if (localShare === undefined)
     throw new Error('Vault rotation requires LocalShare');
-  const currentVmk = await recoveryCodeProtocol.restore(code);
+  let currentVmk: Uint8Array | undefined;
   let nextVmk: Uint8Array | undefined;
   let serverShare: Uint8Array | undefined;
   try {
+    currentVmk = await recoveryCodeProtocol.restore(code);
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
     await encryptedPersistence.verifyVaultVmk(currentVmk, context);
     nextVmk = vaultProtocol.generateVmk();
     const nextRecoveryCode = await recoveryCodeProtocol.encode(nextVmk);
@@ -141,7 +150,7 @@ const rotate = async ({
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
     return { recoveryCode: nextRecoveryCode };
   } finally {
-    currentVmk.fill(0);
+    currentVmk?.fill(0);
     nextVmk?.fill(0);
     serverShare?.fill(0);
   }
@@ -154,6 +163,7 @@ const rotateWithPasskey = async (
   const material = encryptedPersistence.requireVaultSyncMaterial();
   const generation = encryptedPersistence.getGeneration();
   const bootstrap = await vaultBootstrap.get();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   if (
     bootstrap.status !== 'available' ||
     bootstrap.vaultId === undefined ||
@@ -167,16 +177,23 @@ const rotateWithPasskey = async (
     keyId: bootstrap.keyId,
   };
   const pending = await encryptedPersistence.getPendingVaultRotation();
+  assertVaultSessionCurrent(encryptedPersistence, generation, material.context);
   if (
     pending !== undefined &&
     material.context.keyId === pending.nextKeyId &&
     bootstrap.keyId === pending.currentKeyId
   )
     throw new Error('Pending vault rotation must be resumed first');
-  const currentVmk = await recoveryCodeProtocol.restore(code);
+  let currentVmk: Uint8Array | undefined;
   let serverShare: Uint8Array | undefined;
   let nextVmk: Uint8Array | undefined;
   try {
+    currentVmk = await recoveryCodeProtocol.restore(code);
+    assertVaultSessionCurrent(
+      encryptedPersistence,
+      generation,
+      material.context,
+    );
     await encryptedPersistence.verifyVaultVmk(currentVmk, context);
     nextVmk = vaultProtocol.generateVmk();
     const nextRecoveryCode = await recoveryCodeProtocol.encode(nextVmk);
@@ -243,7 +260,7 @@ const rotateWithPasskey = async (
     await encryptedPersistence.clearPendingVaultRotation(idempotencyKey);
     return { recoveryCode: nextRecoveryCode };
   } finally {
-    currentVmk.fill(0);
+    currentVmk?.fill(0);
     nextVmk?.fill(0);
     serverShare?.fill(0);
   }

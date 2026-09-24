@@ -8,7 +8,7 @@ const VALUE_TONE_CLASS = {
   income: 'text-income',
   expense: 'text-expense',
   neutral: 'text-muted-foreground',
-} as const;
+};
 
 interface AnalyticsKpiRowProps {
   readonly kpis: AnalyticsKpi[];

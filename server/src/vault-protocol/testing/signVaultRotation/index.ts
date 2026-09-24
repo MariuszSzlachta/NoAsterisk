@@ -1,0 +1,1 @@
+export { signVaultRotation } from './signVaultRotation';

@@ -38,7 +38,6 @@ export const Calendar = (props: CalendarProps): React.JSX.Element => {
   const sharedProps = {
     disabled: props.disabled,
     locale: pl,
-    weekStartsOn: 1 as const,
     numberOfMonths: props.numberOfMonths,
     showOutsideDays: true,
     className: calendarClassName,
@@ -48,6 +47,7 @@ export const Calendar = (props: CalendarProps): React.JSX.Element => {
     return (
       <DayPicker
         mode="range"
+        weekStartsOn={1}
         selected={props.selected}
         onSelect={props.onSelect}
         {...sharedProps}
@@ -57,7 +57,8 @@ export const Calendar = (props: CalendarProps): React.JSX.Element => {
 
   return (
     <DayPicker
-      mode="single"
+    mode="single"
+    weekStartsOn={1}
       selected={props.selected}
       onSelect={props.onSelect}
       {...sharedProps}

@@ -244,7 +244,16 @@
       "dateTo": "To",
       "cancel": "Cancel",
       "save": "Save",
-      "create": "Create"
+      "create": "Create",
+      "errors": {
+        "nameRequired": "Enter a budget name.",
+        "limitRequired": "Enter a budget limit.",
+        "limitInvalid": "The limit must be a positive number.",
+        "goalInvalid": "The goal must be a positive number.",
+        "dateFromRequired": "Enter a start date.",
+        "dateToRequired": "Enter an end date.",
+        "dateRangeInvalid": "The end date must be after the start date."
+      }
     },
     "assign": {
       "title": "Assign transactions",

@@ -6,4 +6,4 @@ export const PHONE_CONTEXT_KEYWORDS = [
   'mobile',
   'sms',
   'kontakt',
-] as const;
+];

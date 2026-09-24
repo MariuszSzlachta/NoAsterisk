@@ -18,7 +18,7 @@ vi.mock('#features/admin-rules/store/useRulesStore', () => ({
 const EXISTING_RULE = {
   id: 'rule-1',
   keyword: 'BIEDRONKA',
-  matcherType: 'Contains' as const,
+  matcherType: 'Contains',
   categoryId: 'cat-groceries',
   priority: 5,
   createdAt: '2026-01-01T00:00:00.000Z',

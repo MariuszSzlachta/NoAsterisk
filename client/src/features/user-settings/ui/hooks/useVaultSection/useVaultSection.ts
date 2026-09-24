@@ -38,6 +38,7 @@ import {
   persistenceSyncMetadata,
 } from '#shared/adapters/persistence';
 import { currentHighSecurity } from '#shared/adapters/vault-protocol/current-high-security';
+import { rotateWithRecoveryAuthority } from '#shared/adapters/vault-protocol/dual-root-vault-rotation';
 import { passkeyUnlock } from '#shared/adapters/vault-protocol/passkey-unlock';
 import { vaultRotation } from '#shared/adapters/vault-protocol/vault-rotation';
 import { ApiError } from '#shared/api';
@@ -285,6 +286,18 @@ export const useVaultSection = (): UseVaultSectionResult => {
     if (code === null || code.length === 0 || isRotating || isSyncing) return;
     setIsRotating(true);
     void (async () => {
+      const bootstrap = await vaultBootstrap.get();
+      if (
+        bootstrap.status === 'available' &&
+        bootstrap.recoveryPublicKey !== undefined
+      ) {
+        await rotateWithRecoveryAuthority({
+          recoveryBackup: code,
+          confirmRecoveryBackup:
+            rotationRecoveryConfirmation.confirmRecoveryCode,
+        });
+        return;
+      }
       if (
         await vaultRotation.resumePending(
           rotationRecoveryConfirmation.confirmRecoveryCode,

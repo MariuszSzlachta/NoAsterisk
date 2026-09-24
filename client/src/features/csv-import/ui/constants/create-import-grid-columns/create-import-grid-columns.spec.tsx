@@ -18,9 +18,9 @@ describe('createImportGridColumns', () => {
       const { container } = render(
         renderer({
           value,
-          data: { amount: value } as never,
+          data: { amount: value } satisfies never,
           rowIndex: 0,
-        }) as React.ReactElement,
+        }) satisfies React.ReactElement,
       );
       return container.textContent ?? '';
     };
@@ -63,19 +63,19 @@ describe('createImportGridColumns', () => {
     });
 
     it('sorts numbers correctly', () => {
-      expect(comparator!(100, 50, {} as never, {} as never)).toBeGreaterThan(0);
-      expect(comparator!(-100, 50, {} as never, {} as never)).toBeLessThan(0);
-      expect(comparator!(50, 50, {} as never, {} as never)).toBe(0);
+      expect(comparator(100, 50, {} satisfies never, {} satisfies never)).toBeGreaterThan(0);
+      expect(comparator(-100, 50, {} satisfies never, {} satisfies never)).toBeLessThan(0);
+      expect(comparator(50, 50, {} satisfies never, {} satisfies never)).toBe(0);
     });
 
     it('sorts NaN values to the end (before any real number)', () => {
       // NaN is "less than" any real number → sorts last in descending
-      expect(comparator!(NaN, 100, {} as never, {} as never)).toBeLessThan(0);
-      expect(comparator!(100, NaN, {} as never, {} as never)).toBeGreaterThan(
+      expect(comparator(NaN, 100, {} satisfies never, {} satisfies never)).toBeLessThan(0);
+      expect(comparator(100, NaN, {} satisfies never, {} satisfies never)).toBeGreaterThan(
         0,
       );
       // Two NaN are equal
-      expect(comparator!(NaN, NaN, {} as never, {} as never)).toBe(0);
+      expect(comparator(NaN, NaN, {} satisfies never, {} satisfies never)).toBe(0);
     });
   });
 });

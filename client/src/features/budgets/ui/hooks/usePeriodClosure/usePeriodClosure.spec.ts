@@ -47,7 +47,7 @@ describe('usePeriodClosure', () => {
     });
   });
 
-  const getBudgetId = (): string => useBudgetsStore.getState().budgets[0]!.id;
+  const getBudgetId = (): string => useBudgetsStore.getState().budgets[0].id;
 
   it('initializes with carry_forward when remaining > 0', () => {
     const budgetId = getBudgetId();

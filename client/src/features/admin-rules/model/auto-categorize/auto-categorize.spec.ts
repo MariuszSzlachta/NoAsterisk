@@ -63,7 +63,7 @@ describe('matchesRule', () => {
   });
 
   it('returns false for unknown matcher type', () => {
-    const rule = buildRule({ matcherType: 'Unknown' as 'Contains' });
+    const rule = buildRule({ matcherType: 'Unknown' satisfies 'Contains' });
     expect(matchesRule('BIEDRONKA WARSZAWA', rule)).toBe(false);
   });
 });

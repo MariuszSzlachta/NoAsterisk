@@ -1,13 +1,13 @@
 // User Settings — ProfileSection Component
 
-import { Copy, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Copy, Lock } from 'lucide-react';
 
 import { useProfileSection } from '#features/user-settings/ui/hooks/useProfileSection';
+import { useWorkspaceClipboard } from '#features/user-settings/ui/hooks/useWorkspaceClipboard';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
 import { Input } from '#shared/ui/Input';
-
 
 export const ProfileSection = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -22,6 +22,10 @@ export const ProfileSection = (): React.JSX.Element => {
     handleSave,
     handleCancel,
   } = useProfileSection();
+
+  const { handleCopyWorkspaceId } = useWorkspaceClipboard(
+    profile?.workspaceId ?? '',
+  );
 
   if (isLoading || !profile) {
     return (
@@ -47,7 +51,10 @@ export const ProfileSection = (): React.JSX.Element => {
     year: 'numeric',
   });
 
-  const nameErrorMessage = nameError === 'TOO_LONG' ? 'Nazwa nie może przekraczać 50 znaków' : undefined;
+  const nameErrorMessage =
+    nameError === 'TOO_LONG'
+      ? 'Nazwa nie może przekraczać 50 znaków'
+      : undefined;
 
   return (
     <Card className="">
@@ -67,7 +74,9 @@ export const ProfileSection = (): React.JSX.Element => {
               {profile.role}
             </span>
           </div>
-          <span className="text-xs text-subtle">{t('settings.profile.memberSince', { date: memberSince })}</span>
+          <span className="text-xs text-subtle">
+            {t('settings.profile.memberSince', { date: memberSince })}
+          </span>
         </div>
       </div>
 
@@ -87,7 +96,9 @@ export const ProfileSection = (): React.JSX.Element => {
           className="bg-surface-3"
         />
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-muted-foreground">{t('settings.profile.workspaceId')}</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            {t('settings.profile.workspaceId')}
+          </label>
           <div className="flex items-center gap-2">
             <code className="flex-1 truncate rounded-md border border-border bg-surface-3 px-3 py-2 font-mono text-xs text-muted-foreground">
               {profile.workspaceId}
@@ -95,7 +106,7 @@ export const ProfileSection = (): React.JSX.Element => {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => navigator.clipboard.writeText(profile.workspaceId)}
+              onClick={handleCopyWorkspaceId}
               aria-label={t('settings.profile.copyWorkspaceId')}
             >
               <Copy size={14} />
@@ -104,7 +115,11 @@ export const ProfileSection = (): React.JSX.Element => {
         </div>
         <Input
           label={t('settings.profile.role')}
-          value={profile.role === 'Superuser' ? t('settings.profile.roleAdmin') : t('settings.profile.roleMember')}
+          value={
+            profile.role === 'Superuser'
+              ? t('settings.profile.roleAdmin')
+              : t('settings.profile.roleMember')
+          }
           readOnly
           className="bg-surface-3"
         />
@@ -112,7 +127,7 @@ export const ProfileSection = (): React.JSX.Element => {
 
       <div className="mt-4 flex items-center gap-2">
         <Button
-          onClick={() => void handleSave()}
+          onClick={handleSave}
           disabled={!isDirty || nameError !== undefined || isSaving}
         >
           {isSaving ? t('settings.profile.saving') : t('settings.profile.save')}

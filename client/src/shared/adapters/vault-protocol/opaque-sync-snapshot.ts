@@ -1,3 +1,5 @@
+import { decodeOpaqueSnapshotTransport } from '#shared/adapters/vault-protocol/opaque-sync-snapshot/decode-transport';
+import { encodeOpaqueSnapshotTransport } from '#shared/adapters/vault-protocol/opaque-sync-snapshot/encode-transport';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 
 interface SnapshotContext {
@@ -22,38 +24,6 @@ interface SyncSnapshotState {
   readonly revision: number;
   readonly envelopeHash?: string;
 }
-
-const MAX_TRANSPORT_BYTES = 6_000_000;
-
-const encodeTransport = (value: string): string => {
-  const bytes = new TextEncoder().encode(value);
-  if (bytes.length > MAX_TRANSPORT_BYTES)
-    throw new Error('Sync snapshot exceeds protocol limit');
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-  return btoa(binary);
-};
-
-const decodeTransport = (value: string): string => {
-  if (value.length > Math.ceil((MAX_TRANSPORT_BYTES * 4) / 3))
-    throw new Error('Sync snapshot exceeds protocol limit');
-  if (
-    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
-      value,
-    )
-  )
-    throw new Error('Invalid sync snapshot');
-  const decoded = atob(value);
-  const bytes = new Uint8Array(new ArrayBuffer(decoded.length));
-  decoded.split('').forEach((character, index) => {
-    bytes[index] = character.charCodeAt(0);
-  });
-  if (bytes.length > MAX_TRANSPORT_BYTES)
-    throw new Error('Sync snapshot exceeds protocol limit');
-  return new TextDecoder().decode(bytes);
-};
 
 const create = async (
   input: SyncSnapshotInput,
@@ -83,7 +53,7 @@ const create = async (
     input.signingKey,
   );
   return {
-    transport: encodeTransport(JSON.stringify(envelope)),
+    transport: encodeOpaqueSnapshotTransport(JSON.stringify(envelope)),
     envelope,
     state: {
       revision: envelope.header.revision,
@@ -99,7 +69,7 @@ const open = async (
   verifyKey: CryptoKey,
   state: SyncSnapshotState,
 ): Promise<string> => {
-  const parsed: unknown = JSON.parse(decodeTransport(transport));
+  const parsed: unknown = JSON.parse(decodeOpaqueSnapshotTransport(transport));
   if (
     typeof parsed !== 'object' ||
     parsed === null ||

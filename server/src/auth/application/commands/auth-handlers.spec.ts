@@ -309,7 +309,8 @@ describe('LoginHandler', () => {
     try {
       await handler.execute({ email: 'nobody@test.com', password: 'x' });
     } catch (e: unknown) {
-      const error = e as Error;
+      if (!(e instanceof Error)) throw e;
+      const error = e;
       expect(error.message).toBe('Invalid credentials');
       expect(error.message).not.toContain('email');
       expect(error.message).not.toContain('not found');
@@ -423,6 +424,38 @@ describe('RefreshHandler', () => {
 
     expect(token.sign).toHaveBeenCalledWith(
       expect.objectContaining({ authTime: 123456, amr: 'password' }),
+    );
+  });
+
+  it('does not carry the vault unlock grant into refreshed tokens', async () => {
+    token.verifyRefresh.mockReturnValue({
+      sub: 'user-1',
+      workspaceId: 'ws-1',
+      role: 'Member',
+      tokenVersion: 0,
+      vaultUnlockGrant: 'stale-grant',
+    });
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-1',
+        'test@test.com',
+        'hash',
+        UserRole.Member,
+        'ws-1',
+        new Date(),
+        undefined,
+        undefined,
+        0,
+      ),
+    );
+
+    await handler.execute('valid-refresh-token');
+
+    expect(token.sign).toHaveBeenCalledWith(
+      expect.not.objectContaining({ vaultUnlockGrant: expect.anything() }),
+    );
+    expect(token.signRefresh).toHaveBeenCalledWith(
+      expect.not.objectContaining({ vaultUnlockGrant: expect.anything() }),
     );
   });
 

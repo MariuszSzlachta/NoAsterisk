@@ -73,7 +73,7 @@ describe('useBudgetKpi', () => {
       limitCurrency: 'PLN',
       period: { type: 'monthly' },
     });
-    const archivedId = useBudgetsStore.getState().budgets[1]!.id;
+    const archivedId = useBudgetsStore.getState().budgets[1].id;
     useBudgetsStore.getState().archiveBudget(archivedId);
 
     const { result } = renderHook(() => useBudgetKpi());

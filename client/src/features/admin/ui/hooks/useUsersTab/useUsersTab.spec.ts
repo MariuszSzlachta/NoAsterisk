@@ -7,9 +7,9 @@ import { useUsersTab } from './useUsersTab';
 // ─── Mocks ───────────────────────────────────────────────────────
 
 const mockUsers = [
-  { id: '1', email: 'admin@test.pl', role: 'Superuser' as const, createdAt: '2024-01-01', hasVault: true },
-  { id: '2', email: 'user@test.pl', role: 'Member' as const, createdAt: '2026-08-01', hasVault: false },
-  { id: '3', email: 'blocked@test.pl', role: 'Blocked' as const, createdAt: '2026-08-03', hasVault: true },
+  { id: '1', email: 'admin@test.pl', role: 'Superuser', createdAt: '2024-01-01', hasVault: true },
+  { id: '2', email: 'user@test.pl', role: 'Member', createdAt: '2026-08-01', hasVault: false },
+  { id: '3', email: 'blocked@test.pl', role: 'Blocked', createdAt: '2026-08-03', hasVault: true },
 ];
 
 const mockToggleBlock = vi.fn();
@@ -54,7 +54,7 @@ describe('useUsersTab', () => {
     const { result } = renderHook(() => useUsersTab());
 
     act(() => {
-      getLoaded(result.current).handleSearchChange({ target: { value: 'admin' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleSearchChange({ target: { value: 'admin' } } satisfies React.ChangeEvent<HTMLInputElement>);
     });
 
     const data = getLoaded(result.current);
@@ -70,7 +70,7 @@ describe('useUsersTab', () => {
     });
 
     act(() => {
-      getLoaded(result.current).handleSearchChange({ target: { value: 'test' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleSearchChange({ target: { value: 'test' } } satisfies React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(getLoaded(result.current).currentPage).toBe(1);

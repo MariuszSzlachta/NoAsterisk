@@ -4,6 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '@auth/presentation/guards/roles.guard';
 import { PermissionGuard } from '@auth/presentation/guards/permission.guard';
@@ -18,17 +19,15 @@ const mockContext = (
   user?: unknown,
 ): ExecutionContext => {
   const request = { headers, user };
-  return {
-    switchToHttp: () => ({ getRequest: () => request }),
-    getHandler: () => ({}),
-    getClass: () => ({}),
-  } as unknown as ExecutionContext;
+  const context = new ExecutionContextHost([request]);
+  context.setType('http');
+  return context;
 };
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
   let token: jest.Mocked<TokenPort>;
-  let reflector: jest.Mocked<Reflector>;
+  let reflector: Reflector & { getAllAndOverride: jest.Mock };
   let userRepo: jest.Mocked<UserRepository>;
   let user: User;
 
@@ -39,9 +38,9 @@ describe('JwtAuthGuard', () => {
       verify: jest.fn(),
       verifyRefresh: jest.fn(),
     };
-    reflector = {
+    reflector = Object.assign(new Reflector(), {
       getAllAndOverride: jest.fn().mockReturnValue(false),
-    } as unknown as jest.Mocked<Reflector>;
+    });
     userRepo = {
       save: jest.fn(),
       findById: jest.fn(),
@@ -139,12 +138,12 @@ describe('JwtAuthGuard', () => {
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
-  let reflector: jest.Mocked<Reflector>;
+  let reflector: Reflector & { getAllAndOverride: jest.Mock };
 
   beforeEach(() => {
-    reflector = {
+    reflector = Object.assign(new Reflector(), {
       getAllAndOverride: jest.fn(),
-    } as unknown as jest.Mocked<Reflector>;
+    });
     guard = new RolesGuard(reflector);
   });
 
@@ -176,13 +175,13 @@ describe('RolesGuard', () => {
 
 describe('PermissionGuard', () => {
   let guard: PermissionGuard;
-  let reflector: jest.Mocked<Reflector>;
+  let reflector: Reflector & { getAllAndOverride: jest.Mock };
   let permissionRepo: jest.Mocked<PermissionRepository>;
 
   beforeEach(() => {
-    reflector = {
+    reflector = Object.assign(new Reflector(), {
       getAllAndOverride: jest.fn(),
-    } as unknown as jest.Mocked<Reflector>;
+    });
     permissionRepo = {
       save: jest.fn(),
       findByUserAndResource: jest.fn(),

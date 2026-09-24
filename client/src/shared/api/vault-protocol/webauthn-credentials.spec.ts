@@ -19,7 +19,7 @@ describe('webauthnCredentials', () => {
     const credential = {
       id: 'credential',
       response: {},
-    } as unknown as Credential;
+    } satisfies unknown satisfies Credential;
     vi.stubGlobal('navigator', { credentials: { create: vi.fn().mockResolvedValue(credential) } });
 
     await webauthnCredentials.register({ vaultId: 'vault-1', deviceId: 'device-1' });

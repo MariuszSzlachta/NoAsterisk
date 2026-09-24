@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
 
+import { useAssignTransaction } from '#features/budgets/ui/hooks/useAssignTransaction';
+import { useActionFactory } from '#shared/hooks/useActionFactory';
 import { formatAmount } from '#shared/lib';
 import { Button } from '#shared/ui/Button';
 import { Checkbox } from '#shared/ui/Checkbox';
 import { Input } from '#shared/ui/Input';
-
-import { useAssignTransaction } from '../hooks/useAssignTransaction';
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -18,7 +18,11 @@ interface AssignTransactionModalProps {
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTransactionModalProps): React.JSX.Element | null => {
+export const AssignTransactionModal = ({
+  isOpen,
+  budgetId,
+  onClose,
+}: AssignTransactionModalProps): React.JSX.Element | null => {
   const { t } = useTranslation();
   const {
     unassignedTransactions,
@@ -32,6 +36,10 @@ export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTran
     handleAssign,
     filteredCount,
   } = useAssignTransaction({ budgetId, onClose });
+
+  const { createActionHandler: createSelectionHandler } = useActionFactory(
+    handleToggleSelection,
+  );
 
   if (!isOpen) {
     return null;
@@ -57,7 +65,10 @@ export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTran
       <div className="relative flex w-full max-w-lg max-h-[80vh] flex-col rounded-lg border border-border bg-surface shadow-card">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border p-5">
-          <h2 id="assign-tx-title" className="text-lg font-semibold text-foreground">
+          <h2
+            id="assign-tx-title"
+            className="text-lg font-semibold text-foreground"
+          >
             {t('budgets.assign.title')}
           </h2>
           <button
@@ -122,15 +133,23 @@ export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTran
                 >
                   <Checkbox
                     checked={selectedIds.has(tx.id)}
-                    onChange={() => handleToggleSelection(tx.id)}
-                    aria-label={t('budgets.assign.selectTransaction', { description: tx.description })}
+                    onChange={createSelectionHandler(tx.id)}
+                    aria-label={t('budgets.assign.selectTransaction', {
+                      description: tx.description,
+                    })}
                   />
                   <div className="flex flex-1 items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-foreground">{tx.description}</span>
-                      <span className="text-xs text-muted-foreground">{tx.date}</span>
+                      <span className="text-xs font-medium text-foreground">
+                        {tx.description}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {tx.date}
+                      </span>
                     </div>
-                    <span className={`font-mono text-xs tabular-nums ${tx.amount >= 0 ? 'text-income' : 'text-expense'}`}>
+                    <span
+                      className={`font-mono text-xs tabular-nums ${tx.amount >= 0 ? 'text-income' : 'text-expense'}`}
+                    >
                       {formatAmount(tx.amount)} {tx.currency}
                     </span>
                   </div>
@@ -149,7 +168,11 @@ export const AssignTransactionModal = ({ isOpen, budgetId, onClose }: AssignTran
             <Button variant="secondary" onClick={onClose}>
               {t('budgets.assign.cancel')}
             </Button>
-            <Button variant="primary" onClick={handleAssign} disabled={!hasSelection}>
+            <Button
+              variant="primary"
+              onClick={handleAssign}
+              disabled={!hasSelection}
+            >
               {t('budgets.assign.submit', { count: selectedIds.size })}
             </Button>
           </div>

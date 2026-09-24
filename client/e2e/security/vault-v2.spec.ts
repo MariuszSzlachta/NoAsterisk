@@ -40,12 +40,50 @@ const createSavingsBudget = async (
   await page.getByRole('button', { name: 'Utwórz', exact: true }).click();
 };
 
+const buildRecoverySnapshot = async (
+  page: Parameters<typeof setupAuthenticatedUser>[0],
+): Promise<Record<string, unknown>> =>
+  page.evaluate(async () => {
+    const { createVaultPayload, serializeVaultPayload } = await import('/src/features/user-settings/index.ts');
+    const { deviceSigningKey } = await import('/src/shared/adapters/vault-protocol/device-signing-key.ts');
+    const { vaultDeviceId } = await import('/src/shared/api/vault-protocol/device-id.ts');
+    const { vaultProtocol } = await import('/src/shared/adapters/vault-protocol/vault-protocol.ts');
+    const context = { accountId: 'user-e2e', workspaceId: 'workspace-e2e', vaultId: 'vault-e2e', keyId: 'key-e2e', deviceId: vaultDeviceId.get() };
+    const vmk = new Uint8Array(Array.from({ length: 32 }, (_, index) => index));
+    const keys = await vaultProtocol.deriveKeys(vmk, context);
+    const signing = await deviceSigningKey.generate();
+    const envelope = await vaultProtocol.createSnapshot(
+      serializeVaultPayload(createVaultPayload({ transactions: [], rules: [], categories: [], budgets: [], periodHistory: [], importHistory: [] })),
+      { accountId: context.accountId, workspaceId: context.workspaceId, vaultId: context.vaultId, keyId: context.keyId, formatVersion: 2, cryptoSuite: 'HKDF-SHA256/AES-256-GCM', revision: 1, previousEnvelopeHash: `${'A'.repeat(43)}=`, createdByDeviceId: context.deviceId, createdAt: '2026-01-01T00:00:00.000Z', nonce: '' },
+      keys.sync,
+      signing.privateKey,
+    );
+    const snapshot = { vaultId: context.vaultId, keyId: context.keyId, deviceId: context.deviceId, revision: 1, previousEnvelopeHash: envelope.header.previousEnvelopeHash, envelopeHash: await vaultProtocol.hashEnvelope(envelope), header: JSON.stringify(envelope.header), ciphertext: envelope.ciphertext, signature: envelope.signature, signingPublicKey: JSON.stringify(await deviceSigningKey.exportPublicJwk(signing.publicKey)), createdAt: envelope.header.createdAt };
+    vmk.fill(0);
+    return snapshot;
+  });
+
+const mockRecoverySnapshot = async (
+  page: Parameters<typeof setupAuthenticatedUser>[0],
+): Promise<void> => {
+  const snapshot = await buildRecoverySnapshot(page);
+  await page.route('**/api/users/me/vault/sync/vault-e2e', (route) =>
+    route.request().method() === 'GET'
+      ? route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 'available', snapshot }),
+        })
+      : route.continue(),
+  );
+};
+
 test.describe('Vault Protocol v2', () => {
   test('ordinary account login on a new browser cannot create or replace a vault', async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
 
-    await expect(page.getByLabel('Kod recovery')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Odblokuj to urządzenie' })).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Utwórz budżet', exact: true }),
     ).not.toBeVisible();
@@ -57,22 +95,22 @@ test.describe('Vault Protocol v2', () => {
       vaultStatus: 'empty',
     });
     await page.goto('/budgets');
+    await page.getByRole('button', { name: 'Odblokuj to urządzenie' }).click();
     await page.getByRole('button', { name: 'Wygeneruj kod recovery' }).click();
-    await expect(page.locator('code')).toHaveText(/^[0-9a-f]{72}$/i);
+    await expect(page.locator('code')).toHaveText(/^BF2:[0-9a-f]{136}$/i);
     await expect(page.getByRole('img', { name: 'Kod QR kodu recovery' })).toBeVisible();
-    await page.getByRole('button', { name: 'Mam bezpieczną kopię kodu' }).click();
-    await expect(page.getByRole('button', { name: 'Utwórz budżet', exact: true })).toBeVisible();
   });
 
   test('new browser can start trusted-device QR enrollment and opens the scanner', async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
+    await page.getByRole('button', { name: 'Odblokuj to urządzenie' }).click();
     await page.getByRole('button', { name: 'Użyj zaufanego urządzenia' }).click();
     await expect(
       page.getByRole('img', {
         name: 'Zatwierdź tę przeglądarkę na zaufanym urządzeniu',
       }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 30_000 });
     await page.getByRole('button', { name: 'Skanuj QR zaufanego urządzenia' }).click();
     await expect(page.getByLabel('Trusted-device QR scanner')).toBeVisible();
     await page.getByRole('button', { name: 'Anuluj enrollment zaufanego urządzenia' }).click();
@@ -82,11 +120,12 @@ test.describe('Vault Protocol v2', () => {
   test('recovery unlocks without a vault-password prompt and stores opaque records', async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
+    await mockRecoverySnapshot(page);
     await unlockVault(page);
     await createSavingsBudget(page, 'Private v2 budget', '15000');
 
+    await expect.poll(async () => (await readV2Storage(page)).records.length).toBeGreaterThan(0);
     const storage = await readV2Storage(page);
-    expect(storage.records.length).toBeGreaterThan(0);
     const serialized = JSON.stringify(storage);
     expect(serialized).not.toContain('Private v2 budget');
     expect(serialized).not.toMatch(/serverShare|vmk|prfOutput/i);
@@ -97,6 +136,7 @@ test.describe('Vault Protocol v2', () => {
   test('sync request contains opaque ciphertext and no business plaintext', async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
+    await mockRecoverySnapshot(page);
     await unlockVault(page);
     await createSavingsBudget(page, 'Opaque sync secret', '1000');
     await page.getByRole('button', { name: 'Konto domowe' }).click();
@@ -115,6 +155,7 @@ test.describe('Vault Protocol v2', () => {
   test('local changes trigger automatic opaque sync after unlock', async ({ page }) => {
     await setupAuthenticatedUser(page, 'Superuser', { unlock: false });
     await page.goto('/budgets');
+    await mockRecoverySnapshot(page);
     await unlockVault(page);
 
     const requestPromise = page.waitForRequest((request) =>

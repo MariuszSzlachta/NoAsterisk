@@ -8,6 +8,14 @@ import type {
 } from '@vault-protocol/domain/ports/vault-enrollment.repository';
 import { trustedDeviceProof } from '@vault-protocol/infrastructure/verify-trusted-device-proof';
 
+const getOldDeviceId = (proof: unknown): string | undefined => {
+  if (typeof proof !== 'object' || proof === null || Array.isArray(proof))
+    return undefined;
+  if (!('oldDeviceId' in proof) || typeof proof.oldDeviceId !== 'string')
+    return undefined;
+  return proof.oldDeviceId;
+};
+
 interface PendingEnrollment {
   readonly userId: string;
   readonly workspaceId: string;
@@ -32,8 +40,8 @@ interface DeviceState {
 }
 
 const TTL_MS = 60_000;
-const PROTOCOL_VERSION = 2 as const;
-const CRYPTO_SUITE = 'HKDF-SHA256/AES-256-GCM' as const;
+const PROTOCOL_VERSION = 2;
+const CRYPTO_SUITE = 'HKDF-SHA256/AES-256-GCM';
 
 const deviceKey = (
   userId: string,
@@ -105,14 +113,9 @@ export class InMemoryVaultProtocolState {
       } catch {
         throw new Error('Invalid trusted-device approval');
       }
-      if (
-        typeof proof !== 'object' ||
-        proof === null ||
-        Array.isArray(proof) ||
-        typeof (proof as { oldDeviceId?: unknown }).oldDeviceId !== 'string'
-      )
+      const oldDeviceId = getOldDeviceId(proof);
+      if (oldDeviceId === undefined)
         throw new Error('Invalid trusted-device approval');
-      const oldDeviceId = (proof as { oldDeviceId: string }).oldDeviceId;
       const approver = [...this.completed.values()].find(
         (device) =>
           device.userId === request.userId &&

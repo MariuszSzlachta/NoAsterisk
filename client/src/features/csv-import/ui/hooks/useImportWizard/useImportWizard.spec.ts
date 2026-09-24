@@ -143,7 +143,7 @@ describe('useImportWizard', () => {
 
       // Resolve first
       await act(async () => {
-        resolvePromise!({
+        resolvePromise({
           headers: ['a'],
           rows: [],
           separator: ',',
@@ -253,7 +253,7 @@ describe('useImportWizard', () => {
 
       // Clean up — resolve first call
       await act(async () => {
-        resolveTransform!();
+        resolveTransform();
       });
 
       // Now step advanced exactly once

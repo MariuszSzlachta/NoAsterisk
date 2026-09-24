@@ -5,7 +5,7 @@ import type { AnonymizationGridRow } from '#features/csv-import/ui/hooks/useAnon
 export const AmountCellRenderer = ({
   value,
 }: CellRendererParams<AnonymizationGridRow>): React.JSX.Element => {
-  const amount = value as number;
+  const amount = value;
   if (
     typeof amount !== 'number' ||
     Number.isNaN(amount) ||

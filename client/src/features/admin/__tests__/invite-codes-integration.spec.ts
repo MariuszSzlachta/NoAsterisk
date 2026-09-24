@@ -10,9 +10,9 @@ const mockGenerate = vi.fn();
 const mockDeleteCode = vi.fn().mockResolvedValue({ id: 'c-1', deleted: true });
 
 const MOCK_CODES = [
-  { id: 'c-1', code: 'ABC-111', status: 'Available' as const, createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
-  { id: 'c-2', code: 'DEF-222', status: 'Used' as const, createdAt: '2026-08-02', expiresAt: '2026-09-01', usedBy: 'user@x.pl', usedAt: '2026-08-05' },
-  { id: 'c-3', code: 'GHI-333', status: 'Expired' as const, createdAt: '2026-07-01', expiresAt: '2026-07-15', usedBy: null, usedAt: null },
+  { id: 'c-1', code: 'ABC-111', status: 'Available', createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
+  { id: 'c-2', code: 'DEF-222', status: 'Used', createdAt: '2026-08-02', expiresAt: '2026-09-01', usedBy: 'user@x.pl', usedAt: '2026-08-05' },
+  { id: 'c-3', code: 'GHI-333', status: 'Expired', createdAt: '2026-07-01', expiresAt: '2026-07-15', usedBy: null, usedAt: null },
 ];
 
 vi.mock('#features/admin/api/useInviteCodesQuery', () => ({
@@ -49,7 +49,7 @@ describe('Invite Codes — integration flow', () => {
     const { result } = renderHook(() => useInviteCodesTab());
 
     act(() => {
-      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-12-31' } } as React.ChangeEvent<HTMLInputElement>);
+      getLoaded(result.current).handleExpiryChange({ target: { value: '2026-12-31' } } satisfies React.ChangeEvent<HTMLInputElement>);
     });
     expect(getLoaded(result.current).expiryDate).toBe('2026-12-31');
 

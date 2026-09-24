@@ -1,3 +1,5 @@
+import type { RotationTranscriptSnapshot } from '#shared/adapters/vault-protocol/rotation-transcript';
+
 export interface VaultV2RecordEnvelope {
   readonly id: string;
   readonly collection: string;
@@ -14,6 +16,8 @@ export interface VaultV2RotationJournal {
   readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
   readonly envelope: string;
   readonly passkeyEnvelope?: string;
+  /** Public transcript context; envelopes and roots remain separately encrypted. */
+  readonly transcript?: RotationTranscriptSnapshot;
   readonly currentVmkEnvelope: {
     readonly header: Record<string, unknown>;
     readonly ciphertext: string;

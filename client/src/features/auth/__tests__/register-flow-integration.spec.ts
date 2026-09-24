@@ -42,14 +42,14 @@ vi.mock('#shared/api/auth-tokens', () => ({
 const STRONG_PASSWORD = 'P@ssw0rd!x';
 
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-  ({ target: { value } } as ChangeEvent<HTMLInputElement>);
+  ({ target: { value } } satisfies ChangeEvent<HTMLInputElement>);
 
 const buildSubmitEvent = (): FormEvent =>
-  ({ preventDefault: vi.fn() } as unknown as FormEvent);
+  ({ preventDefault: vi.fn() } satisfies unknown satisfies FormEvent);
 
 const buildAuthResponse = () => ({
   accessToken: 'new-user-token',
-  user: { id: 'u-new', email: 'new@user.com', role: 'Member' as const, workspaceId: 'ws-2' },
+  user: { id: 'u-new', email: 'new@user.com', role: 'Member', workspaceId: 'ws-2' },
 });
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -68,8 +68,8 @@ describe('Register flow — integration', () => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -149,8 +149,8 @@ describe('Register flow — integration', () => {
       result.current.handleEmailChange(buildChangeEvent('existing@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -174,8 +174,8 @@ describe('Register flow — integration', () => {
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleInviteCodeChange(buildChangeEvent('BADCODE'));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -195,8 +195,8 @@ describe('Register flow — integration', () => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -229,8 +229,8 @@ describe('Register flow — integration', () => {
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleInviteCodeChange(buildChangeEvent('ABC123'));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -238,7 +238,7 @@ describe('Register flow — integration', () => {
     });
 
     expect(mockPost).toHaveBeenCalledTimes(1);
-    const [, callBody] = mockPost.mock.calls[0] as [string, Record<string, unknown>];
+    const [, callBody] = mockPost.mock.calls[0] satisfies [string, Record<string, unknown>];
     expect(callBody).toEqual({
       email: 'new@user.com',
       password: STRONG_PASSWORD,
@@ -257,8 +257,8 @@ describe('Register flow — integration', () => {
       result.current.handleEmailChange(buildChangeEvent('new@user.com'));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {
@@ -266,7 +266,7 @@ describe('Register flow — integration', () => {
     });
 
     expect(mockPost).toHaveBeenCalledTimes(1);
-    const [, callBody] = mockPost.mock.calls[0] as [string, Record<string, unknown>];
+    const [, callBody] = mockPost.mock.calls[0] satisfies [string, Record<string, unknown>];
     expect(callBody).not.toHaveProperty('inviteCode');
     expect(callBody).toEqual({ email: 'new@user.com', password: STRONG_PASSWORD, privacyPolicyVersion: 'privacy-alpha-1', termsVersion: 'terms-alpha-1' });
   });
@@ -280,8 +280,8 @@ describe('Register flow — integration', () => {
       result.current.handleEmailChange(buildChangeEvent('  NEW@User.COM  '));
       result.current.handlePasswordChange(buildChangeEvent(STRONG_PASSWORD));
       result.current.handleConfirmPasswordChange(buildChangeEvent(STRONG_PASSWORD));
-      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
-      result.current.handleTermsAcceptedChange({ target: { checked: true } } as ChangeEvent<HTMLInputElement>);
+      result.current.handlePrivacyAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
+      result.current.handleTermsAcceptedChange({ target: { checked: true } } satisfies ChangeEvent<HTMLInputElement>);
     });
 
     await act(async () => {

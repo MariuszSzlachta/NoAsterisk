@@ -245,7 +245,16 @@
       "dateTo": "Do",
       "cancel": "Anuluj",
       "save": "Zapisz",
-      "create": "Utwórz"
+      "create": "Utwórz",
+      "errors": {
+        "nameRequired": "Podaj nazwę budżetu.",
+        "limitRequired": "Podaj limit budżetu.",
+        "limitInvalid": "Limit musi być dodatnią liczbą.",
+        "goalInvalid": "Cel musi być dodatnią liczbą.",
+        "dateFromRequired": "Podaj datę rozpoczęcia.",
+        "dateToRequired": "Podaj datę zakończenia.",
+        "dateRangeInvalid": "Data zakończenia musi być późniejsza od rozpoczęcia."
+      }
     },
     "assign": {
       "title": "Przypisz transakcje",

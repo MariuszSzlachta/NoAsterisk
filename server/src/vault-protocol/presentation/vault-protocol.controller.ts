@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '@shared/auth/current-user.decorator';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
@@ -45,8 +45,10 @@ interface VaultServerShareResponse {
 @Controller('users/me/vault')
 export class VaultProtocolController {
   constructor(
-    private readonly issueServerShare: IssueServerShareHandler,
-    private readonly rotateVault: RotateVaultHandler,
+    @Inject(IssueServerShareHandler)
+    private readonly issueServerShare: Pick<IssueServerShareHandler, 'execute'>,
+    @Inject(RotateVaultHandler)
+    private readonly rotateVault: Pick<RotateVaultHandler, 'execute'>,
   ) {}
 
   @Post('server-share')

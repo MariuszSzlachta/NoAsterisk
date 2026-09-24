@@ -82,7 +82,11 @@ const put = async (
   snapshot: SyncSnapshot,
   expectedRevision: number,
   signal?: AbortSignal,
-): Promise<{ readonly status: 'saved'; readonly revision: number; readonly envelopeHash: string }> => {
+): Promise<{
+  readonly status: 'saved';
+  readonly revision: number;
+  readonly envelopeHash: string;
+}> => {
   if (!Number.isSafeInteger(expectedRevision) || expectedRevision < 0)
     throw new Error('Invalid sync revision');
   const response = await apiClient.put<unknown, SyncSnapshot>(
@@ -99,8 +103,11 @@ const put = async (
     response.status !== 'saved' ||
     !('revision' in response) ||
     typeof response.revision !== 'number' ||
+    !Number.isSafeInteger(response.revision) ||
+    response.revision < 1 ||
     !('envelopeHash' in response) ||
-    typeof response.envelopeHash !== 'string'
+    typeof response.envelopeHash !== 'string' ||
+    response.envelopeHash.length === 0
   )
     throw new Error('Invalid sync snapshot response');
   return {

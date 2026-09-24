@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { generateAuthenticationOptions } from '@simplewebauthn/server';
 import { WEBAUTHN_CHALLENGE_STORE } from '@vault-protocol/domain/ports/webauthn-challenge.token';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
 import {
@@ -18,6 +17,10 @@ import {
 } from '@vault-protocol/domain/ports/webauthn-credential.repository';
 import { WEBAUTHN_VERIFIER } from '@vault-protocol/domain/ports/webauthn-verifier.token';
 import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
+import {
+  WEBAUTHN_AUTHENTICATION_OPTIONS_PORT,
+  type WebauthnAuthenticationOptionsPort,
+} from '@vault-protocol/domain/ports/webauthn-authentication-options.port';
 import { webauthnUserHandle } from '@vault-protocol/application/webauthn-user-handle';
 
 const LOGIN_DEVICE_ID = 'auth-passkey-login';
@@ -68,27 +71,24 @@ export class PasskeyLoginHandler {
     private readonly credentials: WebauthnCredentialRepository,
     @Inject(WEBAUTHN_VERIFIER)
     private readonly verifier: WebauthnVerifierPort,
+    @Inject(WEBAUTHN_AUTHENTICATION_OPTIONS_PORT)
+    private readonly authenticationOptions: WebauthnAuthenticationOptionsPort,
     @Inject(PASSKEY_TOKEN_PORT) private readonly token: PasskeyTokenPort,
   ) {}
 
   async createOptions(email: string, _deviceId?: string) {
     const user = await this.users.findByEmail(email);
     if (user === undefined || user.role === 'Blocked')
-      return generateAuthenticationOptions({
-        rpID: rpId(),
-        userVerification: 'required',
-      });
+      return this.authenticationOptions.createOptions({ rpId: rpId() });
     const challenge = await this.challenges.create({
       userId: user.id,
       deviceId: LOGIN_DEVICE_ID,
       type: 'login',
     });
-    const options = await generateAuthenticationOptions({
-      rpID: rpId(),
+    return this.authenticationOptions.createOptions({
+      rpId: rpId(),
       challenge: challenge.challenge,
-      userVerification: 'required',
     });
-    return options;
   }
 
   async verify(

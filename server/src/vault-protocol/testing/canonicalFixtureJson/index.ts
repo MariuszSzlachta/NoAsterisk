@@ -1,0 +1,1 @@
+export { canonicalFixtureJson } from './canonicalFixtureJson';

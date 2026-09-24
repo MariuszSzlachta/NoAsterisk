@@ -7,14 +7,14 @@ describe('MERGEABLE_FIELDS', () => {
     expect(MERGEABLE_FIELDS.size).toBe(4);
   });
 
-  it.each(['title', 'source', 'recipient', 'counterpart'] as const)(
+  it.each(['title', 'source', 'recipient', 'counterpart'])(
     'contains "%s"',
     (field) => {
       expect(MERGEABLE_FIELDS.has(field)).toBe(true);
     },
   );
 
-  it.each(['date', 'amount', 'currency', 'balance', 'debit', 'credit'] as const)(
+  it.each(['date', 'amount', 'currency', 'balance', 'debit', 'credit'])(
     'does not contain "%s"',
     (field) => {
       expect(MERGEABLE_FIELDS.has(field)).toBe(false);

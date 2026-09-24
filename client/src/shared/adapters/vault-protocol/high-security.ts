@@ -1,8 +1,8 @@
-import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
-import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
-import { vaultSecurity } from '#shared/api/vault-protocol/vault-security';
 import { encryptedPersistence } from '#shared/adapters/persistence';
 import { recoveryCode } from '#shared/adapters/vault-protocol/recovery-code';
+import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
+import { vaultProtocolConstants } from '#shared/adapters/vault-protocol/vault-protocol-constants';
+import { vaultSecurity } from '#shared/api/vault-protocol/vault-security';
 
 interface HighSecurityContext {
   readonly accountId: string;
@@ -36,6 +36,7 @@ const enable = async (input: {
   readonly deviceEnvelope: unknown;
   readonly prfKey: CryptoKey;
   readonly recoveryCode: string;
+  readonly assertCurrent?: () => void;
 }): Promise<void> => {
   const deviceContext = {
     accountId: input.context.accountId,
@@ -67,12 +68,14 @@ const enable = async (input: {
       input.context,
       vaultProtocolConstants.passkeyWrapPurpose,
     );
+    input.assertCurrent?.();
     await vaultSecurity.enableHighSecurity({
       vaultId: input.context.vaultId,
       keyId: input.context.keyId,
       deviceId: input.context.deviceId,
       passkeyEnvelope: JSON.stringify(passkeyEnvelope),
     });
+    input.assertCurrent?.();
     await encryptedPersistence.removeVaultLocalShare(input.context);
   } finally {
     vmk.fill(0);
@@ -86,6 +89,7 @@ const disable = async (input: {
   readonly passkeyEnvelope: unknown;
   readonly prfKey: CryptoKey;
   readonly recoveryCode: string;
+  readonly assertCurrent?: () => void;
 }): Promise<void> => {
   const vmk = await vaultProtocol.unwrapVmk(
     input.passkeyEnvelope,
@@ -117,12 +121,14 @@ const disable = async (input: {
       deviceContext,
       vaultProtocolConstants.deviceWrapPurpose,
     );
+    input.assertCurrent?.();
     await vaultSecurity.disableHighSecurity({
       vaultId: input.context.vaultId,
       keyId: input.context.keyId,
       deviceId: input.context.deviceId,
       deviceEnvelope: JSON.stringify(deviceEnvelope),
     });
+    input.assertCurrent?.();
     await encryptedPersistence.storeVaultLocalShare(deviceContext, localShare);
   } finally {
     vmk.fill(0);

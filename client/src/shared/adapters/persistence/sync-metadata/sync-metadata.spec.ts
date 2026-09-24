@@ -15,13 +15,14 @@ describe('persistenceSyncMetadata', () => {
     persistenceSyncMetadata.rememberRevision(3);
     expect(persistenceSyncMetadata.get().observedRevision).toBe(3);
 
-    persistenceSyncMetadata.markSynced(4, '2026-09-09T12:00:00.000Z');
+    persistenceSyncMetadata.markSynced(4, '2026-09-09T12:00:00.000Z', 'hash-4');
     expect(persistenceSyncMetadata.get()).toEqual({
       observedRevision: 4,
       lastSuccessfulSyncRevision: 4,
       lastSuccessfulSyncAt: '2026-09-09T12:00:00.000Z',
       isDirty: false,
       mutationVersion: 1,
+      highWaterEnvelopeHash: 'hash-4',
     });
     expect(
       localStorage.getItem('budget-sync-metadata:anonymous'),
@@ -80,6 +81,52 @@ describe('persistenceSyncMetadata', () => {
 
     expect(freshModule.persistenceSyncMetadata.get()).toEqual({
       observedRevision: undefined,
+      lastSuccessfulSyncRevision: undefined,
+      lastSuccessfulSyncAt: undefined,
+      isDirty: false,
+      mutationVersion: 0,
+    });
+  });
+
+  it('does not hydrate unsafe revisions or empty high-water hashes', async () => {
+    localStorage.setItem(
+      'budget-sync-metadata:anonymous',
+      JSON.stringify({
+        observedRevision: -1,
+        lastSuccessfulSyncRevision: 1.5,
+        highWaterEnvelopeHash: '',
+      }),
+    );
+
+    vi.resetModules();
+    const freshModule =
+      await import('#shared/adapters/persistence/sync-metadata/sync-metadata');
+
+    expect(freshModule.persistenceSyncMetadata.get()).toEqual({
+      observedRevision: undefined,
+      lastSuccessfulSyncRevision: undefined,
+      lastSuccessfulSyncAt: undefined,
+      isDirty: false,
+      mutationVersion: 0,
+    });
+  });
+
+  it('does not hydrate a successful revision above the observed checkpoint', async () => {
+    localStorage.setItem(
+      'budget-sync-metadata:anonymous',
+      JSON.stringify({
+        observedRevision: 3,
+        lastSuccessfulSyncRevision: 4,
+        lastSuccessfulSyncAt: '2026-09-09T12:00:00.000Z',
+      }),
+    );
+
+    vi.resetModules();
+    const freshModule =
+      await import('#shared/adapters/persistence/sync-metadata/sync-metadata');
+
+    expect(freshModule.persistenceSyncMetadata.get()).toEqual({
+      observedRevision: 3,
       lastSuccessfulSyncRevision: undefined,
       lastSuccessfulSyncAt: undefined,
       isDirty: false,
@@ -151,5 +198,52 @@ describe('persistenceSyncMetadata', () => {
     expect(
       localStorage.getItem('budget-sync-metadata:user-b:workspace-b'),
     ).toContain('true');
+  });
+
+  it('rejects a fork at the current revision without lowering the checkpoint', () => {
+    persistenceSyncMetadata.markSynced(
+      4,
+      '2026-09-09T12:00:00.000Z',
+      'trusted-hash',
+    );
+
+    persistenceSyncMetadata.markSynced(
+      4,
+      '2026-09-09T12:01:00.000Z',
+      'forked-hash',
+    );
+
+    expect(persistenceSyncMetadata.get()).toMatchObject({
+      observedRevision: 4,
+      highWaterEnvelopeHash: 'trusted-hash',
+    });
+  });
+
+  it('does not advance the checkpoint when a newer acknowledgement omits its hash', () => {
+    persistenceSyncMetadata.markSynced(
+      4,
+      '2026-09-09T12:00:00.000Z',
+      'trusted-hash',
+    );
+
+    persistenceSyncMetadata.markSynced(5, '2026-09-09T12:01:00.000Z');
+
+    expect(persistenceSyncMetadata.get()).toMatchObject({
+      observedRevision: 4,
+      highWaterEnvelopeHash: 'trusted-hash',
+    });
+  });
+
+  it('ignores unsafe checkpoint inputs', () => {
+    persistenceSyncMetadata.rememberRevision(-1);
+    persistenceSyncMetadata.rememberRevision(1.5);
+    persistenceSyncMetadata.markSynced(1, '2026-09-09T12:00:00.000Z', '');
+
+    expect(persistenceSyncMetadata.get()).toMatchObject({
+      observedRevision: undefined,
+    });
+    expect(persistenceSyncMetadata.get()).not.toHaveProperty(
+      'highWaterEnvelopeHash',
+    );
   });
 });

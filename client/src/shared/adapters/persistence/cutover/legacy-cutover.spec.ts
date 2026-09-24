@@ -42,6 +42,10 @@ describe('legacy financial-data cutover', () => {
       [databaseName],
       ['legacy-sync'],
       storage,
+      {
+        allowlistedDatabaseNames: [databaseName],
+        allowlistedStorageKeys: ['legacy-sync'],
+      },
     );
 
     expect(result.status).toBe('completed');
@@ -49,7 +53,9 @@ describe('legacy financial-data cutover', () => {
     expect(storage.values.get('budgetflow-v2-cutover-marker:default')).toBe(
       'v2-reset-complete',
     );
-    expect(storage.broadcast).toHaveBeenCalledWith({ type: 'database-deleting' });
+    expect(storage.broadcast).toHaveBeenCalledWith({
+      type: 'database-deleting',
+    });
     expect(await indexedDB.databases()).not.toContainEqual(
       expect.objectContaining({ name: databaseName }),
     );
@@ -58,7 +64,10 @@ describe('legacy financial-data cutover', () => {
   it('is idempotent and does not touch unrelated storage', async () => {
     const storage = buildStorage();
     storage.values.set('unrelated', 'keep');
-    storage.values.set('budgetflow-v2-cutover-marker:default', 'v2-reset-complete');
+    storage.values.set(
+      'budgetflow-v2-cutover-marker:default',
+      'v2-reset-complete',
+    );
 
     const result = await performLegacyCutover(
       ['not-created'],
@@ -86,14 +95,51 @@ describe('legacy financial-data cutover', () => {
     ).rejects.toThrow('exact allowlisted names');
     expect(lockOnFailure).toHaveBeenCalledOnce();
     await expect(
-      performLegacyCutover(['legacy-db'], ['legacy-key'], storage, { dryRun: true }),
+      performLegacyCutover(['legacy-db'], ['legacy-key'], storage, {
+        dryRun: true,
+      }),
     ).resolves.toEqual({
       status: 'dry-run',
       deletedDatabases: ['legacy-db'],
       deletedStorageKeys: ['legacy-key'],
     });
-    expect(storage.values.get('budgetflow-v2-cutover-marker:default')).toBeUndefined();
+    expect(
+      storage.values.get('budgetflow-v2-cutover-marker:default'),
+    ).toBeUndefined();
     expect(storage.broadcast).not.toHaveBeenCalled();
+  });
+
+  it('refuses destructive cutover without both explicit allowlists', async () => {
+    const storage = buildStorage();
+    storage.values.set('legacy-sync', 'present');
+
+    await expect(
+      performLegacyCutover(['legacy-db'], ['legacy-sync'], storage),
+    ).rejects.toThrow('explicit database and storage allowlists');
+    expect(storage.values.get('legacy-sync')).toBe('present');
+    expect(storage.broadcast).not.toHaveBeenCalled();
+  });
+
+  it('protects the active v2 database, checkpoint metadata, marker, and device identity', async () => {
+    const storage = buildStorage();
+
+    await expect(
+      performLegacyCutover(
+        ['budgetflow-encrypted-financial-data:user:workspace'],
+        [],
+        storage,
+        { dryRun: true },
+      ),
+    ).rejects.toThrow(/protected/);
+    for (const target of [
+      'budget-sync-metadata:user:workspace',
+      'budgetflow-v2-cutover-marker:default',
+      'budgetflow:vault-v2:device-id',
+    ]) {
+      await expect(
+        performLegacyCutover([], [target], storage, { dryRun: true }),
+      ).rejects.toThrow(/protected/);
+    }
   });
 
   it('locks on a destructive failure, leaves no marker, and permits a bounded retry', async () => {
@@ -103,12 +149,12 @@ describe('legacy financial-data cutover', () => {
       indexedDb: {
         deleteDatabase: vi.fn(() => {
           const request: {
-            onsuccess?: () => void;
-            onerror?: () => void;
-            onblocked?: () => void;
-          } = {};
-          queueMicrotask(() => request.onerror?.());
-          return request as IDBOpenDBRequest;
+            onsuccess: ((event: Event) => void) | null;
+            onerror: ((event: Event) => void) | null;
+            onblocked: ((event: Event) => void) | null;
+          } = { onsuccess: null, onerror: null, onblocked: null };
+          queueMicrotask(() => request.onerror?.(new Event('error')));
+          return request;
         }),
       },
       localStorage: {
@@ -121,9 +167,16 @@ describe('legacy financial-data cutover', () => {
     const lockOnFailure = vi.fn();
 
     await expect(
-      performLegacyCutover(['legacy-restore-a-db'], ['legacy-restore-a-key'], failedStorage, {
-        lockOnFailure,
-      }),
+      performLegacyCutover(
+        ['legacy-restore-a-db'],
+        ['legacy-restore-a-key'],
+        failedStorage,
+        {
+          lockOnFailure,
+          allowlistedDatabaseNames: ['legacy-restore-a-db'],
+          allowlistedStorageKeys: ['legacy-restore-a-key'],
+        },
+      ),
     ).rejects.toThrow('Legacy database deletion failed');
     expect(lockOnFailure).toHaveBeenCalledOnce();
     expect(values.get('budgetflow-v2-cutover-marker:default')).toBeUndefined();
@@ -134,12 +187,12 @@ describe('legacy financial-data cutover', () => {
       indexedDb: {
         deleteDatabase: vi.fn(() => {
           const request: {
-            onsuccess?: () => void;
-            onerror?: () => void;
-            onblocked?: () => void;
-          } = {};
-          queueMicrotask(() => request.onsuccess?.());
-          return request as IDBOpenDBRequest;
+            onsuccess: ((event: Event) => void) | null;
+            onerror: ((event: Event) => void) | null;
+            onblocked: ((event: Event) => void) | null;
+          } = { onsuccess: null, onerror: null, onblocked: null };
+          queueMicrotask(() => request.onsuccess?.(new Event('success')));
+          return request;
         }),
         databases: vi.fn(async () => []),
       },
@@ -147,10 +200,20 @@ describe('legacy financial-data cutover', () => {
     values.set('legacy-restore-a-key', 'present');
 
     await expect(
-      performLegacyCutover(['legacy-restore-a-db'], ['legacy-restore-a-key'], retryStorage),
+      performLegacyCutover(
+        ['legacy-restore-a-db'],
+        ['legacy-restore-a-key'],
+        retryStorage,
+        {
+          allowlistedDatabaseNames: ['legacy-restore-a-db'],
+          allowlistedStorageKeys: ['legacy-restore-a-key'],
+        },
+      ),
     ).resolves.toMatchObject({ status: 'completed' });
     expect(values.get('legacy-restore-a-key')).toBeUndefined();
-    expect(values.get('budgetflow-v2-cutover-marker:default')).toBe('v2-reset-complete');
+    expect(values.get('budgetflow-v2-cutover-marker:default')).toBe(
+      'v2-reset-complete',
+    );
   });
 
   it('rehearses two isolated restore inventories without sharing markers or control-plane data', async () => {
@@ -163,9 +226,13 @@ describe('legacy financial-data cutover', () => {
         values,
         indexedDb: {
           deleteDatabase: vi.fn(() => {
-            const request: { onsuccess?: () => void } = {};
-            queueMicrotask(() => request.onsuccess?.());
-            return request as IDBOpenDBRequest;
+            const request: {
+              onsuccess: ((event: Event) => void) | null;
+              onerror: ((event: Event) => void) | null;
+              onblocked: ((event: Event) => void) | null;
+            } = { onsuccess: null, onerror: null, onblocked: null };
+            queueMicrotask(() => request.onsuccess?.(new Event('success')));
+            return request;
           }),
           databases: vi.fn(async () => []),
         },
@@ -182,7 +249,15 @@ describe('legacy financial-data cutover', () => {
 
     for (const restore of [restoreA, restoreB]) {
       await expect(
-        performLegacyCutover(['legacy-restore-db'], ['legacy-financial'], restore),
+        performLegacyCutover(
+          ['legacy-restore-db'],
+          ['legacy-financial'],
+          restore,
+          {
+            allowlistedDatabaseNames: ['legacy-restore-db'],
+            allowlistedStorageKeys: ['legacy-financial'],
+          },
+        ),
       ).resolves.toMatchObject({ status: 'completed' });
       expect(restore.values.get('control-plane')).toBe('preserve');
       expect(restore.values.get('legacy-financial')).toBeUndefined();

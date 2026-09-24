@@ -8,8 +8,16 @@ const getPersistedLanguage = (): string => {
   try {
     const stored = localStorage.getItem('budget-preferences');
     if (stored) {
-      const parsed = JSON.parse(stored) as { state?: { language?: string } };
-      if (parsed.state?.language) {
+      const parsed: unknown = JSON.parse(stored);
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        'state' in parsed &&
+        typeof parsed.state === 'object' &&
+        parsed.state !== null &&
+        'language' in parsed.state &&
+        typeof parsed.state.language === 'string'
+      ) {
         return parsed.state.language;
       }
     }

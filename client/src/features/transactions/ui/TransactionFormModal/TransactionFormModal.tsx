@@ -2,24 +2,20 @@
 // Transactions Feature — TransactionFormModal Component
 // ═══════════════════════════════════════════════════════════════════
 
-import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { X } from 'lucide-react';
 
+import { TRANSACTION_TYPE_OPTIONS } from '#features/transactions/ui/constants/transactionTypeOptions';
+import { useTransactionForm } from '#features/transactions/ui/hooks/useTransactionForm';
+import { useTransactionTypeActions } from '#features/transactions/ui/hooks/useTransactionTypeActions';
 import { CATEGORY_SELECT_OPTIONS } from '#entities/category';
+import { useLayeredOverlayDismiss } from '#shared/hooks';
 import { Button } from '#shared/ui/Button';
 import { DatePicker } from '#shared/ui/DatePicker';
 import { Input } from '#shared/ui/Input';
 import { Select } from '#shared/ui/Select';
-import { useLayeredOverlayDismiss } from '#shared/hooks';
-
-import { useTransactionForm } from '../hooks/useTransactionForm';
 
 // ─── Constants ───────────────────────────────────────────────────
-
-const TYPE_OPTIONS = [
-  { value: 'expense', labelKey: 'transactions.form.typeExpense' },
-  { value: 'income', labelKey: 'transactions.form.typeIncome' },
-] as const;
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -41,7 +37,9 @@ export const TransactionFormModal = ({
     handleBackdropClick,
     handleClose,
   } = useLayeredOverlayDismiss(onClose);
-  const { formValues, errors, handleChange, handleSubmit } = useTransactionForm(handleClose);
+  const { formValues, errors, handleChange, handleSubmit } =
+    useTransactionForm(handleClose);
+  const { createTypeChangeHandler } = useTransactionTypeActions(handleChange);
 
   if (!isOpen) {
     return null;
@@ -67,7 +65,10 @@ export const TransactionFormModal = ({
       <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border border-border bg-surface p-5 shadow-card sm:p-6">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 id="transaction-form-title" className="text-lg font-semibold text-foreground">
+          <h2
+            id="transaction-form-title"
+            className="text-lg font-semibold text-foreground"
+          >
             {t('transactions.form.title')}
           </h2>
           <button
@@ -125,7 +126,7 @@ export const TransactionFormModal = ({
               {t('transactions.form.typeLabel')}
             </span>
             <div className="flex gap-2">
-              {TYPE_OPTIONS.map((option) => (
+              {TRANSACTION_TYPE_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
@@ -134,7 +135,7 @@ export const TransactionFormModal = ({
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-surface-2 text-muted-foreground hover:bg-surface-3'
                   }`}
-                  onClick={() => handleChange('type', option.value)}
+                  onClick={createTypeChangeHandler(option.value)}
                   aria-pressed={formValues.type === option.value}
                 >
                   {t(option.labelKey)}

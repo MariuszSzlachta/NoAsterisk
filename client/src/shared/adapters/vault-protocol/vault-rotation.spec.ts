@@ -71,6 +71,7 @@ vi.mock('#shared/adapters/webauthn/passkey-prf', () => ({
 describe('vaultRotation', () => {
   it('should reject legacy rotation before backup prompts or key writes when independent authority is registered', async () => {
     const bootstrap = await vaultBootstrap.get();
+    if (bootstrap.status !== 'available') throw new Error('Missing bootstrap');
     vi.mocked(vaultBootstrap.get).mockResolvedValue({
       ...bootstrap,
       recoveryPublicKey: 'a'.repeat(64),
@@ -86,7 +87,12 @@ describe('vaultRotation', () => {
     expect(encryptedPersistence.rotateVaultKeys).not.toHaveBeenCalled();
     expect(rotateVault.rotate).not.toHaveBeenCalled();
   });
-  beforeEach(() => {
+  beforeEach(async () => {
+    const key = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
     vi.clearAllMocks();
     vi.mocked(encryptedPersistence.getPendingVaultRotation).mockResolvedValue(
       undefined,
@@ -100,9 +106,9 @@ describe('vaultRotation', () => {
       },
     );
     vi.mocked(encryptedPersistence.requireVaultSyncMaterial).mockReturnValue({
-      syncKey: {},
-      signingKey: {},
-      verifyKey: {},
+      syncKey: key,
+      signingKey: key,
+      verifyKey: key,
       context: {
         accountId: 'account-1',
         workspaceId: 'workspace-1',
@@ -113,24 +119,27 @@ describe('vaultRotation', () => {
     });
     vi.mocked(vaultBootstrap.get).mockResolvedValue({
       status: 'available',
+      protocolVersion: 2,
+      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
       deviceEnvelope: 'opaque',
+      securityProfile: 'standard',
     });
-    vi.mocked(encryptedPersistence.readVaultLocalShare).mockResolvedValue({});
+    vi.mocked(encryptedPersistence.readVaultLocalShare).mockResolvedValue(key);
     vi.mocked(recoveryCode.restore).mockResolvedValue(
       new Uint8Array(32).fill(1),
     );
     vi.mocked(issueServerShare).mockResolvedValue(new Uint8Array(32).fill(2));
     vi.mocked(protocol.generateVmk).mockReturnValue(new Uint8Array(32).fill(3));
     vi.mocked(protocol.deriveKeys).mockResolvedValue({
-      local: {},
-      sync: {},
-      check: {},
+      local: key,
+      sync: key,
+      check: key,
     });
-    vi.mocked(protocol.deriveDeviceKey).mockResolvedValue({});
-    vi.mocked(protocol.derivePrfKey).mockResolvedValue({});
+    vi.mocked(protocol.deriveDeviceKey).mockResolvedValue(key);
+    vi.mocked(protocol.derivePrfKey).mockResolvedValue(key);
     vi.mocked(protocol.wrapVmk).mockResolvedValue({
       header: { purpose: 'device-wrap' },
       ciphertext: 'opaque-envelope',
@@ -147,7 +156,7 @@ describe('vaultRotation', () => {
       encoded: 'challenge',
     });
     vi.mocked(passkeyPrf.run).mockResolvedValue({
-      prfKey: {},
+      prfKey: key,
       credentialId: 'credential-1',
       assertion: {
         id: 'credential-1',
@@ -202,11 +211,14 @@ describe('vaultRotation', () => {
   it('preserves the optional PRF envelope during standard rotation', async () => {
     vi.mocked(vaultBootstrap.get).mockResolvedValue({
       status: 'available',
+      protocolVersion: 2,
+      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
       deviceEnvelope: 'opaque-device',
       passkeyEnvelope: 'opaque-passkey',
+      securityProfile: 'standard',
     });
 
     await vaultRotation.rotate(buildRotationInput());
@@ -304,5 +316,22 @@ describe('vaultRotation', () => {
     expect(
       encryptedPersistence.clearPendingVaultRotation,
     ).not.toHaveBeenCalled();
+  });
+
+  it('clears the restored VMK when the session changes before verification', async () => {
+    const restored = new Uint8Array(32).fill(9);
+    vi.mocked(recoveryCode.restore).mockResolvedValue(restored);
+    let generationReads = 0;
+    vi.mocked(encryptedPersistence.getGeneration).mockImplementation(() => {
+      generationReads += 1;
+      return generationReads > 4 ? 2 : 1;
+    });
+
+    await expect(vaultRotation.rotate(buildRotationInput())).rejects.toThrow(
+      'Vault operation session changed',
+    );
+    expect(restored.every((byte) => byte === 0)).toBe(true);
+    expect(encryptedPersistence.rotateVaultKeys).not.toHaveBeenCalled();
+    expect(rotateVault.rotate).not.toHaveBeenCalled();
   });
 });

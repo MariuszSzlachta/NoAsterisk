@@ -10,7 +10,7 @@ export const MONTH_KEYS = [
   'months.jan', 'months.feb', 'months.mar', 'months.apr',
   'months.may', 'months.jun', 'months.jul', 'months.aug',
   'months.sep', 'months.oct', 'months.nov', 'months.dec',
-] as const;
+];
 
 // ─── Bucket Type ─────────────────────────────────────────────────
 

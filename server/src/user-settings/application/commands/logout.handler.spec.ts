@@ -12,9 +12,10 @@ describe('LogoutHandler', () => {
       save: jest.fn().mockImplementation((user: User) => Promise.resolve(user)),
       findById: jest.fn(),
       findByEmail: jest.fn(),
+      findAll: jest.fn(),
       existsByEmail: jest.fn(),
       delete: jest.fn(),
-    } as unknown as jest.Mocked<UserRepository>;
+    };
     handler = new LogoutHandler(userRepo);
   });
 

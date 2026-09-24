@@ -11,6 +11,7 @@ export class ConfirmSignedEnrollmentHandler {
     private readonly repository: SignedEnrollmentRepositoryPort,
   ) {}
   async execute(command: ConfirmSignedEnrollmentCommand): Promise<void> {
+    // ARCH-EXCEPTION: scoped repository rechecks workspace ownership in its transaction — accepted permanently.
     const authDeadline = getInteractiveAuthDeadline(command.user);
     await this.repository.confirm({
       ...command.request,

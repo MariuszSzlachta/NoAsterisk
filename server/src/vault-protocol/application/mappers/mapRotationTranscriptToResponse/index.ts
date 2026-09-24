@@ -1,0 +1,1 @@
+export { mapRotationTranscriptToResponse } from './mapRotationTranscriptToResponse';

@@ -5,7 +5,7 @@ const createMatch = (
   text: string,
   index: number,
 ): RegExpMatchArray => {
-  const match = [text] as RegExpMatchArray;
+  const match = [text] satisfies RegExpMatchArray;
   match.index = index;
   match.input = text;
   match.groups = undefined;
@@ -28,7 +28,7 @@ describe('toAddressSpan', () => {
   });
 
   it('defaults start to 0 when match.index is undefined', () => {
-    const match = createMatch('test', undefined as unknown as number);
+    const match = createMatch('test', undefined satisfies unknown satisfies number);
     match.index = undefined;
     const result = toAddressSpan(match, 0.5);
 

@@ -24,9 +24,10 @@ const isResponse = (value: unknown): value is RotateVaultResponse =>
   value.status === 'rotated' &&
   'keyId' in value &&
   typeof value.keyId === 'string' &&
+  value.keyId.length > 0 &&
   'revokedDeviceCount' in value &&
   typeof value.revokedDeviceCount === 'number' &&
-  Number.isInteger(value.revokedDeviceCount) &&
+  Number.isSafeInteger(value.revokedDeviceCount) &&
   value.revokedDeviceCount >= 0;
 
 const rotate = async (
@@ -38,8 +39,7 @@ const rotate = async (
     input.currentKeyId.length === 0 ||
     input.nextKeyId.length === 0 ||
     input.idempotencyKey.length === 0 ||
-    input.envelope.length === 0
-    ||
+    input.envelope.length === 0 ||
     (input.passkeyEnvelope !== undefined && input.passkeyEnvelope.length === 0)
   )
     throw new Error('Invalid vault rotation input');

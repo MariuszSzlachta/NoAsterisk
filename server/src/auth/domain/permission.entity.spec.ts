@@ -1,4 +1,4 @@
-import { Permission } from './permission.entity';
+import { Permission, type Action } from './permission.entity';
 
 describe('Permission', () => {
   describe('constructor invariants', () => {
@@ -22,7 +22,7 @@ describe('Permission', () => {
           id: '',
           userId: 'u1',
           resourceId: 'ws-1',
-          actions: ['read'] as const,
+          actions: ['read'],
         },
       ],
       [
@@ -31,16 +31,16 @@ describe('Permission', () => {
           id: 'p1',
           userId: '',
           resourceId: 'ws-1',
-          actions: ['read'] as const,
+          actions: ['read'],
         },
       ],
       [
         'empty resourceId',
-        { id: 'p1', userId: 'u1', resourceId: '', actions: ['read'] as const },
+        { id: 'p1', userId: 'u1', resourceId: '', actions: ['read'] },
       ],
       [
         'empty actions',
-        { id: 'p1', userId: 'u1', resourceId: 'ws-1', actions: [] as const },
+        { id: 'p1', userId: 'u1', resourceId: 'ws-1', actions: [] },
       ],
     ])('throws for %s', (_, props) => {
       expect(
@@ -50,7 +50,9 @@ describe('Permission', () => {
             props.userId,
             'workspace',
             props.resourceId,
-            [...props.actions],
+            props.actions.filter((action): action is Action =>
+              ['read', 'write', 'delete', 'admin'].includes(action),
+            ),
             new Date(),
           ),
       ).toThrow();

@@ -8,7 +8,7 @@ import { computeMetricForBucket, computeMetricForPeriod } from './metric-computa
 // ─── Test Builders ───────────────────────────────────────────────
 
 const tx = (amount: number, date: string): StoredTransaction =>
-  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId: undefined }) as StoredTransaction;
+  ({ id: `tx-${date}-${amount}`, amount, date, description: 'test', categoryId: undefined }) satisfies StoredTransaction;
 
 const bucket: Bucket = { label: 'Jan', start: '2026-01-01', end: '2026-01-31' };
 

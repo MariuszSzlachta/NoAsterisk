@@ -178,7 +178,7 @@ describe('useAnonymizationGrid', () => {
 
       const row = result.current.rows[0];
       expect(row).toBeDefined();
-      expect(result.current.getRowId(row!)).toBe('r0');
+      expect(result.current.getRowId(row)).toBe('r0');
     });
   });
 

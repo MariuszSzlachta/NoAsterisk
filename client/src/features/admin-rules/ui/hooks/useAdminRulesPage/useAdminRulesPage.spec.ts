@@ -11,7 +11,7 @@ const STUB_RULES = [
   {
     id: 'rule-1',
     keyword: 'BIEDRONKA',
-    matcherType: 'Contains' as const,
+    matcherType: 'Contains',
     categoryId: 'cat-groceries',
     priority: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -19,7 +19,7 @@ const STUB_RULES = [
   {
     id: 'rule-2',
     keyword: 'UBER',
-    matcherType: 'Contains' as const,
+    matcherType: 'Contains',
     categoryId: 'cat-transport',
     priority: 2,
     createdAt: '2026-01-02T00:00:00.000Z',

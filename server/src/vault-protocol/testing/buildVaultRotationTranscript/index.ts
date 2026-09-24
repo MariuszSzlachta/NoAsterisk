@@ -1,0 +1,1 @@
+export { buildVaultRotationTranscript } from './buildVaultRotationTranscript';

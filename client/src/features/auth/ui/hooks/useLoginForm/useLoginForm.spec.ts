@@ -28,10 +28,10 @@ vi.mock('#features/auth/api/useLoginMutation', () => ({
 // ─── Helpers ─────────────────────────────────────────────────────
 
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-  ({ target: { value } } as ChangeEvent<HTMLInputElement>);
+  ({ target: { value } } satisfies ChangeEvent<HTMLInputElement>);
 
 const buildSubmitEvent = (): FormEvent =>
-  ({ preventDefault: vi.fn() } as unknown as FormEvent);
+  ({ preventDefault: vi.fn() } satisfies unknown satisfies FormEvent);
 
 // ─── Tests ───────────────────────────────────────────────────────
 

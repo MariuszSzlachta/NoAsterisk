@@ -1,0 +1,1 @@
+export { rotationProofSchema } from './rotationProofSchema';

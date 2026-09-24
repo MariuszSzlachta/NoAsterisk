@@ -34,7 +34,13 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
       );
       const existing = await transaction
         .select({
+          deviceId: vaultRotations.deviceId,
+          currentKeyId: vaultRotations.currentKeyId,
           keyId: vaultRotations.nextKeyId,
+          envelopePurpose: vaultRotations.envelopePurpose,
+          envelope: vaultRotations.envelope,
+          protocolVersion: vaultRotations.protocolVersion,
+          cryptoSuite: vaultRotations.cryptoSuite,
           revokedDeviceCount: vaultRotations.revokedDeviceCount,
         })
         .from(vaultRotations)
@@ -46,6 +52,30 @@ export class PostgresVaultRotationRepository implements VaultRotationRepository 
           ),
         );
       if (existing[0] !== undefined) {
+        const existingDevice = await transaction
+          .select({ deviceId: vaultDevices.deviceId })
+          .from(vaultDevices)
+          .where(eq(vaultDevices.id, existing[0].deviceId));
+        const existingPasskeyEnvelope = await transaction
+          .select({ envelope: vaultDeviceEnvelopes.envelope })
+          .from(vaultDeviceEnvelopes)
+          .where(
+            and(
+              eq(vaultDeviceEnvelopes.deviceId, existing[0].deviceId),
+              eq(vaultDeviceEnvelopes.purpose, 'passkey-wrap'),
+            ),
+          );
+        if (
+          existingDevice[0]?.deviceId !== request.deviceId ||
+          existing[0].currentKeyId !== request.currentKeyId ||
+          existing[0].keyId !== request.nextKeyId ||
+          existing[0].envelopePurpose !== request.envelopePurpose ||
+          existing[0].envelope !== request.envelope ||
+          existing[0].protocolVersion !== request.protocolVersion ||
+          existing[0].cryptoSuite !== request.cryptoSuite ||
+          existingPasskeyEnvelope[0]?.envelope !== request.passkeyEnvelope
+        )
+          throw new ConflictException('Vault rotation idempotency conflict');
         return {
           status: 'rotated',
           keyId: existing[0].keyId,

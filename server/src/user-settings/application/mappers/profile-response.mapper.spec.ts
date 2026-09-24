@@ -2,6 +2,7 @@ import { ProfileResponseMapper } from './profile-response.mapper';
 import { User } from '@auth/domain/user.entity';
 import { UserRole } from '@auth/domain/user-role.enum';
 import { DEFAULT_PREFERENCES } from '@auth/domain/user-preferences.vo';
+import type { UserPreferences } from '@auth/domain/user-preferences.vo';
 
 describe('ProfileResponseMapper', () => {
   it('maps Member user to ProfileResponseDto', () => {
@@ -46,12 +47,12 @@ describe('ProfileResponseMapper', () => {
   });
 
   it('maps custom preferences correctly', () => {
-    const customPrefs = {
-      currency: 'EUR' as const,
-      dateFormat: 'YYYY-MM-DD' as const,
-      language: 'en' as const,
-      theme: 'light' as const,
-      homePage: 'transactions' as const,
+    const customPrefs: UserPreferences = {
+      currency: 'EUR',
+      dateFormat: 'YYYY-MM-DD',
+      language: 'en',
+      theme: 'light',
+      homePage: 'transactions',
     };
     const user = new User(
       'user-3',

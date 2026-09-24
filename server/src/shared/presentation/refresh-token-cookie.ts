@@ -17,11 +17,11 @@ const readCookie = (cookieHeader: string | undefined): string | undefined =>
     ?.slice(COOKIE_NAME.length + 1);
 
 export const refreshTokenCookie = {
-  clear: (response: Response): void => {
+  clear: (response: Pick<Response, 'clearCookie'>): void => {
     response.clearCookie(COOKIE_NAME, { path: COOKIE_PATH });
   },
   read: readCookie,
-  set: (response: Response, token: string): void => {
+  set: (response: Pick<Response, 'cookie'>, token: string): void => {
     response.cookie(COOKIE_NAME, token, COOKIE_OPTIONS);
   },
 };

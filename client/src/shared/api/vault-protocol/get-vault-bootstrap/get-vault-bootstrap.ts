@@ -19,5 +19,20 @@ export const getVaultBootstrap = async (
     metadata.data.deviceId !== deviceId
   )
     throw new Error('Invalid vault bootstrap response');
-  return metadata.data;
+  if (metadata.data.status !== 'available') return metadata.data;
+  if (metadata.data.deviceEnvelope !== undefined) {
+    const { deviceEnvelope, passkeyEnvelope, ...identity } = metadata.data;
+    return passkeyEnvelope === undefined
+      ? { ...identity, deviceEnvelope }
+      : { ...identity, deviceEnvelope, passkeyEnvelope };
+  }
+  if (metadata.data.passkeyEnvelope !== undefined) {
+    const {
+      passkeyEnvelope,
+      deviceEnvelope: _deviceEnvelope,
+      ...identity
+    } = metadata.data;
+    return { ...identity, passkeyEnvelope };
+  }
+  throw new Error('Invalid vault bootstrap response');
 };

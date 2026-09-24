@@ -1,0 +1,1 @@
+export { rotationTranscriptSchema } from './rotationTranscriptSchema';

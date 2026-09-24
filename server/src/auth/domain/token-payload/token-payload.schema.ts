@@ -3,6 +3,8 @@ import type { TokenPayload } from '@auth/domain/ports/token.port';
 
 const tokenPayloadSchema = z
   .object({
+    iat: z.number().int().nonnegative().optional(),
+    exp: z.number().int().nonnegative().optional(),
     sub: z.string().min(1),
     workspaceId: z.string().min(1),
     role: z.string().min(1),

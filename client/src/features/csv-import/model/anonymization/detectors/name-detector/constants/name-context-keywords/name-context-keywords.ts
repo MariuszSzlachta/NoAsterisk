@@ -9,4 +9,4 @@ export const NAME_CONTEXT_KEYWORDS = [
   'wypłata',
   'zleceniodawca',
   'beneficjent',
-] as const;
+];

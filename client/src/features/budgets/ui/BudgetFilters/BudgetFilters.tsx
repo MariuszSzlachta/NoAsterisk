@@ -47,14 +47,18 @@ export const BudgetFilters = ({
         <FilterTabs
           tabs={statusTabs}
           activeTab={activeTab}
-          onTabChange={onTabChange as (id: string) => void}
+          onTabChange={(id) => {
+            if (id === 'all' || id === 'needsAttention') onTabChange(id);
+          }}
           className="w-full gap-2 [&>button]:min-h-10 [&>button]:flex-1 [&>button]:px-4 [&>button]:text-sm lg:w-auto lg:[&>button]:min-h-0 lg:[&>button]:flex-none lg:[&>button]:px-3 lg:[&>button]:text-xs"
         />
         <div className="flex w-full flex-col items-stretch gap-2 lg:w-auto lg:flex-row lg:items-center">
           <FilterTabs
             tabs={periodTabs}
             activeTab={selectedPeriod}
-            onTabChange={onPeriodChange as (id: string) => void}
+            onTabChange={(id) => {
+              if (id === 'monthly' || id === 'yearly' || id === 'custom') onPeriodChange(id);
+            }}
             className="w-full gap-2 [&>button]:min-h-10 [&>button]:flex-1 [&>button]:px-4 [&>button]:text-sm lg:w-auto lg:[&>button]:min-h-0 lg:[&>button]:flex-none lg:[&>button]:px-3 lg:[&>button]:text-xs"
           />
           {isCustom && onCustomRangeChange && (

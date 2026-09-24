@@ -61,7 +61,7 @@ describe('useAgGrid', () => {
 
     it('maps custom comparator to AG Grid comparator function', () => {
       const comparator = (a: unknown, b: unknown): number =>
-        (a as number) - (b as number);
+        (a satisfies number) - (b satisfies number);
 
       const columns: GridColumn<TestRow>[] = [
         { field: 'amount', headerName: 'Amount', comparator },
@@ -76,7 +76,7 @@ describe('useAgGrid', () => {
 
       const nodeA = { data: { id: '1', name: 'A', amount: 10 } };
       const nodeB = { data: { id: '2', name: 'B', amount: 5 } };
-      const agResult = (colDef.comparator as Function)(10, 5, nodeA, nodeB, false);
+      const agResult = (colDef.comparator satisfies Function)(10, 5, nodeA, nodeB, false);
       expect(agResult).toBe(5);
     });
 
@@ -91,7 +91,7 @@ describe('useAgGrid', () => {
       );
 
       const colDef = result.current.columnDefs[0];
-      const agResult = (colDef.comparator as Function)(10, 5, { data: undefined }, { data: undefined }, false);
+      const agResult = (colDef.comparator satisfies Function)(10, 5, { data: undefined }, { data: undefined }, false);
       expect(agResult).toBe(0);
       expect(comparator).not.toHaveBeenCalled();
     });
@@ -113,7 +113,7 @@ describe('useAgGrid', () => {
         data: { id: 'row-1', name: 'Test', amount: 100 },
         colDef: { field: 'name' },
         newValue: 'Updated',
-      } as never);
+      } satisfies never);
 
       expect(onCellEdit).toHaveBeenCalledWith('row-1', 'name', 'Updated');
     });
@@ -128,7 +128,7 @@ describe('useAgGrid', () => {
           data: { id: 'row-1', name: 'Test', amount: 100 },
           colDef: { field: 'name' },
           newValue: 'Updated',
-        } as never),
+        } satisfies never),
       ).not.toThrow();
     });
   });
@@ -149,7 +149,7 @@ describe('useAgGrid', () => {
         api: {
           getColumnState: () => [{ colId: 'amount', sort: 'asc' }],
         },
-      } as never);
+      } satisfies never);
 
       expect(onSortChange).toHaveBeenCalledWith({
         field: 'amount',
@@ -170,7 +170,7 @@ describe('useAgGrid', () => {
 
       result.current.handleSortChanged({
         api: { getColumnState: () => [] },
-      } as never);
+      } satisfies never);
 
       expect(onSortChange).toHaveBeenCalledWith(undefined);
     });

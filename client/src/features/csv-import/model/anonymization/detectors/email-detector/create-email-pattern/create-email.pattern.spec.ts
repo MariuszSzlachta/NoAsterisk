@@ -16,7 +16,7 @@ describe('createEmailPattern', () => {
     const match = pattern.exec(input);
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe(expected);
+    expect(match[0]).toBe(expected);
   });
 
   it.each([
@@ -37,7 +37,7 @@ describe('createEmailPattern', () => {
     const match = pattern.exec('PRZELEW jan.kowalski@gmail.com za usługę');
 
     expect(match).not.toBeNull();
-    expect(match![0]).toBe('jan.kowalski@gmail.com');
+    expect(match[0]).toBe('jan.kowalski@gmail.com');
   });
 
   it('returns fresh instance (no shared lastIndex)', () => {

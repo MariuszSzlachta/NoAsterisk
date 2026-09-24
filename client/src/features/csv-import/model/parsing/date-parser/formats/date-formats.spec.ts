@@ -36,7 +36,7 @@ describe('createNumericParser', () => {
       groups: { year: 3, month: 2, day: 1 },
     });
 
-    const match = '15.06.2025'.match(parser.regex)!;
+    const match = '15.06.2025'.match(parser.regex);
     expect(parser.parse(match)).toEqual({ year: 2025, month: 6, day: 15 });
   });
 
@@ -48,7 +48,7 @@ describe('createNumericParser', () => {
       yearResolver: (s) => 2000 + parseInt(s, 10),
     });
 
-    const match = '15.06.25'.match(parser.regex)!;
+    const match = '15.06.25'.match(parser.regex);
     expect(parser.parse(match)).toEqual({ year: 2025, month: 6, day: 15 });
   });
 
@@ -60,7 +60,7 @@ describe('createNumericParser', () => {
       yearResolver: () => null,
     });
 
-    const match = '15.06.ab'.match(/^(..)\.(..)\.(..)$/)!;
+    const match = '15.06.ab'.match(/^(..)\.(..)\.(..)$/);
     expect(parser.parse(match)).toBeNull();
   });
 
@@ -71,7 +71,7 @@ describe('createNumericParser', () => {
       groups: { year: 3, month: 2, day: 1 },
     });
 
-    const match = '15.06.'.match(/^(\d{2})\.(\d{2})\.(\d{4})?$/)!;
+    const match = '15.06.'.match(/^(\d{2})\.(\d{2})\.(\d{4})?$/);
     expect(parser.parse(match)).toBeNull();
   });
 });
@@ -83,7 +83,7 @@ describe('parseMonthName', () => {
       '15',
       'Jun',
       '2025',
-    ] as unknown as RegExpMatchArray;
+    ] satisfies unknown satisfies RegExpMatchArray;
     expect(parseMonthName(match)).toEqual({ year: 2025, month: 6, day: 15 });
   });
 
@@ -93,7 +93,7 @@ describe('parseMonthName', () => {
       '10',
       'Sty',
       '2025',
-    ] as unknown as RegExpMatchArray;
+    ] satisfies unknown satisfies RegExpMatchArray;
     expect(parseMonthName(match)).toEqual({ year: 2025, month: 1, day: 10 });
   });
 
@@ -103,12 +103,12 @@ describe('parseMonthName', () => {
       '10',
       'Xyz',
       '2025',
-    ] as unknown as RegExpMatchArray;
+    ] satisfies unknown satisfies RegExpMatchArray;
     expect(parseMonthName(match)).toBeNull();
   });
 
   it('returns null for undefined groups', () => {
-    const match = ['incomplete'] as unknown as RegExpMatchArray;
+    const match = ['incomplete'] satisfies unknown satisfies RegExpMatchArray;
     expect(parseMonthName(match)).toBeNull();
   });
 });
@@ -169,8 +169,8 @@ describe('ALL_FORMATS', () => {
   });
 
   it('two-digit year format uses resolveYear', () => {
-    const yyFormat = ALL_FORMATS.find((f) => f.format === 'DD.MM.YY')!;
-    const match = '15.06.25'.match(yyFormat.regex)!;
+    const yyFormat = ALL_FORMATS.find((f) => f.format === 'DD.MM.YY');
+    const match = '15.06.25'.match(yyFormat.regex);
     expect(yyFormat.parse(match)).toEqual({ year: 2025, month: 6, day: 15 });
   });
 });

@@ -53,9 +53,9 @@ export const useBatchEditPanel = (): BatchEditPanelResult => {
     // HIGH-3 FIX: Re-validate after edit — empty title = error
     if (field === 'title' && !newValue.trim()) {
       const store = useImportWizardStore.getState();
-      const updatedRows = store.rows.map((r) =>
+      const updatedRows: TransactionRow[] = store.rows.map((r) =>
         r.id === rowId
-          ? { ...r, status: 'error' as const, statusReason: 'Empty title' }
+          ? { ...r, status: 'error', statusReason: 'Empty title' }
           : r,
       );
       store.setRows(updatedRows);

@@ -33,11 +33,11 @@ describe('passkeyLogin PRF handoff', () => {
   });
 
   it('keeps the PRF key client-only and hands it to the same login unlock', async () => {
-    const prfKey = {} as CryptoKey;
+    const prfKey = {} satisfies CryptoKey;
     const assertion = {
       id: 'credential-1',
       rawId: 'AA',
-      type: 'public-key' as const,
+      type: 'public-key',
       response: {
         clientDataJSON: 'AA',
         authenticatorData: 'AA',

@@ -22,8 +22,8 @@ const MARGIN_WITH_LEGEND = {
   right: 160,
   bottom: 10,
   left: 10,
-} as const;
-const MARGIN_NO_LEGEND = { top: 10, right: 10, bottom: 10, left: 10 } as const;
+};
+const MARGIN_NO_LEGEND = { top: 10, right: 10, bottom: 10, left: 10 };
 
 interface PieTooltipDatum {
   id: string;
@@ -48,14 +48,14 @@ const PieTooltip = ({
   </div>
 );
 
-const LEGEND_RIGHT = {
-  anchor: 'right' as const,
-  direction: 'column' as const,
+const LEGEND_RIGHT: import('@nivo/legends').LegendProps = {
+  anchor: 'right',
+  direction: 'column',
   translateX: 150,
   itemWidth: 140,
   itemHeight: 26,
   symbolSize: 10,
-  symbolShape: 'square' as const,
+  symbolShape: 'square',
 };
 
 interface CenterTextProps {

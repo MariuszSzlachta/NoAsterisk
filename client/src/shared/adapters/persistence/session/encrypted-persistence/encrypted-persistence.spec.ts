@@ -7,6 +7,7 @@ import {
   BudgetDatabase,
   VaultV2Database,
 } from '#shared/adapters/persistence/dexie';
+import { IMPORT_HISTORY_COLLECTION } from '#shared/adapters/persistence/ports';
 import { createEncryptedPersistence } from '#shared/adapters/persistence/session/encrypted-persistence/encrypted-persistence';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 
@@ -68,6 +69,30 @@ describe('encrypted persistence publication', () => {
       isDirty: true,
       mutationVersion: (covered ?? 0) + 1,
     });
+  });
+
+  it('should advance the v2 mutation watermark once for a related write', async () => {
+    const { persistence } = await buildUnlockedVault();
+    const before = persistenceSyncMetadata.get().mutationVersion;
+    await persistence.putManyIfAbsentWithRelated(
+      {
+        collection: 'rules',
+        records: [{ id: 'rule-once' }],
+        validator: (value: unknown): value is { readonly id: string } =>
+          typeof value === 'object' &&
+          value !== null &&
+          'id' in value &&
+          typeof value.id === 'string',
+        getId: (record): string => record.id,
+        getDuplicateKey: (record): string => record.id,
+      },
+      () => ({
+        collection: IMPORT_HISTORY_COLLECTION,
+        records: [],
+        getId: (): string => 'unused',
+      }),
+    );
+    expect(persistenceSyncMetadata.get().mutationVersion).toBe(before + 1);
   });
 
   it('should abort before destructive writes when its publication scope expires during encryption', async () => {

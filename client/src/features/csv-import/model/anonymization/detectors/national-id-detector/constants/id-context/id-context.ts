@@ -7,4 +7,4 @@ export const ID_CONTEXT = [
   'dokument',
   'tożsamości',
   'id card',
-] as const;
+];

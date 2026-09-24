@@ -1,8 +1,9 @@
+import type { ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { FilterToolbar } from './FilterToolbar';
+import { FilterToolbar } from '#features/csv-import/ui/FilterToolbar/FilterToolbar';
 
 // ─── Mocks ───────────────────────────────────────────────────────
 
@@ -33,39 +34,36 @@ vi.mock('#shared/ui/DateRangePicker', () => ({
     placeholder?: string;
     onSelect: (range: unknown) => void;
     selected?: { from?: Date; to?: Date };
-  }) => (
-    <div data-testid="date-range-picker">
-      <span>{placeholder}</span>
-      {selected?.from && (
-        <span data-testid="date-from">{selected.from.toISOString()}</span>
-      )}
-      {selected?.to && (
-        <span data-testid="date-to">{selected.to.toISOString()}</span>
-      )}
-      <button
-        type="button"
-        data-testid="apply-range"
-        onClick={() =>
-          onSelect({ from: new Date('2026-03-01'), to: new Date('2026-03-31') })
-        }
-      >
-        Apply
-      </button>
-      <button
-        type="button"
-        data-testid="clear-range"
-        onClick={() => onSelect(undefined)}
-      >
-        Clear
-      </button>
-    </div>
-  ),
+  }) => {
+    const handleApply = (): void => {
+      onSelect({ from: new Date('2026-03-01'), to: new Date('2026-03-31') });
+    };
+    const handleClear = (): void => onSelect(undefined);
+
+    return (
+      <div data-testid="date-range-picker">
+        <span>{placeholder}</span>
+        {selected?.from && (
+          <span data-testid="date-from">{selected.from.toISOString()}</span>
+        )}
+        {selected?.to && (
+          <span data-testid="date-to">{selected.to.toISOString()}</span>
+        )}
+        <button type="button" data-testid="apply-range" onClick={handleApply}>
+          Apply
+        </button>
+        <button type="button" data-testid="clear-range" onClick={handleClear}>
+          Clear
+        </button>
+      </div>
+    );
+  },
 }));
 
 // ─── Default Props ───────────────────────────────────────────────
 
-const defaultProps = {
-  typeFilter: 'all' as const,
+const defaultProps: ComponentProps<typeof FilterToolbar> = {
+  typeFilter: 'all',
   dateFrom: '',
   dateTo: '',
   onTypeChange: vi.fn(),

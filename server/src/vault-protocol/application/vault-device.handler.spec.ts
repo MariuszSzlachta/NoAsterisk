@@ -1,13 +1,14 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { VaultDeviceHandler } from './vault-device.handler';
+import type { CurrentUserPayload } from '@shared/auth/current-user';
 import { InMemoryVaultDeviceRepository } from '@vault-protocol/infrastructure/in-memory-vault-device.repository';
 
-const user = {
+const user: CurrentUserPayload = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
-  role: 'Member' as const,
+  role: 'Member',
   authTime: Date.now(),
-  amr: 'password' as const,
+  amr: 'password',
 };
 
 describe('VaultDeviceHandler', () => {

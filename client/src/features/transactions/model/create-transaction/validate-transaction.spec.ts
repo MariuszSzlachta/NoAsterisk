@@ -193,7 +193,7 @@ describe('validateCreateTransaction', () => {
 
   describe('type validation', () => {
     it('returns error for invalid type', () => {
-      const values = buildValidValues({ type: 'invalid' as 'income' | 'expense' });
+      const values = buildValidValues({ type: 'invalid' satisfies 'income' | 'expense' });
       const errors = validateCreateTransaction(values);
 
       expect(errors.type).toBe('Wybierz typ transakcji');

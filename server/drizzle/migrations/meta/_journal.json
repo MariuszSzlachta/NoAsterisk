@@ -134,6 +134,13 @@
       "when": 1789334400000,
       "tag": "0018_signed_enrollment_challenges",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1789420800000,
+      "tag": "0019_vault_rotation_challenges",
+      "breakpoints": true
     }
   ]
 }

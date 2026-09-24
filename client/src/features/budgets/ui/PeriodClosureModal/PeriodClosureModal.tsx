@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
+import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
+import { usePeriodClosure } from '#features/budgets/ui/hooks/usePeriodClosure';
+import { useBoundAction } from '#shared/hooks/useBoundAction';
 import { formatAmount } from '#shared/lib';
 import { Button } from '#shared/ui/Button';
 import { Select } from '#shared/ui/Select';
-
-import type { BudgetViewModel } from '#features/budgets/model/types/budget-view-model';
-import { usePeriodClosure } from '../hooks/usePeriodClosure';
 
 // ─── Props ───────────────────────────────────────────────────────
 
@@ -18,7 +18,11 @@ interface PeriodClosureModalProps {
 
 // ─── Component ───────────────────────────────────────────────────
 
-export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModalProps): React.JSX.Element => {
+export const PeriodClosureModal = ({
+  budgetId,
+  vm,
+  onClose,
+}: PeriodClosureModalProps): React.JSX.Element => {
   const { t } = useTranslation();
   const {
     selectedOption,
@@ -32,8 +36,24 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
     handleSubmit,
   } = usePeriodClosure({ budgetId, vm, onClose });
 
+  const { handleAction: handleCarryForwardChange } = useBoundAction(
+    'carry_forward',
+    handleOptionChange,
+  );
+  const { handleAction: handleSavingsChange } = useBoundAction(
+    'savings',
+    handleOptionChange,
+  );
+  const { handleAction: handleDiscardChange } = useBoundAction(
+    'discard',
+    handleOptionChange,
+  );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="presentation">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      role="presentation"
+    >
       <div
         className="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card"
         role="dialog"
@@ -42,7 +62,10 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
       >
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 id="closure-modal-title" className="text-base font-semibold text-foreground">
+          <h2
+            id="closure-modal-title"
+            className="text-base font-semibold text-foreground"
+          >
             {t('budgets.closure.title', { name: vm.name })}
           </h2>
           <button
@@ -61,20 +84,26 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
         {/* Summary */}
         <div className="mt-5 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t('budgets.closure.limit')}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('budgets.closure.limit')}
+            </span>
             <span className="font-mono text-sm tabular-nums text-foreground">
               {formatAmount(vm.limit)} {vm.currency}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t('budgets.closure.spent')}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('budgets.closure.spent')}
+            </span>
             <span className="font-mono text-sm tabular-nums text-foreground">
               {formatAmount(vm.spent)} {vm.currency}
             </span>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-2">
             <span className="text-sm font-medium text-foreground">
-              {vm.remaining > 0 ? t('budgets.closure.surplus') : t('budgets.closure.overspent')}
+              {vm.remaining > 0
+                ? t('budgets.closure.surplus')
+                : t('budgets.closure.overspent')}
             </span>
             <span
               className={`font-mono text-sm font-semibold tabular-nums ${
@@ -96,7 +125,7 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
                 name="rollover"
                 className="mt-0.5 accent-primary"
                 checked={selectedOption === 'carry_forward'}
-                onChange={() => handleOptionChange('carry_forward')}
+                onChange={handleCarryForwardChange}
               />
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-foreground">
@@ -119,11 +148,13 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
                 name="rollover"
                 className="mt-0.5 accent-primary"
                 checked={selectedOption === 'savings'}
-                onChange={() => handleOptionChange('savings')}
+                onChange={handleSavingsChange}
                 disabled={!hasSavingsBudgets}
               />
               <div className="flex flex-1 flex-col gap-2">
-                <span className={`text-sm font-medium ${hasSavingsBudgets ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <span
+                  className={`text-sm font-medium ${hasSavingsBudgets ? 'text-foreground' : 'text-muted-foreground'}`}
+                >
                   {t('budgets.closure.optionSavings')}
                 </span>
                 {hasSavingsBudgets ? (
@@ -150,7 +181,7 @@ export const PeriodClosureModal = ({ budgetId, vm, onClose }: PeriodClosureModal
                 name="rollover"
                 className="mt-0.5 accent-primary"
                 checked={selectedOption === 'discard'}
-                onChange={() => handleOptionChange('discard')}
+                onChange={handleDiscardChange}
               />
               <span className="text-sm font-medium text-foreground">
                 {t('budgets.closure.optionDiscard')}

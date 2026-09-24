@@ -1,0 +1,1 @@
+export { isRotationIdentifier } from './isRotationIdentifier';

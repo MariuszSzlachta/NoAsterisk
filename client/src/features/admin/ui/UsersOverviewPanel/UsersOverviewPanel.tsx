@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
+import { ROLE_BADGE_COLOR } from '#features/admin/ui/UsersOverviewPanel/role-badge-color';
+import type { UsersOverviewPanelProps } from '#features/admin/ui/UsersOverviewPanel/users-overview-panel-props';
+import { useBoundAction } from '#shared/hooks/useBoundAction';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 import { Card, CardHeader } from '#shared/ui/Card';
-
-import { ROLE_BADGE_COLOR } from '#features/admin/ui/UsersOverviewPanel/role-badge-color';
-import type { UsersOverviewPanelProps } from '#features/admin/ui/UsersOverviewPanel/users-overview-panel-props';
 
 export const UsersOverviewPanel = ({
   stats,
@@ -14,13 +14,14 @@ export const UsersOverviewPanel = ({
   targetTab,
 }: UsersOverviewPanelProps): React.JSX.Element => {
   const { t } = useTranslation();
+  const { handleAction: handleViewAll } = useBoundAction(targetTab, onViewAll);
 
   return (
     <Card>
       <CardHeader
         title={t('admin.dashboard.users')}
         action={
-          <Button variant="ghost" size="sm" onClick={() => onViewAll(targetTab)}>
+          <Button variant="ghost" size="sm" onClick={handleViewAll}>
             {t('admin.dashboard.viewAll')}
           </Button>
         }
@@ -28,28 +29,49 @@ export const UsersOverviewPanel = ({
 
       <div className="mb-4 flex gap-4">
         <div className="flex flex-col">
-          <span className="text-xs font-medium uppercase text-muted-foreground">{t('admin.dashboard.statAll')}</span>
-          <span className="text-xl font-bold text-foreground">{stats.totalUsers}</span>
+          <span className="text-xs font-medium uppercase text-muted-foreground">
+            {t('admin.dashboard.statAll')}
+          </span>
+          <span className="text-xl font-bold text-foreground">
+            {stats.totalUsers}
+          </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs font-medium uppercase text-muted-foreground">{t('admin.dashboard.statActive')}</span>
-          <span className="text-xl font-bold text-primary">{stats.activeToday}</span>
+          <span className="text-xs font-medium uppercase text-muted-foreground">
+            {t('admin.dashboard.statActive')}
+          </span>
+          <span className="text-xl font-bold text-primary">
+            {stats.activeToday}
+          </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs font-medium uppercase text-muted-foreground">{t('admin.dashboard.statBlocked')}</span>
-          <span className="text-xl font-bold text-expense">{stats.blockedCount}</span>
+          <span className="text-xs font-medium uppercase text-muted-foreground">
+            {t('admin.dashboard.statBlocked')}
+          </span>
+          <span className="text-xl font-bold text-expense">
+            {stats.blockedCount}
+          </span>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         {recentUsers.map((user) => (
-          <div key={user.id} className="flex items-center justify-between border-b border-border/50 py-2 last:border-0">
+          <div
+            key={user.id}
+            className="flex items-center justify-between border-b border-border/50 py-2 last:border-0"
+          >
             <span className="text-sm text-foreground">{user.email}</span>
             <div className="flex items-center gap-2">
-              <Badge variant="soft" color={ROLE_BADGE_COLOR[user.role]} dot={false}>
+              <Badge
+                variant="soft"
+                color={ROLE_BADGE_COLOR[user.role]}
+                dot={false}
+              >
                 {user.role === 'Blocked' ? t('admin.roles.blocked') : user.role}
               </Badge>
-              <span className="text-xs text-muted-foreground">{user.createdAt}</span>
+              <span className="text-xs text-muted-foreground">
+                {user.createdAt}
+              </span>
             </div>
           </div>
         ))}

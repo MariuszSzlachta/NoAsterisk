@@ -43,7 +43,7 @@ describe('Analytics data pipeline (integration)', () => {
     const firstBucket = buckets[0];
     expect(firstBucket).toBeDefined();
 
-    const incomeForBucket = computeMetricForBucket(transactions, firstBucket!, 'income', transactions);
+    const incomeForBucket = computeMetricForBucket(transactions, firstBucket, 'income', transactions);
     expect(typeof incomeForBucket).toBe('number');
   });
 
@@ -63,8 +63,8 @@ describe('Analytics data pipeline (integration)', () => {
     // Should have groceries and transport
     const groceries = breakdown.find((b) => b.categoryId === 'cat-groceries');
     expect(groceries).toBeDefined();
-    expect(groceries!.amount).toBeGreaterThan(0);
-    expect(groceries!.percentage).toBeGreaterThan(0);
+    expect(groceries.amount).toBeGreaterThan(0);
+    expect(groceries.percentage).toBeGreaterThan(0);
   });
 
   it('computeCategoryDrilldown returns trend + transactions for a category', () => {
@@ -75,7 +75,7 @@ describe('Analytics data pipeline (integration)', () => {
     expect(drilldown.trend.id).toBe('Spożywcze');
     expect(drilldown.trend.data).toHaveLength(6); // 6-month window
     expect(drilldown.transactions.length).toBeGreaterThan(0);
-    expect(drilldown.transactions[0]!.amount).toBeGreaterThan(0); // absolute
+    expect(drilldown.transactions[0].amount).toBeGreaterThan(0); // absolute
   });
 
   it('end-to-end: filters → series + kpis', () => {

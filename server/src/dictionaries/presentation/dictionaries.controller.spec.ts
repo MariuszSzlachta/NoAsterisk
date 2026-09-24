@@ -10,6 +10,11 @@ import { DictionariesController } from '@dictionaries/presentation/dictionaries.
 import { DictionaryEntry } from '@dictionaries/domain/dictionary-entry.entity';
 import { DictionaryType } from '@dictionaries/domain/dictionary-type.enum';
 
+const requireHeader = (value: string | string[] | undefined): string => {
+  if (typeof value !== 'string') throw new Error('Expected string header');
+  return value;
+};
+
 describe('DictionariesController', () => {
   let app: INestApplication<App>;
   let repo: InMemoryDictionaryRepository;
@@ -80,7 +85,7 @@ describe('DictionariesController', () => {
 
     it('returns 304 when If-None-Match matches ETag', async () => {
       const first = await request(app.getHttpServer()).get('/dictionaries');
-      const etag = first.headers['etag'] as string;
+      const etag = requireHeader(first.headers['etag']);
 
       const second = await request(app.getHttpServer())
         .get('/dictionaries')
@@ -92,7 +97,7 @@ describe('DictionariesController', () => {
 
     it('returns 200 with new ETag after data changes', async () => {
       const first = await request(app.getHttpServer()).get('/dictionaries');
-      const etagBefore = first.headers['etag'] as string;
+      const etagBefore = requireHeader(first.headers['etag']);
 
       await request(app.getHttpServer())
         .post('/dictionaries')
@@ -139,7 +144,7 @@ describe('DictionariesController', () => {
       const first = await request(app.getHttpServer()).get(
         '/dictionaries/FirstName',
       );
-      const etag = first.headers['etag'] as string;
+      const etag = requireHeader(first.headers['etag']);
 
       const second = await request(app.getHttpServer())
         .get('/dictionaries/FirstName')

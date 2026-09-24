@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { DataPreviewTable } from './DataPreviewTable';
 
-const HEADERS = ['date', 'title', 'amount'] as const;
+const HEADERS = ['date', 'title', 'amount'];
 
 const buildRows = () => [
   { date: '2026-01-01', title: 'Grocery Store', amount: '-50.00' },

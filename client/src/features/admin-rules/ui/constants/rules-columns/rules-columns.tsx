@@ -1,8 +1,7 @@
-import { Pencil, Trash2 } from 'lucide-react';
 import type { TFunction } from 'i18next';
 
 import type { RuleViewModel } from '#features/admin-rules/model/types';
-import { Button } from '#shared/ui/Button';
+import { RuleActionButtons } from '#features/admin-rules/ui/constants/rules-columns/RuleActionButtons';
 import type { DataTableColumn } from '#shared/ui/DataTable';
 
 export const buildRulesColumns = (
@@ -51,22 +50,12 @@ export const buildRulesColumns = (
     key: 'actions',
     header: t('rules.columns.actions'),
     render: (row) => (
-      <span className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          icon={<Pencil size={14} />}
-          onClick={() => handleEdit(row.id)}
-          aria-label={t('rules.actions.edit', { keyword: row.keyword })}
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          icon={<Trash2 size={14} />}
-          onClick={() => handleDelete(row.id)}
-          aria-label={t('rules.actions.delete', { keyword: row.keyword })}
-        />
-      </span>
+      <RuleActionButtons
+        row={row}
+        handleDelete={handleDelete}
+        handleEdit={handleEdit}
+        t={t}
+      />
     ),
     className: 'w-24',
   },

@@ -33,8 +33,8 @@ describe('validateFile', () => {
     try {
       validateFile(file);
     } catch (err) {
-      expect((err as CsvParseError).code).toBe('INVALID_EXTENSION');
-      expect((err as CsvParseError).message).toBe(
+      expect((err satisfies CsvParseError).code).toBe('INVALID_EXTENSION');
+      expect((err satisfies CsvParseError).message).toBe(
         'Only .csv files are supported',
       );
     }
@@ -46,7 +46,7 @@ describe('validateFile', () => {
     try {
       validateFile(file);
     } catch (err) {
-      expect((err as CsvParseError).code).toBe('EMPTY_FILE');
+      expect((err satisfies CsvParseError).code).toBe('EMPTY_FILE');
     }
   });
 
@@ -56,8 +56,8 @@ describe('validateFile', () => {
     try {
       validateFile(file);
     } catch (err) {
-      expect((err as CsvParseError).code).toBe('FILE_TOO_LARGE');
-      expect((err as CsvParseError).message).toContain('10 MB');
+      expect((err satisfies CsvParseError).code).toBe('FILE_TOO_LARGE');
+      expect((err satisfies CsvParseError).message).toContain('10 MB');
     }
   });
 
@@ -148,7 +148,7 @@ describe('countTrailingEmptiesInRow', () => {
 
 describe('normalizeTrailingSeparator', () => {
   it('strips consistent trailing empty columns', () => {
-    const headers = ['A', 'B', ''] as const;
+    const headers = ['A', 'B', ''];
     const dataRows = [
       ['1', '2', ''],
       ['3', '4', ''],

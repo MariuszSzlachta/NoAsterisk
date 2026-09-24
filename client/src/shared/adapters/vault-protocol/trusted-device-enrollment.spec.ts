@@ -9,7 +9,7 @@ const context = {
   keyId: 'key-1',
   oldDeviceId: 'old-device-1',
   newDeviceId: 'new-device-1',
-} as const;
+};
 
 describe('trustedDeviceEnrollment', () => {
   it('roundtrips a VMK through an authenticated two-device QR response', async () => {

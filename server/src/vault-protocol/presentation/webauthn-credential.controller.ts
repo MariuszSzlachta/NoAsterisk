@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '@shared/auth/current-user.decorator';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
@@ -57,7 +65,17 @@ type AuthenticationDto = z.infer<typeof authenticationSchema>;
 
 @Controller('users/me/vault/webauthn/credentials')
 export class WebauthnCredentialController {
-  constructor(private readonly handler: WebauthnCredentialHandler) {}
+  constructor(
+    @Inject(WebauthnCredentialHandler)
+    private readonly handler: Pick<
+      WebauthnCredentialHandler,
+      | 'createRegistrationOptions'
+      | 'verifyRegistration'
+      | 'list'
+      | 'verifyAuthentication'
+      | 'revoke'
+    >,
+  ) {}
 
   @Post('registration/options')
   @Throttle(THROTTLE_SENSITIVE)

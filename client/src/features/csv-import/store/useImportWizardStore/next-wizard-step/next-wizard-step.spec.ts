@@ -8,7 +8,7 @@ describe('nextWizardStep', () => {
     [1, 2],
     [2, 3],
     [3, 4],
-  ] as const)('advances step %d to %d', (current, expected) => {
+  ])('advances step %d to %d', (current, expected) => {
     expect(nextWizardStep(current)).toBe(expected);
   });
 

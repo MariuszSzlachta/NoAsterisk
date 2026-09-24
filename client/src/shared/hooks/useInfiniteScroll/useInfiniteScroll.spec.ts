@@ -34,8 +34,8 @@ describe('useInfiniteScroll', () => {
     rerender();
 
     callback?.(
-      [{ isIntersecting: true } as IntersectionObserverEntry],
-      {} as IntersectionObserver,
+      [{ isIntersecting: true } satisfies IntersectionObserverEntry],
+      {} satisfies IntersectionObserver,
     );
 
     expect(observe).toHaveBeenCalled();
@@ -51,8 +51,8 @@ describe('useInfiniteScroll', () => {
     rerender();
 
     callback?.(
-      [{ isIntersecting: true } as IntersectionObserverEntry],
-      {} as IntersectionObserver,
+      [{ isIntersecting: true } satisfies IntersectionObserverEntry],
+      {} satisfies IntersectionObserver,
     );
 
     expect(observe).not.toHaveBeenCalled();

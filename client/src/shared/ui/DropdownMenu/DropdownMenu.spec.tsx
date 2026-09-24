@@ -7,7 +7,7 @@ import { DropdownMenu } from '#shared/ui/DropdownMenu';
 describe('DropdownMenu', () => {
   const defaultItems = [
     { label: 'Edit', onClick: vi.fn() },
-    { label: 'Delete', onClick: vi.fn(), variant: 'danger' as const },
+    { label: 'Delete', onClick: vi.fn(), variant: 'danger' },
   ];
 
   describe('rendering', () => {

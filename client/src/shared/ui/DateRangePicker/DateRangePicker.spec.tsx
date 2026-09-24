@@ -146,7 +146,7 @@ describe('DEFAULT_PRESETS', () => {
       const range = preset.range();
       expect(range.from).toBeInstanceOf(Date);
       expect(range.to).toBeInstanceOf(Date);
-      expect(range.from!.getTime()).toBeLessThanOrEqual(range.to!.getTime());
+      expect(range.from.getTime()).toBeLessThanOrEqual(range.to.getTime());
     }
   });
 });

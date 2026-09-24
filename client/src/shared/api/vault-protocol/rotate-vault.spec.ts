@@ -1,17 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiClient } from '#shared/api';
-
-import { rotateVault } from './rotate-vault';
+import { rotateVault } from '#shared/api/vault-protocol/rotate-vault';
 
 vi.mock('#shared/api', () => ({ apiClient: { post: vi.fn() } }));
 
-const input = {
+const input: Parameters<typeof rotateVault.rotate>[0] = {
   vaultId: 'vault-1',
   deviceId: 'device-1',
   currentKeyId: 'key-1',
   nextKeyId: 'key-2',
-  envelopePurpose: 'device-wrap' as const,
+  envelopePurpose: 'device-wrap',
   envelope: 'opaque',
   idempotencyKey: 'rotation-1',
 };
@@ -44,5 +43,25 @@ describe('rotateVault', () => {
     await expect(
       rotateVault.rotate({ ...input, envelope: '' }),
     ).rejects.toThrow('Invalid vault rotation input');
+  });
+
+  it('rejects unsafe response counters and empty key identifiers', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      status: 'rotated',
+      keyId: '',
+      revokedDeviceCount: 1,
+    });
+    await expect(rotateVault.rotate(input)).rejects.toThrow(
+      'Invalid vault rotation response',
+    );
+
+    vi.mocked(apiClient.post).mockResolvedValue({
+      status: 'rotated',
+      keyId: 'key-2',
+      revokedDeviceCount: Number.MAX_SAFE_INTEGER + 1,
+    });
+    await expect(rotateVault.rotate(input)).rejects.toThrow(
+      'Invalid vault rotation response',
+    );
   });
 });

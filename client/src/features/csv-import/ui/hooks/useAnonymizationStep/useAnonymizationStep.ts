@@ -6,6 +6,8 @@ import { useImportWizardStore } from '#features/csv-import/store/useImportWizard
 import type { AnonymizationStepResult } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-step-result';
 import type { AnonymizationStats } from '#features/csv-import/ui/hooks/useAnonymizationStep/anonymization-stats';
 import type { StatusFilter } from '#features/csv-import/ui/hooks/useAnonymizationStep/status-filter';
+import type { AnonymizationEntry } from '#features/csv-import/model/anonymization/types/anonymization-entry/anonymization-entry';
+import type { TransactionRow } from '#features/csv-import/model/types';
 
 
 export const useAnonymizationStep = (): AnonymizationStepResult => {
@@ -101,20 +103,20 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
       return;
     }
 
-    const updatedEntries = entries.map((e) => {
+    const updatedEntries: AnonymizationEntry[] = entries.map((e) => {
       if (e.rowIndex !== rowIndex) {
         return e;
       }
       return {
         ...e,
         anonymizedTitle: e.originalTitle,
-        spans: [] as const,
-        status: 'safe' as const,
+        spans: [],
+        status: 'safe',
         accepted: true,
       };
     });
 
-    const updatedRows = rows.map((row, idx) => {
+    const updatedRows: TransactionRow[] = rows.map((row, idx) => {
       if (idx !== rowIndex) {
         return row;
       }
@@ -127,7 +129,7 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
   };
 
   const handleEdit = (rowIndex: number, newTitle: string): void => {
-    const updatedEntries = entries.map((entry) => {
+    const updatedEntries: AnonymizationEntry[] = entries.map((entry) => {
       if (entry.rowIndex !== rowIndex) {
         return entry;
       }
@@ -138,7 +140,7 @@ export const useAnonymizationStep = (): AnonymizationStepResult => {
       };
     });
 
-    const updatedRows = rows.map((row, idx) => {
+    const updatedRows: TransactionRow[] = rows.map((row, idx) => {
       if (idx !== rowIndex) {
         return row;
       }

@@ -17,6 +17,7 @@ export class PrepareRecoveryRegistrationHandler {
   async execute(
     command: PrepareRecoveryRegistrationCommand,
   ): Promise<RecoveryAuthorityRegistration> {
+    // ARCH-EXCEPTION: repository/domain scope assertion owns workspace authorization — accepted permanently.
     assertFreshInteractiveAuth(command.user);
     const request = {
       userId: command.user.userId,

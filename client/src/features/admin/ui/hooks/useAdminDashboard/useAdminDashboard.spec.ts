@@ -10,15 +10,15 @@ vi.mock('react-i18next', () => ({
 }));
 
 const MOCK_USERS = [
-  { id: '1', email: 'admin@test.pl', role: 'Superuser' as const, createdAt: '2024-01-01', hasVault: true },
-  { id: '2', email: 'user@test.pl', role: 'Member' as const, createdAt: '2026-08-01', hasVault: false },
-  { id: '3', email: 'blocked@test.pl', role: 'Blocked' as const, createdAt: '2026-08-03', hasVault: true },
+  { id: '1', email: 'admin@test.pl', role: 'Superuser', createdAt: '2024-01-01', hasVault: true },
+  { id: '2', email: 'user@test.pl', role: 'Member', createdAt: '2026-08-01', hasVault: false },
+  { id: '3', email: 'blocked@test.pl', role: 'Blocked', createdAt: '2026-08-03', hasVault: true },
 ];
 
 const MOCK_CODES = [
-  { id: 'c1', code: 'ABC', status: 'Available' as const, createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
-  { id: 'c2', code: 'DEF', status: 'Used' as const, createdAt: '2026-08-02', expiresAt: null, usedBy: 'x@x.pl', usedAt: '2026-08-03' },
-  { id: 'c3', code: 'GHI', status: 'Available' as const, createdAt: '2026-08-04', expiresAt: null, usedBy: null, usedAt: null },
+  { id: 'c1', code: 'ABC', status: 'Available', createdAt: '2026-08-01', expiresAt: null, usedBy: null, usedAt: null },
+  { id: 'c2', code: 'DEF', status: 'Used', createdAt: '2026-08-02', expiresAt: null, usedBy: 'x@x.pl', usedAt: '2026-08-03' },
+  { id: 'c3', code: 'GHI', status: 'Available', createdAt: '2026-08-04', expiresAt: null, usedBy: null, usedAt: null },
 ];
 
 vi.mock('#features/admin/api/useAdminUsersQuery', () => ({

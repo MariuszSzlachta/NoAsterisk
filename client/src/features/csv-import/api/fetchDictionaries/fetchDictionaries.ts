@@ -32,7 +32,7 @@ export const validateResponse = (data: unknown): DictionaryApiResponse => {
     'merchants',
     'cities',
     'phrases',
-  ] as const;
+  ];
 
   for (const field of requiredFields) {
     if (!isStringArray(obj[field])) {

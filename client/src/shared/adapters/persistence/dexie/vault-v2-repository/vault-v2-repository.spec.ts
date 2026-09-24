@@ -230,7 +230,10 @@ describe('VaultV2Repository', () => {
     expect(rotated?.header.keyId).toBe('key-rotated');
     await expect(
       vaultProtocol.decryptRecord(
-        { header: rotated?.header ?? {}, ciphertext: rotated?.ciphertext ?? '' },
+        {
+          header: rotated?.header ?? {},
+          ciphertext: rotated?.ciphertext ?? '',
+        },
         {
           accountId: nextContext.accountId,
           workspaceId: nextContext.workspaceId,
@@ -372,15 +375,34 @@ describe('VaultV2Repository', () => {
       nextLocalShare: null,
       pendingRotation: {
         idempotencyKey: 'journal-1',
+        recoveryBackupConfirmed: true,
         envelopePurpose: 'device-wrap',
         envelope: 'opaque-next-envelope',
         nextVmk,
+        transcript: {
+          accountId: journalContext.accountId,
+          workspaceId: journalContext.workspaceId,
+          vaultId: journalContext.vaultId,
+          deviceId: journalContext.deviceId,
+          currentKeyId: journalContext.keyId,
+          nextKeyId: nextContext.keyId,
+          challenge: 'a'.repeat(43),
+          expiresAt: new Date(Date.now() + 30_000).toISOString(),
+          currentRecoveryPublicKey: 'a'.repeat(64),
+          nextRecoveryPublicKey: 'b'.repeat(64),
+          signingPublicKey: '{"kty":"EC"}',
+          envelopePurpose: 'device-wrap',
+          envelope: 'opaque-next-envelope',
+        },
       },
       isSessionActive: () => true,
     });
 
     const metadata = await database.metadata.get('vault');
     expect(metadata?.pendingRotation?.nextKeyId).toBe('key-journal-next');
+    expect(metadata?.pendingRotation?.transcript?.challenge).toBe(
+      'a'.repeat(43),
+    );
     expect(
       metadata?.pendingRotation?.currentVmkEnvelope.ciphertext,
     ).not.toContain(String.fromCharCode(...nextVmk));

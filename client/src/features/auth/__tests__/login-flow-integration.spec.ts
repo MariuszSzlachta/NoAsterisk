@@ -39,14 +39,14 @@ vi.mock('#shared/api/auth-tokens', () => ({
 // ─── Helpers ─────────────────────────────────────────────────────
 
 const buildChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-  ({ target: { value } } as ChangeEvent<HTMLInputElement>);
+  ({ target: { value } } satisfies ChangeEvent<HTMLInputElement>);
 
 const buildSubmitEvent = (): FormEvent =>
-  ({ preventDefault: vi.fn() } as unknown as FormEvent);
+  ({ preventDefault: vi.fn() } satisfies unknown satisfies FormEvent);
 
 const buildAuthResponse = () => ({
   accessToken: 'jwt-token-123',
-  user: { id: 'u-1', email: 'user@budget.pl', role: 'Member' as const, workspaceId: 'ws-1' },
+  user: { id: 'u-1', email: 'user@budget.pl', role: 'Member', workspaceId: 'ws-1' },
 });
 
 // ─── Tests ───────────────────────────────────────────────────────

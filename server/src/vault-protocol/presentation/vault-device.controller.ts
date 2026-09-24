@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '@shared/auth/current-user.decorator';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
@@ -7,7 +7,10 @@ import { VaultDeviceHandler } from '@vault-protocol/application/vault-device.han
 
 @Controller('users/me/vault/devices')
 export class VaultDeviceController {
-  constructor(private readonly handler: VaultDeviceHandler) {}
+  constructor(
+    @Inject(VaultDeviceHandler)
+    private readonly handler: Pick<VaultDeviceHandler, 'list' | 'revoke'>,
+  ) {}
 
   @Get()
   list(@CurrentUser() user: CurrentUserPayload) {

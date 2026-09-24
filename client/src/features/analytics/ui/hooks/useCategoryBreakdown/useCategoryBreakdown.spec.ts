@@ -7,7 +7,7 @@ import { useCategoryBreakdown } from './useCategoryBreakdown';
 
 vi.mock('#features/analytics/api/useCategoryBreakdownQuery', () => ({
   useCategoryBreakdownQuery: () => ({
-    status: 'loaded' as const,
+    status: 'loaded',
     data: [
       { category: 'Spożywcze', amount: 300, percentage: 60 },
       { category: 'Transport', amount: 200, percentage: 40 },

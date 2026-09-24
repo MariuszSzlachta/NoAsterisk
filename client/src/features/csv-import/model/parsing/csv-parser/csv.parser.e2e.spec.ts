@@ -65,13 +65,13 @@ describe('parseCsvFile e2e: 01-easy-revolut.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Date']).toBe('2025-06-01');
-    expect(row!['Description']).toBe('Salary Jun 2025');
-    expect(row!['Amount']).toBe('8500.00');
-    expect(row!['Currency']).toBe('PLN');
-    expect(row!['Category']).toBe('Income');
-    expect(row!['Counterparty']).toBe('TechCorp Sp. z o.o.');
-    expect(row!['Counterparty IBAN']).toBe('PL61109010140000071219812874');
+    expect(row['Date']).toBe('2025-06-01');
+    expect(row['Description']).toBe('Salary Jun 2025');
+    expect(row['Amount']).toBe('8500.00');
+    expect(row['Currency']).toBe('PLN');
+    expect(row['Category']).toBe('Income');
+    expect(row['Counterparty']).toBe('TechCorp Sp. z o.o.');
+    expect(row['Counterparty IBAN']).toBe('PL61109010140000071219812874');
   });
 
   it('maps row with empty optional fields correctly', async () => {
@@ -79,11 +79,11 @@ describe('parseCsvFile e2e: 01-easy-revolut.csv', () => {
     const row = result.rows[1];
 
     expect(row).toBeDefined();
-    expect(row!['Date']).toBe('2025-06-02');
-    expect(row!['Description']).toBe('To Biedronka Sklep 4412');
-    expect(row!['Amount']).toBe('-87.43');
-    expect(row!['Original Amount']).toBe('');
-    expect(row!['Counterparty IBAN']).toBe('');
+    expect(row['Date']).toBe('2025-06-02');
+    expect(row['Description']).toBe('To Biedronka Sklep 4412');
+    expect(row['Amount']).toBe('-87.43');
+    expect(row['Original Amount']).toBe('');
+    expect(row['Counterparty IBAN']).toBe('');
   });
 
   it('maps last row correctly', async () => {
@@ -91,9 +91,9 @@ describe('parseCsvFile e2e: 01-easy-revolut.csv', () => {
     const lastRow = result.rows[result.rowCount - 1];
 
     expect(lastRow).toBeDefined();
-    expect(lastRow!['Date']).toBeDefined();
-    expect(lastRow!['Amount']).toBeDefined();
-    expect(lastRow!['Currency']).toBe('PLN');
+    expect(lastRow['Date']).toBeDefined();
+    expect(lastRow['Amount']).toBeDefined();
+    expect(lastRow['Currency']).toBe('PLN');
   });
 });
 
@@ -131,14 +131,14 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['#Data operacji']).toBe('15.06.2025');
-    expect(row!['#Data księgowania']).toBe('16.06.2025');
-    expect(row!['#Opis operacji']).toBe('PRZELEW PRZYCHODZĄCY');
-    expect(row!['#Tytuł']).toContain('WYNAGRODZENIE ZA CZERWIEC');
-    expect(row!['#Nadawca/Odbiorca']).toContain('DIGITAL SOLUTIONS');
-    expect(row!['#Numer konta']).toContain('1050 1025');
-    expect(row!['#Kwota']).toBe('8 500,00');
-    expect(row!['#Saldo po operacji']).toBe('12 340,67');
+    expect(row['#Data operacji']).toBe('15.06.2025');
+    expect(row['#Data księgowania']).toBe('16.06.2025');
+    expect(row['#Opis operacji']).toBe('PRZELEW PRZYCHODZĄCY');
+    expect(row['#Tytuł']).toContain('WYNAGRODZENIE ZA CZERWIEC');
+    expect(row['#Nadawca/Odbiorca']).toContain('DIGITAL SOLUTIONS');
+    expect(row['#Numer konta']).toContain('1050 1025');
+    expect(row['#Kwota']).toBe('8 500,00');
+    expect(row['#Saldo po operacji']).toBe('12 340,67');
   });
 
   // FIXED: anchor-based strategy merges middle into first middle slot,
@@ -148,12 +148,12 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
     const row = result.rows[1];
 
     expect(row).toBeDefined();
-    expect(row!['#Data operacji']).toBe('14.06.2025');
-    expect(row!['#Opis operacji']).toContain('ZAKUP PRZY UŻYCIU KARTY');
-    expect(row!['#Opis operacji']).toContain('ŻABKA');
+    expect(row['#Data operacji']).toBe('14.06.2025');
+    expect(row['#Opis operacji']).toContain('ZAKUP PRZY UŻYCIU KARTY');
+    expect(row['#Opis operacji']).toContain('ŻABKA');
     // Key: amounts are NOT shifted
-    expect(row!['#Kwota']).toBe('-14,80');
-    expect(row!['#Saldo po operacji']).toBe('3 840,67');
+    expect(row['#Kwota']).toBe('-14,80');
+    expect(row['#Saldo po operacji']).toBe('3 840,67');
   });
 
   // FIXED: anchor-based strategy — middle merged, amounts at end
@@ -162,13 +162,13 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
     const row = result.rows[2];
 
     expect(row).toBeDefined();
-    expect(row!['#Data operacji']).toBe('13.06.2025');
-    expect(row!['#Opis operacji']).toContain('PRZELEW WYCHODZĄCY');
-    expect(row!['#Opis operacji']).toContain('CZYNSZ LIPIEC');
-    expect(row!['#Opis operacji']).toContain('NOVA DEVELOPMENT');
+    expect(row['#Data operacji']).toBe('13.06.2025');
+    expect(row['#Opis operacji']).toContain('PRZELEW WYCHODZĄCY');
+    expect(row['#Opis operacji']).toContain('CZYNSZ LIPIEC');
+    expect(row['#Opis operacji']).toContain('NOVA DEVELOPMENT');
     // Key: amounts are NOT shifted
-    expect(row!['#Kwota']).toBe('-2 100,00');
-    expect(row!['#Saldo po operacji']).toBe('3 855,47');
+    expect(row['#Kwota']).toBe('-2 100,00');
+    expect(row['#Saldo po operacji']).toBe('3 855,47');
   });
 
   // FIXED: anchor-based strategy — BLIK content is in merged middle
@@ -180,17 +180,17 @@ describe('parseCsvFile e2e: 02-medium-mbank.csv', () => {
     );
 
     expect(row).toBeDefined();
-    expect(row!['#Opis operacji']).toContain('ALLEGRO');
+    expect(row['#Opis operacji']).toContain('ALLEGRO');
     // Key: amounts are NOT shifted
-    expect(row!['#Kwota']).toBe('-239,99');
-    expect(row!['#Saldo po operacji']).toBe('6 119,47');
+    expect(row['#Kwota']).toBe('-239,99');
+    expect(row['#Saldo po operacji']).toBe('6 119,47');
   });
 
   // This passes because the salary row (first) doesn't trigger overflow
   it('maps all rows with correct #Kwota values — salary only (others broken)', async () => {
     const result = await parseCsvFile(loadStubAsFile('02-medium-mbank.csv'));
     // Only salary row (index 0) has correct mapping — it has 9 tokens = no overflow
-    expect(result.rows[0]!['#Kwota']).toBe('8 500,00');
+    expect(result.rows[0]['#Kwota']).toBe('8 500,00');
   });
 });
 
@@ -221,7 +221,7 @@ describe('parseCsvFile e2e: 03-hard-pkobp.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Data waluty']).toMatch(/\d{4}-\d{2}-\d{2}/);
+    expect(row['Data waluty']).toMatch(/\d{4}-\d{2}-\d{2}/);
   });
 
   it('maps amount field correctly for first row', async () => {
@@ -229,7 +229,7 @@ describe('parseCsvFile e2e: 03-hard-pkobp.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Kwota']).toMatch(/[+-]?\d/);
+    expect(row['Kwota']).toMatch(/[+-]?\d/);
   });
 
   it('maps currency field correctly', async () => {
@@ -237,7 +237,7 @@ describe('parseCsvFile e2e: 03-hard-pkobp.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Waluta']).toBe('PLN');
+    expect(row['Waluta']).toBe('PLN');
   });
 
   // PKO BP has multiline quoted fields — verify they're parsed as one value
@@ -247,8 +247,8 @@ describe('parseCsvFile e2e: 03-hard-pkobp.csv', () => {
 
     expect(row).toBeDefined();
     // Opis should contain multiple lines joined (papaparse handles this)
-    expect(row!['Opis']).toBeDefined();
-    expect(row!['Opis']!.length).toBeGreaterThan(10);
+    expect(row['Opis']).toBeDefined();
+    expect(row['Opis'].length).toBeGreaterThan(10);
   });
 });
 
@@ -285,11 +285,11 @@ describe('parseCsvFile e2e: 04-mixed-easy-structure-hard-data.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Date']).toBe('01/06/2025');
-    expect(row!['Type']).toBe('INCOME');
-    expect(row!['Title']).toContain('Wynagrodzenie');
-    expect(row!['Amount']).toBe('6 200.00');
-    expect(row!['Balance']).toBe('14 520.33');
+    expect(row['Date']).toBe('01/06/2025');
+    expect(row['Type']).toBe('INCOME');
+    expect(row['Title']).toContain('Wynagrodzenie');
+    expect(row['Amount']).toBe('6 200.00');
+    expect(row['Balance']).toBe('14 520.33');
   });
 
   it('maps parentheses-negative amounts correctly', async () => {
@@ -299,7 +299,7 @@ describe('parseCsvFile e2e: 04-mixed-easy-structure-hard-data.csv', () => {
     const row = result.rows[1];
 
     expect(row).toBeDefined();
-    expect(row!['Amount']).toBe('(8.50)');
+    expect(row['Amount']).toBe('(8.50)');
   });
 
   it('maps all rows with no column shift', async () => {
@@ -359,7 +359,7 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
     const firstRow = result.rows[0];
     expect(firstRow).toBeDefined();
     // First row should be real data, not metadata
-    expect(firstRow!['DATA WALUTY']).toMatch(/\d{2}\.\d{2}\.\d{4}/);
+    expect(firstRow['DATA WALUTY']).toMatch(/\d{2}\.\d{2}\.\d{4}/);
   });
 
   // BUG: footer is included in parsed data
@@ -384,9 +384,9 @@ describe('parseCsvFile e2e: 05-mixed-hard-structure-mixed-data.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['DATA WALUTY']).toBe('01.06.2025');
-    expect(row!['KWOTA (PLN)']).toBe('+8 750,00');
-    expect(row!['SALDO']).toBe('22 140,55');
+    expect(row['DATA WALUTY']).toBe('01.06.2025');
+    expect(row['KWOTA (PLN)']).toBe('+8 750,00');
+    expect(row['SALDO']).toBe('22 140,55');
   });
 
   it.fails('maps first 3 data rows with correct column alignment', async () => {
@@ -438,11 +438,11 @@ describe('parseCsvFile e2e: 08-exotic-deceptive-simple.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Date']).toBe('2025-06-01');
-    expect(row!['Description']).toBe('Salary from TechCorp Ltd');
-    expect(row!['Amount']).toBe('8500.00');
-    expect(row!['Balance']).toBe('12340.67');
-    expect(row!['Currency']).toBe('EUR');
+    expect(row['Date']).toBe('2025-06-01');
+    expect(row['Description']).toBe('Salary from TechCorp Ltd');
+    expect(row['Amount']).toBe('8500.00');
+    expect(row['Balance']).toBe('12340.67');
+    expect(row['Currency']).toBe('EUR');
   });
 
   // BUG: CRLF line endings cause trailing \r in last column values
@@ -487,7 +487,7 @@ describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Txn Date']).toBe('01/06/2025');
+    expect(row['Txn Date']).toBe('01/06/2025');
   });
 
   it('maps balance correctly for first row (Indian format)', async () => {
@@ -498,7 +498,7 @@ describe('parseCsvFile e2e: 11-overflow-indian-sbi.csv', () => {
 
     expect(row).toBeDefined();
     // Indian number format: 23,47,892.14
-    expect(row!['Balance (₹)']).toMatch(/[\d,]+\.\d{2}/);
+    expect(row['Balance (₹)']).toMatch(/[\d,]+\.\d{2}/);
   });
 });
 
@@ -531,7 +531,7 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Trans Date']).toBe('01/06/2025');
+    expect(row['Trans Date']).toBe('01/06/2025');
   });
 
   it('maps balance for first row (salary credit)', async () => {
@@ -541,7 +541,7 @@ describe('parseCsvFile e2e: 13-overflow-nigerian-gtb.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Balance']).toMatch(/\d+/);
+    expect(row['Balance']).toMatch(/\d+/);
   });
 });
 
@@ -580,7 +580,7 @@ describe('parseCsvFile e2e: 14-overflow-vietnamese-vcb.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Ngay GD']).toBe('01/06/2025');
+    expect(row['Ngay GD']).toBe('01/06/2025');
   });
 });
 
@@ -619,7 +619,7 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['İşlem Tarihi']).toBe('01.06.2025');
+    expect(row['İşlem Tarihi']).toBe('01.06.2025');
   });
 
   // BUG: depends on correct header detection
@@ -630,6 +630,6 @@ describe('parseCsvFile e2e: 15-overflow-turkish-ziraat.csv', () => {
     const row = result.rows[0];
 
     expect(row).toBeDefined();
-    expect(row!['Bakiye']).toMatch(/[\d.,]+/);
+    expect(row['Bakiye']).toMatch(/[\d.,]+/);
   });
 });

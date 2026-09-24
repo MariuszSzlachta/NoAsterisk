@@ -1,10 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-  type RegistrationResponseJSON,
-} from '@simplewebauthn/server';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
 import {
   PASSKEY_USER_REPOSITORY,
@@ -18,6 +13,10 @@ import {
 } from '@vault-protocol/domain/ports/webauthn-credential.repository';
 import { WEBAUTHN_VERIFIER } from '@vault-protocol/domain/ports/webauthn-verifier.token';
 import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
+import {
+  WEBAUTHN_REGISTRATION_PORT,
+  type WebauthnRegistrationPort,
+} from '@vault-protocol/domain/ports/webauthn-registration.port';
 import { webauthnUserHandle } from '@vault-protocol/application/webauthn-user-handle';
 import {
   PASSKEY_TOKEN_PORT,
@@ -31,7 +30,9 @@ interface CredentialContext {
 
 interface RegistrationRequest extends CredentialContext {
   readonly challenge: string;
-  readonly credential: RegistrationResponseJSON;
+  readonly credential: Parameters<
+    WebauthnRegistrationPort['verifyRegistration']
+  >[0];
 }
 
 interface AssertionRequest extends CredentialContext {
@@ -65,6 +66,8 @@ export class WebauthnCredentialHandler {
     private readonly credentials: WebauthnCredentialRepository,
     @Inject(WEBAUTHN_VERIFIER)
     private readonly verifier: WebauthnVerifierPort,
+    @Inject(WEBAUTHN_REGISTRATION_PORT)
+    private readonly registration: WebauthnRegistrationPort,
     @Inject(PASSKEY_TOKEN_PORT) private readonly token: PasskeyTokenPort,
   ) {}
 
@@ -82,19 +85,13 @@ export class WebauthnCredentialHandler {
       type: 'registration',
     });
     const existing = await this.credentials.listActiveByUserId(user.userId);
-    return generateRegistrationOptions({
+    return this.registration.createOptions({
       rpName: 'BudgetFlow',
-      rpID: rpId(),
+      rpId: rpId(),
       userName: account.email,
       userDisplayName: account.displayName ?? account.email,
-      userID: new TextEncoder().encode(user.userId),
+      userId: new TextEncoder().encode(user.userId),
       challenge: challenge.challenge,
-      attestationType: 'none',
-      authenticatorSelection: {
-        residentKey: 'preferred',
-        userVerification: 'required',
-      },
-      extensions: { prf: {} },
       excludeCredentials: existing.map((credential) => ({
         id: credential.credentialId,
         transports: [...credential.transports],
@@ -112,23 +109,17 @@ export class WebauthnCredentialHandler {
       deviceId: request.deviceId,
       type: 'registration',
     });
-    const result = await verifyRegistrationResponse({
-      response: request.credential,
-      expectedChallenge: challenge.challenge,
-      expectedOrigin: origin(),
-      expectedRPID: rpId(),
-      expectedType: 'webauthn.create',
-      requireUserVerification: true,
-    });
-    if (!result.verified)
+    const result = await this.registration.verifyRegistration(
+      request.credential,
+      challenge.challenge,
+      origin(),
+      rpId(),
+    );
+    if (!result.verified || result.registrationInfo === undefined)
       throw new BadRequestException('WebAuthn registration rejected');
-    if (
-      result.registrationInfo.origin !== origin() ||
-      result.registrationInfo.rpID !== rpId() ||
-      !result.registrationInfo.userVerified
-    )
-      throw new BadRequestException('WebAuthn registration policy rejected');
     const info = result.registrationInfo;
+    if (info.origin !== origin() || info.rpID !== rpId() || !info.userVerified)
+      throw new BadRequestException('WebAuthn registration policy rejected');
     await this.credentials.create({
       userId: user.userId,
       credentialId: info.credential.id,

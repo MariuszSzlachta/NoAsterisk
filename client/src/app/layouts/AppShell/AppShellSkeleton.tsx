@@ -9,7 +9,7 @@ const NAVIGATION_ITEMS = [
   { id: 'budgets', width: 'w-28' },
   { id: 'analytics', width: 'w-24' },
   { id: 'rules', width: 'w-20' },
-] as const;
+];
 
 export const AppShellSkeleton = (): React.JSX.Element => {
   const { t } = useTranslation();

@@ -25,36 +25,52 @@ import {
 } from '#shared/adapters/charts/adapters/nivo/utils/axis';
 import type { LineChartProps } from '#shared/adapters/charts/ports/chart.port';
 
-const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 } as const;
+const CHART_MARGIN = { top: 12, right: 20, bottom: 44, left: 48 };
 const CHART_MARGIN_WITH_LEGEND = {
   top: 30,
   right: 20,
   bottom: 44,
   left: 48,
-} as const;
+};
 
 const COMPACT_CHART_MARGIN_WITH_LEGEND = {
   top: 30,
   right: 8,
   bottom: 40,
   left: 28,
-} as const;
+};
 
 const COMPACT_CHART_MARGIN_WITHOUT_LEGEND = {
   top: 12,
   right: 20,
   bottom: 40,
   left: 48,
-} as const;
+};
 
-const LEGEND_TOP_RIGHT = {
-  anchor: 'top-right' as const,
-  direction: 'row' as const,
+const toDominantBaseline = (
+  value: string | number | undefined,
+): React.SVGAttributes<SVGTextElement>['dominantBaseline'] => {
+  const allowed = new Set(['auto', 'use-script', 'no-change', 'reset-size', 'ideographic', 'alphabetic', 'hanging', 'mathematical', 'central', 'middle', 'text-after-edge', 'text-before-edge']);
+  if (typeof value !== 'string' || !allowed.has(value)) return 'auto';
+  if (value === 'auto' || value === 'use-script' || value === 'no-change' || value === 'reset-size' || value === 'ideographic' || value === 'alphabetic' || value === 'hanging' || value === 'mathematical' || value === 'central' || value === 'middle' || value === 'text-after-edge' || value === 'text-before-edge') return value;
+  return 'auto';
+};
+
+const toTextAnchor = (
+  value: string | undefined,
+): React.SVGAttributes<SVGTextElement>['textAnchor'] => {
+  if (value === 'start' || value === 'middle' || value === 'end') return value;
+  return 'start';
+};
+
+const LEGEND_TOP_RIGHT: import('@nivo/legends').LegendProps = {
+  anchor: 'top-right',
+  direction: 'row',
   translateY: -12,
   itemWidth: 80,
   itemHeight: 20,
   symbolSize: 8,
-  symbolShape: 'square' as const,
+  symbolShape: 'square',
 };
 
 const LastXAxisTick = ({
@@ -81,12 +97,8 @@ const LastXAxisTick = ({
     <g transform={`translate(${x}, ${y})`}>
       <line x1={0} x2={0} y1={0} y2={lineY} style={theme.line} />
       <text
-        dominantBaseline={
-          textBaseline as React.SVGAttributes<SVGTextElement>['dominantBaseline']
-        }
-        textAnchor={
-          textAnchor as React.SVGAttributes<SVGTextElement>['textAnchor']
-        }
+        dominantBaseline={toDominantBaseline(textBaseline)}
+        textAnchor={toTextAnchor(textAnchor)}
         transform={`translate(${textX + offset}, ${textY}) rotate(${rotate})`}
         style={theme.text}
       >
@@ -131,8 +143,9 @@ const GradientAreaLayer = ({
           return null;
         }
 
-        const first = points[0]!;
-        const last = points[points.length - 1]!;
+        const first = points[0];
+        const last = points[points.length - 1];
+        if (first === undefined || last === undefined) return null;
         const linePath = points
           .map((p, idx) => `${idx === 0 ? 'M' : 'L'}${p.x},${p.y}`)
           .join(' ');
@@ -272,7 +285,7 @@ export const NivoLineChart = ({
             ? {
                 legend: axisLeft.label,
                 legendOffset: -40,
-                legendPosition: 'middle' as const,
+                legendPosition: 'middle',
                 tickPadding: 10,
                 tickValues: axisLeft.tickValues ?? computeYTickValues(data),
                 format: formatAxisValue,

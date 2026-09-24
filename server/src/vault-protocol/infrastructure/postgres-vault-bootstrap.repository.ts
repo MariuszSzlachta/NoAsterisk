@@ -12,6 +12,11 @@ import type {
   VaultBootstrap,
   VaultBootstrapRepository,
 } from '@vault-protocol/domain/ports/vault-bootstrap.repository';
+import {
+  mapAvailableVaultBootstrap,
+  mapEmptyVaultBootstrap,
+  mapEnrollmentRequiredVaultBootstrap,
+} from './mappers/map-vault-bootstrap';
 
 @Injectable()
 export class PostgresVaultBootstrapRepository implements VaultBootstrapRepository {
@@ -42,20 +47,12 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
         .where(eq(vaults.workspaceId, workspaceId));
       const legacyVault = existingVault[0];
       if (legacyVault) {
-        return {
-          status: 'enrollment-required',
-          vaultId: legacyVault.vaultId,
+        return mapEnrollmentRequiredVaultBootstrap({
           deviceId,
-          protocolVersion: 2,
-          cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-        };
+          vaultId: legacyVault.vaultId,
+        });
       }
-      return {
-        status: 'empty',
-        deviceId,
-        protocolVersion: 2,
-        cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-      };
+      return mapEmptyVaultBootstrap(deviceId);
     }
     if (
       keyset.protocolVersion !== '2' ||
@@ -80,17 +77,12 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
       );
     const device = deviceRows[0];
     if (!device) {
-      return {
-        status: 'enrollment-required',
+      return mapEnrollmentRequiredVaultBootstrap({
+        deviceId,
         vaultId: keyset.vaultId,
         keyId: keyset.keyId,
-        deviceId,
-        ...(keyset.recoveryPublicKey === null
-          ? {}
-          : { recoveryPublicKey: keyset.recoveryPublicKey }),
-        protocolVersion: 2,
-        cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
-      };
+        recoveryPublicKey: keyset.recoveryPublicKey,
+      });
     }
 
     const envelopes = await this.db
@@ -100,30 +92,18 @@ export class PostgresVaultBootstrapRepository implements VaultBootstrapRepositor
       })
       .from(vaultDeviceEnvelopes)
       .where(eq(vaultDeviceEnvelopes.deviceId, device.deviceRowId));
-    const deviceEnvelope = envelopes.find(
-      (item) => item.purpose === 'device-wrap',
-    )?.envelope;
-    const passkeyEnvelope = envelopes.find(
-      (item) => item.purpose === 'passkey-wrap',
-    )?.envelope;
-    if (deviceEnvelope === undefined && passkeyEnvelope === undefined)
-      throw new Error('Vault device envelope is missing');
-    return {
-      status: 'available',
-      vaultId: keyset.vaultId,
-      keyId: keyset.keyId,
+    return mapAvailableVaultBootstrap({
       deviceId,
-      ...(keyset.recoveryPublicKey === null
-        ? {}
-        : { recoveryPublicKey: keyset.recoveryPublicKey }),
-      protocolVersion: 2,
-      cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
+      keyset: {
+        vaultId: keyset.vaultId,
+        keyId: keyset.keyId,
+        recoveryPublicKey: keyset.recoveryPublicKey,
+      },
       securityProfile:
         device.securityProfile === 'high-security'
           ? 'high-security'
           : 'standard',
-      ...(deviceEnvelope === undefined ? {} : { deviceEnvelope }),
-      ...(passkeyEnvelope === undefined ? {} : { passkeyEnvelope }),
-    };
+      envelopes,
+    });
   }
 }

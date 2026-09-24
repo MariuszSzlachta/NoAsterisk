@@ -54,7 +54,7 @@ describe('KpiCard', () => {
         <KpiCard {...DEFAULT_PROPS} tooltip="Suma środków na kontach." />,
       );
 
-      const trigger = container.querySelector('[aria-describedby]')!;
+      const trigger = container.querySelector('[aria-describedby]');
       await userEvent.hover(trigger);
 
       expect(screen.getByRole('tooltip')).toHaveTextContent(
@@ -67,7 +67,7 @@ describe('KpiCard', () => {
         <KpiCard {...DEFAULT_PROPS} tooltip="Info text" />,
       );
 
-      const trigger = container.querySelector('[aria-describedby]')!;
+      const trigger = container.querySelector('[aria-describedby]');
       await userEvent.hover(trigger);
 
       const tooltip = screen.getByRole('tooltip');

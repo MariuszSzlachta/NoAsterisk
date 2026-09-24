@@ -1,0 +1,1 @@
+export { buildPostgresRotationFixture } from './buildPostgresRotationFixture';

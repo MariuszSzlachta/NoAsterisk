@@ -1,0 +1,1 @@
+export { verifyVaultRotationProof } from './verify';

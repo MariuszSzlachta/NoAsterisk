@@ -30,7 +30,7 @@ const run = async (input: PasskeyPrfInput): Promise<{
       userVerification: 'required',
       allowCredentials: input.credentialIds?.map((id) => ({
         id: toBuffer(id),
-        type: 'public-key' as const,
+        type: 'public-key',
       })),
       extensions: {
         prf: { eval: { first: toBuffer(input.salt) } },

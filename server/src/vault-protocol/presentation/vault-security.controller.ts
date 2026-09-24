@@ -32,7 +32,10 @@ type DisableDto = z.infer<typeof disableSchema>;
 export class VaultSecurityController {
   constructor(
     @Inject(EnableHighSecurityHandler)
-    private readonly enableHighSecurity: EnableHighSecurityHandler,
+    private readonly enableHighSecurity: Pick<
+      EnableHighSecurityHandler,
+      'execute' | 'enablePasskeyUnlock' | 'disable'
+    >,
   ) {}
 
   @Post('high-security/enable')

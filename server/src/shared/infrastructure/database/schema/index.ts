@@ -11,6 +11,7 @@ export { vaultDeviceEnvelopes } from './vault-device-envelopes.schema';
 export { webauthnChallenges } from './webauthn-challenges.schema';
 export { vaultSyncSnapshots } from './vault-sync-snapshots.schema';
 export { vaultRotations } from './vault-rotation.schema';
+export { vaultRotationChallenges } from './vault-rotation-challenges.schema';
 export { vaultEnrollmentChallenges } from './vault-enrollment-challenges.schema';
 export { signedEnrollmentChallenges } from './signed-enrollment-challenges';
 export { transactions } from './transactions.schema';

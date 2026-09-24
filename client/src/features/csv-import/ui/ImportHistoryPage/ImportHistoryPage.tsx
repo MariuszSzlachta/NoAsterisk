@@ -7,6 +7,7 @@ import { formatImportHistoryDate } from '#features/csv-import/model/history/form
 import { useImportHistory } from '#features/csv-import/ui/hooks/useImportHistory';
 import { ImportHistoryDeleteDialog } from '#features/csv-import/ui/ImportHistoryDeleteDialog';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { useActionFactory } from '#shared/hooks/useActionFactory';
 import { Badge } from '#shared/ui/Badge';
 import { Button } from '#shared/ui/Button';
 import { Card } from '#shared/ui/Card';
@@ -28,6 +29,8 @@ export const ImportHistoryPage = (): React.JSX.Element => {
     cancelDelete,
     confirmDelete,
   } = useImportHistory();
+  const { createActionHandler: createRequestDeleteHandler } =
+    useActionFactory(requestDelete);
 
   if (persistenceSnapshot.status === 'unlocking') {
     return (
@@ -129,7 +132,7 @@ export const ImportHistoryPage = (): React.JSX.Element => {
                   aria-label={t('importHistory.delete', {
                     fileName: record.fileName,
                   })}
-                  onClick={() => requestDelete(record)}
+                  onClick={createRequestDeleteHandler(record)}
                 >
                   <Trash2 size={16} aria-hidden="true" />
                 </Button>

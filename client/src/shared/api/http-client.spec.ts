@@ -55,8 +55,8 @@ describe('HttpClient', () => {
 
       await client.get('/users');
 
-      const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
-        ?.headers as Record<string, string>;
+      const headers = (fetch satisfies ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
+        ?.headers satisfies Record<string, string>;
       expect(headers['Authorization']).toBeUndefined();
     });
 
@@ -174,7 +174,7 @@ describe('HttpClient', () => {
         await client.get('/secret');
       } catch (e) {
         expect(e).toBeInstanceOf(ApiError);
-        const error = e as ApiError;
+        const error = e satisfies ApiError;
         expect(error.status).toBe(403);
         expect(error.body).toEqual({ message: 'Forbidden' });
       }
@@ -216,8 +216,8 @@ describe('HttpClient', () => {
         { skipAuth: true },
       );
 
-      const headers = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
-        ?.headers as Record<string, string>;
+      const headers = (fetch satisfies ReturnType<typeof vi.fn>).mock.calls[0]?.[1]
+        ?.headers satisfies Record<string, string>;
       expect(headers['Authorization']).toBeUndefined();
     });
   });

@@ -1,1 +1,1 @@
-export const HEURISTIC_SOURCE_BUILTIN = 'builtin' as const;
+export const HEURISTIC_SOURCE_BUILTIN = 'builtin';

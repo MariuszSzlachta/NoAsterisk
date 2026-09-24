@@ -224,7 +224,7 @@ const register = async (context: RegistrationContext): Promise<void> => {
       authenticatorSelection: optionsResponse.authenticatorSelection,
       excludeCredentials: optionsResponse.excludeCredentials?.map((item) => ({
         id: decode(item.id),
-        type: 'public-key' as const,
+        type: 'public-key',
         ...(item.transports === undefined
           ? {}
           : {

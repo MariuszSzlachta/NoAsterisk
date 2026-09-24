@@ -1,0 +1,1 @@
+export { buildDualRootRotationRepositoryDouble } from './buildDualRootRotationRepositoryDouble';

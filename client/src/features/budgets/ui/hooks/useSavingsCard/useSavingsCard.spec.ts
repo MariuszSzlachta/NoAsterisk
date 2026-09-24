@@ -29,7 +29,7 @@ describe('useSavingsCard', () => {
       limitCurrency: 'PLN',
       period: null,
     });
-    const savingsId = useBudgetsStore.getState().budgets[0]!.id;
+    const savingsId = useBudgetsStore.getState().budgets[0].id;
 
     // Add a source budget
     useBudgetsStore.getState().createBudget({
@@ -41,7 +41,7 @@ describe('useSavingsCard', () => {
       limitCurrency: 'PLN',
       period: { type: 'monthly' },
     });
-    const sourceId = useBudgetsStore.getState().budgets[1]!.id;
+    const sourceId = useBudgetsStore.getState().budgets[1].id;
 
     const historyRecord: PeriodHistoryRecord = {
       id: 'ph-1',
@@ -59,9 +59,9 @@ describe('useSavingsCard', () => {
     const { result } = renderHook(() => useSavingsCard({ budgetId: savingsId }));
 
     expect(result.current.vm).not.toBeNull();
-    expect(result.current.vm!.accumulated).toBe(500);
-    expect(result.current.vm!.goalAmount).toBe(10000);
-    expect(result.current.vm!.progressPercent).toBe(5);
+    expect(result.current.vm.accumulated).toBe(500);
+    expect(result.current.vm.goalAmount).toBe(10000);
+    expect(result.current.vm.progressPercent).toBe(5);
   });
 
   it('returns inflow history with source budget name', () => {
@@ -74,7 +74,7 @@ describe('useSavingsCard', () => {
       limitCurrency: 'PLN',
       period: null,
     });
-    const savingsId = useBudgetsStore.getState().budgets[0]!.id;
+    const savingsId = useBudgetsStore.getState().budgets[0].id;
 
     useBudgetsStore.getState().createBudget({
       workspaceId: 'ws-1',
@@ -85,7 +85,7 @@ describe('useSavingsCard', () => {
       limitCurrency: 'PLN',
       period: { type: 'monthly' },
     });
-    const sourceId = useBudgetsStore.getState().budgets[1]!.id;
+    const sourceId = useBudgetsStore.getState().budgets[1].id;
 
     usePeriodHistoryStore.setState({
       history: [{
@@ -118,7 +118,7 @@ describe('useSavingsCard', () => {
       limitCurrency: 'PLN',
       period: null,
     });
-    const savingsId = useBudgetsStore.getState().budgets[0]!.id;
+    const savingsId = useBudgetsStore.getState().budgets[0].id;
 
     const { result } = renderHook(() => useSavingsCard({ budgetId: savingsId }));
 

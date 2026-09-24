@@ -9,6 +9,7 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Inject,
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
@@ -67,14 +68,34 @@ type UploadVaultDto = z.infer<typeof uploadVaultSchema>;
 @Controller('users/me')
 export class UserSettingsController {
   constructor(
-    private readonly changePasswordHandler: ChangePasswordHandler,
-    private readonly updateProfileHandler: UpdateProfileHandler,
-    private readonly updatePreferencesHandler: UpdatePreferencesHandler,
-    private readonly uploadVaultHandler: UploadVaultHandler,
-    private readonly deleteAccountHandler: DeleteAccountHandler,
-    private readonly logoutHandler: LogoutHandler,
-    private readonly getProfileHandler: GetProfileHandler,
-    private readonly getVaultHandler: GetVaultHandler,
+    @Inject(ChangePasswordHandler)
+    private readonly changePasswordHandler: Pick<
+      ChangePasswordHandler,
+      'execute'
+    >,
+    @Inject(UpdateProfileHandler)
+    private readonly updateProfileHandler: Pick<
+      UpdateProfileHandler,
+      'execute'
+    >,
+    @Inject(UpdatePreferencesHandler)
+    private readonly updatePreferencesHandler: Pick<
+      UpdatePreferencesHandler,
+      'execute'
+    >,
+    @Inject(UploadVaultHandler)
+    private readonly uploadVaultHandler: Pick<UploadVaultHandler, 'execute'>,
+    @Inject(DeleteAccountHandler)
+    private readonly deleteAccountHandler: Pick<
+      DeleteAccountHandler,
+      'execute'
+    >,
+    @Inject(LogoutHandler)
+    private readonly logoutHandler: Pick<LogoutHandler, 'execute'>,
+    @Inject(GetProfileHandler)
+    private readonly getProfileHandler: Pick<GetProfileHandler, 'execute'>,
+    @Inject(GetVaultHandler)
+    private readonly getVaultHandler: Pick<GetVaultHandler, 'execute'>,
   ) {}
 
   @Get()

@@ -8,7 +8,7 @@ const context = {
   keyId: 'key-1',
   oldDeviceId: 'old-device-1',
   newDeviceId: 'new-device-1',
-} as const;
+};
 
 const canonicalize = (value: unknown): string => {
   const sorted = (item: unknown): unknown => {
@@ -17,7 +17,10 @@ const canonicalize = (value: unknown): string => {
     return Object.fromEntries(
       Object.keys(item)
         .sort()
-        .map((key) => [key, sorted((item as Record<string, unknown>)[key])]),
+        .map((key) => [
+          key,
+          sorted(Object.entries(item).find(([name]) => name === key)?.[1]),
+        ]),
     );
   };
   return JSON.stringify(sorted(value));
@@ -27,11 +30,11 @@ const createProof = async (): Promise<{
   readonly proof: string;
   readonly publicKey: string;
 }> => {
-  const signer = (await webcrypto.subtle.generateKey(
+  const signer = await webcrypto.subtle.generateKey(
     { name: 'ECDSA', namedCurve: 'P-256' },
     true,
     ['sign', 'verify'],
-  )) as CryptoKeyPair;
+  );
   const signingPublicKey = await webcrypto.subtle.exportKey(
     'jwk',
     signer.publicKey,
@@ -84,7 +87,15 @@ describe('trustedDeviceProof', () => {
 
   it('rejects signature, signer and context substitutions', async () => {
     const fixture = await createProof();
-    const parsed = JSON.parse(fixture.proof) as Record<string, unknown>;
+    const parsedValue: unknown = JSON.parse(fixture.proof);
+    if (
+      typeof parsedValue !== 'object' ||
+      parsedValue === null ||
+      Array.isArray(parsedValue)
+    ) {
+      throw new Error('Expected proof object');
+    }
+    const parsed = Object.fromEntries(Object.entries(parsedValue));
 
     await expect(
       trustedDeviceProof.verify({

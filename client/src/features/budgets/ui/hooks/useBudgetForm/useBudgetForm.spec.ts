@@ -39,12 +39,12 @@ describe('useBudgetForm', () => {
       const editBudget = {
         id: 'b-1',
         workspaceId: 'ws-1',
-        budgetType: 'standard' as const,
+        budgetType: 'standard',
         name: 'Groceries',
         color: '#34d399',
         limitAmount: 2000,
         limitCurrency: 'PLN',
-        period: { type: 'custom' as const, dateFrom: '2026-07-01', dateTo: '2026-07-31' },
+        period: { type: 'custom', dateFrom: '2026-07-01', dateTo: '2026-07-31' },
         categoryIds: [],
         createdAt: '2026-06-01T00:00:00.000Z',
         isArchived: false,
@@ -268,7 +268,7 @@ describe('useBudgetForm', () => {
         limitCurrency: 'PLN',
         period: { type: 'monthly' },
       });
-      const editBudget = useBudgetsStore.getState().budgets[0]!;
+      const editBudget = useBudgetsStore.getState().budgets[0];
 
       const { result } = renderHook(() =>
         useBudgetForm({ editBudget, onClose: mockOnClose, workspaceId: 'ws-1' }),

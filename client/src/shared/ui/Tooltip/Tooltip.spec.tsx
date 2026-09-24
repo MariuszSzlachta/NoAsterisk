@@ -65,7 +65,7 @@ describe('Tooltip', () => {
         </Tooltip>,
       );
 
-      const trigger = screen.getByText('icon').parentElement!;
+      const trigger = screen.getByText('icon').parentElement;
       await user.hover(trigger);
 
       const tooltip = screen.getByRole('tooltip');
@@ -79,7 +79,7 @@ describe('Tooltip', () => {
         </Tooltip>,
       );
 
-      const trigger = screen.getByText('icon').parentElement!;
+      const trigger = screen.getByText('icon').parentElement;
       expect(trigger).toHaveAttribute('tabindex', '0');
     });
 

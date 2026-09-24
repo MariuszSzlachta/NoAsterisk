@@ -1,8 +1,23 @@
 const CUTOVER_MARKER_KEY_PREFIX = 'budgetflow-v2-cutover-marker';
 const CUTOVER_MARKER = 'v2-reset-complete';
+const V2_DATABASE_NAME_PREFIX = 'budgetflow-encrypted-financial-data:';
+const PROTECTED_STORAGE_KEY_PREFIXES: readonly string[] = [
+  'budget-sync-metadata:',
+  `${CUTOVER_MARKER_KEY_PREFIX}:`,
+];
+const PROTECTED_STORAGE_KEYS: readonly string[] = [
+  'budgetflow:vault-v2:device-id',
+];
+
+interface LegacyDeletionRequest {
+  onsuccess: ((event: Event) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onblocked: ((event: IDBVersionChangeEvent) => void) | null;
+  readonly error?: DOMException | null;
+}
 
 interface LegacyDatabaseFactory {
-  readonly deleteDatabase: (name: string) => IDBOpenDBRequest;
+  readonly deleteDatabase: (name: string) => LegacyDeletionRequest;
   readonly databases?: () => Promise<ReadonlyArray<IDBDatabaseInfo>>;
 }
 
@@ -31,6 +46,18 @@ interface CutoverOptions {
    */
   readonly lockOnFailure?: () => void | Promise<void>;
 }
+
+const requireDestructiveAllowlists = (options: CutoverOptions): void => {
+  if (
+    options.dryRun !== true &&
+    (options.allowlistedDatabaseNames === undefined ||
+      options.allowlistedStorageKeys === undefined)
+  ) {
+    throw new Error(
+      'Legacy cutover requires explicit database and storage allowlists',
+    );
+  }
+};
 
 const deleteDatabase = (
   factory: LegacyDatabaseFactory,
@@ -95,6 +122,7 @@ const performLegacyCutover = async (
         deletedStorageKeys: [],
       };
     }
+    requireDestructiveAllowlists(options);
     const names = databaseNames.filter(
       (name, index, values) =>
         name.length > 0 && values.indexOf(name) === index,
@@ -102,6 +130,20 @@ const performLegacyCutover = async (
     const keys = storageKeys.filter(
       (key, index, values) => key.length > 0 && values.indexOf(key) === index,
     );
+    if (names.some((name) => name.startsWith(V2_DATABASE_NAME_PREFIX))) {
+      throw new Error('The v2 database is protected from legacy cutover');
+    }
+    if (
+      keys.some(
+        (key) =>
+          PROTECTED_STORAGE_KEYS.some((protectedKey) => protectedKey === key) ||
+          PROTECTED_STORAGE_KEY_PREFIXES.some((prefix) =>
+            key.startsWith(prefix),
+          ),
+      )
+    ) {
+      throw new Error('V2 storage metadata is protected from legacy cutover');
+    }
     if (
       options.allowlistedDatabaseNames !== undefined &&
       names.some((name) => !options.allowlistedDatabaseNames?.includes(name))

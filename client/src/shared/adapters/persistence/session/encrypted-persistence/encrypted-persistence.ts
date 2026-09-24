@@ -17,6 +17,7 @@ import {
 } from '#shared/adapters/persistence/dexie';
 import { clearVaultRotationJournal } from '#shared/adapters/persistence/dexie/clear-vault-rotation-journal';
 import { confirmVaultRotationBackup } from '#shared/adapters/persistence/dexie/confirm-vault-rotation-backup';
+import { renewVaultRotationJournal } from '#shared/adapters/persistence/dexie/renewVaultRotationJournal';
 import { migrateLegacyLocalStorage } from '#shared/adapters/persistence/migrations';
 import type {
   EncryptedCollectionWrite,
@@ -38,6 +39,7 @@ import {
   type PersistentStorageStatus,
 } from '#shared/adapters/persistence/session/session-types';
 import { persistenceSyncMetadata } from '#shared/adapters/persistence/sync-metadata';
+import type { RotationTranscriptSnapshot } from '#shared/adapters/vault-protocol/rotation-transcript';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 import { passkeyUnlockHandoff } from '#shared/adapters/webauthn/passkey-unlock-handoff';
 
@@ -265,34 +267,60 @@ export const createEncryptedPersistence = (
     validator: (value: unknown) => value is TRecord,
     getId: (record: TRecord) => string,
   ): EncryptedRepository<TRecord> => {
-    if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
-      const repositoryDatabase = activeVaultDatabase;
-      const repositoryContext = vaultContext;
-      const repositoryGeneration = activeGeneration;
-      return createVaultV2Repository(
-        repositoryDatabase,
+    const resolve = (): EncryptedRepository<TRecord> => {
+      if (activeVaultDatabase !== undefined && vaultContext !== undefined) {
+        const repositoryDatabase = activeVaultDatabase;
+        const repositoryContext = vaultContext;
+        const repositoryGeneration = activeGeneration;
+        return createVaultV2Repository(
+          repositoryDatabase,
+          collection,
+          requireKey,
+          validator,
+          getId,
+          repositoryContext,
+          databaseLock,
+          () =>
+            generation === repositoryGeneration &&
+            activeGeneration === repositoryGeneration &&
+            activeVaultDatabase === repositoryDatabase &&
+            vaultContext === repositoryContext,
+          () => persistenceSyncMetadata.markDirty(),
+        );
+      }
+      return createEncryptedDexieRepository(
+        () => activeDatabase,
         collection,
         requireKey,
         validator,
         getId,
-        vaultContext,
         databaseLock,
-        () =>
-          generation === repositoryGeneration &&
-          activeGeneration === repositoryGeneration &&
-          activeVaultDatabase === repositoryDatabase &&
-          vaultContext === repositoryContext,
-        () => persistenceSyncMetadata.markDirty(),
       );
-    }
-    return createEncryptedDexieRepository(
-      () => activeDatabase,
-      collection,
-      requireKey,
-      validator,
-      getId,
-      databaseLock,
-    );
+    };
+
+    return {
+      get: (id) => resolve().get(id),
+      getAll: () => resolve().getAll(),
+      put: (record) => resolve().put(record),
+      putMany: (records) => resolve().putMany(records),
+      putManyIfAbsent: (records, getDuplicateKey) =>
+        resolve().putManyIfAbsent(records, getDuplicateKey),
+      putManyIfAbsentWithRelated: <TRelated extends object>(
+        records: ReadonlyArray<TRecord>,
+        getDuplicateKey: (record: TRecord) => string,
+        createRelatedWrite: (
+          result: EncryptedWriteResult<TRecord>,
+        ) => EncryptedRelatedWrite<TRelated>,
+      ) =>
+        resolve().putManyIfAbsentWithRelated(
+          records,
+          getDuplicateKey,
+          createRelatedWrite,
+        ),
+      replace: (records) => resolve().replace(records),
+      delete: (id) => resolve().delete(id),
+      clear: () => resolve().clear(),
+    };
   };
 
   const requestPersistentStorage =
@@ -611,6 +639,7 @@ export const createEncryptedPersistence = (
     },
     rotation?: {
       readonly idempotencyKey: string;
+      readonly transcript?: RotationTranscriptSnapshot;
       readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
       readonly envelope: string;
       readonly passkeyEnvelope?: string;
@@ -753,6 +782,32 @@ export const createEncryptedPersistence = (
     if (generation !== requestedGeneration || activeVaultDatabase !== database)
       throw createPersistenceLockedError();
     return metadata?.pendingRotation;
+  };
+
+  const renewPendingVaultRotation = async (
+    previousChallenge: string,
+    transcript: RotationTranscriptSnapshot,
+  ): Promise<void> => {
+    const requestedGeneration = generation;
+    const database = activeVaultDatabase;
+    const context = vaultContext;
+    await databaseLock(async () => {
+      if (database === undefined || context === undefined)
+        throw createPersistenceLockedError();
+      await renewVaultRotationJournal(
+        database,
+        previousChallenge,
+        transcript,
+        () => {
+          if (
+            generation !== requestedGeneration ||
+            activeVaultDatabase !== database ||
+            vaultContext !== context
+          )
+            throw createPersistenceLockedError();
+        },
+      );
+    });
   };
 
   const clearPendingVaultRotation = async (
@@ -1039,7 +1094,6 @@ export const createEncryptedPersistence = (
         primaryWrite.getDuplicateKey,
         createRelatedWrite,
       );
-      if (result.written.length > 0) persistenceSyncMetadata.markDirty();
       return result;
     }
     const result = await putManyIfAbsentWithRelatedInDexie(
@@ -1089,6 +1143,7 @@ export const createEncryptedPersistence = (
     verifyVaultVmk,
     getPendingVaultRotation,
     clearPendingVaultRotation,
+    renewPendingVaultRotation,
     confirmPendingVaultRotationBackup,
     lock,
     failClosed,

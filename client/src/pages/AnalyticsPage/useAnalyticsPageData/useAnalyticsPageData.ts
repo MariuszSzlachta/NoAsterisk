@@ -14,7 +14,8 @@ import type { QueryState } from '#shared/api';
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const BREAKDOWN_METRICS = ['expenses', 'income'] as const;
+const isBreakdownMetric = (value: string): value is 'expenses' | 'income' =>
+  value === 'expenses' || value === 'income';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -37,8 +38,7 @@ export const useAnalyticsPageData = (): UseAnalyticsPageDataResult => {
   const state = useAnalyticsQuery(filters);
 
   const breakdownMetric = filters.metrics.find(
-    (m): m is 'expenses' | 'income' =>
-      BREAKDOWN_METRICS.includes(m as (typeof BREAKDOWN_METRICS)[number]),
+    isBreakdownMetric,
   );
 
   const breakdownFilters: CategoryBreakdownFilters | undefined = useMemo(

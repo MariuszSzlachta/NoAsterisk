@@ -1,13 +1,14 @@
 import { ForbiddenException } from '@nestjs/common';
 import { EnableHighSecurityHandler } from '@vault-protocol/application/enable-high-security.handler';
 import type { VaultSecurityRepository } from '@vault-protocol/domain/ports/vault-security.repository';
+import type { CurrentUserPayload } from '@shared/auth/current-user';
 
-const user = {
+const user: CurrentUserPayload = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Date.now(),
-  amr: 'webauthn' as const,
+  amr: 'webauthn',
 };
 
 describe('EnableHighSecurityHandler', () => {

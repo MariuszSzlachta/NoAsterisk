@@ -3,15 +3,18 @@ import { DictionaryType } from '@dictionaries/domain/dictionary-type.enum';
 import { isDictionaryType } from '@dictionaries/domain/dictionary-type.guard';
 
 export class DictionaryEntry {
+  readonly type: DictionaryType;
+
   constructor(
     readonly id: string,
-    readonly type: DictionaryType,
+    type: unknown,
     readonly value: string,
     readonly createdAt: Date,
   ) {
     if (!id) throw new DomainError('DictionaryEntry ID is required');
     if (!isDictionaryType(type))
       throw new DomainError('DictionaryEntry type is invalid');
+    this.type = type;
     if (!value || !value.trim())
       throw new DomainError('DictionaryEntry value is required');
     if (value.length > 255)

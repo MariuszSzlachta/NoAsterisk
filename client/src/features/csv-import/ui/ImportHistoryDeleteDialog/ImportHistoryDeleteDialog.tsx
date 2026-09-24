@@ -118,7 +118,7 @@ export const ImportHistoryDeleteDialog = ({
           </Button>
           <Button
             variant="destructive"
-            onClick={() => void onConfirm()}
+            onClick={onConfirm}
             disabled={isDeleting}
           >
             {isDeleting

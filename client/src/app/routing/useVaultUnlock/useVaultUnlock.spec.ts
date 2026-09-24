@@ -5,7 +5,7 @@ import { shouldResetVaultUnlockAttempt } from '#app/routing/useVaultUnlock/vault
 describe('Vault unlock bootstrap policy', () => {
   it('allows a high-security bootstrap without a device envelope', () => {
     const bootstrap = {
-      status: 'available' as const,
+      status: 'available',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
@@ -18,7 +18,7 @@ describe('Vault unlock bootstrap policy', () => {
 
   it('does not treat a failed PRF ceremony as a standard unlock', () => {
     const bootstrap = {
-      status: 'available' as const,
+      status: 'available',
       vaultId: 'vault-1',
       keyId: 'key-1',
       deviceId: 'device-1',
@@ -33,7 +33,7 @@ describe('Vault unlock bootstrap policy', () => {
     const bootstrap = {
       deviceEnvelope: 'stale-device-envelope',
       passkeyEnvelope: 'passkey-envelope',
-      securityProfile: 'high-security' as const,
+      securityProfile: 'high-security',
     };
 
     expect(vaultUnlockPolicy.isHighSecurityBootstrap(bootstrap)).toBe(true);

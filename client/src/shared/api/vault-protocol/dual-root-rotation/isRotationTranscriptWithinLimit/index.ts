@@ -1,0 +1,1 @@
+export { isRotationTranscriptWithinLimit } from './isRotationTranscriptWithinLimit';

@@ -42,10 +42,20 @@ describe('highSecurity', () => {
       deviceId: 'device-1',
       credentialId: 'credential-1',
     };
-    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.unwrapVmk).mockResolvedValue(vmk);
     vi.mocked(recoveryCode.restore).mockResolvedValue(vmk.slice());
-    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.wrapVmk).mockResolvedValue({
       header: { purpose: 'passkey-wrap' },
       ciphertext: 'opaque',
@@ -53,10 +63,18 @@ describe('highSecurity', () => {
 
     await highSecurity.enable({
       context,
-      localShare: {} as CryptoKey,
+      localShare: await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt'],
+      ),
       serverShare,
       deviceEnvelope: { header: {}, ciphertext: 'device' },
-      prfKey: {} as CryptoKey,
+      prfKey: await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt'],
+      ),
       recoveryCode: 'recovery-code',
     });
 
@@ -69,22 +87,36 @@ describe('highSecurity', () => {
         ciphertext: 'opaque',
       }),
     });
-    expect(encryptedPersistence.removeVaultLocalShare).toHaveBeenCalledWith(context);
+    expect(encryptedPersistence.removeVaultLocalShare).toHaveBeenCalledWith(
+      context,
+    );
     expect(serverShare.every((value) => value === 0)).toBe(true);
     expect(vmk.every((value) => value === 0)).toBe(true);
   });
 
   it('does not delete LocalShare when the server transition fails', async () => {
     const serverShare = new Uint8Array(32).fill(8);
-    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.unwrapVmk).mockResolvedValue(new Uint8Array(32));
     vi.mocked(recoveryCode.restore).mockResolvedValue(new Uint8Array(32));
-    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.wrapVmk).mockResolvedValue({
       header: {},
       ciphertext: 'opaque',
     });
-    vi.mocked(vaultSecurity.enableHighSecurity).mockRejectedValue(new Error('step-up-required'));
+    vi.mocked(vaultSecurity.enableHighSecurity).mockRejectedValue(
+      new Error('step-up-required'),
+    );
 
     await expect(
       highSecurity.enable({
@@ -96,10 +128,18 @@ describe('highSecurity', () => {
           deviceId: 'device-1',
           credentialId: 'credential-1',
         },
-        localShare: {} as CryptoKey,
+        localShare: await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt'],
+        ),
         serverShare,
         deviceEnvelope: { header: {}, ciphertext: 'device' },
-        prfKey: {} as CryptoKey,
+        prfKey: await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt'],
+        ),
         recoveryCode: 'recovery-code',
       }),
     ).rejects.toThrow('step-up-required');
@@ -109,7 +149,12 @@ describe('highSecurity', () => {
 
   it('does not contact the server when recovery does not match the active VMK', async () => {
     const serverShare = new Uint8Array(32).fill(8);
-    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.unwrapVmk).mockResolvedValue(new Uint8Array(32));
     vi.mocked(recoveryCode.restore).mockResolvedValue(
       new Uint8Array(32).fill(1),
@@ -125,10 +170,18 @@ describe('highSecurity', () => {
           deviceId: 'device-1',
           credentialId: 'credential-1',
         },
-        localShare: {} as CryptoKey,
+        localShare: await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt'],
+        ),
         serverShare,
         deviceEnvelope: { header: {}, ciphertext: 'device' },
-        prfKey: {} as CryptoKey,
+        prfKey: await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt'],
+        ),
         recoveryCode: 'recovery-code',
       }),
     ).rejects.toThrow('Recovery confirmation failed');
@@ -139,7 +192,11 @@ describe('highSecurity', () => {
   it('restores LocalShare only after disabling high-security on the server', async () => {
     const vmk = new Uint8Array(32).fill(4);
     const serverShare = new Uint8Array(32).fill(8);
-    const localShare = {} as CryptoKey;
+    const localShare = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
     const context = {
       accountId: 'account-1',
       workspaceId: 'workspace-1',
@@ -149,9 +206,19 @@ describe('highSecurity', () => {
       credentialId: 'credential-1',
     };
     vi.mocked(vaultProtocol.unwrapVmk).mockResolvedValue(vmk);
-    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.generateLocalShare).mockResolvedValue(localShare);
-    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue({} as CryptoKey);
+    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
     vi.mocked(vaultProtocol.wrapVmk).mockResolvedValue({
       header: { purpose: 'device-wrap' },
       ciphertext: 'device-envelope',
@@ -162,7 +229,11 @@ describe('highSecurity', () => {
       context,
       serverShare,
       passkeyEnvelope: { header: {}, ciphertext: 'passkey' },
-      prfKey: {} as CryptoKey,
+      prfKey: await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt'],
+      ),
       recoveryCode: 'recovery-code',
     });
 
@@ -179,5 +250,64 @@ describe('highSecurity', () => {
       expect.not.objectContaining({ credentialId: expect.any(String) }),
       localShare,
     );
+  });
+
+  it('does not publish LocalShare after a post-commit session change', async () => {
+    const vmk = new Uint8Array(32).fill(4);
+    const serverShare = new Uint8Array(32).fill(8);
+    let checks = 0;
+    vi.mocked(vaultProtocol.unwrapVmk).mockResolvedValue(vmk);
+    vi.mocked(vaultProtocol.derivePrfKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
+    vi.mocked(vaultProtocol.generateLocalShare).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
+    vi.mocked(vaultProtocol.deriveDeviceKey).mockResolvedValue(
+      await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
+        'encrypt',
+        'decrypt',
+      ]),
+    );
+    vi.mocked(vaultProtocol.wrapVmk).mockResolvedValue({
+      header: { purpose: 'device-wrap' },
+      ciphertext: 'device-envelope',
+    });
+    vi.mocked(recoveryCode.restore).mockResolvedValue(vmk.slice());
+
+    await expect(
+      highSecurity.disable({
+        context: {
+          accountId: 'account-1',
+          workspaceId: 'workspace-1',
+          vaultId: 'vault-1',
+          keyId: 'key-1',
+          deviceId: 'device-1',
+          credentialId: 'credential-1',
+        },
+        serverShare,
+        passkeyEnvelope: { header: {}, ciphertext: 'passkey' },
+        prfKey: await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt'],
+        ),
+        recoveryCode: 'recovery-code',
+        assertCurrent: () => {
+          checks += 1;
+          if (checks === 2) throw new Error('Vault operation session changed');
+        },
+      }),
+    ).rejects.toThrow('Vault operation session changed');
+    expect(vaultSecurity.disableHighSecurity).toHaveBeenCalled();
+    expect(encryptedPersistence.storeVaultLocalShare).not.toHaveBeenCalled();
+    expect(vmk.every((value) => value === 0)).toBe(true);
+    expect(serverShare.every((value) => value === 0)).toBe(true);
   });
 });

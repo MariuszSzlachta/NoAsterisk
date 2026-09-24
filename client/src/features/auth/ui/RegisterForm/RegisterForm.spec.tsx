@@ -142,7 +142,7 @@ describe('RegisterForm', () => {
   it('calls handleSubmit on form submit', () => {
     render(<RegisterForm />);
 
-    fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submit' }).closest('form')!);
+    fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submit' }).closest('form'));
 
     expect(mockHandleSubmit).toHaveBeenCalled();
   });

@@ -1,0 +1,1 @@
+export { RuleMobileCard } from './RuleMobileCard';

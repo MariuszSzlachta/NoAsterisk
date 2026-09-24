@@ -20,6 +20,14 @@ import type {
 import { ServerShareEncryptionAdapter } from '@vault-protocol/infrastructure/server-share-encryption.adapter';
 import { trustedDeviceProof } from '@vault-protocol/infrastructure/verify-trusted-device-proof';
 
+const getOldDeviceId = (proof: unknown): string | undefined => {
+  if (typeof proof !== 'object' || proof === null || Array.isArray(proof))
+    return undefined;
+  if (!('oldDeviceId' in proof) || typeof proof.oldDeviceId !== 'string')
+    return undefined;
+  return proof.oldDeviceId;
+};
+
 const TTL_MS = 60_000;
 
 @Injectable()
@@ -106,14 +114,9 @@ export class PostgresVaultEnrollmentRepository implements VaultEnrollmentReposit
         } catch {
           throw new Error('Invalid trusted-device approval');
         }
-        if (
-          typeof proof !== 'object' ||
-          proof === null ||
-          Array.isArray(proof) ||
-          typeof (proof as { oldDeviceId?: unknown }).oldDeviceId !== 'string'
-        )
+        const oldDeviceId = getOldDeviceId(proof);
+        if (oldDeviceId === undefined)
           throw new Error('Invalid trusted-device approval');
-        const oldDeviceId = (proof as { oldDeviceId: string }).oldDeviceId;
         const approverRows = await transaction
           .select({
             signingPublicKey: vaultDevices.signingPublicKey,

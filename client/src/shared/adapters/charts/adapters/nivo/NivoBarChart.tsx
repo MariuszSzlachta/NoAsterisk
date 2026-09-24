@@ -13,7 +13,7 @@ import {
 } from '#shared/adapters/charts/adapters/nivo/nivo-defaults';
 import type { BarChartProps } from '#shared/adapters/charts/ports/chart.port';
 
-const MARGIN = { top: 10, right: 60, bottom: 10, left: 120 } as const;
+const MARGIN = { top: 10, right: 60, bottom: 10, left: 120 };
 
 export const NivoBarChart = ({
   data,

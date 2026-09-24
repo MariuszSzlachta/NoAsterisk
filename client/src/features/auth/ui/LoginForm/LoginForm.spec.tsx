@@ -124,7 +124,7 @@ describe('LoginForm', () => {
   it('calls handleSubmit on form submit', () => {
     render(<LoginForm />);
 
-    fireEvent.submit(screen.getByRole('button', { name: 'auth.login.submit' }).closest('form')!);
+    fireEvent.submit(screen.getByRole('button', { name: 'auth.login.submit' }).closest('form'));
 
     expect(mockHandleSubmit).toHaveBeenCalled();
   });

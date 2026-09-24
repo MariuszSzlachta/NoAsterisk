@@ -1,0 +1,1 @@
+export { mapFinalizeRotationDtoToCommand } from './mapFinalizeRotationDtoToCommand';

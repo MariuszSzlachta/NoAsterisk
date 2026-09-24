@@ -30,10 +30,10 @@ describe('WebauthnChallengeStore', () => {
 
   it('supports account login challenges without vault scope', () => {
     const store = new WebauthnChallengeStore();
-    const login = {
+    const login: Parameters<WebauthnChallengeStore['create']>[0] = {
       userId: 'user',
       deviceId: 'auth-passkey-login',
-      type: 'login' as const,
+      type: 'login',
     };
     const record = store.create(login, 1000);
     expect(store.consume(record.challenge, login, 1001)).toEqual(record);

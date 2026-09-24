@@ -21,7 +21,7 @@ vi.mock('#app/providers/hydrate-financial-stores', () => ({
 
 vi.mock('#shared/adapters/persistence', () => ({
   encryptedPersistence: {
-    readVaultLocalShare: vi.fn().mockResolvedValue({} as CryptoKey),
+    readVaultLocalShare: vi.fn().mockResolvedValue({} satisfies CryptoKey),
     subscribe: vi.fn(() => vi.fn()),
     unlockWithVaultKeys,
     lock: vi.fn(),
@@ -83,7 +83,7 @@ vi.mock('#shared/api/vault-protocol/vault-enrollment', () => ({
 }));
 
 const snapshot = {
-  status: 'locked' as const,
+  status: 'locked',
   error: undefined,
   warning: undefined,
 };
@@ -140,7 +140,7 @@ describe('useVaultUnlock lifecycle', () => {
   });
 
   it('consumes the PRF handoff from the login ceremony without repeating it', async () => {
-    const prfKey = {} as CryptoKey;
+    const prfKey = {} satisfies CryptoKey;
     passkeyUnlockHandoff.set({
       context: {
         accountId: 'account-1',

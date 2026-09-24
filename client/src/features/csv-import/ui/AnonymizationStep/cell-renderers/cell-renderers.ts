@@ -5,4 +5,4 @@ import { AmountCellRenderer } from '#features/csv-import/ui/AnonymizationStep/Am
 export const CELL_RENDERERS = {
   title: TitleCellRenderer,
   amount: AmountCellRenderer,
-} as const;
+};

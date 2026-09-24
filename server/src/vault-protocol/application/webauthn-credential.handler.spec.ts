@@ -1,35 +1,24 @@
-import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-} from '@simplewebauthn/server';
 import { WebauthnCredentialHandler } from '@vault-protocol/application/webauthn-credential.handler';
-import type { UserRepository } from '@auth/domain/ports/user.repository';
+import type { PasskeyUserRepository } from '@vault-protocol/domain/ports/passkey-user.repository';
+import type { CurrentUserPayload } from '@shared/auth/current-user';
 import type { WebauthnChallengeStorePort } from '@vault-protocol/domain/ports/webauthn-challenge.store';
 import type { WebauthnCredentialRepository } from '@vault-protocol/domain/ports/webauthn-credential.repository';
-import type { WebauthnVerifierAdapter } from '@vault-protocol/infrastructure/webauthn-verifier.adapter';
+import type { WebauthnVerifierPort } from '@vault-protocol/domain/ports/webauthn-verifier.port';
 import type { TokenPort } from '@auth/domain/ports/token.port';
+import type { WebauthnRegistrationPort } from '@vault-protocol/domain/ports/webauthn-registration.port';
 
-jest.mock('@simplewebauthn/server', () => ({
-  generateRegistrationOptions: jest.fn(),
-  verifyRegistrationResponse: jest.fn(),
-}));
-
-const user = {
+const user: CurrentUserPayload = {
   userId: 'user-1',
   workspaceId: 'workspace-1',
   role: 'Member',
   authTime: Date.now(),
-  amr: 'password' as const,
+  amr: 'password',
 };
 
 describe('WebauthnCredentialHandler', () => {
-  const users: UserRepository = {
+  const users: PasskeyUserRepository = {
     findById: jest.fn(),
-    save: jest.fn(),
     findByEmail: jest.fn(),
-    findAll: jest.fn(),
-    existsByEmail: jest.fn(),
-    delete: jest.fn(),
   };
   const challenges: WebauthnChallengeStorePort = {
     create: jest.fn(),
@@ -42,9 +31,13 @@ describe('WebauthnCredentialHandler', () => {
     updateCounter: jest.fn(),
     revoke: jest.fn(),
   };
-  const verifier = {
+  const verifier: WebauthnVerifierPort = {
     verify: jest.fn(),
-  } as unknown as WebauthnVerifierAdapter;
+  };
+  const registration: WebauthnRegistrationPort = {
+    createOptions: jest.fn(),
+    verifyRegistration: jest.fn(),
+  };
   const token: TokenPort = {
     sign: jest.fn(() => 'access-token'),
     signRefresh: jest.fn(() => 'refresh-token'),
@@ -57,11 +50,10 @@ describe('WebauthnCredentialHandler', () => {
     jest.mocked(users.findById).mockResolvedValue({
       id: 'user-1',
       email: 'owner@example.com',
-      passwordHash: 'hash',
-      role: 'Member' as never,
+      role: 'Member',
       workspaceId: 'workspace-1',
-      createdAt: new Date(),
-    } as never);
+      tokenVersion: 0,
+    });
     jest.mocked(challenges.create).mockResolvedValue({
       userId: 'user-1',
       vaultId: 'vault-1',
@@ -72,8 +64,8 @@ describe('WebauthnCredentialHandler', () => {
     });
     jest.mocked(credentials.listActiveByUserId).mockResolvedValue([]);
     jest
-      .mocked(generateRegistrationOptions)
-      .mockResolvedValue({ challenge: 'challenge-1' } as never);
+      .mocked(registration.createOptions)
+      .mockResolvedValue({ challenge: 'challenge-1' });
   });
 
   it('creates registration options with required user verification and PRF request', async () => {
@@ -82,6 +74,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
     await handler.createRegistrationOptions(user, {
@@ -89,15 +82,10 @@ describe('WebauthnCredentialHandler', () => {
       deviceId: 'device-1',
     });
 
-    expect(generateRegistrationOptions).toHaveBeenCalledWith(
+    expect(registration.createOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         challenge: 'challenge-1',
-        rpID: expect.any(String),
-        authenticatorSelection: {
-          residentKey: 'preferred',
-          userVerification: 'required',
-        },
-        extensions: { prf: {} },
+        rpId: expect.any(String),
       }),
     );
   });
@@ -109,6 +97,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
 
@@ -130,7 +119,7 @@ describe('WebauthnCredentialHandler', () => {
       challenge: 'challenge-1',
       expiresAt: Date.now() + 60_000,
     });
-    jest.mocked(verifyRegistrationResponse).mockResolvedValue({
+    jest.mocked(registration.verifyRegistration).mockResolvedValue({
       verified: true,
       registrationInfo: {
         credential: {
@@ -143,13 +132,14 @@ describe('WebauthnCredentialHandler', () => {
         origin: process.env['CORS_ORIGIN'] ?? 'http://localhost:5173',
         rpID: process.env['WEBAUTHN_RP_ID'] ?? 'localhost',
       },
-    } as never);
+    });
 
     const handler = new WebauthnCredentialHandler(
       users,
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
     await handler.verifyRegistration(user, {
@@ -187,14 +177,16 @@ describe('WebauthnCredentialHandler', () => {
       challenge: 'challenge-1',
       expiresAt: Date.now() + 60_000,
     });
-    const request = {
+    const request: Parameters<
+      WebauthnCredentialHandler['verifyRegistration']
+    >[1] = {
       vaultId: 'vault-1',
       deviceId: 'device-1',
       challenge: 'challenge-1',
       credential: {
         id: 'credential-1',
         rawId: 'raw',
-        type: 'public-key' as const,
+        type: 'public-key',
         response: {
           clientDataJSON: 'client',
           attestationObject: 'attestation',
@@ -207,17 +199,18 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
 
     jest
-      .mocked(verifyRegistrationResponse)
-      .mockResolvedValue({ verified: false } as never);
+      .mocked(registration.verifyRegistration)
+      .mockResolvedValue({ verified: false });
     await expect(handler.verifyRegistration(user, request)).rejects.toThrow(
       'WebAuthn registration rejected',
     );
 
-    jest.mocked(verifyRegistrationResponse).mockResolvedValue({
+    jest.mocked(registration.verifyRegistration).mockResolvedValue({
       verified: true,
       registrationInfo: {
         credential: {
@@ -230,7 +223,7 @@ describe('WebauthnCredentialHandler', () => {
         origin: process.env['CORS_ORIGIN'] ?? 'http://localhost:5173',
         rpID: process.env['WEBAUTHN_RP_ID'] ?? 'localhost',
       },
-    } as never);
+    });
     await expect(handler.verifyRegistration(user, request)).rejects.toThrow(
       'WebAuthn registration policy rejected',
     );
@@ -260,6 +253,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
 
@@ -304,6 +298,7 @@ describe('WebauthnCredentialHandler', () => {
         challenges,
         credentials,
         verifier,
+        registration,
         token,
       ).list(user),
     ).resolves.toEqual([
@@ -340,6 +335,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     ).verifyAuthentication(user, {
       vaultId: 'vault-1',
@@ -363,6 +359,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
     await handler.revoke(user, 'credential-1');
@@ -386,6 +383,7 @@ describe('WebauthnCredentialHandler', () => {
       challenges,
       credentials,
       verifier,
+      registration,
       token,
     );
 

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  Inject,
   Controller,
   Get,
   Headers,
@@ -18,7 +19,10 @@ type SyncSnapshotDto = z.infer<typeof syncSnapshotSchema>;
 
 @Controller('users/me/vault/sync')
 export class SyncSnapshotController {
-  constructor(private readonly handler: SyncSnapshotHandler) {}
+  constructor(
+    @Inject(SyncSnapshotHandler)
+    private readonly handler: Pick<SyncSnapshotHandler, 'get' | 'put'>,
+  ) {}
 
   @Get(':vaultId')
   get(

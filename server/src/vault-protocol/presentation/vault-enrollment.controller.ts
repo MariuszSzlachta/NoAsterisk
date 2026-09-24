@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '@shared/auth/current-user.decorator';
 import type { CurrentUserPayload } from '@shared/auth/current-user';
@@ -43,7 +43,13 @@ type ConfirmationDto = z.infer<typeof confirmationSchema>;
 
 @Controller('users/me/vault/enrollment')
 export class VaultEnrollmentController {
-  constructor(private readonly handler: VaultEnrollmentHandler) {}
+  constructor(
+    @Inject(VaultEnrollmentHandler)
+    private readonly handler: Pick<
+      VaultEnrollmentHandler,
+      'prepare' | 'finalize' | 'confirm'
+    >,
+  ) {}
 
   @Post('prepare')
   @Throttle(THROTTLE_SENSITIVE)

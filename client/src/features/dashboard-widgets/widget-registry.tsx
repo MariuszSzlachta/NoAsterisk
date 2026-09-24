@@ -28,7 +28,7 @@ const WidgetType = {
   BudgetProgress: 'BudgetProgress',
   RecentTransactions: 'RecentTransactions',
   RecurringExpenses: 'RecurringExpenses',
-} as const;
+};
 
 type WidgetType = (typeof WidgetType)[keyof typeof WidgetType];
 

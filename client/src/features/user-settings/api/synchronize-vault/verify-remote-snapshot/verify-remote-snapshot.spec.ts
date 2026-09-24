@@ -53,4 +53,24 @@ describe('verifyRemoteSnapshot', () => {
       fixture.vmk.fill(0);
     }
   });
+
+  it('should keep the trusted floor when force is requested for an older snapshot', async () => {
+    const fixture = await buildSignedSyncFixture();
+    try {
+      await expect(
+        verifyRemoteSnapshot(
+          fixture.snapshot,
+          fixture.material,
+          true,
+          {
+            observedRevision: fixture.snapshot.revision + 1,
+            highWaterEnvelopeHash: 'newer-high-water',
+          },
+          () => {},
+        ),
+      ).rejects.toThrow('rollback');
+    } finally {
+      fixture.vmk.fill(0);
+    }
+  });
 });

@@ -5,7 +5,7 @@ import type { StoredTransaction } from '#entities/transaction/types';
 import { computeCategoryDrilldown } from './category-drilldown';
 
 const tx = (id: string, amount: number, date: string, categoryId?: string): StoredTransaction =>
-  ({ id, amount, date, description: `Desc ${id}`, categoryId }) as StoredTransaction;
+  ({ id, amount, date, description: `Desc ${id}`, categoryId }) satisfies StoredTransaction;
 
 const dateRange = { from: '2026-01-01', to: '2026-06-30' };
 const now = new Date(2026, 5, 30); // June 30, 2026 — deterministic
@@ -47,15 +47,15 @@ describe('computeCategoryDrilldown', () => {
 
   it('returns recent transactions sorted by date descending', () => {
     const result = computeCategoryDrilldown(transactions, 'Spożywcze', dateRange, 'expenses', now);
-    expect(result.transactions[0]!.date).toBe('2026-03-20');
-    expect(result.transactions[1]!.date).toBe('2026-02-15');
-    expect(result.transactions[2]!.date).toBe('2026-01-10');
+    expect(result.transactions[0].date).toBe('2026-03-20');
+    expect(result.transactions[1].date).toBe('2026-02-15');
+    expect(result.transactions[2].date).toBe('2026-01-10');
   });
 
   it('transactions have absolute amounts', () => {
     const result = computeCategoryDrilldown(transactions, 'Spożywcze', dateRange, 'expenses', now);
-    expect(result.transactions[0]!.amount).toBe(50);
-    expect(result.transactions[1]!.amount).toBe(200);
+    expect(result.transactions[0].amount).toBe(50);
+    expect(result.transactions[1].amount).toBe(200);
   });
 
   it('caps at 10 transactions', () => {
@@ -69,7 +69,7 @@ describe('computeCategoryDrilldown', () => {
   it('filters by metric (income only)', () => {
     const result = computeCategoryDrilldown(transactions, 'Wynagrodzenie', dateRange, 'income', now);
     expect(result.transactions).toHaveLength(1);
-    expect(result.transactions[0]!.amount).toBe(5000);
+    expect(result.transactions[0].amount).toBe(5000);
   });
 
   it('returns empty transactions when category has no matches', () => {

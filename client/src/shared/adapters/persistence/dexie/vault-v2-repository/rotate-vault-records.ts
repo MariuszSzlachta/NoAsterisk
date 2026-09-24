@@ -2,6 +2,10 @@ import type {
   VaultV2Database,
   VaultV2RotationJournal,
 } from '#shared/adapters/persistence/dexie/vault-v2-database';
+import { createRotationRecordContext } from '#shared/adapters/persistence/dexie/vault-v2-repository/create-rotation-record-context';
+import { encryptRotationVmk } from '#shared/adapters/persistence/dexie/vault-v2-repository/encrypt-rotation-vmk';
+import { isJsonRecord } from '#shared/adapters/persistence/dexie/vault-v2-repository/is-json-record';
+import type { RotationTranscriptSnapshot } from '#shared/adapters/vault-protocol/rotation-transcript';
 import { vaultProtocol } from '#shared/adapters/vault-protocol/vault-protocol';
 
 interface RotationContext {
@@ -25,27 +29,12 @@ interface RotateVaultRecordsInput {
     readonly envelopePurpose: 'device-wrap' | 'passkey-wrap';
     readonly envelope: string;
     readonly passkeyEnvelope?: string;
+    readonly transcript?: RotationTranscriptSnapshot;
     readonly nextVmk: Uint8Array;
     readonly recoveryBackupConfirmed: true;
   };
   readonly isSessionActive: () => boolean;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
-const recordContext = (
-  context: RotationContext,
-  collection: string,
-  recordId: string,
-) => ({
-  accountId: context.accountId,
-  workspaceId: context.workspaceId,
-  vaultId: context.vaultId,
-  keyId: context.keyId,
-  collection,
-  recordId,
-});
 
 const rotate = async (input: RotateVaultRecordsInput): Promise<void> => {
   if (!input.isSessionActive()) throw new Error('Vault session is locked');
@@ -63,6 +52,9 @@ const rotate = async (input: RotateVaultRecordsInput): Promise<void> => {
           ...(input.pendingRotation.passkeyEnvelope === undefined
             ? {}
             : { passkeyEnvelope: input.pendingRotation.passkeyEnvelope }),
+          ...(input.pendingRotation.transcript === undefined
+            ? {}
+            : { transcript: input.pendingRotation.transcript }),
           currentVmkEnvelope: await encryptRotationVmk(
             input.pendingRotation.nextVmk,
             input.currentContext,
@@ -79,14 +71,23 @@ const rotate = async (input: RotateVaultRecordsInput): Promise<void> => {
     stored.map(async (record) => {
       const plaintext = await vaultProtocol.decryptRecord(
         { header: record.header, ciphertext: record.ciphertext },
-        recordContext(input.currentContext, record.collection, record.id),
+        createRotationRecordContext(
+          input.currentContext,
+          record.collection,
+          record.id,
+        ),
         input.currentKey,
       );
       const parsed: unknown = JSON.parse(plaintext);
-      if (!isRecord(parsed)) throw new Error('Vault record validation failed');
+      if (!isJsonRecord(parsed))
+        throw new Error('Vault record validation failed');
       const encrypted = await vaultProtocol.encryptRecord(
         plaintext,
-        recordContext(input.nextContext, record.collection, record.id),
+        createRotationRecordContext(
+          input.nextContext,
+          record.collection,
+          record.id,
+        ),
         input.nextKey,
       );
       return {
@@ -136,22 +137,6 @@ const rotate = async (input: RotateVaultRecordsInput): Promise<void> => {
       });
     },
   );
-};
-
-const encryptRotationVmk = async (
-  vmk: Uint8Array,
-  context: RotationContext,
-  key: CryptoKey,
-): Promise<{
-  readonly header: Record<string, unknown>;
-  readonly ciphertext: string;
-}> => {
-  const envelope = await vaultProtocol.encryptRecord(
-    JSON.stringify(Array.from(vmk)),
-    recordContext(context, '__vault_rotation__', 'next-vmk'),
-    key,
-  );
-  return { header: envelope.header, ciphertext: envelope.ciphertext };
 };
 
 export const rotateVaultRecords = Object.freeze({ rotate });

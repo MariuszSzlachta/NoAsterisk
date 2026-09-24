@@ -7,7 +7,7 @@ const PAGE_SIZE_OPTIONS = [
   { value: '25', label: '25' },
   { value: '50', label: '50' },
   { value: '100', label: '100' },
-] as const;
+];
 
 interface PaginationBarProps {
   readonly currentPage: number;

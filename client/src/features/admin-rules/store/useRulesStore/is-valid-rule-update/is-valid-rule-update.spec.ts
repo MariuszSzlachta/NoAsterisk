@@ -24,7 +24,7 @@ describe('isValidRuleUpdate', () => {
   });
 
   it('returns false for invalid matcherType', () => {
-    expect(isValidRuleUpdate({ matcherType: 'Invalid' as 'Contains' })).toBe(false);
+    expect(isValidRuleUpdate({ matcherType: 'Invalid' satisfies 'Contains' })).toBe(false);
   });
 
   it('returns true for valid categoryId', () => {
