@@ -9,19 +9,19 @@ import {
   vaultKeysets,
   signedEnrollmentChallenges,
 } from '@shared/infrastructure/database/schema';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 import { mapRowToSignedEnrollment } from '@vault-protocol/infrastructure/mappers/map-signed-enrollment';
 import type { SignedEnrollmentInput } from '@vault-protocol/domain/entities/signed-enrollment';
 import { PostgresSignedEnrollmentRepository } from '@vault-protocol/infrastructure/repositories/postgres-signed-enrollment';
 import { EnrollmentProofVerifierAdapter } from '@vault-protocol/infrastructure/adapters/enrollment-proof-verifier';
 import { VaultSignatureVerifierAdapter } from '@vault-protocol/infrastructure/adapters/vault-signature-verifier';
-import { createVaultSecurityTestConnection } from '@vault-protocol/testing/vault-security-test-connection';
 import { buildPostgresRecoveryFixture } from '@vault-protocol/testing/build-postgres-recovery-fixture';
 import { buildVaultSignatureFixture } from '@vault-protocol/testing/build-vault-signature-fixture';
 import { signSignedEnrollment } from '@vault-protocol/testing/sign-signed-enrollment';
 import { signEnrollmentConfirmation } from '@vault-protocol/testing/sign-enrollment-confirmation';
 
 describe('PostgreSQL complete signed enrollment', () => {
-  let pool: Pool;
+  let pool: Pool | undefined;
   let database: DrizzleDatabase;
   let repository: PostgresSignedEnrollmentRepository;
   const previousInfrastructureKey =
@@ -31,7 +31,7 @@ describe('PostgreSQL complete signed enrollment', () => {
       32,
       37,
     ).toString('base64');
-    const connection = await createVaultSecurityTestConnection();
+    const connection = await createPostgresTestConnection();
     pool = connection.pool;
     database = connection.database;
     repository = new PostgresSignedEnrollmentRepository(
@@ -45,7 +45,7 @@ describe('PostgreSQL complete signed enrollment', () => {
     jest.restoreAllMocks();
   });
   afterAll(async () => {
-    await pool.end();
+    await pool?.end();
     if (previousInfrastructureKey === undefined)
       delete process.env['VAULT_INFRASTRUCTURE_KEY_BASE64'];
     else

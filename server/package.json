@@ -22,11 +22,12 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "lint:fix": "npm run lint -- --fix",
     "lint:strict": "ESLINT_STRICT=true eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns='\\.integration\\.spec\\.ts$'",
+    "test:integration": "bash ./scripts/run-postgres-integration-tests.sh",
     "test:security": "jest --config ./test/jest-e2e.json --runInBand test/security.e2e-spec.ts",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:watch": "npm run test -- --watch",
+    "test:cov": "npm run test -- --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --testPathIgnorePatterns='\\.integration\\.spec\\.ts$'",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
@@ -98,6 +99,9 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!@noble/(?:curves|hashes)/)"
+    ],
+    "setupFiles": [
+      "<rootDir>/../test/jest-unit-setup.ts"
     ],
     "moduleNameMapper": {
       "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",

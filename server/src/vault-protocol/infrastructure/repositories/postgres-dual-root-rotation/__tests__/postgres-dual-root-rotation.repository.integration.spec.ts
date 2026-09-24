@@ -10,23 +10,19 @@ import {
   vaultDeviceEnvelopes,
   vaults,
 } from '@shared/infrastructure/database/schema';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 import { PostgresDualRootRotationRepository } from '@vault-protocol/infrastructure/repositories/postgres-dual-root-rotation';
 import { FinalizeDualRootRotationHandler } from '@vault-protocol/application/commands/finalize-dual-root-rotation';
 import { VaultSignatureVerifierAdapter } from '@vault-protocol/infrastructure/adapters/vault-signature-verifier';
 import { buildPostgresRotationFixture } from '@vault-protocol/testing/buildPostgresRotationFixture';
 import { signVaultRotation } from '@vault-protocol/testing/signVaultRotation';
 import { VaultRotationTranscript } from '@vault-protocol/domain/value-objects/vault-rotation-transcript';
-import { createVaultSecurityTestConnection } from '@vault-protocol/testing/vault-security-test-connection';
 import { PostgresVaultDeviceRepository } from '@vault-protocol/infrastructure/postgres-vault-device.repository';
-const describePostgres =
-  process.env.VAULT_SECURITY_TEST_DATABASE_NAME === undefined
-    ? describe.skip
-    : describe;
-describePostgres('PostgresDualRootRotationRepository', () => {
+describe('PostgresDualRootRotationRepository', () => {
   let pool: Pool | undefined;
   let database: DrizzleDatabase;
   beforeAll(async () => {
-    const connection = await createVaultSecurityTestConnection();
+    const connection = await createPostgresTestConnection();
     pool = connection.pool;
     database = connection.database;
   });

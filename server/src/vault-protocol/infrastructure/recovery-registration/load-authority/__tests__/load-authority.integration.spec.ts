@@ -2,20 +2,15 @@ import { eq } from 'drizzle-orm';
 import type { Pool } from 'pg';
 import type { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import { vaultDevices } from '@shared/infrastructure/database/schema';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 import { loadRecoveryRegistrationAuthority } from '@vault-protocol/infrastructure/recovery-registration/load-authority';
 import { buildPostgresRecoveryFixture } from '@vault-protocol/testing/build-postgres-recovery-fixture';
-import { createVaultSecurityTestConnection } from '@vault-protocol/testing/vault-security-test-connection';
 
-const describePostgres =
-  process.env.VAULT_SECURITY_TEST_DATABASE_NAME === undefined
-    ? describe.skip
-    : describe;
-
-describePostgres('loadRecoveryRegistrationAuthority', () => {
+describe('loadRecoveryRegistrationAuthority', () => {
   let pool: Pool | undefined;
   let database: DrizzleDatabase;
   beforeAll(async () => {
-    const connection = await createVaultSecurityTestConnection();
+    const connection = await createPostgresTestConnection();
     pool = connection.pool;
     database = connection.database;
   });

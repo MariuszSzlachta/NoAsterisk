@@ -1,17 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import type { Pool } from 'pg';
 import { eq } from 'drizzle-orm';
 
 import { Vault } from '@user-settings/domain/vault.entity';
 import { PostgresVaultRepository } from '@user-settings/infrastructure/postgres-vault.repository';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import * as schema from '@shared/infrastructure/database/schema';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 
 const { workspaces, vaults } = schema;
-
-const runPostgresIntegration = process.env.RUN_POSTGRES_INTEGRATION === 'true';
-const describePostgres = runPostgresIntegration ? describe : describe.skip;
 
 const buildVault = (
   workspaceId: string,
@@ -29,22 +26,16 @@ const buildVault = (
     new Date('2026-09-10T00:00:00.000Z'),
   );
 
-describePostgres('PostgresVaultRepository integration', () => {
-  let pool: Pool;
+describe('PostgresVaultRepository integration', () => {
+  let pool: Pool | undefined;
   let database: DrizzleDatabase;
   let repository: PostgresVaultRepository;
   const workspaceId = randomUUID();
 
   beforeAll(async () => {
-    pool = new Pool({
-      host: process.env.DB_HOST ?? 'localhost',
-      port: Number(process.env.DB_PORT ?? 5432),
-      database: process.env.DB_NAME ?? 'budget',
-      user: process.env.DB_USER ?? 'budget_app',
-      password: process.env.DB_PASSWORD ?? '',
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : false,
-    });
-    database = drizzle(pool, { schema });
+    const connection = await createPostgresTestConnection();
+    pool = connection.pool;
+    database = connection.database;
     repository = new PostgresVaultRepository(database);
     await database.insert(workspaces).values({
       id: workspaceId,
@@ -56,7 +47,7 @@ describePostgres('PostgresVaultRepository integration', () => {
   afterAll(async () => {
     await database.delete(vaults).where(eq(vaults.workspaceId, workspaceId));
     await database.delete(workspaces).where(eq(workspaces.id, workspaceId));
-    await pool.end();
+    await pool?.end();
   });
 
   it('allows only one concurrent writer for the same base revision', async () => {

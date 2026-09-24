@@ -24,6 +24,8 @@
     "build": "npm run build --workspace=@budget/domain && npm run build --workspace=client && npm run build --workspace=server",
     "lint": "npm run typecheck --workspace=@budget/domain && npm run lint --workspace=client && npm run lint:strict --workspace=server",
     "test": "npm run test --workspace=@budget/domain && npm run test --workspace=client && npm run test --workspace=server",
+    "test:integration": "npm run test:integration --workspace=server",
+    "verify": "npm run build && npm run lint && npm run test && npm run test:integration",
     "storybook": "npm run storybook --workspace=client",
     "prepare": "husky"
   },

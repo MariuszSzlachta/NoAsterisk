@@ -1,33 +1,26 @@
 import { randomUUID } from 'node:crypto';
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import type { Pool } from 'pg';
 import { beforeAll, afterAll, describe, expect, it } from '@jest/globals';
 import { PostgresAccountDeletionRepository } from '@user-settings/infrastructure/postgres-account-deletion.repository';
 import { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import * as schema from '@shared/infrastructure/database/schema';
 import { eq } from 'drizzle-orm';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 
-const runIntegration = process.env.RUN_POSTGRES_INTEGRATION === 'true';
-const describeIntegration = runIntegration ? describe : describe.skip;
 const { inviteCodes, permissions, users, vaults, workspaces } = schema;
 
-describeIntegration('Postgres account deletion', () => {
-  let pool: Pool;
+describe('Postgres account deletion', () => {
+  let pool: Pool | undefined;
   let database: DrizzleDatabase;
 
-  beforeAll(() => {
-    pool = new Pool({
-      host: process.env.DB_HOST ?? 'localhost',
-      port: Number(process.env.DB_PORT ?? 5432),
-      database: process.env.DB_NAME ?? 'budget',
-      user: process.env.DB_USER ?? 'budget_app',
-      password: process.env.DB_PASSWORD ?? '',
-    });
-    database = drizzle(pool, { schema });
+  beforeAll(async () => {
+    const connection = await createPostgresTestConnection();
+    pool = connection.pool;
+    database = connection.database;
   });
 
   afterAll(async () => {
-    await pool.end();
+    await pool?.end();
   });
 
   it('deletes the user-owned graph atomically', async () => {

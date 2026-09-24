@@ -7,6 +7,7 @@ import {
   vaultRecoveryAuthorityChallenges,
   vaults,
 } from '@shared/infrastructure/database/schema';
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 import { ConfirmRecoveryRegistrationHandler } from '@vault-protocol/application/commands/confirm-recovery-registration';
 import { VaultSignatureVerifierAdapter } from '@vault-protocol/infrastructure/adapters/vault-signature-verifier';
 import { PostgresRecoveryRegistrationRepository } from '@vault-protocol/infrastructure/repositories/postgres-recovery-registration';
@@ -14,15 +15,9 @@ import { PostgresVaultBootstrapRepository } from '@vault-protocol/infrastructure
 import { PostgresVaultRotationRepository } from '@vault-protocol/infrastructure/postgres-vault-rotation.repository';
 import { buildPostgresRecoveryFixture } from '@vault-protocol/testing/build-postgres-recovery-fixture';
 import { signRecoveryRegistration } from '@vault-protocol/testing/sign-recovery-registration';
-import { createVaultSecurityTestConnection } from '@vault-protocol/testing/vault-security-test-connection';
 import { recoveryRegistrationFormat } from '@vault-protocol/domain/recovery-registration/constants';
 
-const describePostgres =
-  process.env.VAULT_SECURITY_TEST_DATABASE_NAME === undefined
-    ? describe.skip
-    : describe;
-
-describePostgres('PostgresRecoveryRegistrationRepository', () => {
+describe('PostgresRecoveryRegistrationRepository', () => {
   it('should expose public recovery metadata and reject legacy rotation without losing its authority', async () => {
     const fixture = await buildPostgresRecoveryFixture(database);
     const repository = new PostgresRecoveryRegistrationRepository(database);
@@ -83,7 +78,7 @@ describePostgres('PostgresRecoveryRegistrationRepository', () => {
   let database: DrizzleDatabase;
 
   beforeAll(async () => {
-    const connection = await createVaultSecurityTestConnection();
+    const connection = await createPostgresTestConnection();
     pool = connection.pool;
     database = connection.database;
   });

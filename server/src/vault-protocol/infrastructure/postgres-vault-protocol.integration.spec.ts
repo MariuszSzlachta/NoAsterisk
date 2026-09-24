@@ -4,8 +4,7 @@ import { buildVaultSignatureFixture } from '@vault-protocol/testing/build-vault-
 import { randomUUID, webcrypto } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { and, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 
 import type { DrizzleDatabase } from '@shared/infrastructure/database/database.providers';
 import * as schema from '@shared/infrastructure/database/schema';
@@ -20,9 +19,7 @@ import { PostgresAccountDeletionRepository } from '@user-settings/infrastructure
 import { PostgresSyncSnapshotRepository } from './postgres-sync-snapshot.repository';
 import { PostgresWebauthnChallengeStore } from './postgres-webauthn-challenge.store';
 import { PostgresWebauthnCredentialRepository } from './postgres-webauthn-credential.repository';
-
-const runIntegration = process.env.RUN_POSTGRES_INTEGRATION === 'true';
-const describeIntegration = runIntegration ? describe : describe.skip;
+import { createPostgresTestConnection } from '@shared/testing/postgres-test-connection/create-postgres-test-connection';
 
 const {
   users,
@@ -39,8 +36,8 @@ const {
   webauthnChallenges,
 } = schema;
 
-describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
-  let pool: Pool;
+describe('Vault Protocol v2 PostgreSQL integration', () => {
+  let pool: Pool | undefined;
   let database: DrizzleDatabase;
   let userId: string;
   let workspaceId: string;
@@ -50,15 +47,9 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
   let serverShare: Uint8Array;
 
   beforeAll(async () => {
-    pool = new Pool({
-      host: process.env.DB_HOST ?? 'localhost',
-      port: Number(process.env.DB_PORT ?? 5432),
-      database: process.env.DB_NAME ?? 'budget',
-      user: process.env.DB_USER ?? 'budget_app',
-      password: process.env.DB_PASSWORD ?? '',
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : false,
-    });
-    database = drizzle(pool, { schema });
+    const connection = await createPostgresTestConnection();
+    pool = connection.pool;
+    database = connection.database;
 
     userId = randomUUID();
     workspaceId = randomUUID();
@@ -195,7 +186,7 @@ describeIntegration('Vault Protocol v2 PostgreSQL integration', () => {
     await database.delete(vaults).where(eq(vaults.id, vaultId));
     await database.delete(users).where(eq(users.id, userId));
     await database.delete(workspaces).where(eq(workspaces.id, workspaceId));
-    await pool.end();
+    await pool?.end();
   });
 
   it('roundtrips only infrastructure-encrypted ServerShare and enforces device scope', async () => {
