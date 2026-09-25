@@ -28,6 +28,7 @@ import type {
   PersistenceCollection,
 } from '#shared/adapters/persistence/ports';
 import type { CollectionReplacementPublication } from '#shared/adapters/persistence/ports/collection-replacement-publication';
+import { createVaultLocalShareStore } from '#shared/adapters/persistence/session/create-vault-local-share-store';
 import { createDatabaseLock } from '#shared/adapters/persistence/session/database-lock';
 import { initializePersistenceMetadata } from '#shared/adapters/persistence/session/initialize-metadata';
 import { createPersistenceChannel } from '#shared/adapters/persistence/session/persistence-channel';
@@ -55,6 +56,7 @@ export const createEncryptedPersistence = (
     return { privateKey: generated.privateKey, publicKey: generated.publicKey };
   };
   const databaseLock = createDatabaseLock();
+  const vaultLocalShareStore = createVaultLocalShareStore();
   const session = createPersistenceSnapshot();
   let activeDatabase = database;
   let accountNamespace = 'anonymous';
@@ -105,103 +107,6 @@ export const createEncryptedPersistence = (
       return key;
     }
     throw createPersistenceLockedError();
-  };
-
-  const readVaultLocalShare = async (context: {
-    readonly accountId: string;
-    readonly workspaceId: string;
-    readonly vaultId: string;
-    readonly keyId: string;
-    readonly deviceId: string;
-  }): Promise<CryptoKey | undefined> => {
-    const database = new VaultV2Database(
-      context.accountId,
-      context.workspaceId,
-      context.vaultId,
-    );
-    await database.open();
-    try {
-      const metadata = await database.metadata.get('vault');
-      const contextMatchesPendingRotation =
-        metadata?.pendingRotation?.currentKeyId === context.keyId &&
-        metadata.keyId === metadata.pendingRotation.nextKeyId;
-      if (
-        metadata === undefined ||
-        metadata.accountId !== context.accountId ||
-        metadata.workspaceId !== context.workspaceId ||
-        metadata.vaultId !== context.vaultId ||
-        (metadata.keyId !== context.keyId && !contextMatchesPendingRotation) ||
-        metadata.deviceId !== context.deviceId
-      )
-        return undefined;
-      return metadata.localShare;
-    } finally {
-      database.close();
-    }
-  };
-
-  const removeVaultLocalShare = async (context: {
-    readonly accountId: string;
-    readonly workspaceId: string;
-    readonly vaultId: string;
-    readonly keyId: string;
-    readonly deviceId: string;
-  }): Promise<void> => {
-    const database = new VaultV2Database(
-      context.accountId,
-      context.workspaceId,
-      context.vaultId,
-    );
-    await database.open();
-    try {
-      const metadata = await database.metadata.get('vault');
-      if (
-        metadata === undefined ||
-        metadata.accountId !== context.accountId ||
-        metadata.workspaceId !== context.workspaceId ||
-        metadata.vaultId !== context.vaultId ||
-        metadata.keyId !== context.keyId ||
-        metadata.deviceId !== context.deviceId
-      )
-        return;
-      const { localShare: _localShare, ...withoutLocalShare } = metadata;
-      await database.metadata.put(withoutLocalShare);
-    } finally {
-      database.close();
-    }
-  };
-
-  const storeVaultLocalShare = async (
-    context: {
-      readonly accountId: string;
-      readonly workspaceId: string;
-      readonly vaultId: string;
-      readonly keyId: string;
-      readonly deviceId: string;
-    },
-    localShare: CryptoKey,
-  ): Promise<void> => {
-    const database = new VaultV2Database(
-      context.accountId,
-      context.workspaceId,
-      context.vaultId,
-    );
-    await database.open();
-    try {
-      const metadata = await database.metadata.get('vault');
-      if (
-        metadata === undefined ||
-        metadata.accountId !== context.accountId ||
-        metadata.workspaceId !== context.workspaceId ||
-        metadata.vaultId !== context.vaultId ||
-        metadata.keyId !== context.keyId ||
-        metadata.deviceId !== context.deviceId
-      )
-        throw new Error('Vault metadata context mismatch');
-      await database.metadata.put({ ...metadata, localShare });
-    } finally {
-      database.close();
-    }
   };
 
   const setAccountContext = (userId: string, workspaceId: string): void => {
@@ -1132,9 +1037,9 @@ export const createEncryptedPersistence = (
       return { syncKey, signingKey, verifyKey, context: vaultContext };
     },
     getVaultTransferMaterial,
-    readVaultLocalShare,
-    removeVaultLocalShare,
-    storeVaultLocalShare,
+    readVaultLocalShare: vaultLocalShareStore.read,
+    removeVaultLocalShare: vaultLocalShareStore.remove,
+    storeVaultLocalShare: vaultLocalShareStore.store,
     repository,
     requestPersistentStorage,
     unlock,

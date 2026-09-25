@@ -61,7 +61,7 @@ import {
   updatePreferencesSchema,
   UpdatePreferencesDto,
 } from '@user-settings/presentation/dto/update-preferences.dto';
-import { refreshTokenCookie } from '@auth/presentation/refresh-token-cookie';
+import { refreshTokenCookie } from '@shared/presentation/refresh-token-cookie';
 
 type UploadVaultDto = z.infer<typeof uploadVaultSchema>;
 

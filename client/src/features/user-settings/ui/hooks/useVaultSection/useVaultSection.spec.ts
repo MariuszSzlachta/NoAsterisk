@@ -54,10 +54,47 @@ const rotationConfirmation = {
   handleDownload: vi.fn(),
 };
 
-let syncMetadata = {
+interface TestSyncMetadata {
+  readonly isDirty: boolean;
+  readonly observedRevision: number | undefined;
+  readonly lastSuccessfulSyncAt: string | undefined;
+}
+
+let syncMetadata: TestSyncMetadata = {
   isDirty: false,
-  observedRevision: undefined as number | undefined,
-  lastSuccessfulSyncAt: undefined as string | undefined,
+  observedRevision: undefined,
+  lastSuccessfulSyncAt: undefined,
+};
+
+const createFileInputChange = (
+  files: ReadonlyArray<File>,
+): {
+  readonly event: React.ChangeEvent<HTMLInputElement>;
+  readonly input: HTMLInputElement;
+} => {
+  const input = document.createElement('input');
+  input.value = files.length === 0 ? '' : 'selected';
+  Object.defineProperty(input, 'files', { value: files });
+  return {
+    input,
+    event: {
+      bubbles: false,
+      cancelable: false,
+      currentTarget: input,
+      defaultPrevented: false,
+      eventPhase: 0,
+      isTrusted: false,
+      nativeEvent: new Event('change'),
+      preventDefault: vi.fn(),
+      isDefaultPrevented: () => false,
+      stopPropagation: vi.fn(),
+      isPropagationStopped: () => false,
+      persist: vi.fn(),
+      target: input,
+      timeStamp: 0,
+      type: 'change',
+    },
+  };
 };
 
 const remoteSnapshot = (revision = 1) => ({
@@ -452,11 +489,9 @@ describe('useVaultSection', () => {
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:vault');
 
     const inputClick = vi.fn();
-    (
-      result.current.fileInputRef as { current: { click: () => void } | null }
-    ).current = {
-      click: inputClick,
-    };
+    const input = document.createElement('input');
+    input.click = inputClick;
+    result.current.fileInputRef.current = input;
     act(() => result.current.handleTriggerImport());
     expect(inputClick).toHaveBeenCalledOnce();
   });
@@ -465,16 +500,11 @@ describe('useVaultSection', () => {
     const scope = { assertCurrent: vi.fn() };
     mocks.captureScope.mockReturnValue(scope);
     const { result } = renderSubject();
-    const input = {
-      files: [new File(['{}'], 'vault.json')],
-      value: 'selected',
-    };
+    const { event, input } = createFileInputChange([
+      new File(['{}'], 'vault.json'),
+    ]);
 
-    act(() =>
-      result.current.handleFileInputChange({
-        currentTarget: input,
-      } as unknown as React.ChangeEvent<HTMLInputElement>),
-    );
+    act(() => result.current.handleFileInputChange(event));
 
     await waitFor(() => expect(mocks.restoreVaultPayload).toHaveBeenCalled());
     expect(scope.assertCurrent).toHaveBeenCalledOnce();
@@ -488,12 +518,10 @@ describe('useVaultSection', () => {
 
   it('rejects oversized, structurally invalid and unreadable imports', async () => {
     const { result } = renderSubject();
-    const choose = (file: File): void =>
-      act(() =>
-        result.current.handleFileInputChange({
-          currentTarget: { files: [file], value: 'selected' },
-        } as unknown as React.ChangeEvent<HTMLInputElement>),
-      );
+    const choose = (file: File): void => {
+      const { event } = createFileInputChange([file]);
+      act(() => result.current.handleFileInputChange(event));
+    };
 
     choose(new File(['x'.repeat(10_000_001)], 'large.json'));
     await waitFor(() =>
@@ -520,11 +548,8 @@ describe('useVaultSection', () => {
       ),
     );
 
-    act(() =>
-      result.current.handleFileInputChange({
-        currentTarget: { files: [], value: '' },
-      } as unknown as React.ChangeEvent<HTMLInputElement>),
-    );
+    const emptySelection = createFileInputChange([]);
+    act(() => result.current.handleFileInputChange(emptySelection.event));
   });
 
   it('enables and disables high-security mode with explicit recovery authority', async () => {

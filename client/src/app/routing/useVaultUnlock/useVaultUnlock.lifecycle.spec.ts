@@ -1,6 +1,9 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { PersistenceSessionSnapshot } from '#shared/adapters/persistence';
+import type { AvailableVaultBootstrapMetadata } from '#shared/api/vault-protocol/get-vault-bootstrap/types';
+
 import { useVaultUnlock } from './useVaultUnlock';
 
 const mocks = vi.hoisted(() => ({
@@ -111,23 +114,28 @@ vi.mock('#shared/api/vault-protocol/vault-devices', () => ({
   vaultDevices: { list: mocks.listDevices },
 }));
 
-const lockedSnapshot = {
-  status: 'locked' as const,
+const lockedSnapshot: PersistenceSessionSnapshot = {
+  status: 'locked',
   error: undefined,
   warning: undefined,
-  storage: 'unknown' as const,
+  storage: 'unknown',
 };
 
-const unlockedSnapshot = {
+const unlockedSnapshot: PersistenceSessionSnapshot = {
   ...lockedSnapshot,
-  status: 'unlocked' as const,
+  status: 'unlocked',
 };
 
-const availableBootstrap = (overrides: Record<string, unknown> = {}) => ({
-  status: 'available' as const,
+const availableBootstrap = (
+  overrides: Partial<AvailableVaultBootstrapMetadata> = {},
+): AvailableVaultBootstrapMetadata => ({
+  status: 'available',
+  protocolVersion: 2,
+  cryptoSuite: 'HKDF-SHA256/AES-256-GCM',
   vaultId: 'vault-1',
   keyId: 'key-1',
   deviceId: 'device-1',
+  securityProfile: 'standard',
   deviceEnvelope: JSON.stringify({ header: {}, ciphertext: 'device' }),
   ...overrides,
 });
@@ -388,9 +396,15 @@ describe('useVaultUnlock lifecycle', () => {
   it('cancels recovery through the operation guard after an account switch', async () => {
     const operation = createDeferred<void>();
     mocks.recoverWithCode.mockImplementationOnce(
-      async (...args: readonly unknown[]) => {
+      async (
+        _accountId: string,
+        _workspaceId: string,
+        _bootstrap: unknown,
+        _recoveryCode: string,
+        assertCurrent: () => void,
+      ) => {
         await operation.promise;
-        (args[4] as () => void)();
+        assertCurrent();
       },
     );
     const { result, rerender } = renderHook(
@@ -545,9 +559,15 @@ describe('useVaultUnlock lifecycle', () => {
     });
     const enrollment = createDeferred<void>();
     mocks.enrollVmk.mockImplementationOnce(
-      async (...args: readonly unknown[]) => {
+      async (
+        _accountId: string,
+        _workspaceId: string,
+        _bootstrap: unknown,
+        _vmk: Uint8Array,
+        assertCurrent: () => void,
+      ) => {
         await enrollment.promise;
-        (args[4] as () => void)();
+        assertCurrent();
       },
     );
     const { result, rerender } = renderHook(

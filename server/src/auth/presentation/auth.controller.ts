@@ -32,7 +32,7 @@ import {
   THROTTLE_REFRESH,
 } from '@shared/presentation/throttle.constants';
 import { Public } from '@auth/presentation/decorators/public.decorator';
-import { refreshTokenCookie } from '@auth/presentation/refresh-token-cookie';
+import { refreshTokenCookie } from '@shared/presentation/refresh-token-cookie';
 
 @Controller('auth')
 export class AuthController {

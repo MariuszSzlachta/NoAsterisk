@@ -8,15 +8,14 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { synchronizeVault } from '#features/user-settings/api/synchronize-vault';
-import { buildVaultRecords } from '#features/user-settings/api/synchronize-vault/build-vault-records';
 import type { RemoteVaultSnapshot } from '#features/user-settings/api/synchronize-vault/types';
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
+import { downloadVaultExport } from '#features/user-settings/model/download-vault-export';
 import { estimateSizeKb } from '#features/user-settings/model/estimate-size-kb';
 import { formatSyncDate } from '#features/user-settings/model/format-sync-date';
-import { parseVaultPayload } from '#features/user-settings/model/parse-vault-payload';
+import { resolveVaultSyncStatus } from '#features/user-settings/model/resolve-vault-sync-status';
 import type { DataStats } from '#features/user-settings/model/types/data-stats';
 import type { VaultInfo } from '#features/user-settings/model/types/vault-info';
-import { MAX_PLAINTEXT_VAULT_LENGTH } from '#features/user-settings/model/vault-limits';
 import {
   serializeVaultPayload,
   type VaultRecords,
@@ -24,7 +23,7 @@ import {
 import { VaultPayloadError } from '#features/user-settings/model/vault-payload-error';
 import { captureVaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope';
 import { restoreRemoteVault } from '#features/user-settings/ui/hooks/restore-remote-vault';
-import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
+import { restoreVaultFile } from '#features/user-settings/ui/hooks/restore-vault-file';
 import { useRotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
 import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
@@ -32,7 +31,6 @@ import { useCategoriesStore } from '#entities/category';
 import { useImportHistoryStore } from '#entities/import-batch';
 import { useRulesStore } from '#entities/rule';
 import { useTransactionsStore } from '#entities/transaction';
-import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,
@@ -129,23 +127,14 @@ export const useVaultSection = (): UseVaultSectionResult => {
       .catch(() => setIsHighSecurity(false));
   }, []);
 
-  const status = hasConflict
-    ? 'conflict'
-    : remoteError !== undefined
-      ? 'error'
-      : isSyncing
-        ? 'syncing'
-        : remoteSnapshot === undefined
-          ? syncMetadata.isDirty
-            ? 'local-changes'
-            : 'never-synced'
-          : syncMetadata.isDirty &&
-              (syncMetadata.observedRevision ?? 0) > remoteSnapshot.revision
-            ? 'local-changes'
-            : syncMetadata.observedRevision !== undefined &&
-                remoteSnapshot.revision > syncMetadata.observedRevision
-              ? 'remote-newer'
-              : 'up-to-date';
+  const status = resolveVaultSyncStatus({
+    hasConflict,
+    hasRemoteError: remoteError !== undefined,
+    isSyncing,
+    isDirty: syncMetadata.isDirty,
+    observedRevision: syncMetadata.observedRevision,
+    remoteRevision: remoteSnapshot?.revision,
+  });
   const lastSync = syncMetadata.lastSuccessfulSyncAt
     ? formatSyncDate(syncMetadata.lastSuccessfulSyncAt)
     : undefined;
@@ -219,18 +208,7 @@ export const useVaultSection = (): UseVaultSectionResult => {
       });
   };
 
-  const handleExport = (): void => {
-    const payload = createValidatedVaultPayload(buildVaultRecords());
-    const blob = new Blob([serializeVaultPayload(payload)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `budget-export-${new Date().toISOString().slice(0, 10)}.json`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
+  const handleExport = (): void => downloadVaultExport();
 
   const handleEnableHighSecurity = (): void => {
     const code = window.prompt(t('settings.vault.highSecurityRecoveryPrompt'));
@@ -325,14 +303,11 @@ export const useVaultSection = (): UseVaultSectionResult => {
   const importVaultFile = async (file: File): Promise<void> => {
     try {
       const scope = captureVaultRestoreScope();
-      const text = await file.text();
-      scope.assertCurrent();
-      if (new TextEncoder().encode(text).length > MAX_PLAINTEXT_VAULT_LENGTH) {
+      const result = await restoreVaultFile(file, scope);
+      if (result === 'too-large') {
         setImportError(t('settings.vault.tooLarge'));
         return;
       }
-      const payload = parseVaultPayload(text);
-      await vaultOperationQueue(() => restoreVaultPayload(payload, scope));
       addToast(t('settings.vault.importSuccess'), 'success');
     } catch (error) {
       setImportError(

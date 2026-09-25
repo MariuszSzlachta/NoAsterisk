@@ -45,6 +45,45 @@ afterEach(async () => {
   await Promise.all(cleanup.splice(0).map((dispose) => dispose()));
 });
 
+describe('encrypted persistence local share', () => {
+  it('stores, reads and removes a local share only for the active vault context', async () => {
+    const { persistence, context } = await buildUnlockedVault();
+    const localShare = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
+
+    await persistence.storeVaultLocalShare(context, localShare);
+
+    expect(await persistence.readVaultLocalShare(context)).toMatchObject({
+      algorithm: { name: 'AES-GCM' },
+      extractable: false,
+      usages: ['encrypt', 'decrypt'],
+    });
+    expect(
+      await persistence.readVaultLocalShare({
+        ...context,
+        deviceId: 'another-device',
+      }),
+    ).toBeUndefined();
+    await expect(
+      persistence.storeVaultLocalShare(
+        { ...context, deviceId: 'another-device' },
+        localShare,
+      ),
+    ).rejects.toThrow('Vault metadata context mismatch');
+    await persistence.removeVaultLocalShare({
+      ...context,
+      deviceId: 'another-device',
+    });
+    expect(await persistence.readVaultLocalShare(context)).toBeDefined();
+
+    await persistence.removeVaultLocalShare(context);
+    expect(await persistence.readVaultLocalShare(context)).toBeUndefined();
+  });
+});
+
 describe('encrypted persistence publication', () => {
   it('should publish the replacement before releasing queued local mutations', async () => {
     const { persistence } = await buildUnlockedVault();
