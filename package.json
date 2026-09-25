@@ -1,6 +1,7 @@
 {
   "name": "budget",
   "private": true,
+  "license": "UNLICENSED",
   "workspaces": [
     "client",
     "server",
