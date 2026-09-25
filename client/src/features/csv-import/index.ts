@@ -59,7 +59,6 @@ export { useAnonymizationStep } from './ui/hooks/useAnonymizationStep';
 export { useBatchEditPanel } from './ui/hooks/useBatchEditPanel';
 export { useImportSubmit } from './ui/hooks/useImportSubmit';
 export { useImportHistory } from './ui/hooks/useImportHistory';
-export { ImportHistoryPage } from './ui/ImportHistoryPage';
 export { ImportHistoryDeleteDialog } from './ui/ImportHistoryDeleteDialog';
 
 // Types

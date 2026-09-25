@@ -6,6 +6,7 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "transformIgnorePatterns": ["/node_modules/(?!@noble/(?:curves|hashes)/)"],
   "moduleNameMapper": {
     "^@budget/domain$": "<rootDir>/../../packages/domain/src/index.ts",
     "^@shared/(.*)$": "<rootDir>/../src/shared/$1",

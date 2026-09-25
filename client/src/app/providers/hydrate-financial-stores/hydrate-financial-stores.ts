@@ -7,11 +7,9 @@ import type { BudgetRecord } from '#features/budgets/model/types/budget-record';
 import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
-import {
-  isImportHistoryRecord,
-  useImportHistoryStore,
-  type ImportHistoryRecord,
-} from '#features/csv-import';
+import { isImportHistoryRecord } from '#features/csv-import/model/history/is-import-history-record';
+import type { ImportHistoryRecord } from '#features/csv-import/model/types';
+import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { isStoredTransaction } from '#features/transactions/model/is-stored-transaction';
 import type { StoredTransaction } from '#features/transactions/model/types';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
@@ -21,20 +19,21 @@ import {
   type CategoryInfo,
 } from '#entities/category';
 import { isCategoryInfo } from '#entities/category/is-category-info';
-import { encryptedPersistence } from '#shared/adapters/persistence/session';
 import {
   IMPORT_HISTORY_COLLECTION,
   TRANSACTIONS_COLLECTION,
 } from '#shared/adapters/persistence/ports';
+import { encryptedPersistence } from '#shared/adapters/persistence/session';
 
 export const hydrateFinancialStores = async (
   isActive: () => boolean = () => encryptedPersistence.isUnlocked(),
 ): Promise<void> => {
-  const transactionRepository = encryptedPersistence.repository<StoredTransaction>(
-    TRANSACTIONS_COLLECTION,
-    isStoredTransaction,
-    (record) => record.id,
-  );
+  const transactionRepository =
+    encryptedPersistence.repository<StoredTransaction>(
+      TRANSACTIONS_COLLECTION,
+      isStoredTransaction,
+      (record) => record.id,
+    );
   const ruleRepository = encryptedPersistence.repository<RuleRecord>(
     'rules',
     isRuleRecord,
@@ -50,16 +49,18 @@ export const hydrateFinancialStores = async (
     isBudgetRecord,
     (record) => record.id,
   );
-  const periodHistoryRepository = encryptedPersistence.repository<PeriodHistoryRecord>(
-    'period-history',
-    isPeriodHistoryRecord,
-    (record) => record.id,
-  );
-  const importHistoryRepository = encryptedPersistence.repository<ImportHistoryRecord>(
-    IMPORT_HISTORY_COLLECTION,
-    isImportHistoryRecord,
-    (record) => record.batchId,
-  );
+  const periodHistoryRepository =
+    encryptedPersistence.repository<PeriodHistoryRecord>(
+      'period-history',
+      isPeriodHistoryRecord,
+      (record) => record.id,
+    );
+  const importHistoryRepository =
+    encryptedPersistence.repository<ImportHistoryRecord>(
+      IMPORT_HISTORY_COLLECTION,
+      isImportHistoryRecord,
+      (record) => record.batchId,
+    );
   const [transactions, rules, categories, budgets, history, importHistory] =
     await Promise.all([
       transactionRepository.getAll(),

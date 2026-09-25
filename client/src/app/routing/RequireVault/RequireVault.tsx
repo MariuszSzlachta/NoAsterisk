@@ -1,11 +1,11 @@
 import { useSyncExternalStore } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { AppShellSkeleton } from '#app/layouts/AppShell';
+import { AppShellSkeleton } from '#app/layouts/AppShell/AppShellSkeleton';
+import { useVaultAutomaticSync } from '#app/routing/useVaultAutomaticSync';
 import { VaultUnlockScreen } from '#app/routing/VaultUnlockScreen';
 import { useProfileQuery } from '#features/user-settings';
 import { encryptedPersistence } from '#shared/adapters/persistence';
-import { useVaultAutomaticSync } from '#app/routing/useVaultAutomaticSync';
 
 export const RequireVault = (): React.JSX.Element => {
   const { data: profile, isLoading: isProfileLoading } = useProfileQuery();

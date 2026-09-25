@@ -1,8 +1,16 @@
-import { beforeAll, afterAll, describe, expect, it } from '@jest/globals';
-import type { INestApplication } from '@nestjs/common';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
+import type { INestApplication, Provider, Type } from '@nestjs/common';
 import request from 'supertest';
 import type { App } from 'supertest/types';
 import { THROTTLE_AUTH } from '../src/shared/presentation/throttle.constants';
+
+jest.mock('@shared/infrastructure/database/persistence.provider', () => ({
+  createRepositoryProvider: (
+    token: symbol,
+    _postgresImplementation: Type,
+    inMemoryImplementation: Type,
+  ): Provider => ({ provide: token, useClass: inMemoryImplementation }),
+}));
 
 process.env.NODE_ENV = 'production';
 process.env.JWT_SECRET = 'security-test-secret';

@@ -8,16 +8,12 @@
     "packages/*"
   ],
   "overrides": {
-    "@nestjs/platform-express@11.2.1": {
-      "multer": "$multer"
-    },
     "body-parser": {
       "qs": "6.16.0"
     },
     "express": {
       "qs": "6.16.0"
     },
-    "multer": "2.3.0",
     "qs": "6.16.0"
   },
   "scripts": {
@@ -37,6 +33,7 @@
     ]
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
     "concurrently": "10.0.5",
     "husky": "9.1.7",
     "lint-staged": "17.0.8"

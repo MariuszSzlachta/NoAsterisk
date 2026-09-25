@@ -1,26 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { AppShell } from '#app/layouts/AppShell';
+import { AppShellSkeleton } from '#app/layouts/AppShell/AppShellSkeleton';
 import { RequireAuth } from '#app/routing/RequireAuth';
 import { RequireRole } from '#app/routing/RequireRole';
 import { RequireVault } from '#app/routing/RequireVault';
-import { AdminPage } from '#pages/AdminPage';
-import { AdminRulesPage } from '#pages/AdminRulesPage';
-import { AnalyticsPage } from '#pages/AnalyticsPage';
-import { BudgetsPage } from '#pages/BudgetsPage';
-import { DashboardPage } from '#pages/DashboardPage';
-import { ImportPage } from '#pages/ImportPage';
-import { LoginPage } from '#pages/LoginPage';
-import { RegisterPage } from '#pages/RegisterPage';
-import { TransactionsPage } from '#pages/TransactionsPage';
-import { UserSettingsPage } from '#pages/UserSettingsPage';
-import { ImportHistoryPage } from '#features/csv-import';
-import { PrivacyPage } from '#pages/PrivacyPage';
-import { TermsPage } from '#pages/TermsPage';
 
 export const router = createBrowserRouter([
   {
     element: <RequireAuth />,
+    HydrateFallback: AppShellSkeleton,
     children: [
       {
         path: '/admin',
@@ -30,8 +18,18 @@ export const router = createBrowserRouter([
             element: <RequireVault />,
             children: [
               {
-                element: <AppShell />,
-                children: [{ index: true, element: <AdminPage /> }],
+                lazy: async () => ({
+                  Component: (await import('#app/layouts/AppShell/AppShell'))
+                    .AppShell,
+                }),
+                children: [
+                  {
+                    index: true,
+                    lazy: async () => ({
+                      Component: (await import('#pages/AdminPage')).AdminPage,
+                    }),
+                  },
+                ],
               },
             ],
           },
@@ -41,17 +39,67 @@ export const router = createBrowserRouter([
         element: <RequireVault />,
         children: [
           {
-            element: <AppShell />,
+            lazy: async () => ({
+              Component: (await import('#app/layouts/AppShell/AppShell'))
+                .AppShell,
+            }),
             children: [
               { path: '/', element: <Navigate to="/dashboard" replace /> },
-              { path: '/dashboard', element: <DashboardPage /> },
-              { path: '/transactions', element: <TransactionsPage /> },
-              { path: '/import', element: <ImportPage /> },
-              { path: '/import-history', element: <ImportHistoryPage /> },
-              { path: '/budgets', element: <BudgetsPage /> },
-              { path: '/analytics', element: <AnalyticsPage /> },
-              { path: '/admin/rules', element: <AdminRulesPage /> },
-              { path: '/settings', element: <UserSettingsPage /> },
+              {
+                path: '/dashboard',
+                lazy: async () => ({
+                  Component: (await import('#pages/DashboardPage'))
+                    .DashboardPage,
+                }),
+              },
+              {
+                path: '/transactions',
+                lazy: async () => ({
+                  Component: (await import('#pages/TransactionsPage'))
+                    .TransactionsPage,
+                }),
+              },
+              {
+                path: '/import',
+                lazy: async () => ({
+                  Component: (await import('#pages/ImportPage')).ImportPage,
+                }),
+              },
+              {
+                path: '/import-history',
+                lazy: async () => ({
+                  Component: (
+                    await import('#features/csv-import/ui/ImportHistoryPage/ImportHistoryPage')
+                  ).ImportHistoryPage,
+                }),
+              },
+              {
+                path: '/budgets',
+                lazy: async () => ({
+                  Component: (await import('#pages/BudgetsPage')).BudgetsPage,
+                }),
+              },
+              {
+                path: '/analytics',
+                lazy: async () => ({
+                  Component: (await import('#pages/AnalyticsPage'))
+                    .AnalyticsPage,
+                }),
+              },
+              {
+                path: '/admin/rules',
+                lazy: async () => ({
+                  Component: (await import('#pages/AdminRulesPage'))
+                    .AdminRulesPage,
+                }),
+              },
+              {
+                path: '/settings',
+                lazy: async () => ({
+                  Component: (await import('#pages/UserSettingsPage'))
+                    .UserSettingsPage,
+                }),
+              },
             ],
           },
         ],
@@ -60,12 +108,30 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    HydrateFallback: AppShellSkeleton,
+    lazy: async () => ({
+      Component: (await import('#pages/LoginPage')).LoginPage,
+    }),
   },
   {
     path: '/register',
-    element: <RegisterPage />,
+    HydrateFallback: AppShellSkeleton,
+    lazy: async () => ({
+      Component: (await import('#pages/RegisterPage')).RegisterPage,
+    }),
   },
-  { path: '/privacy', element: <PrivacyPage /> },
-  { path: '/terms', element: <TermsPage /> },
+  {
+    path: '/privacy',
+    HydrateFallback: AppShellSkeleton,
+    lazy: async () => ({
+      Component: (await import('#pages/PrivacyPage')).PrivacyPage,
+    }),
+  },
+  {
+    path: '/terms',
+    HydrateFallback: AppShellSkeleton,
+    lazy: async () => ({
+      Component: (await import('#pages/TermsPage')).TermsPage,
+    }),
+  },
 ]);
