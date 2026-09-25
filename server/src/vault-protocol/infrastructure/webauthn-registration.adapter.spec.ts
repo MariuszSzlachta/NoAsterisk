@@ -3,7 +3,7 @@ import { WebauthnRegistrationAdapter } from './webauthn-registration.adapter';
 describe('WebauthnRegistrationAdapter', () => {
   it('creates native registration options from the application port input', async () => {
     const options = await new WebauthnRegistrationAdapter().createOptions({
-      rpName: 'BudgetFlow',
+      rpName: 'NoAsterisk',
       rpId: 'localhost',
       userName: 'owner@example.com',
       userDisplayName: 'Owner',
@@ -14,7 +14,7 @@ describe('WebauthnRegistrationAdapter', () => {
 
     expect(options).toMatchObject({
       challenge: Buffer.from('challenge-1').toString('base64url'),
-      rp: { name: 'BudgetFlow', id: 'localhost' },
+      rp: { name: 'NoAsterisk', id: 'localhost' },
       user: { name: 'owner@example.com', displayName: 'Owner' },
       authenticatorSelection: {
         residentKey: 'preferred',

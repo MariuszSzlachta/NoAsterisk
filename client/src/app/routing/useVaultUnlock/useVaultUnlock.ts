@@ -25,6 +25,7 @@ import { trustedDeviceEnrollment } from '#shared/adapters/vault-protocol/trusted
 import type { VaultBootstrapMetadata } from '#shared/api/vault-protocol/get-vault-bootstrap/types';
 import { vaultBootstrap } from '#shared/api/vault-protocol/vault-bootstrap';
 import { vaultDevices } from '#shared/api/vault-protocol/vault-devices';
+import { productIdentity } from '#shared/config/product-identity/product-identity';
 
 interface VaultUnlockState {
   readonly error: string | undefined;
@@ -234,7 +235,7 @@ export const useVaultUnlock = (
     );
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'budgetflow-recovery-code.txt';
+    anchor.download = productIdentity.recoveryCodeFilename;
     anchor.click();
     URL.revokeObjectURL(url);
   }, [recoverySetupCode]);

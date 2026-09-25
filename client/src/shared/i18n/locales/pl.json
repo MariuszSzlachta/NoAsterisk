@@ -57,7 +57,7 @@
     "nextPage": "Następna strona"
   },
   "app": {
-    "name": "BudgetFlow"
+    "name": "NoAsterisk"
   },
   "nav": {
     "overview": "Overview",
@@ -880,7 +880,7 @@
       "title": "Polityka prywatności",
       "version": "Wersja ALPHA privacy-alpha-1",
       "updated": "Ostatnia aktualizacja: 9 września 2026",
-      "intro": "BudgetFlow jest aplikacją local-first. Ten szkic opisuje rzeczywisty przepływ danych i wymaga uzupełnienia przez administratora danych oraz weryfikacji prawnej przed produkcją.",
+      "intro": "NoAsterisk jest aplikacją local-first. Ten szkic opisuje rzeczywisty przepływ danych i wymaga uzupełnienia przez administratora danych oraz weryfikacji prawnej przed produkcją.",
       "sectionTitles": [
         "Administrator i kontakt",
         "Cele i podstawy",
@@ -900,7 +900,7 @@
       "title": "Regulamin",
       "version": "Wersja ALPHA terms-alpha-1",
       "updated": "Ostatnia aktualizacja: 9 września 2026",
-      "intro": "To szkic regulaminu BudgetFlow. Wymaga uzupełnienia danych podmiotu, ograniczeń odbiorców i jurysdykcji oraz profesjonalnego przeglądu przed publikacją.",
+      "intro": "To szkic regulaminu NoAsterisk. Wymaga uzupełnienia danych podmiotu, ograniczeń odbiorców i jurysdykcji oraz profesjonalnego przeglądu przed publikacją.",
       "sectionTitles": [
         "Usługodawca",
         "Zakres usługi",

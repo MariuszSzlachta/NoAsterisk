@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useRotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation';
 import { encryptedPersistence } from '#shared/adapters/persistence';
+import { productIdentity } from '#shared/config/product-identity/product-identity';
 
 const code = 'local-recovery-fixture';
 describe('useRotationRecoveryConfirmation', () => {
@@ -68,5 +69,26 @@ describe('useRotationRecoveryConfirmation', () => {
     expect(result.current.recoveryCode).toBe(code);
     act(() => result.current.handleCancel());
     await expect(first).resolves.toBe(false);
+  });
+
+  it('downloads a rotated backup using the canonical product filename', () => {
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:recovery');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    const { result } = renderHook(() => useRotationRecoveryConfirmation());
+
+    act(() => {
+      void result.current.confirmRecoveryCode(code);
+    });
+    act(() => result.current.handleDownload());
+
+    expect(click).toHaveBeenCalledOnce();
+    expect(click.mock.instances[0]).toHaveProperty(
+      'download',
+      productIdentity.recoveryFilename,
+    );
+    act(() => result.current.handleCancel());
   });
 });

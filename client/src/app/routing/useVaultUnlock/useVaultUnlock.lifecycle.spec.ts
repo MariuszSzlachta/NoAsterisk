@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { PersistenceSessionSnapshot } from '#shared/adapters/persistence';
 import type { AvailableVaultBootstrapMetadata } from '#shared/api/vault-protocol/get-vault-bootstrap/types';
+import { productIdentity } from '#shared/config/product-identity/product-identity';
 
 import { useVaultUnlock } from './useVaultUnlock';
 
@@ -456,6 +457,10 @@ describe('useVaultUnlock lifecycle', () => {
     act(() => result.current.handleDownloadRecoveryCode());
     expect(createObjectUrl).toHaveBeenCalledOnce();
     expect(click).toHaveBeenCalledOnce();
+    expect(click.mock.instances[0]).toHaveProperty(
+      'download',
+      productIdentity.recoveryCodeFilename,
+    );
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:recovery');
 
     act(() => result.current.handleConfirmInitialSetup());

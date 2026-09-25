@@ -85,6 +85,7 @@ describe('WebauthnCredentialHandler', () => {
     expect(registration.createOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         challenge: 'challenge-1',
+        rpName: 'NoAsterisk',
         rpId: expect.any(String),
       }),
     );

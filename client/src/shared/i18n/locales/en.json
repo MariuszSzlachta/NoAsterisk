@@ -57,7 +57,7 @@
     "nextPage": "Next page"
   },
   "app": {
-    "name": "BudgetFlow"
+    "name": "NoAsterisk"
   },
   "nav": {
     "overview": "Overview",
@@ -871,7 +871,7 @@
       "title": "Privacy Policy",
       "version": "ALPHA version privacy-alpha-1",
       "updated": "Last updated: September 9, 2026",
-      "intro": "BudgetFlow is a local-first application. This draft describes the actual data flow and must be completed by the data controller and legally reviewed before production.",
+      "intro": "NoAsterisk is a local-first application. This draft describes the actual data flow and must be completed by the data controller and legally reviewed before production.",
       "sectionTitles": [
         "Controller and contact",
         "Purposes and legal bases",
@@ -891,7 +891,7 @@
       "title": "Terms of Service",
       "version": "ALPHA version terms-alpha-1",
       "updated": "Last updated: September 9, 2026",
-      "intro": "This is a BudgetFlow terms draft. It requires the entity, audience restrictions, and jurisdiction to be completed and professional review before publication.",
+      "intro": "This is a NoAsterisk terms draft. It requires the entity, audience restrictions, and jurisdiction to be completed and professional review before publication.",
       "sectionTitles": [
         "Provider",
         "Service scope",

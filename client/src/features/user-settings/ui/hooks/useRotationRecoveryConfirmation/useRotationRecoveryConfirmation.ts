@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { recoveryBackupFile } from '#features/user-settings/ui/hooks/useRecoveryBackupForm/constants';
 import type { RotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation/types';
 import { encryptedPersistence } from '#shared/adapters/persistence';
 
@@ -67,7 +68,7 @@ export const useRotationRecoveryConfirmation =
       try {
         const anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = 'budgetflow-recovery.txt';
+        anchor.download = recoveryBackupFile.filename;
         anchor.click();
       } finally {
         URL.revokeObjectURL(url);

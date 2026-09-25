@@ -86,7 +86,7 @@ export class WebauthnCredentialHandler {
     });
     const existing = await this.credentials.listActiveByUserId(user.userId);
     return this.registration.createOptions({
-      rpName: 'BudgetFlow',
+      rpName: 'NoAsterisk',
       rpId: rpId(),
       userName: account.email,
       userDisplayName: account.displayName ?? account.email,
