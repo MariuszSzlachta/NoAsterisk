@@ -1,0 +1,49 @@
+name: Upload safe failure manifest
+description: Upload bounded CI metadata without logs, browser state, or application data.
+
+inputs:
+  job-name:
+    description: Stable job identifier used in the manifest and artifact name.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Write sanitized failure metadata
+      if: always()
+      shell: bash
+      env:
+        FAILURE_JOB: ${{ inputs.job-name }}
+        FAILURE_REPOSITORY: ${{ github.repository }}
+        FAILURE_WORKFLOW: ${{ github.workflow }}
+        FAILURE_RUN_ID: ${{ github.run_id }}
+        FAILURE_RUN_ATTEMPT: ${{ github.run_attempt }}
+        FAILURE_SHA: ${{ github.sha }}
+        FAILURE_REF: ${{ github.ref }}
+        FAILURE_EVENT: ${{ github.event_name }}
+        FAILURE_SERVER_URL: ${{ github.server_url }}
+      run: |
+        set -Eeuo pipefail
+        artifact_directory="${RUNNER_TEMP}/budgetflow-ci-failure"
+        mkdir -p "${artifact_directory}"
+        printf '%s\n' \
+          "job=${FAILURE_JOB}" \
+          "repository=${FAILURE_REPOSITORY}" \
+          "workflow=${FAILURE_WORKFLOW}" \
+          "run_id=${FAILURE_RUN_ID}" \
+          "run_attempt=${FAILURE_RUN_ATTEMPT}" \
+          "commit=${FAILURE_SHA}" \
+          "ref=${FAILURE_REF}" \
+          "event=${FAILURE_EVENT}" \
+          "run_url=${FAILURE_SERVER_URL}/${FAILURE_REPOSITORY}/actions/runs/${FAILURE_RUN_ID}" \
+          > "${artifact_directory}/failure.txt"
+
+    - name: Upload sanitized failure metadata
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: failure-${{ inputs.job-name }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/budgetflow-ci-failure/failure.txt
+        if-no-files-found: error
+        retention-days: 7
+        compression-level: 9

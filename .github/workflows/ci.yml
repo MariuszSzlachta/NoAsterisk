@@ -1,0 +1,177 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  HUSKY: "0"
+  JWT_SECRET: ci-test-secret-with-at-least-32-characters
+  JWT_REFRESH_SECRET: ci-refresh-secret-with-at-least-32-characters
+  VAULT_INFRASTRUCTURE_KEY_BASE64: KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKio=
+
+jobs:
+  quality:
+    name: Build, lint, and unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build all workspaces
+        run: npm run build
+
+      - name: Run non-mutating lint gates
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Preserve safe failure metadata
+        if: failure()
+        uses: ./.github/actions/upload-safe-failure
+        with:
+          job-name: quality
+
+  client-coverage:
+    name: Client coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Enforce client coverage thresholds
+        run: npm run test:coverage --workspace=client
+
+      - name: Preserve safe failure metadata
+        if: failure()
+        uses: ./.github/actions/upload-safe-failure
+        with:
+          job-name: client-coverage
+
+  postgres-integration:
+    name: PostgreSQL integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run isolated PostgreSQL suites
+        run: npm run test:integration
+
+      - name: Preserve safe failure metadata
+        if: failure()
+        uses: ./.github/actions/upload-safe-failure
+        with:
+          job-name: postgres-integration
+
+  browser-e2e:
+    name: Chromium browser E2E
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install pinned Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser scenarios without retries
+        env:
+          E2E_WORKERS: 1
+        run: npm run e2e --workspace=client
+
+      # Browser traces, screenshots, storage state, and raw logs are deliberately
+      # not uploaded because they can contain credentials or vault material.
+      - name: Preserve safe failure metadata
+        if: failure()
+        uses: ./.github/actions/upload-safe-failure
+        with:
+          job-name: browser-e2e
+
+  dependency-policy:
+    name: Dependency policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Reject high or critical production advisories
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Review newly introduced dependencies
+        if: github.event_name == 'pull_request' && github.event.repository.visibility == 'public'
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: high
+
+      - name: Preserve safe failure metadata
+        if: failure()
+        uses: ./.github/actions/upload-safe-failure
+        with:
+          job-name: dependency-policy

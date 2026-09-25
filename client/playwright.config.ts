@@ -5,7 +5,7 @@ export default defineConfig({
   outputDir: './e2e-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0,
   // The local Vite server and the browser crypto fixtures are intentionally
   // serialized by default. CI already used one worker; keeping the same
   // default locally makes the full suite reproducible. Operators may opt in
