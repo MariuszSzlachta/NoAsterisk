@@ -1,16 +1,29 @@
+# Dependencies and generated builds
 node_modules/
+**/node_modules/
 dist/
+**/dist/
+storybook-static/
+**/storybook-static/
+
+# Local configuration and logs
 .env
 *.log
 *.tsbuildinfo
 .idea/
-temp/
+.vscode/
 .DS_Store
 
-# Graphify — local-only files
-graphify-out/cost.json
-graphify-out/cache/*
-client/playwright-report/
+# Local AI/process workspaces
+temp/
+graphify-out/
 
-# Generated test coverage reports
+# Generated test and browser outputs
 coverage/
+**/coverage/
+test-results/
+**/test-results/
+e2e-results/
+**/e2e-results/
+playwright-report/
+**/playwright-report/

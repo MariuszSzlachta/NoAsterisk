@@ -1,0 +1,21 @@
+title = "BudgetFlow secret scanning"
+minVersion = "v8.25.0"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Deterministic public Vault v2 cryptographic test vector"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/security/vault-v2-test-vectors\.json$''']
+regexes = ['''"expectedWrapKeyHex"\s*:''']
+
+[[allowlists]]
+description = "Unmodified NestJS template CircleCI badge URL in early history"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^server/README\.md$''']
+regexes = ['''img\.shields\.io/circleci/build/github/nestjs/nest/master\?token=''']
