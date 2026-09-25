@@ -4,6 +4,7 @@ import { ThemeContext, type Theme } from '#app/providers/ThemeContext';
 
 const STORAGE_KEY = 'budget-theme';
 const DARK_CLASS = 'dark';
+const LIGHT_CLASS = 'light';
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
 const getInitialTheme = (): Theme => {
@@ -26,15 +27,18 @@ export const ThemeProvider = ({
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle(DARK_CLASS, theme === 'dark');
+    root.classList.toggle(LIGHT_CLASS, theme === 'light');
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
-  const setTheme = useCallback((t: Theme): void => {
-    setThemeState(t);
+  const setTheme = useCallback((nextTheme: Theme): void => {
+    setThemeState(nextTheme);
   }, []);
 
   const toggleTheme = useCallback((): void => {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setThemeState((previousTheme) =>
+      previousTheme === 'dark' ? 'light' : 'dark',
+    );
   }, []);
 
   return (
