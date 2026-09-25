@@ -24,7 +24,7 @@ runs:
         FAILURE_SERVER_URL: ${{ github.server_url }}
       run: |
         set -Eeuo pipefail
-        artifact_directory="${RUNNER_TEMP}/budgetflow-ci-failure"
+        artifact_directory="${RUNNER_TEMP}/noasterisk-ci-failure"
         mkdir -p "${artifact_directory}"
         printf '%s\n' \
           "job=${FAILURE_JOB}" \
@@ -43,7 +43,7 @@ runs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: failure-${{ inputs.job-name }}-${{ github.run_attempt }}
-        path: ${{ runner.temp }}/budgetflow-ci-failure/failure.txt
+        path: ${{ runner.temp }}/noasterisk-ci-failure/failure.txt
         if-no-files-found: error
         retention-days: 7
         compression-level: 9

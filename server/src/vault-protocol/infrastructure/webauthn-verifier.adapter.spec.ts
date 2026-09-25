@@ -15,8 +15,8 @@ describe('WebauthnVerifierAdapter', () => {
         userVerified: true,
         credentialDeviceType: 'singleDevice',
         credentialBackedUp: false,
-        origin: 'https://budgetflow.test',
-        rpID: 'budgetflow.test',
+        origin: 'https://noasterisk.test',
+        rpID: 'noasterisk.test',
       },
     });
     const adapter = new WebauthnVerifierAdapter();
@@ -38,8 +38,8 @@ describe('WebauthnVerifierAdapter', () => {
         counter: 3,
       },
       'challenge',
-      'https://budgetflow.test',
-      'budgetflow.test',
+      'https://noasterisk.test',
+      'noasterisk.test',
     );
     expect(result).toEqual({
       credentialId: 'authenticator-credential-id',
@@ -48,8 +48,8 @@ describe('WebauthnVerifierAdapter', () => {
     expect(verifyAuthenticationResponse).toHaveBeenCalledWith(
       expect.objectContaining({
         expectedChallenge: 'challenge',
-        expectedOrigin: 'https://budgetflow.test',
-        expectedRPID: 'budgetflow.test',
+        expectedOrigin: 'https://noasterisk.test',
+        expectedRPID: 'noasterisk.test',
         expectedType: 'webauthn.get',
         requireUserVerification: true,
         credential: expect.objectContaining({
@@ -68,8 +68,8 @@ describe('WebauthnVerifierAdapter', () => {
         userVerified: false,
         credentialDeviceType: 'singleDevice',
         credentialBackedUp: false,
-        origin: 'https://budgetflow.test',
-        rpID: 'budgetflow.test',
+        origin: 'https://noasterisk.test',
+        rpID: 'noasterisk.test',
       },
     });
     const adapter = new WebauthnVerifierAdapter();
@@ -92,8 +92,8 @@ describe('WebauthnVerifierAdapter', () => {
           counter: 0,
         },
         'challenge',
-        'https://budgetflow.test',
-        'budgetflow.test',
+        'https://noasterisk.test',
+        'noasterisk.test',
       ),
     ).rejects.toThrow('rejected');
   });

@@ -11,7 +11,7 @@ const formatKibibytes = (bytes: number): string =>
   `${(bytes / BYTES_PER_KIBIBYTE).toFixed(1)} KiB`;
 
 export const bundleBudgetPlugin = (): Plugin => ({
-  name: 'budgetflow:bundle-budget',
+  name: 'noasterisk:bundle-budget',
   apply: 'build',
   generateBundle: (_, bundle): void => {
     const chunks = Object.values(bundle).filter(

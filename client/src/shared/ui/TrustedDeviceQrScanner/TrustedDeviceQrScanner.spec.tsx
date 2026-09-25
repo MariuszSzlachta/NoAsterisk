@@ -1,18 +1,17 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
 import { TrustedDeviceQrScanner } from './TrustedDeviceQrScanner';
 
 describe('TrustedDeviceQrScanner', () => {
   it('reports unsupported browser capability and renders an accessible video', () => {
     const onError = vi.fn();
     render(
-      <TrustedDeviceQrScanner
-        active
-        onScan={vi.fn()}
-        onError={onError}
-      />,
+      <TrustedDeviceQrScanner active onScan={vi.fn()} onError={onError} />,
     );
-    expect(screen.getByLabelText('Trusted-device QR scanner')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Trusted-device QR scanner'),
+    ).toBeInTheDocument();
     expect(onError).toHaveBeenCalledWith(
       'QR scanning is not supported in this browser',
     );
@@ -50,7 +49,9 @@ describe('TrustedDeviceQrScanner', () => {
     vi.stubGlobal(
       'BarcodeDetector',
       class {
-        detect = vi.fn().mockResolvedValue([{ rawValue: 'budgetflow-qr-payload' }]);
+        detect = vi
+          .fn()
+          .mockResolvedValue([{ rawValue: 'noasterisk-qr-payload' }]);
       },
     );
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
@@ -60,14 +61,12 @@ describe('TrustedDeviceQrScanner', () => {
     vi.stubGlobal('cancelAnimationFrame', vi.fn());
 
     const view = render(
-      <TrustedDeviceQrScanner
-        active
-        onScan={onScan}
-        onError={vi.fn()}
-      />,
+      <TrustedDeviceQrScanner active onScan={onScan} onError={vi.fn()} />,
     );
 
-    await waitFor(() => expect(onScan).toHaveBeenCalledWith('budgetflow-qr-payload'));
+    await waitFor(() =>
+      expect(onScan).toHaveBeenCalledWith('noasterisk-qr-payload'),
+    );
     expect(getUserMedia).toHaveBeenCalledWith({
       video: { facingMode: { ideal: 'environment' } },
       audio: false,
@@ -82,7 +81,11 @@ describe('TrustedDeviceQrScanner', () => {
     const onError = vi.fn();
     Object.defineProperty(navigator, 'mediaDevices', {
       configurable: true,
-      value: { getUserMedia: vi.fn().mockRejectedValue(new Error('private browser detail')) },
+      value: {
+        getUserMedia: vi
+          .fn()
+          .mockRejectedValue(new Error('private browser detail')),
+      },
     });
     vi.stubGlobal(
       'BarcodeDetector',
@@ -92,15 +95,13 @@ describe('TrustedDeviceQrScanner', () => {
     );
 
     render(
-      <TrustedDeviceQrScanner
-        active
-        onScan={vi.fn()}
-        onError={onError}
-      />,
+      <TrustedDeviceQrScanner active onScan={vi.fn()} onError={onError} />,
     );
 
     await waitFor(() =>
-      expect(onError).toHaveBeenCalledWith('Camera permission is required to scan the QR code'),
+      expect(onError).toHaveBeenCalledWith(
+        'Camera permission is required to scan the QR code',
+      ),
     );
     expect(onError).not.toHaveBeenCalledWith('private browser detail');
     vi.unstubAllGlobals();

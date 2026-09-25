@@ -1,4 +1,4 @@
-title = "BudgetFlow secret scanning"
+title = "NoAsterisk secret scanning"
 minVersion = "v8.25.0"
 
 [extend]
