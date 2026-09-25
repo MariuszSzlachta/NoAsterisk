@@ -1,11 +1,16 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import type { Theme } from '#app/providers/ThemeContext';
 import { useTheme } from '#app/providers/useTheme';
 
 import { ThemeProvider } from './ThemeProvider';
 
 const STORAGE_KEY = 'budget-theme';
+const themes: ReadonlyArray<readonly [Theme, Theme]> = [
+  ['dark', 'light'],
+  ['light', 'dark'],
+];
 
 describe('ThemeProvider', () => {
   beforeEach(() => {
@@ -18,10 +23,7 @@ describe('ThemeProvider', () => {
     document.documentElement.classList.remove('dark', 'light');
   });
 
-  it.each([
-    ['dark', 'light'],
-    ['light', 'dark'],
-  ] as const)(
+  it.each(themes)(
     'applies the %s class and removes the mutually exclusive class',
     async (theme, excludedClass) => {
       localStorage.setItem(STORAGE_KEY, theme);
