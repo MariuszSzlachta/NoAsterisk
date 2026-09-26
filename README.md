@@ -1,6 +1,6 @@
 # NoAsterisk
 
-[![CI](https://github.com/MariuszSzlachta/budget/actions/workflows/ci.yml/badge.svg)](https://github.com/MariuszSzlachta/budget/actions/workflows/ci.yml)
+[![CI](https://github.com/MariuszSzlachta/NoAsterisk/actions/workflows/ci.yml/badge.svg)](https://github.com/MariuszSzlachta/NoAsterisk/actions/workflows/ci.yml)
 
 NoAsterisk is a local-first personal and household budgeting application. It
 combines browser-side bank-statement import, reviewable PII masking, encrypted
