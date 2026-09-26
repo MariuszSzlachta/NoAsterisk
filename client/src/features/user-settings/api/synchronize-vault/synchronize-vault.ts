@@ -1,5 +1,4 @@
 import { VAULT_NETWORK_TIMEOUT_MS } from '#features/user-settings/api/constants/vault-network-timeout';
-import { buildVaultRecords } from '#features/user-settings/api/synchronize-vault/build-vault-records';
 import { isRemoteAtHighWater } from '#features/user-settings/api/synchronize-vault/is-remote-at-high-water';
 import { mapCreatedSnapshot } from '#features/user-settings/api/synchronize-vault/map-created-snapshot';
 import type {
@@ -8,6 +7,7 @@ import type {
 } from '#features/user-settings/api/synchronize-vault/types';
 import { verifyRemoteSnapshot } from '#features/user-settings/api/synchronize-vault/verify-remote-snapshot';
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
+import { buildVaultRecords } from '#features/user-settings/model/build-vault-records';
 import { serializeVaultPayload } from '#features/user-settings/model/vault-payload';
 import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
 import {

@@ -268,7 +268,9 @@ export class PostgresDualRootRotationRepository implements DualRootRotationRepos
 
       const consumed = await transaction
         .update(vaultRotationChallenges)
-        .set({ consumedAt: sql`clock_timestamp()` })
+        .set({
+          consumedAt: sql`greatest(clock_timestamp(), ${vaultRotationChallenges.createdAt})`,
+        })
         .where(
           and(
             eq(vaultRotationChallenges.id, pending.id),

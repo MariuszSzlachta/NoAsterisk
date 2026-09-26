@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "protocol": "budgetflow-vault-v2",
+  "vectors": [
+    {
+      "name": "hierarchy-context-v1",
+      "vmkHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "vaultId": "vault-1",
+      "labels": {
+        "local": "budgetflow/local-records/v2",
+        "sync": "budgetflow/sync-snapshot/v2",
+        "check": "budgetflow/key-check/v2"
+      },
+      "expectedDerivedKeyHex": {
+        "local": "982e89e6edf01ff66cfa433527e58c84bdd01ec76a31d620a274b1f2b974624b",
+        "sync": "908f3a12c51edd88030a21aef37705b895773b20110fbbfec87836f027739dbe",
+        "check": "2f317e38796fdda9e8116956f772ce9032ed2aae3c2ddd6faf70c745a539f779"
+      },
+      "assertions": [
+        "all derived AES keys are non-extractable",
+        "local, sync and check are purpose-separated",
+        "passwords, JWTs and refresh tokens are not inputs"
+      ]
+    },
+    {
+      "name": "split-wrap-context-v1",
+      "localShareHex": "101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f",
+      "serverShareHex": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "accountId": "account-1",
+      "workspaceId": "workspace-1",
+      "vaultId": "vault-1",
+      "keyId": "key-1",
+      "deviceId": "device-1",
+      "canonicalInfoDomain": "budgetflow/device-wrap/v1",
+      "expectedWrapKeyHex": "5ff99ae4a4e261a650fd965a2c5fa3b751ab5a484c7eb1299d54aa0e4f6db371",
+      "assertions": [
+        "LocalShare is HKDF CryptoKey with extractable=false",
+        "ServerShare is transient on the client",
+        "deviceId and purpose are authenticated by AAD"
+      ]
+    }
+  ]
+}

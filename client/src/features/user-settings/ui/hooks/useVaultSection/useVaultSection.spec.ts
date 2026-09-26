@@ -120,7 +120,7 @@ vi.mock('#features/user-settings/api/synchronize-vault', () => ({
 }));
 
 vi.mock(
-  '#features/user-settings/api/synchronize-vault/build-vault-records',
+  '#features/user-settings/model/build-vault-records',
   () => ({ buildVaultRecords: mocks.buildVaultRecords }),
 );
 

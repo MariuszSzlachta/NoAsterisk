@@ -1,4 +1,4 @@
-import { buildVaultRecords } from '#features/user-settings/api/synchronize-vault/build-vault-records';
+import { buildVaultRecords } from '#features/user-settings/model/build-vault-records';
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
 import { serializeVaultPayload } from '#features/user-settings/model/vault-payload';
 

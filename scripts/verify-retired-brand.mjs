@@ -5,21 +5,15 @@ const historicalPrefixes = [
   "docs/archive/",
   "docs/history/",
   "docs/plans/completed/",
-  "docs/reviews/",
 ];
 
 const historicalFiles = new Set([
   "docs/hosting-report-2026-09-14.md",
   "docs/status-report-2026-08-21.md",
-  "docs/plans/active/public-repository-readiness/08-repository-hygiene.md",
-  "docs/plans/active/public-repository-readiness/09-dependencies-and-bundle.md",
-  "docs/plans/active/public-repository-readiness/11-public-release-verification.md",
 ]);
 
 const rebrandFiles = new Set([
   "docs/adr/015-noasterisk-product-identity-and-compatibility.md",
-  "docs/plans/active/public-repository-readiness/12-noasterisk-rebrand.md",
-  "docs/plans/active/public-repository-readiness/README.md",
   "client/src/shared/config/product-identity/product-identity.spec.ts",
   "scripts/verify-retired-brand.mjs",
 ]);

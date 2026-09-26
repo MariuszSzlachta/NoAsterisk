@@ -14,7 +14,7 @@ storybook-static/
 .vscode/
 .DS_Store
 
-# Local AI/process workspaces
+# Local workspaces
 temp/
 graphify-out/
 
