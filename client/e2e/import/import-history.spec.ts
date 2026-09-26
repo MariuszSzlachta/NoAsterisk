@@ -44,10 +44,9 @@ test.describe('Local import history', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
     await unlockVault(page);
-    await page.screenshot({
-      path: '/private/tmp/session-04-import-history-mobile-empty.png',
-      fullPage: true,
-    });
+    await expect(
+      page.getByRole('heading', { name: 'Brak importów' }),
+    ).toBeVisible();
   });
 
   test('creates two records for duplicate filenames and deletes one batch', async ({
@@ -93,10 +92,6 @@ test.describe('Local import history', () => {
     await expect(
       page.getByText(/Spowoduje to usunięcie.*wszystkich transakcji/),
     ).toBeVisible();
-    await page.screenshot({
-      path: '/private/tmp/session-04-import-history-desktop-delete-dialog.png',
-      fullPage: true,
-    });
     await page
       .getByRole('dialog')
       .getByRole('button', { name: 'Usuń import', exact: true })
