@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════
-// Transactions Feature — Store: addTransaction Tests
+// Cross-feature transaction model — store tests
 // ═══════════════════════════════════════════════════════════════════
 
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { useRulesStore } from '#model/rule';
-import type { CreateTransactionFormValues } from '#features/transactions/model/create-transaction/types';
+import type { CreateTransactionFormValues } from './types';
 
 import { useTransactionsStore } from './useTransactionsStore';
 

@@ -39,7 +39,14 @@ npm run quality:frontend
 npm run quality:backend
 npm run quality:strict
 npm run test:quality-scripts
+npm run audit:test-colocation
 ```
+
+`audit:test-colocation` parses production TypeScript with the compiler AST. Every
+file containing an arrow-function implementation must have a matching colocated
+`*.spec.ts` or `*.spec.tsx` file. The audit currently also serves as the explicit
+legacy test-debt inventory; the repaired cross-feature client model is enforced as
+a blocking subset by the root lint command.
 
 The backend integration runner creates an isolated PostgreSQL container and
 removes it after the run. Browser tests use Playwright Chromium and must not
@@ -56,6 +63,9 @@ vault material.
   other feature internals, and UI code should use shared adapters and components.
 - Keep TypeScript strict. Do not weaken compiler, lint, test or coverage settings
   to make a change pass.
+- Keep unit tests beside the production file they cover. Match the production
+  basename (`calculate.ts` → `calculate.spec.ts`); qualified variants such as
+  `calculate.integration.spec.ts` are allowed.
 - Add focused tests for behavior changes and regression tests for bug fixes.
 - Treat security and privacy claims as contracts: document guarantees,
   non-guarantees and operational prerequisites precisely.
