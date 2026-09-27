@@ -20,7 +20,7 @@
       "#app/*": ["./src/app/*"],
       "#pages/*": ["./src/pages/*"],
       "#features/*": ["./src/features/*"],
-      "#entities/*": ["./src/entities/*"],
+      "#model/*": ["./src/model/*"],
       "#shared/*": ["./src/shared/*"]
     },
 

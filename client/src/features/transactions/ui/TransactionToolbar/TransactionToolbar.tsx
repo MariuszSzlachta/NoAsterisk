@@ -1,7 +1,7 @@
 import { Plus, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 import { Button } from '#shared/ui/Button';
 import { DateRangePicker } from '#shared/ui/DateRangePicker';
 import { FilterTabs } from '#shared/ui/FilterTabs';

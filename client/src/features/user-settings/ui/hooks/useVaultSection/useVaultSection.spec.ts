@@ -161,7 +161,7 @@ vi.mock(
   () => ({ useRotationRecoveryConfirmation: () => rotationConfirmation }),
 );
 
-vi.mock('#entities/budget', () => ({
+vi.mock('#features/budgets/store', () => ({
   useBudgetsStore: (selector: (state: { budgets: unknown[] }) => unknown) =>
     selector({ budgets: stores.budgets }),
   usePeriodHistoryStore: (
@@ -169,30 +169,30 @@ vi.mock('#entities/budget', () => ({
   ) => selector({ history: stores.periodHistory }),
 }));
 
-vi.mock('#entities/category', () => ({
+vi.mock('#model/category', () => ({
   useCategoriesStore: (
     selector: (state: { categories: unknown[] }) => unknown,
   ) => selector({ categories: stores.categories }),
 }));
 
-vi.mock('#entities/import-batch', () => ({
+vi.mock('#features/csv-import/store/useImportHistoryStore', () => ({
   useImportHistoryStore: (
     selector: (state: { history: unknown[] }) => unknown,
   ) => selector({ history: stores.importHistory }),
 }));
 
-vi.mock('#entities/rule', () => ({
+vi.mock('#model/rule', () => ({
   useRulesStore: (selector: (state: { rules: unknown[] }) => unknown) =>
     selector({ rules: stores.rules }),
 }));
 
-vi.mock('#entities/transaction', () => ({
+vi.mock('#model/transaction', () => ({
   useTransactionsStore: (
     selector: (state: { transactions: unknown[] }) => unknown,
   ) => selector({ transactions: stores.transactions }),
 }));
 
-vi.mock('#entities/vault/lib/vault-operation-queue', () => ({
+vi.mock('#model/vault/lib/vault-operation-queue', () => ({
   vaultOperationQueue: mocks.vaultOperationQueue,
 }));
 

@@ -3,7 +3,7 @@ import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { usePeriodHistoryStore } from '#features/budgets/store/usePeriodHistoryStore';
 import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { useTransactionsStore } from '#features/transactions/store/useTransactionsStore';
-import { useCategoriesStore } from '#entities/category';
+import { useCategoriesStore } from '#model/category';
 
 export const clearHydratedFinancialStores = (): void => {
   useTransactionsStore.setState({ transactions: [] });

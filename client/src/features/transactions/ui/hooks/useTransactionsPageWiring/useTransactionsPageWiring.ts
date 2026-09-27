@@ -1,4 +1,4 @@
-import { STUB_CATEGORIES, type CategoryInfo } from '#entities/category';
+import { STUB_CATEGORIES, type CategoryInfo } from '#model/category';
 
 import { useTransactionSelection } from '../useTransactionSelection';
 

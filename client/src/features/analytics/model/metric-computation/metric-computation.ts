@@ -1,6 +1,6 @@
 import type { Bucket } from '#features/analytics/model/buckets';
 import type { MetricType } from '#features/analytics/model/types';
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 // ─── Metric for a Single Bucket ──────────────────────────────────
 

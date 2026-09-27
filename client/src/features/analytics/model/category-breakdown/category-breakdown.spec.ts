@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 import { computeCategoryBreakdown } from './category-breakdown';
 

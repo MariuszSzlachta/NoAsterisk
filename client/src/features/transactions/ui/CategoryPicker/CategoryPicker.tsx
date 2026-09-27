@@ -8,7 +8,7 @@ import {
 import { Search, Tag } from 'lucide-react';
 
 import { useCategoryPicker } from '#features/transactions/ui/hooks/useCategoryPicker';
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 import { useActionFactory } from '#shared/hooks/useActionFactory';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';

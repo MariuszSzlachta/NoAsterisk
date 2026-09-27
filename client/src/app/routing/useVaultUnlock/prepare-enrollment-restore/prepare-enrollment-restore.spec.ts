@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { prepareEnrollmentRestore } from '#app/routing/useVaultUnlock/prepare-enrollment-restore';
 import { buildRemoteFixture } from '#app/routing/useVaultUnlock/prepare-enrollment-restore/testing/build-remote-fixture';
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,

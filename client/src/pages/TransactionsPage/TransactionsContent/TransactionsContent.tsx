@@ -1,4 +1,4 @@
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 import { Card } from '#shared/ui/Card';
 import {
   TransactionGrid,

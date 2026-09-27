@@ -1,6 +1,6 @@
 import { getCategoryLabel } from '#features/analytics/model/category-resolution';
 import type { CategoryBreakdownFilters, CategoryBreakdownItem } from '#features/analytics/model/types';
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 const UNCATEGORIZED_ID = '__uncategorized__';
 

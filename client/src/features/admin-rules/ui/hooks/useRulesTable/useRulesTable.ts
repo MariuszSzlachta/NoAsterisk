@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { STUB_CATEGORIES } from '#entities/category';
+import { STUB_CATEGORIES } from '#model/category';
 import { mapRuleToViewModel } from '#features/admin-rules/model';
 import type { RuleViewModel } from '#features/admin-rules/model/types';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';

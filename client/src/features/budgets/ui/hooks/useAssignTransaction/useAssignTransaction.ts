@@ -4,7 +4,7 @@ import { parseISO } from 'date-fns';
 // ARCH-EXCEPTION: cross-feature import — budgets needs to assign budgetId on transactions.
 // Transactions feature exports useTransactionsStore via its public API (index.ts).
 // Event-driven decoupling planned in Phase 4.
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 
 import { useBudgetsStore } from '#features/budgets/store/useBudgetsStore';
 import { getPeriodRange } from '#features/budgets/model/get-period-range';

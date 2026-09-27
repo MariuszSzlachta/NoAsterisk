@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 import { isImportedTransaction } from '#features/csv-import/model/persistence/is-imported-transaction';
 import { SHA_256_HEX_LENGTH } from '#shared/adapters/persistence/crypto/constants';
 

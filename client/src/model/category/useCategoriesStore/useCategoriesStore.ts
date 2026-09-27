@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { CategoryInfo } from '#entities/category/types';
+import type { CategoryInfo } from '#model/category/types';
 
 interface CategoriesState {
   readonly categories: ReadonlyArray<CategoryInfo>;

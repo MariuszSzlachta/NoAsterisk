@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('#entities/category', () => ({
+vi.mock('#model/category', () => ({
   STUB_CATEGORIES: [
     { id: 'cat-groceries', label: 'Spożywcze', color: '#4ade80' },
     { id: 'cat-transport', label: 'Transport', color: '#f59e0b' },

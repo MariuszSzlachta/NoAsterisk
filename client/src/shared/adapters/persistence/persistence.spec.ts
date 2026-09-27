@@ -8,7 +8,7 @@ import { isPeriodHistoryRecord as isPeriodHistoryEntityRecord } from '#features/
 import { isImportHistoryRecord } from '#features/csv-import/model/history/is-import-history-record';
 import { isStoredTransaction as isStoredEntityTransaction } from '#features/transactions/model/is-stored-transaction';
 import type { StoredTransaction } from '#features/transactions/model/types';
-import { isCategoryInfo as isCategoryEntityInfo } from '#entities/category/is-category-info';
+import { isCategoryInfo as isCategoryInfoRecord } from '#model/category/is-category-info';
 import {
   composeRecordAad,
   CRYPTO_VERSION,
@@ -311,7 +311,7 @@ describe('encrypted IndexedDB foundation', () => {
       'categories',
       persistenceTestData.createCategory(),
       persistenceTestData.createCategory({ label: 'Groceries', color: '#000' }),
-      isCategoryEntityInfo,
+      isCategoryInfoRecord,
     );
     await roundtrip(
       'budgets',
@@ -1109,7 +1109,7 @@ describe('encrypted IndexedDB foundation', () => {
     ).toEqual([transaction]);
     expect(
       await persistence
-        .repository('categories', isCategoryEntityInfo, (record) => record.id)
+        .repository('categories', isCategoryInfoRecord, (record) => record.id)
         .getAll(),
     ).toEqual([category]);
   });

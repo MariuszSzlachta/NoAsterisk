@@ -2,7 +2,7 @@ import { VAULT_NETWORK_TIMEOUT_MS } from '#features/user-settings/api/constants/
 import { parseVaultPayload } from '#features/user-settings/model/parse-vault-payload';
 import { captureVaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope';
 import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
-import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
+import { vaultOperationQueue } from '#model/vault/lib/vault-operation-queue';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,

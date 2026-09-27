@@ -4,8 +4,8 @@ import {
 } from '#features/dashboard-widgets/model/category-label';
 import { formatAmount } from '#features/dashboard-widgets/model/transformers';
 import type { RecentTransactionDto } from '#features/dashboard-widgets/model/types';
-import { useCategoriesStore } from '#entities/category';
-import { useTransactionsStore } from '#entities/transaction';
+import { useCategoriesStore } from '#model/category';
+import { useTransactionsStore } from '#model/transaction';
 import type { QueryState } from '#shared/api';
 
 export type { RecentTransactionDto };

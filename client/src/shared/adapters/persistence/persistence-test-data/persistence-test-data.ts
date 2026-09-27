@@ -2,7 +2,7 @@ import type { RuleRecord } from '#features/admin-rules/model/rule-record';
 import type { PeriodHistoryRecord } from '#features/budgets/model/types/period-history-record';
 import type { StandardBudgetRecord } from '#features/budgets/model/types/standard-budget-record';
 import type { StoredTransaction } from '#features/transactions/model/types';
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 import type { ImportProfileRecord } from '#shared/adapters/persistence/ports';
 
 const createTransaction = (

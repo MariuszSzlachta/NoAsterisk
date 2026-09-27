@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { useCategoriesStore } from '#entities/category';
-import { useTransactionsStore } from '#entities/transaction';
+import { useCategoriesStore } from '#model/category';
+import { useTransactionsStore } from '#model/transaction';
 
 import { useCategoryBreakdownQuery } from './useCategoryBreakdownQuery';
 

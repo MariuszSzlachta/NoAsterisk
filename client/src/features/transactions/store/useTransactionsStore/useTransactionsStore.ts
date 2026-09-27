@@ -1,1 +1,1 @@
-export { useTransactionsStore } from '#entities/transaction/useTransactionsStore';
+export { useTransactionsStore } from '#model/transaction/useTransactionsStore';

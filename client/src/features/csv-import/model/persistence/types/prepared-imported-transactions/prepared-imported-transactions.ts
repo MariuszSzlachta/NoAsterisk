@@ -1,4 +1,4 @@
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 import type { ImportRejection } from '#features/csv-import/model/persistence/types/import-rejection';
 
 export interface PreparedImportedTransactions {

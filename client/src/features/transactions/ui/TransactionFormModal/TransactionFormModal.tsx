@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 import { TRANSACTION_TYPE_OPTIONS } from '#features/transactions/ui/constants/transactionTypeOptions';
 import { useTransactionForm } from '#features/transactions/ui/hooks/useTransactionForm';
 import { useTransactionTypeActions } from '#features/transactions/ui/hooks/useTransactionTypeActions';
-import { CATEGORY_SELECT_OPTIONS } from '#entities/category';
+import { CATEGORY_SELECT_OPTIONS } from '#model/category';
 import { useLayeredOverlayDismiss } from '#shared/hooks';
 import { Button } from '#shared/ui/Button';
 import { DatePicker } from '#shared/ui/DatePicker';

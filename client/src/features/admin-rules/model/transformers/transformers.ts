@@ -1,4 +1,4 @@
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 
 import type { RuleRecord } from '#features/admin-rules/model/rule-record';
 import type { RuleViewModel } from '#features/admin-rules/model/rule-view-model';

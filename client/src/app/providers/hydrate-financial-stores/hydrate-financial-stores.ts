@@ -17,8 +17,8 @@ import {
   STUB_CATEGORIES,
   useCategoriesStore,
   type CategoryInfo,
-} from '#entities/category';
-import { isCategoryInfo } from '#entities/category/is-category-info';
+} from '#model/category';
+import { isCategoryInfo } from '#model/category/is-category-info';
 import {
   IMPORT_HISTORY_COLLECTION,
   TRANSACTIONS_COLLECTION,

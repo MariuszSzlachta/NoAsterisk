@@ -1,5 +1,5 @@
-import { useCategoriesStore } from '#entities/category';
-import { useTransactionsStore } from '#entities/transaction';
+import { useCategoriesStore } from '#model/category';
+import { useTransactionsStore } from '#model/transaction';
 import type { ChartDataPoint } from '#shared/adapters/charts';
 import type { QueryState } from '#shared/api';
 

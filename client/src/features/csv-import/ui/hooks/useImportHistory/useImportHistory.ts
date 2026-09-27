@@ -5,7 +5,7 @@ import { deleteImportHistoryBatch } from '#features/csv-import/model/persistence
 import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
 import { IMPORT_HISTORY_DELETE_FAILED } from '#features/csv-import/ui/hooks/useImportHistory/constants/delete-failed';
 import type { UseImportHistoryResult } from '#features/csv-import/ui/hooks/useImportHistory/types';
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 
 export const useImportHistory = (): UseImportHistoryResult => {
   const history = useImportHistoryStore((state) => state.history);

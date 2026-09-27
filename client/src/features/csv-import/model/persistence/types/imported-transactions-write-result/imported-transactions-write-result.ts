@@ -1,4 +1,4 @@
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 export interface ImportedTransactionsWriteResult {
   readonly written: ReadonlyArray<StoredTransaction>;

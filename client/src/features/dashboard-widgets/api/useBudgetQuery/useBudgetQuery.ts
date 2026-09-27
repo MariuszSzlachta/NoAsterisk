@@ -1,6 +1,6 @@
-import { useBudgetsStore } from '#entities/budget';
+import { useBudgetsStore } from '#features/budgets/store';
 import type { BudgetDto } from '#features/dashboard-widgets/model/types';
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 import type { QueryState } from '#shared/api';
 
 export type { BudgetDto };

@@ -61,20 +61,20 @@ vi.mock('#shared/adapters/vault-protocol/device-signing-key', () => ({
   },
 }));
 vi.mock('#shared/api', () => ({ ApiError: class ApiError extends Error {} }));
-vi.mock('#entities/transaction', () => ({
+vi.mock('#model/transaction', () => ({
   useTransactionsStore: { getState: () => ({ transactions: [] }) },
 }));
-vi.mock('#entities/rule', () => ({
+vi.mock('#model/rule', () => ({
   useRulesStore: { getState: () => ({ rules: [] }) },
 }));
-vi.mock('#entities/category', () => ({
+vi.mock('#model/category', () => ({
   useCategoriesStore: { getState: () => ({ categories: [] }) },
 }));
-vi.mock('#entities/budget', () => ({
+vi.mock('#features/budgets/store', () => ({
   useBudgetsStore: { getState: () => ({ budgets: [] }) },
   usePeriodHistoryStore: { getState: () => ({ history: [] }) },
 }));
-vi.mock('#entities/import-batch', () => ({
+vi.mock('#features/csv-import/store/useImportHistoryStore', () => ({
   useImportHistoryStore: { getState: () => ({ history: [] }) },
 }));
 

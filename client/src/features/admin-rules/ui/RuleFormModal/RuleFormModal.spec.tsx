@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('#entities/category', () => ({
+vi.mock('#model/category', () => ({
   CATEGORY_SELECT_OPTIONS: [
     { value: 'cat-groceries', label: 'Groceries' },
     { value: 'cat-transport', label: 'Transport' },

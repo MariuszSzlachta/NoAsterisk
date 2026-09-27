@@ -26,11 +26,11 @@ import { restoreRemoteVault } from '#features/user-settings/ui/hooks/restore-rem
 import { restoreVaultFile } from '#features/user-settings/ui/hooks/restore-vault-file';
 import { useRotationRecoveryConfirmation } from '#features/user-settings/ui/hooks/useRotationRecoveryConfirmation';
 import type { UseVaultSectionResult } from '#features/user-settings/ui/hooks/useVaultSection/use-vault-section-result';
-import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
-import { useCategoriesStore } from '#entities/category';
-import { useImportHistoryStore } from '#entities/import-batch';
-import { useRulesStore } from '#entities/rule';
-import { useTransactionsStore } from '#entities/transaction';
+import { useBudgetsStore, usePeriodHistoryStore } from '#features/budgets/store';
+import { useCategoriesStore } from '#model/category';
+import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
+import { useRulesStore } from '#model/rule';
+import { useTransactionsStore } from '#model/transaction';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,

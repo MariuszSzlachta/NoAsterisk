@@ -1,6 +1,6 @@
-import { autoCategorize } from '#entities/rule/auto-categorize';
-import type { RuleRecord } from '#entities/rule/types';
-import type { StoredTransaction } from '#entities/transaction/types';
+import { autoCategorize } from '#model/rule/auto-categorize';
+import type { RuleRecord } from '#model/rule/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 /** Applies rules only to records without an imported category. */
 export const categorizeImportedTransactions = (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { CategoryInfo } from '#entities/category';
+import type { CategoryInfo } from '#model/category';
 
 import {
   createCategoryLabelMap,

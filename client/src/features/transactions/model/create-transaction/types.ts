@@ -4,7 +4,7 @@
 
 // ─── Form Values ─────────────────────────────────────────────────
 
-export type { CreateTransactionFormValues } from '#entities/transaction';
+export type { CreateTransactionFormValues } from '#model/transaction';
 
 // ─── Validation Errors ───────────────────────────────────────────
 

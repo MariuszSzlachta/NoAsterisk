@@ -6,7 +6,7 @@ import { createSignedTrustedRequest } from '#app/routing/useVaultUnlock/create-s
 import { enrollVmk } from '#app/routing/useVaultUnlock/enroll-vmk';
 import { hydrateUnlockedVault } from '#app/routing/useVaultUnlock/hydrate-unlocked-vault';
 import { buildRemoteFixture } from '#app/routing/useVaultUnlock/prepare-enrollment-restore/testing/build-remote-fixture';
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,

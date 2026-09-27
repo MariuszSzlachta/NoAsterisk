@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { isMatcherType } from '#features/admin-rules/model';
 import type { RuleRecord } from '#features/admin-rules/model/types';
 import { useRuleForm } from '#features/admin-rules/ui/hooks/useRuleForm';
-import { CATEGORY_SELECT_OPTIONS } from '#entities/category';
+import { CATEGORY_SELECT_OPTIONS } from '#model/category';
 import { Button } from '#shared/ui/Button';
 import { Input } from '#shared/ui/Input';
 import { Modal } from '#shared/ui/Modal';

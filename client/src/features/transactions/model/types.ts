@@ -3,10 +3,10 @@
 // ═══════════════════════════════════════════════════════════════════
 
 // ─── Stored Transaction (persistence shape) ──────────────────────
-export type { StoredTransaction } from '#entities/transaction';
+export type { StoredTransaction } from '#model/transaction';
 
 // ─── Category Lookup ─────────────────────────────────────────────
-// CategoryInfo now lives in #entities/category
+// Shared category records live in the cross-feature client model.
 
 // ─── Transaction ViewModel (UI-ready) ────────────────────────────
 

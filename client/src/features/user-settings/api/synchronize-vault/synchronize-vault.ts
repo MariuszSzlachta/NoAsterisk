@@ -9,7 +9,7 @@ import { verifyRemoteSnapshot } from '#features/user-settings/api/synchronize-va
 import { createValidatedVaultPayload } from '#features/user-settings/model/create-validated-vault-payload';
 import { buildVaultRecords } from '#features/user-settings/model/build-vault-records';
 import { serializeVaultPayload } from '#features/user-settings/model/vault-payload';
-import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
+import { vaultOperationQueue } from '#model/vault/lib/vault-operation-queue';
 import {
   encryptedPersistence,
   persistenceSyncMetadata,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { autoCategorize, useRulesStore } from '#entities/rule';
+import { autoCategorize, useRulesStore } from '#model/rule';
 import { persistInBackground } from '#shared/adapters/persistence/persist-in-background';
 import { TRANSACTIONS_COLLECTION } from '#shared/adapters/persistence/ports';
 import { encryptedPersistence } from '#shared/adapters/persistence/session';

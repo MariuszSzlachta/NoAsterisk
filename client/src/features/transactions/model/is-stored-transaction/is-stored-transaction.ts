@@ -1,6 +1,6 @@
-import { isStoredTransaction as isEntityStoredTransaction } from '#entities/transaction';
-import type { StoredTransaction } from '#entities/transaction';
+import { isStoredTransaction as isModelStoredTransaction } from '#model/transaction';
+import type { StoredTransaction } from '#model/transaction';
 
 export const isStoredTransaction = (
   value: unknown,
-): value is StoredTransaction => isEntityStoredTransaction(value);
+): value is StoredTransaction => isModelStoredTransaction(value);

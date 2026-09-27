@@ -7,7 +7,7 @@ import type {
   AnalyticsKpiValueTone,
   MetricType,
 } from '#features/analytics/model/types';
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 const MS_PER_DAY = 86_400_000;
 

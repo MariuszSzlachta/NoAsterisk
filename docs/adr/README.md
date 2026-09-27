@@ -40,6 +40,7 @@ Code change size does not determine ADR necessity. A one-line change may warrant
 | [ADR-013](./013-independent-recovery-authority-and-enrollment-transcripts.md) | Accepted; implementation in progress         | Independent recovery authority and one-use delegated enrollment transcripts   |
 | [ADR-014](./014-vault-rotation-transcript.md)                                 | Proposed; implementation in progress         | Canonical dual-root vault rotation transcript                                 |
 | [ADR-015](./015-noasterisk-product-identity-and-compatibility.md)             | Accepted                                     | NoAsterisk product identity and compatibility boundary                        |
+| [ADR-016](./016-client-application-model-boundary.md)                        | Accepted                                     | Client application-model boundary; no frontend `entities/` layer              |
 
 Identifiers and original statuses are preserved. ADR-011 is the current accepted
 MVP boundary; ADR-003 remains the historical migration rationale and should not be

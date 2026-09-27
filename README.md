@@ -51,7 +51,8 @@ describes guarantees, non-guarantees and remaining release blockers.
 
 ```text
 browser
-  React + Feature-Sliced Design
+  React + feature-oriented slices
+  cross-feature application model (records, shared state and policies)
   CSV parsing and PII review
   domain operations and analytics
   encrypted IndexedDB persistence

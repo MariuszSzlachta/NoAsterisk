@@ -8,7 +8,7 @@ export type {
   TransactionType,
   TransactionViewModel,
 } from './types';
-export type { CategoryInfo } from '#entities/category';
+export type { CategoryInfo } from '#model/category';
 
 export {
   computeStats,

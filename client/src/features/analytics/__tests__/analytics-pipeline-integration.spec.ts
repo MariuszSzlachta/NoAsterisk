@@ -6,7 +6,7 @@ import { computeCategoryDrilldown } from '#features/analytics/model/category-dri
 import { getDateRange, getDateRangeAsDate } from '#features/analytics/model/date-range';
 import { computeKpi, METRIC_LABEL_KEYS } from '#features/analytics/model/kpi-computation';
 import { computeMetricForBucket } from '#features/analytics/model/metric-computation';
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { StoredTransaction } from '#model/transaction/types';
 
 // ─── Builder ─────────────────────────────────────────────────────
 

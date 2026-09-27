@@ -5,7 +5,7 @@ import {
   restoreVaultPayload,
 } from '#features/user-settings';
 import { VAULT_NETWORK_TIMEOUT_MS } from '#features/user-settings/api/constants/vault-network-timeout';
-import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
+import { vaultOperationQueue } from '#model/vault/lib/vault-operation-queue';
 import { persistenceSyncMetadata } from '#shared/adapters/persistence';
 import { VaultV2Database } from '#shared/adapters/persistence/dexie';
 import { assertSnapshotBinding } from '#shared/adapters/vault-protocol/assert-snapshot-binding';

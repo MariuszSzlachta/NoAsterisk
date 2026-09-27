@@ -1,1 +1,1 @@
-export { useRulesStore } from '#entities/rule/useRulesStore';
+export { useRulesStore } from '#model/rule/useRulesStore';

@@ -2,7 +2,7 @@ import { parseVaultPayload } from '#features/user-settings/model/parse-vault-pay
 import { MAX_PLAINTEXT_VAULT_LENGTH } from '#features/user-settings/model/vault-limits';
 import type { VaultRestoreScope } from '#features/user-settings/ui/hooks/capture-vault-restore-scope/types';
 import { restoreVaultPayload } from '#features/user-settings/ui/hooks/restore-vault-payload';
-import { vaultOperationQueue } from '#entities/vault/lib/vault-operation-queue';
+import { vaultOperationQueue } from '#model/vault/lib/vault-operation-queue';
 
 export const restoreVaultFile = async (
   file: File,

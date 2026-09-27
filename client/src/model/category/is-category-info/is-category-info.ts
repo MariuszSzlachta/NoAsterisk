@@ -1,4 +1,4 @@
-import type { CategoryInfo } from '#entities/category/types';
+import type { CategoryInfo } from '#model/category/types';
 import { recordGuards } from '#shared/lib/record-guards';
 import { isRecord } from '#shared/lib/is-record';
 

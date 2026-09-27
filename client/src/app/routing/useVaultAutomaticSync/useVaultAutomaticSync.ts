@@ -1,10 +1,10 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
-import { useBudgetsStore, usePeriodHistoryStore } from '#entities/budget';
-import { useCategoriesStore } from '#entities/category';
-import { useImportHistoryStore } from '#entities/import-batch';
-import { useRulesStore } from '#entities/rule';
-import { useTransactionsStore } from '#entities/transaction';
+import { useBudgetsStore, usePeriodHistoryStore } from '#features/budgets/store';
+import { useCategoriesStore } from '#model/category';
+import { useImportHistoryStore } from '#features/csv-import/store/useImportHistoryStore';
+import { useRulesStore } from '#model/rule';
+import { useTransactionsStore } from '#model/transaction';
 import { persistenceSyncMetadata } from '#shared/adapters/persistence';
 import { synchronizeVault } from '#features/user-settings/api/synchronize-vault';
 

@@ -4,7 +4,7 @@ import { autoCategorize } from '#features/admin-rules/model';
 import type { ApplyResult } from '#features/admin-rules/model/apply-rules';
 import { buildApplyResult, countUncategorized, groupByCategoryId } from '#features/admin-rules/model/apply-rules';
 import { useRulesStore } from '#features/admin-rules/store/useRulesStore';
-import { useTransactionsStore } from '#entities/transaction';
+import { useTransactionsStore } from '#model/transaction';
 
 interface UseApplyRulesResult {
   readonly handleApplyRules: () => void;

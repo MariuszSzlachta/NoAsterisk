@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { RuleRecord } from '#entities/rule';
-import type { StoredTransaction } from '#entities/transaction/types';
+import type { RuleRecord } from '#model/rule';
+import type { StoredTransaction } from '#model/transaction/types';
 import { categorizeImportedTransactions } from '#features/csv-import/model/persistence/categorize-imported-transactions';
 
 const transaction: StoredTransaction = {
